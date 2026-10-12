@@ -1,0 +1,24 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v1/children/[^/]+/engagement"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "streak": {
+        "current_days": 3,
+        "longest_days": 5,
+        "last_active_date": "2026-10-11"
+      },
+      "daily_goal": {
+        "target_chapters": 1,
+        "done_chapters": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "ui": {
+    "devToolbar": {
+      "badge": "Demo data",
+      "explain": "What you see is simulated. Pick a case to see how the app reacts.",
+      "scenario": "Case to simulate",
+      "options": {
+        "none": "None",
+        "network-error": "Connection lost",
+        "unauthorized": "Session expired",
+        "rate-limited": "Too many requests",
+        "server-error": "Server error",
+        "daily-limit": "Daily limit reached",
+        "narration-fallback": "Fallback story",
+        "narration-slow": "Slow story"
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "priority": 5,
+  "scenarioName": "chapter",
+  "requiredScenarioState": "A2t",
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/sessions/33333333-3333-4333-8333-333333333333/beats/44444444-4444-4444-8444-444444444442/narration",
+    "queryParameters": {
+      "phase": {
+        "equalTo": "denouement"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache"
+    },
+    "body": "event: denouement\ndata: {\"delta\":\"{{#if (contains request.headers.[Accept-Language].[0] 'en')}}The \"}\n\nevent: denouement\ndata: {\"delta\":\"rook stops one square \"}\n\nevent: denouement\ndata: {\"delta\":\"short. A little bridge \"}\n\nevent: denouement\ndata: {\"delta\":\"rises to show you \"}\n\nevent: denouement\ndata: {\"delta\":\"another path. Let us \"}\n\nevent: denouement\ndata: {\"delta\":\"try it together.{{else}}La tour \"}\n\nevent: denouement\ndata: {\"delta\":\"s’arrête une case trop \"}\n\nevent: denouement\ndata: {\"delta\":\"tôt. Un petit pont \"}\n\nevent: denouement\ndata: {\"delta\":\"se lève pour te \"}\n\nevent: denouement\ndata: {\"delta\":\"montrer un autre chemin. \"}\n\nevent: denouement\ndata: {\"delta\":\"Essayons-le ensemble.{{/if}}\"}\n\nevent: done\ndata: {}\n\n",
+    "transformers": [
+      "response-template"
+    ],
+    "chunkedDribbleDelay": {
+      "numberOfChunks": 8,
+      "totalDuration": 1400
+    }
+  }
+}

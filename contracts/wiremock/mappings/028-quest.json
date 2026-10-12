@@ -1,0 +1,20 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v1/children/[^/]+/quests/daily"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "available": true,
+      "completed": false,
+      "skill_ids": [
+        "ARI-OPE-A06a"
+      ]
+    }
+  }
+}

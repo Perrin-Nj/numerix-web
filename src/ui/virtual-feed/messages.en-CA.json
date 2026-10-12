@@ -1,0 +1,14 @@
+{
+  "ui": {
+    "virtualFeed": {
+      "loading": "Loading",
+      "loadingMore": "Loading more",
+      "emptyTitle": "Nothing here yet",
+      "emptyHint": "Come back after your next story.",
+      "errorTitle": "That did not load",
+      "errorHint": "Check your connection, then try again.",
+      "retry": "Try again",
+      "end": "You have seen it all."
+    }
+  }
+}

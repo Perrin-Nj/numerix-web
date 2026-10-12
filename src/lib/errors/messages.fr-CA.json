@@ -1,0 +1,82 @@
+{
+  "errors": {
+    "network": {
+      "title": "Pas de connexion",
+      "description": "Vérifie ton réseau, puis réessaie.",
+      "retry": "Réessayer"
+    },
+    "unauthorized": {
+      "title": "Ta session est terminée",
+      "description": "Connecte-toi de nouveau pour continuer.",
+      "action": "Se connecter"
+    },
+    "forbidden": {
+      "title": "Accès refusé",
+      "description": "Cet écran est réservé à un adulte."
+    },
+    "consent_missing": {
+      "title": "Un adulte doit d'abord dire oui",
+      "description": "Demande à un parent d'accepter dans l'espace parent."
+    },
+    "daily_limit_reached": {
+      "title": "C'est assez pour aujourd'hui",
+      "description": "À demain pour la suite de l'histoire."
+    },
+    "session_active": {
+      "title": "Un chapitre est déjà en cours",
+      "description": "Reprends-le ou recommence un nouveau chapitre."
+    },
+    "session_paused": {
+      "title": "Le chapitre est en pause",
+      "description": "Reprends-le pour continuer l'histoire."
+    },
+    "session_completed": {
+      "title": "Ce chapitre est terminé",
+      "description": "Retourne à ton chemin pour choisir la suite."
+    },
+    "beat_answered": {
+      "title": "Cette question a déjà reçu une réponse",
+      "description": "On recharge ton histoire."
+    },
+    "invalid_pin": {
+      "title": "Ce code ne correspond pas",
+      "description": "Essaie encore."
+    },
+    "not_found": {
+      "title": "Introuvable",
+      "description": "Cet élément n'existe plus. Retourne à l'accueil."
+    },
+    "validation_failed": {
+      "title": "Vérifie les informations",
+      "description": "Certains champs ne sont pas valides."
+    },
+    "rate_limited": {
+      "title": "Doucement",
+      "description": "Attends un instant, puis réessaie."
+    },
+    "internal_error": {
+      "title": "Un problème est survenu de notre côté",
+      "description": "Réessaie dans un moment. Si ça continue, préviens-nous.",
+      "retry": "Réessayer"
+    },
+    "unknown": {
+      "title": "Quelque chose s'est mal passé",
+      "description": "Réessaie. Si ça continue, préviens-nous.",
+      "retry": "Réessayer"
+    },
+    "sound": {
+      "title": "Le son n'a pas pu démarrer",
+      "description": "Le jeu continue sans son. Vérifie le volume de l'appareil."
+    },
+    "narrationFailed": {
+      "title": "L'histoire n'a pas pu se charger",
+      "description": "Touche Réessayer pour la relancer.",
+      "retry": "Réessayer"
+    },
+    "offline": {
+      "title": "Tu es hors ligne",
+      "description": "Tu peux regarder ton chemin et tes cartes. Pour jouer, reconnecte-toi."
+    },
+    "back": "Retour"
+  }
+}

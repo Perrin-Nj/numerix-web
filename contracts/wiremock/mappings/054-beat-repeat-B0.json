@@ -1,0 +1,39 @@
+{
+  "priority": 5,
+  "scenarioName": "chapter",
+  "requiredScenarioState": "B0",
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/sessions/33333333-3333-4333-8333-333333333333/beats"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "44444444-4444-4444-8444-444444444440",
+      "session_id": "33333333-3333-4333-8333-333333333333",
+      "index": 0,
+      "skill_id": "ARI-OPE-A06a",
+      "question": {
+        "math_text": "7 × 8 = ?",
+        "choices": [
+          54,
+          56,
+          48,
+          63
+        ]
+      },
+      "scene": {
+        "status": "pending",
+        "text": null,
+        "illustration_url": null
+      },
+      "created_at": "2026-10-12T14:00:00Z"
+    },
+    "transformers": [
+      "response-template"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v1/children/[^/]+/reviews.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "skill_id": "ARI-OPE-A05",
+          "label": "Le terme manquant",
+          "due_at": "2026-10-12T18:00:00Z"
+        }
+      ]
+    }
+  }
+}

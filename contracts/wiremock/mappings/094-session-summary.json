@@ -1,0 +1,65 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/sessions/33333333-3333-4333-8333-333333333333/summary"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "session": {
+        "id": "33333333-3333-4333-8333-333333333333",
+        "child_id": "11111111-1111-4111-8111-111111111111",
+        "world": "echecs",
+        "kind": "chapter",
+        "status": "completed",
+        "chapter_length": 3,
+        "beats_answered": 3,
+        "current_beat": null,
+        "story_title": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}The tower tournament{{else}}Le tournoi des tours{{/if}}",
+        "started_at": "2026-10-12T14:00:00Z",
+        "ended_at": "2026-10-12T14:00:00Z"
+      },
+      "duration_seconds": 540,
+      "story_recap": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}Zoé crossed the giant chessboard and helped the king split his pawns.{{else}}Zoé a traversé le grand échiquier et aidé le roi à répartir ses pions.{{/if}}",
+      "skills": [
+        {
+          "skill_id": "ARI-OPE-A06a",
+          "label": "Les tables",
+          "reason": "nouvelle",
+          "attempts": 1,
+          "correct": 1
+        },
+        {
+          "skill_id": "ARI-SOP-A03a",
+          "label": "Partager et grouper",
+          "reason": "consolidation",
+          "attempts": 1,
+          "correct": 0
+        },
+        {
+          "skill_id": "ARI-OPE-A07a",
+          "label": "Division avec reste",
+          "reason": "revision",
+          "attempts": 1,
+          "correct": 1
+        }
+      ],
+      "stuck_points": [
+        {
+          "code": "reste_ignore",
+          "description": "Ignore le reste dans une division",
+          "skill_ids": [
+            "ARI-OPE-A07a"
+          ]
+        }
+      ]
+    },
+    "transformers": [
+      "response-template"
+    ]
+  }
+}

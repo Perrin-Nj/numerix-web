@@ -486,3 +486,13 @@ Still needed from the owner:
 4. Preview protection: whether playtest families may open previews without a Vercel login (spec 22.5).
 
 Start of work: P0-1 (repository, done), P0-2 (scaffold).
+
+---
+
+## 12. Status after the first implementation pass (2026-10-12)
+
+Stack changes from section 2, all recorded in `adr/` and `PHASE_LOG.md`: Next.js 16.4 (proxy.ts instead of middleware, Cache Components off), Storybook 10, Tailwind 4, WireMock instead of MSW, `vercel.ts` instead of a generated `vercel.json`, a hand-written service worker instead of Serwist, CSS-only animation (Motion not needed so far), Montreal region `yul1` confirmed.
+
+Built and verified by running the app: parent register, login, child profiles, consent, settings, recap, weekly report, account; child profile picker with PIN, home feed, worlds, journey, the three-beat story chapter with streaming narration and all three outcomes, rewards, chapter complete, collection, daily quest, my growth; failure scenarios; PWA install and offline page; French and English; deployed to `https://numerix-web-blush.vercel.app`.
+
+Still open: hosted WireMock for the deployed site, real art and mascot, TV and kiosk visual pass on real devices, the P6 full-app audit (screen reader pass, device matrix), CI run on GitHub, and the real backend (P7).

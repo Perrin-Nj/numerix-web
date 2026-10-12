@@ -234,7 +234,8 @@ paths:
       tags: [Parent]
       operationId: getChildSettings
       summary: Get a child's play settings
-      x-roles: [parent]
+      x-roles: [parent, child]
+      description: The child token may read (never change) sound and read-aloud so play follows the parent's choices.
       responses:
         '200':
           description: Settings
@@ -673,6 +674,23 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Engagement' }
 
+  /children/{childId}/home:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Engagement]
+      operationId: getHome
+      summary: Everything the child home feed needs in one request
+      x-roles: [child]
+      description: One aggregate to avoid request waterfalls on the landing screen.
+      responses:
+        '200':
+          description: Home feed data
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Home' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /children/{childId}/collection:
     parameters:
       - $ref: '#/components/parameters/ChildId'
@@ -920,6 +938,8 @@ components:
         has_pin: { type: boolean }
         consent_given: { type: boolean }
         favorite_world: { oneOf: [{ $ref: '#/components/schemas/WorldId' }, { type: 'null' }] }
+        timezone: { type: string, example: America/Toronto, description: IANA zone; day boundary for streak and daily goal }
+        onboarding_completed: { type: boolean }
         created_at: { type: string, format: date-time }
     ChildCreate:
       type: object
@@ -929,6 +949,7 @@ components:
         birth_year: { type: integer }
         grade: { type: integer, minimum: 1, maximum: 4 }
         avatar_id: { type: string }
+        timezone: { type: string }
         pin: { type: string, pattern: '^[0-9]{4}$' }
     ChildUpdate:
       type: object
@@ -936,6 +957,7 @@ components:
         display_name: { type: string, maxLength: 30 }
         grade: { type: integer, minimum: 1, maximum: 4 }
         avatar_id: { type: string }
+        onboarding_completed: { type: boolean }
         pin: { type: [string, 'null'], pattern: '^[0-9]{4}$' }
     ChildToken:
       type: object
@@ -965,8 +987,9 @@ components:
         id: { $ref: '#/components/schemas/WorldId' }
         name: { type: string, example: Échecs }
         tagline: { type: string }
-        image_url: { type: string, format: uri }
+        image_url: { type: string, description: Empty until real art exists; the app then shows its placeholder art }
         accent_color: { type: string, pattern: '^#[0-9a-fA-F]{6}$' }
+        hook: { type: string, description: One short teaser line shown on the home feed }
         skill_count: { type: integer }
     Skill:
       type: object
@@ -1034,7 +1057,7 @@ components:
         world: { $ref: '#/components/schemas/WorldId' }
         kind:
           type: string
-          enum: [chapter, daily_quest]
+          enum: [chapter, daily_quest, onboarding]
         skill_id:
           description: Optional. Replay a specific node from the journey.
           oneOf: [{ $ref: '#/components/schemas/SkillId' }, { type: 'null' }]
@@ -1045,7 +1068,7 @@ components:
         id: { type: string, format: uuid }
         child_id: { type: string, format: uuid }
         world: { $ref: '#/components/schemas/WorldId' }
-        kind: { type: string, enum: [chapter, daily_quest] }
+        kind: { type: string, enum: [chapter, daily_quest, onboarding] }
         status: { $ref: '#/components/schemas/SessionStatus' }
         chapter_length:
           type: integer
@@ -1249,9 +1272,32 @@ components:
         id: { type: string, format: uuid }
         world: { $ref: '#/components/schemas/WorldId' }
         title: { type: string }
-        image_url: { type: string, format: uri }
+        image_url: { type: string, description: Empty until real art exists; the app then shows its placeholder art }
         session_id: { type: string, format: uuid }
         earned_at: { type: string, format: date-time }
+    Home:
+      type: object
+      required: [suggested, quest, worlds, recent_cards, engagement, growth]
+      properties:
+        suggested:
+          type: object
+          required: [world, label]
+          description: The big "continue" card. `open_session` is set when a chapter is already in progress.
+          properties:
+            world: { $ref: '#/components/schemas/WorldId' }
+            skill_id: { $ref: '#/components/schemas/SkillId' }
+            label: { type: string }
+            open_session:
+              oneOf: [{ $ref: '#/components/schemas/Session' }, { type: 'null' }]
+        quest: { $ref: '#/components/schemas/DailyQuest' }
+        worlds:
+          type: array
+          items: { $ref: '#/components/schemas/World' }
+        recent_cards:
+          type: array
+          items: { $ref: '#/components/schemas/StoryCard' }
+        engagement: { $ref: '#/components/schemas/Engagement' }
+        growth: { $ref: '#/components/schemas/Growth' }
     DailyQuest:
       type: object
       required: [available, completed]
