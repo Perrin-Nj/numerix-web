@@ -61,7 +61,25 @@ function keepMockState(out: NextResponse, upstream: Response) {
   return out;
 }
 
+/** CSRF defence on top of SameSite=Lax: a browser request that changes data must come from this app's own origin. */
+function crossOrigin(req: NextRequest): boolean {
+  if (req.method === 'GET' || req.method === 'HEAD') return false;
+  const origin = req.headers.get('origin');
+  const host = req.headers.get('host');
+  if (origin && host) {
+    try {
+      if (new URL(origin).host !== host) return true;
+    } catch {
+      return true;
+    }
+  }
+  return req.headers.get('sec-fetch-site') === 'cross-site';
+}
+
 async function handle(req: NextRequest, ctx: Ctx) {
+  if (crossOrigin(req)) {
+    return NextResponse.json({ type: 'about:blank', title: 'Forbidden origin', status: 403, code: 'forbidden' }, { status: 403, headers: { 'content-type': 'application/problem+json' } });
+  }
   const { path } = await ctx.params;
   const joined = path.join('/');
   const base = serverEnv().API_URL.replace(/\/$/, '');

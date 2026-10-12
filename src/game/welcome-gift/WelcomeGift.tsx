@@ -12,12 +12,12 @@ import { StoryCard } from '@/game/story-card';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 
-export type WelcomeGiftProps = { open: boolean; card: CardView; onClaim: () => void };
+export type WelcomeGiftProps = { open: boolean; card: CardView; onClaim: () => void; onLater?: () => void };
 
 /** Full-screen first-card gift. Cannot be dismissed by mistake: the only way out is the claim button. */
-export function WelcomeGift({ open, card, onClaim }: WelcomeGiftProps) {
+export function WelcomeGift({ open, card, onClaim, onLater }: WelcomeGiftProps) {
   // Remounting on open resets the gift to closed with a fresh welcome line.
-  return open ? <Gift card={card} onClaim={onClaim} /> : null;
+  return open ? <Gift card={card} onClaim={onClaim} onLater={onLater} /> : null;
 }
 
 /** The box stays on screen the whole time; on open the lid flies off and the rays burst. */
@@ -42,7 +42,7 @@ function Box({ opened, reduced }: { opened: boolean; reduced: boolean }) {
   );
 }
 
-function Gift({ card, onClaim }: Omit<WelcomeGiftProps, 'open'>) {
+function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
   const t = useTranslations('game.welcomeGift');
   const { play } = useSound();
   const pick = usePickLine();
@@ -130,6 +130,12 @@ function Gift({ card, onClaim }: Omit<WelcomeGiftProps, 'open'>) {
               </button>
             )}
           </div>
+
+          {!opened && onLater && (
+            <Button variant="ghost" onClick={onLater}>
+              {t('later')}
+            </Button>
+          )}
 
           {ready && (
             <Button className="nx-gift-fade" size="xl" sound={null} iconLeft={<Icon name="check" size={24} />} onClick={claim}>

@@ -276,6 +276,20 @@ await check('state survives a reload (cards still there)', async () => {
   await page.getByText(/cadeau de bienvenue/i).first().waitFor({ timeout: 8000 });
 });
 
+await check('parent presses Play on a child: that child plays at once, no second picker', async () => {
+  await page.goto(`${BASE}/parent`, { waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: new RegExp(`jouer avec ${childName}`, 'i') }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.waitFor(T);
+  for (const d of ['4', '3', '2', '1']) await dialog.getByRole('button', { name: new RegExp(`^${d}$`) }).first().click();
+  await page.waitForURL('**/play/home', T);
+  if (await page.getByText(/qui joue aujourd/i).count()) throw new Error('picker shown after choosing a child');
+});
+await check('cross-site writes to the API are refused', async () => {
+  const res = await page.request.post(`${BASE}/api/v1/auth/login`, { headers: { origin: 'https://evil.example', 'content-type': 'application/json' }, data: { email: 'a@b.c', password: 'x' } });
+  if (res.status() !== 403) throw new Error(`status ${res.status()}`);
+});
+
 console.log(errors.length ? `console errors: ${[...new Set(errors)].join(' | ')}` : 'console errors: none');
 console.log(fails ? `${fails} FAILED` : 'all ui checks pass');
 await browser.close();

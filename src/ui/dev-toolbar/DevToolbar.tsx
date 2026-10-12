@@ -28,9 +28,9 @@ export function DevToolbar({ scenario, onScenarioChange, placement = 'bottom' }:
   const t = useTranslations('ui.devToolbar');
   return (
     <details
-      className={`fixed start-2 z-40 max-w-xs rounded-md border-2 border-line bg-elevated text-xs text-fg opacity-90 shadow-2 ${placement === 'above-nav' ? 'bottom-24' : 'bottom-2'}`}
+      className={`fixed start-2 z-40 max-w-xs rounded-md border-2 border-line bg-elevated text-sm text-fg opacity-90 shadow-2 ${placement === 'above-nav' ? 'bottom-24' : 'bottom-2'}`}
     >
-      <summary className="cursor-pointer select-none px-2 py-1 font-display font-semibold">{t('badge')}</summary>
+      <summary className="min-h-11 cursor-pointer select-none px-3 py-2.5 font-display font-semibold">{t('badge')}</summary>
       <div className="flex flex-col gap-2 p-3">
         <p className="text-muted">{t('explain')}</p>
         <Select

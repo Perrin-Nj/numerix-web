@@ -50,7 +50,7 @@ export function SubscriptionBadge({ status, daysLeft, date, size = 'md', variant
       )}
     >
       <Icon name={look.icon} size={size === 'sm' ? 16 : 20} className={look.color} />
-      <span>{label}</span>
+      <span className={variant === 'menu' ? 'sr-only min-[520px]:not-sr-only' : undefined}>{label}</span>
     </span>
   );
 }

@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useChildren } from '@/features/api/hooks';
 import { ParentPage } from './ParentPage';
+import { PlayAsButton } from './PlayAsButton';
 import { SubscriptionPill } from '@/features/common/SubscriptionPill';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { Avatar } from '@/ui/avatar';
@@ -71,9 +72,7 @@ export function ParentHome() {
                   <CardFooter>
                     <div className="flex flex-wrap gap-2">
                       {c.consent_given ? (
-                        <Button onClick={() => router.push('/play')} iconLeft={<Icon name="play" />}>
-                          {t('play')}
-                        </Button>
+                        <PlayAsButton child={c} />
                       ) : (
                         <Button onClick={() => router.push(`/parent/children/${c.id}/consent`)}>{t('giveConsent')}</Button>
                       )}

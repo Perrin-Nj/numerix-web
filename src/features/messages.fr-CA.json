@@ -230,7 +230,8 @@
         "parentArea": "Espace parent",
         "signOut": "Se déconnecter",
         "pinTitle": "Code de {name}",
-        "pinLabel": "Code à 4 chiffres"
+        "pinLabel": "Code à 4 chiffres",
+        "playNow": "Jouer avec {name}"
       },
       "home": {
         "title": "Accueil",

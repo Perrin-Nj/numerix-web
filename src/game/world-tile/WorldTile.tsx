@@ -28,7 +28,7 @@ function WorldTileBase({ world, selected = false, onSelect, size = 'md' }: World
         'lift group relative flex flex-col items-center justify-end overflow-hidden rounded-lg border-4 text-white shadow-2',
         WORLD_BG[world.id],
         selected ? 'border-fg' : 'border-transparent',
-        size === 'lg' ? 'aspect-square w-48' : 'aspect-square w-32',
+        size === 'lg' ? 'aspect-square w-full max-w-48' : 'aspect-square w-full max-w-32',
       )}
     >
       <span aria-hidden className="absolute inset-0 transition-transform duration-[var(--dur-3)] ease-[var(--ease-spring)] group-hover:scale-110 group-focus-visible:scale-110">

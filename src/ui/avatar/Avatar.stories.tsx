@@ -18,7 +18,7 @@ export const Large: Story = { args: { size: 'lg' } };
 export const UnknownIdFallsBackToInitial: Story = {
   args: { avatarId: 'dragon', name: 'Noé' },
 };
-export const AllAnimals: Story = {
+export const AllPeople: Story = {
   render: () => (
     <div className="flex flex-wrap gap-3">
       {IDS.map((id) => (
@@ -27,3 +27,9 @@ export const AllAnimals: Story = {
     </div>
   ),
 };
+export const Dark: Story = { globals: { theme: 'dark' } };
+export const HighContrast: Story = { globals: { theme: 'hc' } };
+export const ReducedMotion: Story = { globals: { motion: 'reduced' } };
+export const TVScale: Story = { globals: { display: 'tv' } };
+export const French: Story = { globals: { locale: 'fr-CA' } };
+export const English: Story = { globals: { locale: 'en-CA' } };

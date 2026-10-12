@@ -19,7 +19,7 @@ export function SubscriptionPill({ variant = 'menu', href = '/parent/subscriptio
     />
   );
   return href ? (
-    <Link href={href} className="lift rounded-full">
+    <Link href={href} className="lift inline-flex min-h-11 min-w-11 items-center justify-center rounded-full">
       {badge}
     </Link>
   ) : (

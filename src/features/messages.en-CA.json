@@ -230,7 +230,8 @@
         "parentArea": "Parent area",
         "signOut": "Sign out",
         "pinTitle": "{name}'s code",
-        "pinLabel": "4-digit code"
+        "pinLabel": "4-digit code",
+        "playNow": "Play as {name}"
       },
       "home": {
         "title": "Home",

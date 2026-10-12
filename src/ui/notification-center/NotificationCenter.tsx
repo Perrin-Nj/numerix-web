@@ -79,7 +79,7 @@ const Toast = memo(function Toast({ item }: { item: StoredNotification }) {
           </Button>
         )}
       </div>
-      <IconButton size="sm" label={t('dismiss')} icon={<Icon name="x" />} onClick={() => remove(item.id)} />
+      <IconButton label={t('dismiss')} icon={<Icon name="x" />} onClick={() => remove(item.id)} />
     </li>
   );
 });

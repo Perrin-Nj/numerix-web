@@ -37,7 +37,7 @@ export function NotificationCenterBell({ reminders, enabled = true, className }:
         {n.unread > 0 && (
           <span
             aria-hidden
-            className="pointer-events-none absolute right-1 top-1 flex min-w-5 items-center justify-center rounded-full bg-danger px-1 text-xs font-bold text-brand-fg"
+            className="pointer-events-none absolute right-1 top-1 flex min-w-5 items-center justify-center rounded-full bg-danger px-1 text-sm font-bold text-brand-fg"
           >
             {n.unread > 9 ? '9+' : n.unread}
           </span>
@@ -71,10 +71,10 @@ export function NotificationCenterBell({ reminders, enabled = true, className }:
               >
                 <span className="flex items-center justify-between gap-2">
                   <span className="font-display font-semibold">{item.title}</span>
-                  {!item.read && <span className="rounded-full bg-brand px-2 text-xs font-bold text-brand-fg">{t('new')}</span>}
+                  {!item.read && <span className="rounded-full bg-brand px-2 text-sm font-bold text-brand-fg">{t('new')}</span>}
                 </span>
                 <span className="text-muted">{item.body}</span>
-                <time dateTime={item.created_at} className="text-xs text-muted">
+                <time dateTime={item.created_at} className="text-sm text-muted">
                   {format.relativeTime(new Date(item.created_at), new Date())}
                 </time>
               </button>
