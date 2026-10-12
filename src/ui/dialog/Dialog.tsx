@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Dialog as D } from 'radix-ui';
 import { cn } from '@/lib/cn';
+import { useOpenCloseSound } from '@/lib/audio';
 import { Icon } from '@/ui/icon';
 import { IconButton } from '@/ui/icon-button';
 
@@ -28,6 +29,7 @@ export function Dialog({
   dismissible = true,
 }: DialogProps) {
   const t = useTranslations('ui.dialog');
+  useOpenCloseSound(open);
   const block = (e: Event) => {
     if (!dismissible) e.preventDefault();
   };
@@ -50,7 +52,7 @@ export function Dialog({
             </D.Title>
             {dismissible && (
               <D.Close asChild>
-                <IconButton size="sm" tooltip={false} label={t('close')} icon={<Icon name="x" />} />
+                <IconButton size="sm" tooltip={false} sound={null} label={t('close')} icon={<Icon name="x" />} />
               </D.Close>
             )}
           </div>

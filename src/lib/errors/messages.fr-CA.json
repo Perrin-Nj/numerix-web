@@ -1,10 +1,5 @@
 {
   "errors": {
-    "network": {
-      "title": "Pas de connexion",
-      "description": "Vérifie ton réseau, puis réessaie.",
-      "retry": "Réessayer"
-    },
     "unauthorized": {
       "title": "Ta session est terminée",
       "description": "Connecte-toi de nouveau pour continuer.",
@@ -77,6 +72,27 @@
       "title": "Tu es hors ligne",
       "description": "Tu peux regarder ton chemin et tes cartes. Pour jouer, reconnecte-toi."
     },
-    "back": "Retour"
+    "back": "Retour",
+    "device_offline": {
+      "title": "Ton appareil est hors ligne",
+      "description": "Vérifie ton Wi-Fi ou tes données mobiles, puis réessaie. Le problème vient de ta connexion."
+    },
+    "server_unreachable": {
+      "title": "On n'arrive pas à joindre Numerix",
+      "description": "Ton appareil se dit en ligne, mais Numerix ne répond pas. Si d'autres sites fonctionnent, le problème vient de notre côté. Sinon, vérifie ta connexion."
+    },
+    "backend_unreachable": {
+      "title": "Le problème vient de nous",
+      "description": "Nos serveurs ne répondent pas pour le moment. Ce n'est pas ta connexion. Réessaie dans un instant."
+    },
+    "backend_timeout": {
+      "title": "Nos serveurs sont trop lents",
+      "description": "Ce n'est pas ta connexion. Réessaie dans un instant."
+    },
+    "request_failed": {
+      "title": "La demande n'a pas abouti",
+      "description": "Ta connexion et nos serveurs répondent, mais cette demande a échoué. Réessaie."
+    },
+    "retry": "Réessayer"
   }
 }

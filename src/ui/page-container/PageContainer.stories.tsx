@@ -45,4 +45,7 @@ export const WithoutMascot: Story = {
     ),
   },
 };
-export const TvScale: Story = { args: { width: 'wide' }, globals: { display: 'tv' } };
+export const TvScale: Story = {
+  args: { width: 'wide' },
+  globals: { display: 'tv' },
+};

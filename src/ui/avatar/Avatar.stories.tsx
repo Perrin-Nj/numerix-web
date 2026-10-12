@@ -15,7 +15,9 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 export const Small: Story = { args: { size: 'sm' } };
 export const Large: Story = { args: { size: 'lg' } };
-export const UnknownIdFallsBackToInitial: Story = { args: { avatarId: 'dragon', name: 'Noé' } };
+export const UnknownIdFallsBackToInitial: Story = {
+  args: { avatarId: 'dragon', name: 'Noé' },
+};
 export const AllAnimals: Story = {
   render: () => (
     <div className="flex flex-wrap gap-3">

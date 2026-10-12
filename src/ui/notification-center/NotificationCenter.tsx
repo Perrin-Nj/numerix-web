@@ -31,6 +31,7 @@ export function useNotify() {
   const remove = useNotificationStore((s) => s.remove);
   const notify = useCallback(
     (n: Notification) => {
+      if (n.kind === 'success' || n.kind === 'info') play('confirm');
       if (n.kind === 'warning') play('notice_warning');
       if (n.kind === 'error') play('notice_error');
       return add(n);

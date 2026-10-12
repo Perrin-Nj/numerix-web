@@ -19,6 +19,13 @@ const meta = {
   title: 'game/WorldTile',
   component: WorldTile,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: 'Sound: `select`. Emoji scales on hover and focus.',
+      },
+    },
+  }, // sounds-note
   args: { world: world(0), onSelect: fn() },
 } satisfies Meta<typeof WorldTile>;
 export default meta;

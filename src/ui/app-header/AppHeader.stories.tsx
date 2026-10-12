@@ -37,9 +37,15 @@ export const WithBackAndSettings: Story = {
     right: <IconButton label="Réglages" icon={<Icon name="settings" />} />,
   },
 };
-export const WithMascot: Story = { args: { left: <Mascot size="sm" pose="greet" config={on} /> } };
-export const WithoutMascot: Story = { args: { left: <Mascot size="sm" pose="greet" config={off} /> } };
+export const WithMascot: Story = {
+  args: { left: <Mascot size="sm" pose="greet" config={on} /> },
+};
+export const WithoutMascot: Story = {
+  args: { left: <Mascot size="sm" pose="greet" config={off} /> },
+};
 export const LongTitle: Story = {
-  args: { title: 'Un titre vraiment très long qui doit se couper proprement sur un petit écran de téléphone' },
+  args: {
+    title: 'Un titre vraiment très long qui doit se couper proprement sur un petit écran de téléphone',
+  },
 };
 export const TvScale: Story = { globals: { display: 'tv' } };

@@ -25,7 +25,7 @@ export function JourneyScreen({ world }: { world: string }) {
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-4">
       <div className="mb-4 flex items-center gap-3">
-        <IconButton label={t('back')} variant="ghost" icon={<Icon name="chevron-left" />} onClick={() => router.push('/play/worlds')} />
+        <IconButton label={t('back')} variant="ghost" sound="back" icon={<Icon name="chevron-left" />} onClick={() => router.push('/play/worlds')} />
         <h1 className="font-display text-3xl font-bold">{tw(w)}</h1>
       </div>
       {!valid && <p className="text-muted">{t('unknownWorld')}</p>}

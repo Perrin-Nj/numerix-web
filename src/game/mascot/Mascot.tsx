@@ -3,7 +3,7 @@ import { useEffect, type ReactNode } from 'react';
 import { appConfig, type MascotKind } from '@/config/app';
 import { cn } from '@/lib/cn';
 
-export type MascotPose = 'greet' | 'cheer' | 'think' | 'rest';
+export type MascotPose = 'greet' | 'cheer' | 'think' | 'rest' | 'curious' | 'amazed';
 export type MascotSize = 'sm' | 'md' | 'lg';
 export type MascotConfig = { enabled: boolean; kind: MascotKind; emoji: string; src: string };
 
@@ -16,9 +16,11 @@ const SIZE: Record<MascotSize, string> = { sm: 'text-4xl', md: 'text-6xl', lg: '
 // Pose only changes the animation class, so a later art set maps one to one.
 const POSE: Record<MascotPose, string> = {
   greet: 'nx-pop',
-  cheer: 'nx-pulse',
+  cheer: 'nx-wiggle',
   think: '-rotate-6',
   rest: 'opacity-80',
+  curious: 'rotate-6',
+  amazed: 'nx-heart',
 };
 
 export function emojiAdapter(emoji: string): MascotAdapter {
@@ -47,8 +49,8 @@ export function Mascot({ pose = 'greet', size = 'md', speaking, config, classNam
   }, [cfg.enabled, cfg.kind]);
   if (!cfg.enabled) return null;
   return (
-    <span aria-hidden className={cn('inline-flex shrink-0', speaking && 'nx-pulse', className)}>
-      {emojiAdapter(cfg.emoji).render(pose, size)}
+    <span aria-hidden className={cn('inline-flex shrink-0', pose !== 'rest' && 'nx-float', className)}>
+      <span className={cn('inline-flex', speaking && 'nx-pulse')}>{emojiAdapter(cfg.emoji).render(pose, size)}</span>
     </span>
   );
 }

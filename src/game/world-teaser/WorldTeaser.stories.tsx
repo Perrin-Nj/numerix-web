@@ -6,6 +6,13 @@ const meta = {
   title: 'game/WorldTeaser',
   component: WorldTeaser,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: 'Sound: `select`. Emoji scales on hover and focus.',
+      },
+    },
+  }, // sounds-note
   args: {
     onOpen: fn(),
     world: {
@@ -14,11 +21,17 @@ const meta = {
       tagline: 'Voyage parmi les étoiles',
       image_url: 'https://example.com/espace.png',
       accent_color: '#5b5bd6',
-      hook: 'Une fusée a perdu ses boutons. Peux-tu l\'aider ?',
+      hook: "Une fusée a perdu ses boutons. Peux-tu l'aider ?",
       skill_count: 14,
     },
   },
-  decorators: [(Story) => <div className="max-w-xl"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-xl">
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof WorldTeaser>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -31,7 +44,14 @@ export const Default: Story = {
 };
 export const WithoutHook: Story = {
   args: {
-    world: { id: 'cuisine', name: 'Cuisine', tagline: '', image_url: 'https://example.com/c.png', accent_color: '#f07e2b', skill_count: 9 },
+    world: {
+      id: 'cuisine',
+      name: 'Cuisine',
+      tagline: '',
+      image_url: 'https://example.com/c.png',
+      accent_color: '#f07e2b',
+      skill_count: 9,
+    },
   },
 };
 export const TVScale: Story = { globals: { display: 'tv' } };

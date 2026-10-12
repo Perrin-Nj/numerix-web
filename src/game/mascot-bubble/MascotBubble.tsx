@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react';
+'use client';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { appConfig } from '@/config/app';
 import { Mascot, type MascotConfig, type MascotPose, type MascotSize } from '@/game/mascot';
 import { cn } from '@/lib/cn';
+import { useSound } from '@/lib/audio';
 
 export type MascotBubbleProps = {
   pose?: MascotPose;
@@ -17,6 +19,12 @@ const TEXT: Record<MascotSize, string> = { sm: 'text-base', md: 'text-lg', lg: '
 /** Speech bubble. With the mascot disabled it is just the bubble, no empty slot. */
 export function MascotBubble({ pose = 'greet', size = 'md', children, config, className }: MascotBubbleProps) {
   const cfg = config ?? appConfig.mascot;
+  const { play } = useSound();
+  const last = useRef<MascotPose | null>(null);
+  useEffect(() => {
+    if (pose === 'think' && last.current !== 'think') play('question');
+    last.current = pose;
+  }, [pose, play]);
   return (
     <div className={cn('flex items-end gap-3', className)}>
       <Mascot pose={pose} size={size} config={cfg} speaking />

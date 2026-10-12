@@ -1,10 +1,5 @@
 {
   "errors": {
-    "network": {
-      "title": "No connection",
-      "description": "Check your network, then try again.",
-      "retry": "Try again"
-    },
     "unauthorized": {
       "title": "Your session ended",
       "description": "Log in again to continue.",
@@ -77,6 +72,27 @@
       "title": "You are offline",
       "description": "You can look at your path and your cards. To play, reconnect."
     },
-    "back": "Back"
+    "back": "Back",
+    "device_offline": {
+      "title": "Your device is offline",
+      "description": "Check your Wi-Fi or mobile data, then try again. The problem is your connection."
+    },
+    "server_unreachable": {
+      "title": "We cannot reach Numerix",
+      "description": "Your device says it is online, but Numerix does not answer. If other sites work, the problem is on our side. If not, check your connection."
+    },
+    "backend_unreachable": {
+      "title": "This one is on us",
+      "description": "Our servers are not answering right now. It is not your connection. Try again in a moment."
+    },
+    "backend_timeout": {
+      "title": "Our servers are too slow",
+      "description": "It is not your connection. Try again in a moment."
+    },
+    "request_failed": {
+      "title": "The request did not go through",
+      "description": "Your connection and our servers both answer, but this request failed. Try again."
+    },
+    "retry": "Try again"
   }
 }

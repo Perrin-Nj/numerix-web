@@ -15,14 +15,17 @@
     "prebuild": "pnpm gen:messages",
     "prestorybook": "pnpm gen:messages",
     "typecheck": "tsc --noEmit",
-    "mock": "docker compose -f contracts/wiremock/docker-compose.yml up",
+    "mock": "node mock/dev.mjs",
     "check:stories": "node scripts/check-stories.mjs",
     "check:copy": "node scripts/check-copy.mjs",
     "check:sounds": "node scripts/check-sounds.mjs",
     "vercel:env": "node scripts/vercel-env.mjs",
     "check": "pnpm check:stories && pnpm check:copy && pnpm check:sounds && pnpm typecheck && pnpm lint",
     "smoke": "node scripts/smoke.mjs",
-    "smoke:errors": "node scripts/smoke-errors.mjs"
+    "smoke:errors": "node scripts/smoke-errors.mjs",
+    "mock:wiremock": "docker compose -f contracts/wiremock/docker-compose.yml up",
+    "flows": "node scripts/flows.mjs",
+    "mock:selftest": "node mock/scripts/selftest.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

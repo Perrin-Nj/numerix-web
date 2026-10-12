@@ -16,14 +16,14 @@ function WorldTeaserBase({ world, onOpen }: WorldTeaserProps) {
     <button
       type="button"
       onClick={() => {
-        play('tap');
+        play('select');
         onOpen(world);
       }}
-      className="lift flex w-full items-center gap-4 rounded-lg border-2 border-line bg-elevated p-3 text-start text-fg shadow-1"
+      className="lift lift-tilt group flex w-full items-center gap-4 rounded-lg border-2 border-line bg-elevated p-3 text-start text-fg shadow-1"
     >
       <span
         aria-hidden
-        className={cn('flex size-20 shrink-0 items-center justify-center rounded-md text-5xl', WORLD_BG[world.id])}
+        className={cn('flex size-20 shrink-0 items-center justify-center rounded-md text-5xl transition-transform duration-[var(--dur-3)] ease-[var(--ease-spring)] group-hover:scale-110 group-focus-visible:scale-110', WORLD_BG[world.id])}
       >
         {WORLD_EMOJI[world.id]}
       </span>

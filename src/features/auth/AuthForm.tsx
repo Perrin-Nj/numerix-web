@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ApiError } from '@/lib/api/client';
+import { ApiError, isConnectionProblem } from '@/lib/api/client';
 import { useLogin, useRegister } from '@/features/api/hooks';
 import { PARENT_EMAIL_KEY } from '@/features/common/ParentGate';
 import { Button } from '@/ui/button';
@@ -19,6 +19,7 @@ type Mode = 'login' | 'register';
 
 export function AuthForm({ mode }: { mode: Mode }) {
   const t = useTranslations('screens.auth');
+  const te = useTranslations('errors');
   const locale = useLocale() as 'fr-CA' | 'en-CA';
   const router = useRouter();
   const login = useLogin();
@@ -52,7 +53,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
     } catch (e) {
       if (e instanceof ApiError && e.status === 409) setFormError(t('errors.emailTaken'));
       else if (e instanceof ApiError && (e.code === 'unauthorized' || e.status === 401)) setFormError(t('errors.wrongCredentials'));
-      else if (e instanceof ApiError && e.code === 'network') setFormError(t('errors.network'));
+      else if (e instanceof ApiError && isConnectionProblem(e.code)) setFormError(`${te(`${e.code}.title`)}. ${te(`${e.code}.description`)}`);
       else setFormError(t('errors.generic'));
     }
   }

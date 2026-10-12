@@ -15,6 +15,13 @@ const meta = {
   title: 'game/JourneyNode',
   component: JourneyNode,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: 'Sounds: `select` on an open node, `close` when a locked node is pressed. Mastered nodes sparkle.',
+      },
+    },
+  }, // sounds-note
   args: { node: node('available'), onSelect: fn() },
 } satisfies Meta<typeof JourneyNode>;
 export default meta;

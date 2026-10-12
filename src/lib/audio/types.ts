@@ -8,6 +8,21 @@ export const SOUND_NAMES = [
   'streak_up',
   'notice_warning',
   'notice_error',
+  'open',
+  'close',
+  'toggle',
+  'select',
+  'switch',
+  'scroll',
+  'pluck',
+  'drop',
+  'back',
+  'confirm',
+  'question',
+  'glass',
+  'tick',
+  'minimize',
+  'maximize',
 ] as const;
 export type SoundName = (typeof SOUND_NAMES)[number];
 

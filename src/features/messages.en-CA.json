@@ -215,6 +215,7 @@
         "label": "Main navigation",
         "home": "Home",
         "worlds": "Worlds",
+        "discover": "Discover",
         "cards": "Cards",
         "me": "Me"
       },
@@ -243,6 +244,16 @@
           "worldsTitle": "Your worlds",
           "worlds": "Pick the world you love: nature, space, cooking and more."
         }
+      },
+      "feed": {
+        "title": "Discover",
+        "label": "Discovery feed",
+        "hint": "Scroll to discover",
+        "loadingMore": "More surprises on the way",
+        "empty": "Nothing to discover right now.",
+        "error": "The feed could not load.",
+        "moreError": "Could not load more.",
+        "retry": "Try again"
       },
       "worlds": {
         "title": "Pick your world"
@@ -280,6 +291,12 @@
         "noVoice": {
           "title": "No voice to read aloud",
           "description": "This device has no voice in this language. The story stays written on screen."
+        },
+        "mascot": {
+          "think": "Hmm, what would you pick?",
+          "cheer": "Nice one!",
+          "curious": "Ooh, an interesting detour!",
+          "amazed": "Wow, nobody saw that coming!"
         }
       }
     },

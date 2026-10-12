@@ -29,7 +29,11 @@ export type ErrorCode =
   | 'validation_failed'
   | 'rate_limited'
   | 'internal_error'
-  | 'network'
+  | 'device_offline'
+  | 'server_unreachable'
+  | 'backend_unreachable'
+  | 'backend_timeout'
+  | 'request_failed'
   | 'unknown';
 
 export class ApiError extends Error {
@@ -42,6 +46,35 @@ export class ApiError extends Error {
     this.status = status;
     this.code = code;
     this.detail = detail;
+  }
+}
+
+/** Problems with reaching the service at all, as opposed to the service answering with an error. */
+export const CONNECTION_CODES: ErrorCode[] = ['device_offline', 'server_unreachable', 'backend_unreachable', 'backend_timeout', 'request_failed'];
+export const isConnectionProblem = (code: string) => (CONNECTION_CODES as string[]).includes(code);
+/** Connection problems the user can fix on their side. Everything else in the list is on our side. */
+export const isOnTheUsersSide = (code: string) => code === 'device_offline';
+
+/**
+ * A request failed before any answer came back. Find out why instead of guessing:
+ * 1. the device says it is offline            -> device_offline (the user's connection)
+ * 2. our own app does not answer              -> server_unreachable (cannot tell which side; the message says so)
+ * 3. our app answers but its backend does not -> backend_unreachable (on us)
+ * 4. everything answers                       -> request_failed (transient)
+ */
+export async function classifyConnectionFailure(): Promise<ApiError> {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return new ApiError(0, 'device_offline', 'Device offline');
+  }
+  try {
+    const res = await fetch('/api/health', { cache: 'no-store', signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return new ApiError(res.status, 'server_unreachable', 'App unreachable');
+    const health = (await res.json()) as { backend?: string };
+    if (health.backend === 'timeout') return new ApiError(504, 'backend_timeout', 'Backend timeout');
+    if (health.backend !== 'ok') return new ApiError(502, 'backend_unreachable', 'Backend unreachable');
+    return new ApiError(0, 'request_failed', 'Request failed');
+  } catch {
+    return new ApiError(0, 'server_unreachable', 'App unreachable');
   }
 }
 
@@ -66,7 +99,7 @@ export async function unwrap<T>(promise: Promise<Result<T>>): Promise<T> {
   try {
     res = await promise;
   } catch {
-    throw new ApiError(0, 'network', 'Network error');
+    throw await classifyConnectionFailure();
   }
   if (res.response.ok) return res.data as T;
   throw fromProblem(res.response.status, res.error as Partial<Problem> | undefined);

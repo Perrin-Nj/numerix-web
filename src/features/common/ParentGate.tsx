@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ApiError, api, unwrap } from '@/lib/api/client';
+import { ApiError, api, isConnectionProblem, unwrap } from '@/lib/api/client';
 import { Button } from '@/ui/button';
 import { Dialog } from '@/ui/dialog';
 import { FormField } from '@/ui/form-field';
@@ -15,6 +15,7 @@ type Props = { open: boolean; onOpenChange: (open: boolean) => void; onUnlocked:
 /** Leaving child mode needs the account password. A wrong password is reported, never ignored. */
 export function ParentGate({ open, onOpenChange, onUnlocked }: Props) {
   const t = useTranslations('screens.parentGate');
+  const te = useTranslations('errors');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -28,7 +29,7 @@ export function ParentGate({ open, onOpenChange, onUnlocked }: Props) {
       setPassword('');
       onUnlocked();
     } catch (e) {
-      setError(e instanceof ApiError && e.code === 'network' ? t('network') : t('wrong'));
+      setError(e instanceof ApiError && isConnectionProblem(e.code) ? `${te(`${e.code}.title`)}. ${te(`${e.code}.description`)}` : t('wrong'));
     } finally {
       setBusy(false);
     }

@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import 'driver.js/dist/driver.css';
 import './GuidedTour.css';
 import { useReducedMotion } from '@/lib/motion';
+import { useSound } from '@/lib/audio';
 
 export type GuidedTourStep = {
   /** CSS selector of the element to highlight. Without it the popover is centered. */
@@ -22,9 +23,12 @@ export type GuidedTourProps = {
 export function GuidedTour({ steps, open, onClose, onFinish }: GuidedTourProps) {
   const t = useTranslations('ui.guidedTour');
   const reduced = useReducedMotion();
+  const { play } = useSound();
+  const playRef = useRef(play);
   const latest = useRef({ steps, onClose, onFinish });
   useEffect(() => {
     latest.current = { steps, onClose, onFinish };
+    playRef.current = play;
   });
 
   const labels = {
@@ -62,6 +66,14 @@ export function GuidedTour({ steps, open, onClose, onFinish }: GuidedTourProps) 
           popover.wrapper.setAttribute('role', 'dialog');
           popover.wrapper.setAttribute('aria-label', popover.title.textContent ?? '');
           popover.closeButton.setAttribute('aria-label', skip);
+        },
+        onNextClick: () => {
+          playRef.current('switch');
+          d.moveNext();
+        },
+        onPrevClick: () => {
+          playRef.current('back');
+          d.movePrevious();
         },
         onDoneClick: () => {
           finished = true;

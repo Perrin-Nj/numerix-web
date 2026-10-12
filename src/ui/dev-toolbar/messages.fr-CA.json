@@ -6,7 +6,7 @@
       "scenario": "Cas à simuler",
       "options": {
         "none": "Aucun",
-        "network-error": "Connexion coupée",
+        "network-error": "Serveur injoignable",
         "unauthorized": "Session expirée",
         "rate-limited": "Trop de demandes",
         "server-error": "Erreur du serveur",

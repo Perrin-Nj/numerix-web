@@ -7,6 +7,11 @@ const meta = {
   title: 'game/DailyGoalRing',
   component: DailyGoalRing,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: { component: 'No sound. Fills from empty on mount.' },
+    },
+  }, // sounds-note
   args: { done: 1, target: 3 },
 } satisfies Meta<typeof DailyGoalRing>;
 export default meta;

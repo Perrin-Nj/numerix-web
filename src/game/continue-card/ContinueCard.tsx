@@ -31,7 +31,7 @@ export function ContinueCard({ label, world, hasOpenSession, onContinue }: Conti
         <p className="text-sm font-semibold text-muted">{hasOpenSession ? t('resume') : t('start')}</p>
         <p className="font-display text-2xl font-bold text-fg">{label}</p>
       </div>
-      <Button size="xl" iconLeft={<Icon name="play" size={24} />} onClick={onContinue}>
+      <Button size="xl" sound="maximize" iconLeft={<Icon name="play" size={24} />} onClick={onContinue}>
         {hasOpenSession ? t('resumeAction') : t('startAction')}
       </Button>
     </section>

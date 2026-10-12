@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  Bookmark,
   BookOpen,
   Check,
   ChevronLeft,
@@ -9,6 +10,7 @@ import {
   EyeOff,
   Flame,
   Globe,
+  Heart,
   Home,
   Info,
   Lock,
@@ -70,6 +72,8 @@ const REGISTRY = {
   trash: Trash2,
   download: Download,
   map: Map,
+  heart: Heart,
+  bookmark: Bookmark,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof REGISTRY;

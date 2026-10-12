@@ -5,6 +5,11 @@ const meta = {
   title: 'game/StreakBadge',
   component: StreakBadge,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: { component: 'No sound. Pops in, flame beats once.' },
+    },
+  }, // sounds-note
   args: { days: 5 },
 } satisfies Meta<typeof StreakBadge>;
 export default meta;

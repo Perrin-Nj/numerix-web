@@ -58,10 +58,11 @@ await check('wrong password shows an inline message', async () => {
 
 await login();
 
-await check('network error is announced with a retry', async () => {
+await check('backend down is announced as our problem, with a retry', async () => {
   await scenario('network-error');
   await page.goto(`${BASE}/parent`, { waitUntil: 'networkidle' });
-  await page.getByText(/pas de connexion/i).first().waitFor({ timeout: 10000 });
+  await page.getByText(/le problème vient de nous/i).first().waitFor({ timeout: 10000 });
+  await page.getByText(/ce n.est pas ta connexion/i).first().waitFor({ timeout: 3000 });
   await page.getByRole('button', { name: /réessayer/i }).first().waitFor({ timeout: 3000 });
   await page.screenshot({ path: join(OUT, 'network-error.png') });
 });
@@ -105,6 +106,39 @@ await check('slow narration offers the question and a retry', async () => {
   await page.waitForURL('**/play/session/**');
   await page.getByText(/un instant|quelques instants|prend/i).first().waitFor({ timeout: 15000 });
   await page.screenshot({ path: join(OUT, 'narration-slow.png') });
+});
+
+// Which side is down? Three situations on a fresh login form, each must name its own cause.
+async function loginAttempt(setup) {
+  const c = await browser.newContext({ locale: 'fr-CA', viewport: { width: 420, height: 880 } });
+  const p = await c.newPage();
+  await p.goto(`${BASE}/parent/login`, { waitUntil: 'networkidle' });
+  await setup(c, p);
+  await p.getByLabel(/courriel/i).fill('parent@example.com');
+  await p.getByLabel(/mot de passe/i).fill('correct-horse-battery');
+  await p.getByRole('button', { name: /se connecter/i }).click();
+  return { c, p };
+}
+await check('device offline: says it is the connection', async () => {
+  const { c, p } = await loginAttempt(async (ctx2) => ctx2.setOffline(true));
+  await p.getByText(/ton appareil est hors ligne/i).waitFor({ timeout: 10000 });
+  await p.screenshot({ path: join(OUT, 'cause-device-offline.png') });
+  await c.close();
+});
+await check('app unreachable while online: says it cannot tell', async () => {
+  const { c, p } = await loginAttempt(async (_c, page2) => {
+    await page2.route('**/api/**', (route) => route.abort('connectionfailed'));
+  });
+  await p.getByText(/on n.arrive pas à joindre numerix/i).waitFor({ timeout: 10000 });
+  await p.screenshot({ path: join(OUT, 'cause-app-unreachable.png') });
+  await c.close();
+});
+await check('backend down: says it is on us and not the connection', async () => {
+  const { c, p } = await loginAttempt(async (ctx2) => ctx2.addCookies([{ name: 'nx_mock_scenario', value: 'network-error', url: BASE }]));
+  await p.getByText(/le problème vient de nous/i).first().waitFor({ timeout: 10000 });
+  await p.getByText(/ce n.est pas ta connexion/i).first().waitFor({ timeout: 3000 });
+  await p.screenshot({ path: join(OUT, 'cause-backend-down.png') });
+  await c.close();
 });
 
 console.log(results.join('\n'));

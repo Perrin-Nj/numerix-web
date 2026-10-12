@@ -1,0 +1,10 @@
+{
+  "screens": {
+    "parent": {
+      "home": {
+        "pinOn": "4-digit code needed to play",
+        "pinOff": "No code"
+      }
+    }
+  }
+}

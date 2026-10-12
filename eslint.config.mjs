@@ -17,6 +17,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "src/lib/api/schema.d.ts",
     "src/i18n/generated/**",
+    "mock/**",
   ]),
   ...storybook.configs["flat/recommended"],
   {

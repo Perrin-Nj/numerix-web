@@ -20,17 +20,17 @@ function WorldTileBase({ world, selected = false, onSelect, size = 'md' }: World
       type="button"
       aria-pressed={selected}
       onClick={() => {
-        play('tap');
+        play('select');
         onSelect(world);
       }}
       className={cn(
-        'lift relative flex flex-col items-center justify-end overflow-hidden rounded-lg border-4 text-white shadow-2',
+        'lift group relative flex flex-col items-center justify-end overflow-hidden rounded-lg border-4 text-white shadow-2',
         WORLD_BG[world.id],
         selected ? 'border-fg' : 'border-transparent',
         size === 'lg' ? 'aspect-square w-48' : 'aspect-square w-32',
       )}
     >
-      <span aria-hidden className={cn('flex flex-1 items-center justify-center', size === 'lg' ? 'text-7xl' : 'text-5xl')}>
+      <span aria-hidden className={cn('flex flex-1 items-center justify-center transition-transform duration-[var(--dur-3)] ease-[var(--ease-spring)] group-hover:scale-110 group-focus-visible:scale-110', size === 'lg' ? 'text-7xl' : 'text-5xl')}>
         {WORLD_EMOJI[world.id]}
       </span>
       <span className="flex w-full items-center justify-center gap-1 bg-black/55 px-2 py-2 font-display text-base font-bold">

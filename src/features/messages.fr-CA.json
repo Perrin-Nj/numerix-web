@@ -215,6 +215,7 @@
         "label": "Navigation principale",
         "home": "Accueil",
         "worlds": "Mondes",
+        "discover": "Découvrir",
         "cards": "Cartes",
         "me": "Moi"
       },
@@ -243,6 +244,16 @@
           "worldsTitle": "Tes mondes",
           "worlds": "Choisis le monde que tu aimes : nature, espace, cuisine et plus encore."
         }
+      },
+      "feed": {
+        "title": "Découvrir",
+        "label": "Fil de découvertes",
+        "hint": "Fais défiler pour découvrir",
+        "loadingMore": "Encore des surprises en route",
+        "empty": "Rien à découvrir pour l'instant.",
+        "error": "Le fil n'a pas pu se charger.",
+        "moreError": "Impossible de charger la suite.",
+        "retry": "Réessayer"
       },
       "worlds": {
         "title": "Choisis ton monde"
@@ -280,6 +291,12 @@
         "noVoice": {
           "title": "Pas de voix pour lire à voix haute",
           "description": "Cet appareil n'a pas de voix dans cette langue. L'histoire reste écrite à l'écran."
+        },
+        "mascot": {
+          "think": "Hmm, que choisirais-tu ?",
+          "cheer": "Bravo, bien vu !",
+          "curious": "Oh, un détour intéressant !",
+          "amazed": "Waouh, personne ne l’avait vu venir !"
         }
       }
     },

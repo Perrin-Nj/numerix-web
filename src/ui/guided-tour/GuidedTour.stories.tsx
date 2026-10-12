@@ -6,10 +6,25 @@ import { Icon } from '@/ui/icon';
 import { Mascot, type MascotConfig } from '@/game/mascot';
 
 const steps: GuidedTourStep[] = [
-  { title: 'Bienvenue', description: 'On te montre où tout se trouve en trois étapes.' },
-  { target: '#tour-worlds', title: 'Choisis un monde', description: 'Touche une tuile pour partir à l’aventure.' },
-  { target: '#tour-streak', title: 'Ta série', description: 'Reviens chaque jour pour la faire grandir.' },
-  { target: '#tour-play', title: 'Prêt ?', description: 'Appuie sur Jouer pour lire une histoire.' },
+  {
+    title: 'Bienvenue',
+    description: 'On te montre où tout se trouve en trois étapes.',
+  },
+  {
+    target: '#tour-worlds',
+    title: 'Choisis un monde',
+    description: 'Touche une tuile pour partir à l’aventure.',
+  },
+  {
+    target: '#tour-streak',
+    title: 'Ta série',
+    description: 'Reviens chaque jour pour la faire grandir.',
+  },
+  {
+    target: '#tour-play',
+    title: 'Prêt ?',
+    description: 'Appuie sur Jouer pour lire une histoire.',
+  },
 ];
 
 function Screen({ mascot, open, onOpen }: { mascot: MascotConfig; open: boolean; onOpen: () => void }) {
@@ -17,7 +32,10 @@ function Screen({ mascot, open, onOpen }: { mascot: MascotConfig; open: boolean;
     <div className="mx-auto flex max-w-xl flex-col gap-6 p-4">
       <div className="flex items-center gap-3">
         <Mascot config={mascot} size="sm" />
-        <span id="tour-streak" className="inline-flex items-center gap-2 rounded-md bg-brand-soft px-3 py-2 font-display text-fg">
+        <span
+          id="tour-streak"
+          className="inline-flex items-center gap-2 rounded-md bg-brand-soft px-3 py-2 font-display text-fg"
+        >
           <Icon name="flame" /> 5
         </span>
         <Button variant="secondary" onClick={onOpen} disabled={open}>
@@ -55,6 +73,11 @@ const meta = {
   title: 'ui/GuidedTour',
   component: GuidedTour,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: { component: 'Sounds: `switch` on next, `back` on back.' },
+    },
+  }, // sounds-note
   args: { steps, open: true, onClose: () => {}, onFinish: () => {} },
   render: () => <Demo mascot={on} startOpen />,
 } satisfies Meta<typeof GuidedTour>;
@@ -62,8 +85,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Open: Story = {};
-export const Closed: Story = { render: () => <Demo mascot={on} startOpen={false} /> };
-export const WithoutMascot: Story = { render: () => <Demo mascot={off} startOpen /> };
+export const Closed: Story = {
+  render: () => <Demo mascot={on} startOpen={false} />,
+};
+export const WithoutMascot: Story = {
+  render: () => <Demo mascot={off} startOpen />,
+};
 export const CenteredStepsOnly: Story = {
   render: () => {
     const Only = () => {
@@ -71,7 +98,12 @@ export const CenteredStepsOnly: Story = {
       return (
         <>
           <Button onClick={() => setOpen(true)}>Revoir la visite</Button>
-          <GuidedTour steps={steps.slice(0, 1)} open={open} onClose={() => setOpen(false)} onFinish={() => setOpen(false)} />
+          <GuidedTour
+            steps={steps.slice(0, 1)}
+            open={open}
+            onClose={() => setOpen(false)}
+            onFinish={() => setOpen(false)}
+          />
         </>
       );
     };

@@ -29,7 +29,7 @@ const publicSchema = z.object({
 });
 
 const serverSchema = z.object({
-  API_URL: z.url().default('http://localhost:8080/v1'),
+  API_URL: z.url().default('http://localhost:8081/v1'),
 });
 
 function fail(scope: string, error: z.ZodError): never {

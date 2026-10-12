@@ -8,7 +8,12 @@ export type PageTransitionProps = { children: ReactNode };
 export function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname();
   return (
-    <div key={pathname} className="nx-rise [animation-duration:var(--dur-2)]">
+    <div
+      key={pathname}
+      className="nx-rise"
+      // backwards fill: a lingering transform would trap position:fixed children (nav, pause button)
+      style={{ animationDuration: 'var(--dur-2)', animationFillMode: 'backwards' }}
+    >
       {children}
     </div>
   );

@@ -8,9 +8,17 @@ const meta = {
   tags: ['autodocs'],
   args: {
     outcome: 'correct',
-    children: <NarrationText text="Les quatre écureuils reçoivent douze pommes chacun et applaudissent Zoé." status="ready" />,
+    children: (
+      <NarrationText text="Les quatre écureuils reçoivent douze pommes chacun et applaudissent Zoé." status="ready" />
+    ),
   },
-  decorators: [(Story) => <div className="max-w-2xl"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-2xl">
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof OutcomeBeat>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -19,17 +27,26 @@ export const Correct: Story = {};
 export const TypicalError: Story = {
   args: {
     outcome: 'erreur_typique',
-    children: <NarrationText text="Un vieux hibou propose une autre façon de partager. Zoé le suit sur un nouveau sentier." status="ready" />,
+    children: (
+      <NarrationText
+        text="Un vieux hibou propose une autre façon de partager. Zoé le suit sur un nouveau sentier."
+        status="ready"
+      />
+    ),
   },
 };
 export const RandomError: Story = {
   args: {
     outcome: 'erreur_aleatoire',
-    children: <NarrationText text="Un vent léger fait tourbillonner les feuilles et relance la scène." status="ready" />,
+    children: (
+      <NarrationText text="Un vent léger fait tourbillonner les feuilles et relance la scène." status="ready" />
+    ),
   },
 };
 export const Streaming: Story = {
-  args: { children: <NarrationText text="Les quatre écureuils" status="streaming" /> },
+  args: {
+    children: <NarrationText text="Les quatre écureuils" status="streaming" />,
+  },
 };
 export const AllThree: Story = {
   render: () => (

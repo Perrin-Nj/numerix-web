@@ -1,6 +1,7 @@
 'use client';
 import { useId } from 'react';
 import { Select as S } from 'radix-ui';
+import { useSound } from '@/lib/audio';
 import { Icon } from '@/ui/icon';
 
 export type SelectOption = { value: string; label: string };
@@ -15,12 +16,21 @@ export type SelectProps = {
 
 export function Select({ options, value, onValueChange, placeholder, label, disabled }: SelectProps) {
   const labelId = useId();
+  const { play } = useSound();
   return (
     <div className="flex flex-col gap-1.5">
       <span id={labelId} className="font-display font-semibold text-fg">
         {label}
       </span>
-      <S.Root value={value} onValueChange={onValueChange} disabled={disabled}>
+      <S.Root
+        value={value}
+        onValueChange={(v) => {
+          play('select');
+          onValueChange(v);
+        }}
+        onOpenChange={(o) => o && play('select')}
+        disabled={disabled}
+      >
         <S.Trigger
           aria-labelledby={labelId}
           className="flex min-h-12 w-full items-center justify-between gap-2 rounded-md border-2 border-line bg-elevated px-4 text-left text-base text-fg data-[placeholder]:text-muted disabled:opacity-50"

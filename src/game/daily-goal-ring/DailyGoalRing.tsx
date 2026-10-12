@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import { Icon } from '@/ui/icon';
@@ -11,12 +12,19 @@ const C = 2 * Math.PI * R;
 export function DailyGoalRing({ done, target, className }: DailyGoalRingProps) {
   const t = useTranslations('game.dailyGoalRing');
   const met = target > 0 && done >= target;
-  const ratio = target > 0 ? Math.min(done / target, 1) : 0;
+  const full = target > 0 ? Math.min(done / target, 1) : 0;
+  // Starts empty, then fills on mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  const ratio = mounted ? full : 0;
   return (
     <div
       role="img"
       aria-label={met ? t('met') : t('label', { done, target })}
-      className={cn('relative inline-flex size-28 items-center justify-center', met && 'nx-pop', className)}
+      className={cn('relative inline-flex size-28 items-center justify-center', 'nx-pop', met && 'nx-heart', className)}
     >
       <svg viewBox="0 0 100 100" className="size-full -rotate-90" aria-hidden>
         <circle cx="50" cy="50" r={R} fill="none" strokeWidth="10" className="stroke-sunken" />

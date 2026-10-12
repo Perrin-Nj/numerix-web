@@ -1,13 +1,15 @@
 'use client';
 import type { ReactNode } from 'react';
 import { Tabs as T } from 'radix-ui';
+import { useSound } from '@/lib/audio';
 
 export type TabItem = { value: string; label: string; content: ReactNode };
 export type TabsProps = { items: TabItem[]; defaultValue?: string; ariaLabel?: string };
 
 export function Tabs({ items, defaultValue, ariaLabel }: TabsProps) {
+  const { play } = useSound();
   return (
-    <T.Root defaultValue={defaultValue ?? items[0]?.value} className="flex flex-col gap-4">
+    <T.Root defaultValue={defaultValue ?? items[0]?.value} onValueChange={() => play('switch')} className="flex flex-col gap-4">
       <T.List aria-label={ariaLabel} className="flex gap-1 rounded-lg bg-sunken p-1">
         {items.map((it) => (
           <T.Trigger

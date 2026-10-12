@@ -36,14 +36,18 @@ function JourneyNodeBase({ node, accent, current = false, onSelect }: JourneyNod
   return (
     <button
       type="button"
-      disabled={locked}
+      aria-disabled={locked || undefined}
       aria-current={current ? 'step' : undefined}
       data-state={state}
       onClick={() => {
-        play('tap');
+        if (locked) {
+          play('close');
+          return;
+        }
+        play('select');
         onSelect(node);
       }}
-      className="lift group flex w-28 flex-col items-center gap-2 rounded-lg p-1 text-fg disabled:pointer-events-none"
+      className={cn('lift group flex w-28 flex-col items-center gap-2 rounded-lg p-1 text-fg', locked && 'cursor-not-allowed')}
     >
       <span className="relative flex size-[4.5rem] items-center justify-center">
         {state === 'available' && (
@@ -76,11 +80,17 @@ function JourneyNodeBase({ node, accent, current = false, onSelect }: JourneyNod
             state === 'available' && 'border-brand bg-elevated text-brand shadow-2',
             state === 'in_progress' && 'border-line bg-elevated text-brand shadow-2',
             state === 'mastered' && cn('border-brand bg-brand text-brand-fg shadow-2 ring-brand/40', SHINE[level]),
+            'transition-transform duration-[var(--dur-2)] group-hover:scale-105 group-focus-visible:scale-105',
             state === 'needs_review' && 'border-brand bg-brand-soft text-fg shadow-1',
             current && 'scale-110',
           )}
         >
           <Icon name={ICON[state]} size={32} />
+          {state === 'mastered' && (
+            <span aria-hidden className="nx-sparkle absolute -right-2 -top-2 text-lg">
+              ✨
+            </span>
+          )}
           {state === 'needs_review' && (
             <span
               aria-hidden

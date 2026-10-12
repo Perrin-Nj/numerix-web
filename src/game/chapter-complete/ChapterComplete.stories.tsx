@@ -32,7 +32,9 @@ export const NoRewards: Story = {
     await expect(args.onNext).toHaveBeenCalled();
   },
 };
-export const WithoutStreak: Story = { args: { streakDays: undefined, title: undefined } };
+export const WithoutStreak: Story = {
+  args: { streakDays: undefined, title: undefined },
+};
 export const AllRewards: Story = {
   args: {
     rewards: [
@@ -49,6 +51,9 @@ export const AllRewards: Story = {
     await expect(await c.findByRole('heading', { level: 1 })).toBeInTheDocument();
   },
 };
-export const ReducedMotion: Story = { args: { rewards: [{ type: 'chapter_complete' }] }, globals: { motion: 'reduced' } };
+export const ReducedMotion: Story = {
+  args: { rewards: [{ type: 'chapter_complete' }] },
+  globals: { motion: 'reduced' },
+};
 export const Phone: Story = { globals: { viewport: { value: 'phone' } } };
 export const TVScale: Story = { globals: { display: 'tv' } };

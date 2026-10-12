@@ -17,8 +17,24 @@ const meta = {
   title: 'ui/Sheet',
   component: Sheet,
   tags: ['autodocs'],
-  args: { open: true, onOpenChange: () => {}, title: 'Choisis ton animal', children: <p className="text-muted">Huit amis t’attendent.</p> },
-  render: (args) => <Demo title={args.title} side={args.side}>{args.children}</Demo>,
+  parameters: {
+    docs: {
+      description: {
+        component: 'Sounds: `open` when it opens, `close` when it closes.',
+      },
+    },
+  }, // sounds-note
+  args: {
+    open: true,
+    onOpenChange: () => {},
+    title: 'Choisis ton animal',
+    children: <p className="text-muted">Huit amis t’attendent.</p>,
+  },
+  render: (args) => (
+    <Demo title={args.title} side={args.side}>
+      {args.children}
+    </Demo>
+  ),
 } satisfies Meta<typeof Sheet>;
 export default meta;
 type Story = StoryObj<typeof meta>;

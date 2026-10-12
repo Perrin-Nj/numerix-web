@@ -19,10 +19,8 @@ export function proxy(req: NextRequest) {
     res = NextResponse.redirect(new URL('/parent/login', req.url));
   } else if (pathname.startsWith('/parent') && publicParent && hasParent) {
     res = NextResponse.redirect(new URL('/parent', req.url));
-  } else if (pathname === '/play' && !hasParent && !hasChild) {
-    res = NextResponse.redirect(new URL('/', req.url));
   } else if (pathname.startsWith('/play/') && !hasChild) {
-    res = NextResponse.redirect(new URL(hasParent ? '/play' : '/', req.url));
+    res = NextResponse.redirect(new URL('/play', req.url));
   }
 
   res ??= NextResponse.next();

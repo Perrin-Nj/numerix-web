@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "regions": ["yul1"],
+  "functions": { "api/mock.mjs": { "maxDuration": 30 } },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/mock?__p=$1" }],
+  "headers": [{ "source": "/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }]
+}

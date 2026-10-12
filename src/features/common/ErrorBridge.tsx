@@ -7,11 +7,12 @@ import { registerReporter, reportError } from '@/lib/errors/bridge';
 import { useNotify } from '@/ui/notification-center';
 
 const KNOWN = new Set([
-  'network', 'unauthorized', 'forbidden', 'consent_missing', 'daily_limit_reached', 'session_active',
+  'device_offline', 'server_unreachable', 'backend_unreachable', 'backend_timeout', 'request_failed', 'unauthorized', 'forbidden', 'consent_missing', 'daily_limit_reached', 'session_active',
   'session_paused', 'session_completed', 'beat_answered', 'invalid_pin', 'not_found', 'validation_failed',
   'rate_limited', 'internal_error', 'unknown',
 ]);
-const SEVERE = new Set(['network', 'internal_error', 'unknown', 'rate_limited']);
+const SEVERE = new Set(['device_offline', 'server_unreachable', 'backend_unreachable', 'backend_timeout', 'request_failed', 'internal_error', 'unknown', 'rate_limited']);
+const RETRYABLE = new Set(['device_offline', 'server_unreachable', 'backend_unreachable', 'backend_timeout', 'request_failed', 'internal_error', 'unknown']);
 
 /** Mounted once. Turns every error into a visible message with a recovery step. */
 export function ErrorBridge() {
@@ -23,7 +24,7 @@ export function ErrorBridge() {
     return registerReporter((error, opts) => {
       const raw = error instanceof ApiError ? error.code : 'unknown';
       const code = KNOWN.has(raw) ? raw : 'unknown';
-      const hasRetry = Boolean(opts?.retry) && (code === 'network' || code === 'internal_error' || code === 'unknown');
+      const hasRetry = Boolean(opts?.retry) && RETRYABLE.has(code);
       notify({
         id: `err-${code}`,
         kind: SEVERE.has(code) ? 'error' : 'warning',
@@ -33,7 +34,7 @@ export function ErrorBridge() {
           code === 'unauthorized'
             ? { label: t('unauthorized.action'), onClick: () => router.push('/parent/login') }
             : hasRetry
-              ? { label: t('network.retry'), onClick: () => opts!.retry!() }
+              ? { label: t('retry'), onClick: () => opts!.retry!() }
               : undefined,
       });
     });

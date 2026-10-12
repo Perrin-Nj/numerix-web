@@ -25,10 +25,18 @@ export const ChapterComplete: Story = {
     await expect(args.onDone).toHaveBeenCalled();
   },
 };
-export const CardEarned: Story = { args: { reward: { type: 'card_earned', card } } };
-export const StreakExtended: Story = { args: { reward: { type: 'streak_extended', streak_days: 5 } } };
-export const SkillMastered: Story = { args: { reward: { type: 'skill_mastered', skill_id: 'ARI-OPE-A07a' } } };
-export const DailyGoalMet: Story = { args: { reward: { type: 'daily_goal_met' } } };
+export const CardEarned: Story = {
+  args: { reward: { type: 'card_earned', card } },
+};
+export const StreakExtended: Story = {
+  args: { reward: { type: 'streak_extended', streak_days: 5 } },
+};
+export const SkillMastered: Story = {
+  args: { reward: { type: 'skill_mastered', skill_id: 'ARI-OPE-A07a' } },
+};
+export const DailyGoalMet: Story = {
+  args: { reward: { type: 'daily_goal_met' } },
+};
 export const ReducedMotion: Story = { globals: { motion: 'reduced' } };
 export const Phone: Story = { globals: { viewport: { value: 'phone' } } };
 export const TVScale: Story = { globals: { display: 'tv' } };

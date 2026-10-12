@@ -18,7 +18,7 @@ function parse(file) {
   const out = {};
   for (const line of readFileSync(file, 'utf8').split('\n')) {
     const m = /^([A-Z0-9_]+)=(.*)$/.exec(line.trim());
-    if (m) out[m[1]] = m[2];
+    if (m) out[m[1]] = m[2].replace(/^"(.*)"$/, '$1');
   }
   return out;
 }
@@ -41,7 +41,9 @@ const vercel = (args, input) =>
 
 if (command === 'push') {
   for (const [key, value] of Object.entries(wanted)) {
-    const r = vercel(['env', 'add', key, environment, '--force', '--yes'], value);
+    // --force does not overwrite variables Vercel stored as sensitive, so remove first; these are config, not secrets
+    vercel(['env', 'rm', key, environment, '--yes']);
+    const r = vercel(['env', 'add', key, environment, '--no-sensitive', '--yes'], value);
     console.log(r.status === 0 ? `set  ${key}` : `FAIL ${key}: ${(r.stderr || r.stdout).split('\n')[0]}`);
   }
 } else {

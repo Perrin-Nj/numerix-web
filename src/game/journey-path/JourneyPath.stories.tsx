@@ -3,7 +3,16 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { JourneyPath } from './JourneyPath';
 import type { JourneyNode, NodeState } from '@/lib/api/types';
 
-const STATES: NodeState[] = ['mastered', 'mastered', 'needs_review', 'in_progress', 'available', 'locked', 'locked', 'locked'];
+const STATES: NodeState[] = [
+  'mastered',
+  'mastered',
+  'needs_review',
+  'in_progress',
+  'available',
+  'locked',
+  'locked',
+  'locked',
+];
 const COLS = [2, 3, 1, 2, 3, 1, 0, 2];
 const NODES: JourneyNode[] = STATES.map((state, i) => ({
   skill_id: `SKILL-${i}`,
@@ -37,10 +46,16 @@ export const Default: Story = {
 };
 export const FirstSteps: Story = {
   args: {
-    nodes: NODES.slice(0, 3).map((n, i) => ({ ...n, state: i === 0 ? 'available' : 'locked', level: 0 })),
+    nodes: NODES.slice(0, 3).map((n, i) => ({
+      ...n,
+      state: i === 0 ? 'available' : 'locked',
+      level: 0,
+    })),
     currentSkillId: 'SKILL-0',
   },
 };
 export const Empty: Story = { args: { nodes: [], currentSkillId: null } };
 export const Phone: Story = { globals: { viewport: { value: 'phone' } } };
-export const TVScale: Story = { globals: { display: 'tv', viewport: { value: 'tv' } } };
+export const TVScale: Story = {
+  globals: { display: 'tv', viewport: { value: 'tv' } },
+};

@@ -1,12 +1,17 @@
 'use client';
 import Link from 'next/link';
 import { useFormatter, useTranslations } from 'next-intl';
+import { useCountUp } from '@/lib/motion';
 import { useGrowth, useProgress, useSessionList } from '@/features/api/hooks';
 import { ParentPage } from './ParentPage';
 import { Card, CardBody } from '@/ui/card';
 import { Panel } from '@/ui/panel';
 import { Skeleton } from '@/ui/skeleton';
 import type { Growth } from '@/lib/api/types';
+
+function Figure({ value }: { value: number }) {
+  return <>{useCountUp(value)}</>;
+}
 
 function GrowthPanel({ growth }: { growth: Growth }) {
   const t = useTranslations('screens.parent.overview.growth');
@@ -22,7 +27,7 @@ function GrowthPanel({ growth }: { growth: Growth }) {
         {rows.map(([key, label]) => (
           <div key={key} className="rounded-md bg-sunken p-3">
             <dt className="text-sm text-muted">{label}</dt>
-            <dd className="font-display text-3xl font-bold">{growth.current[key]}</dd>
+            <dd className="font-display text-3xl font-bold"><Figure value={growth.current[key]} /></dd>
             <dd className="text-sm text-muted">{t('before', { value: growth.previous[key] })}</dd>
           </div>
         ))}

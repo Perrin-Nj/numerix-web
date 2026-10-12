@@ -10,7 +10,7 @@ const card = cva('block rounded-lg text-fg', {
       brand: 'border border-brand bg-brand-soft',
       sunken: 'border border-line bg-sunken',
     },
-    interactive: { true: 'lift cursor-pointer text-left', false: '' },
+    interactive: { true: 'lift lift-tilt cursor-pointer text-left', false: '' },
   },
   defaultVariants: { tone: 'plain', interactive: false },
 });

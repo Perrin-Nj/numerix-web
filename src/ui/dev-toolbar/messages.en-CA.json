@@ -6,7 +6,7 @@
       "scenario": "Case to simulate",
       "options": {
         "none": "None",
-        "network-error": "Connection lost",
+        "network-error": "Backend unreachable",
         "unauthorized": "Session expired",
         "rate-limited": "Too many requests",
         "server-error": "Server error",

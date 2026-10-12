@@ -24,7 +24,7 @@ const csp = [
   "media-src 'self' blob:",
   "font-src 'self' data:",
   `connect-src 'self' ${connectOrigins.join(' ')}`.trim(),
-  "worker-src 'self'",
+  "worker-src 'self' blob:",
   "manifest-src 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",

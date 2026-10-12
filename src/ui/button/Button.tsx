@@ -2,14 +2,15 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
+import { useSound, type SoundName } from '@/lib/audio';
 
 const button = cva(
-  'lift inline-flex select-none items-center justify-center gap-2 rounded-md font-display font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50',
+  'lift relative inline-flex select-none items-center justify-center gap-2 rounded-md font-display font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        primary: 'bg-brand text-brand-fg shadow-press active:translate-y-1 active:shadow-none',
+        primary:
+          'nx-shine overflow-hidden bg-brand text-brand-fg shadow-press active:translate-y-1.5 active:scale-[0.97] active:shadow-none',
         secondary: 'border-2 border-line bg-elevated text-fg',
         ghost: 'bg-transparent text-fg hover:bg-sunken',
         danger: 'bg-danger text-brand-fg',
@@ -31,10 +32,12 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
     loading?: boolean;
     iconLeft?: ReactNode;
     iconRight?: ReactNode;
+    /** Sound on click. Default `tap`; `null` is silent. */
+    sound?: SoundName | null;
   };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant, size, fullWidth, loading, iconLeft, iconRight, className, children, onClick, disabled, type = 'button', ...rest },
+  { variant, size, fullWidth, loading, iconLeft, iconRight, sound = 'tap', className, children, onClick, disabled, type = 'button', ...rest },
   ref,
 ) {
   const { play } = useSound();
@@ -46,7 +49,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       onClick={(e) => {
-        play('tap');
+        if (sound) play(sound);
         onClick?.(e);
       }}
       {...rest}

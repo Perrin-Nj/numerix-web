@@ -1,6 +1,7 @@
 'use client';
 import { useId } from 'react';
 import { Switch as S } from 'radix-ui';
+import { useSound } from '@/lib/audio';
 
 export type SwitchProps = {
   checked: boolean;
@@ -12,6 +13,7 @@ export type SwitchProps = {
 
 export function Switch({ checked, onCheckedChange, label, description, disabled }: SwitchProps) {
   const id = useId();
+  const { play } = useSound();
   return (
     <div className="flex min-h-12 items-center justify-between gap-4">
       <div className="min-w-0">
@@ -27,7 +29,10 @@ export function Switch({ checked, onCheckedChange, label, description, disabled 
       <S.Root
         id={id}
         checked={checked}
-        onCheckedChange={onCheckedChange}
+        onCheckedChange={(v) => {
+          play('toggle');
+          onCheckedChange(v);
+        }}
         disabled={disabled}
         aria-describedby={description ? `${id}-desc` : undefined}
         className="relative h-8 w-14 shrink-0 rounded-full border-2 border-line bg-sunken transition-colors data-[state=checked]:border-brand data-[state=checked]:bg-brand disabled:opacity-50"

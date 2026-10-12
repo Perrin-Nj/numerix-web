@@ -1,102 +1,109 @@
 {
-  "errors": {
-    "ok": "D'accord",
-    "network": {
-      "title": "Pas de connexion",
-      "description": "Vérifie ton réseau, puis réessaie.",
-      "retry": "Réessayer"
-    },
-    "unauthorized": {
-      "title": "Ta session est terminée",
-      "description": "Connecte-toi de nouveau pour continuer.",
-      "action": "Se connecter"
-    },
-    "forbidden": {
-      "title": "Accès refusé",
-      "description": "Cet écran est réservé à un adulte."
-    },
-    "consent_missing": {
-      "title": "Un adulte doit d'abord dire oui",
-      "description": "Demande à un parent d'accepter dans l'espace parent."
-    },
-    "daily_limit_reached": {
-      "title": "C'est assez pour aujourd'hui",
-      "description": "À demain pour la suite de l'histoire."
-    },
-    "session_active": {
-      "title": "Un chapitre est déjà en cours",
-      "description": "Reprends-le ou recommence un nouveau chapitre."
-    },
-    "session_paused": {
-      "title": "Le chapitre est en pause",
-      "description": "Reprends-le pour continuer l'histoire."
-    },
-    "session_completed": {
-      "title": "Ce chapitre est terminé",
-      "description": "Retourne à ton chemin pour choisir la suite."
-    },
-    "beat_answered": {
-      "title": "Cette question a déjà reçu une réponse",
-      "description": "On recharge ton histoire."
-    },
-    "invalid_pin": {
-      "title": "Ce code ne correspond pas",
-      "description": "Essaie encore."
-    },
-    "not_found": {
-      "title": "Introuvable",
-      "description": "Cet élément n'existe plus. Retourne à l'accueil."
-    },
-    "validation_failed": {
-      "title": "Vérifie les informations",
-      "description": "Certains champs ne sont pas valides."
-    },
-    "rate_limited": {
-      "title": "Doucement",
-      "description": "Attends un instant, puis réessaie."
-    },
-    "internal_error": {
-      "title": "Un problème est survenu de notre côté",
-      "description": "Réessaie dans un moment. Si ça continue, préviens-nous.",
-      "retry": "Réessayer"
-    },
-    "unknown": {
-      "title": "Quelque chose s'est mal passé",
-      "description": "Réessaie. Si ça continue, préviens-nous.",
-      "retry": "Réessayer"
-    },
-    "sound": {
-      "title": "Le son n'a pas pu démarrer",
-      "description": "Le jeu continue sans son. Vérifie le volume de l'appareil."
-    },
-    "narrationFailed": {
-      "title": "L'histoire n'a pas pu se charger",
-      "description": "Touche Réessayer pour la relancer.",
-      "retry": "Réessayer"
-    },
-    "offline": {
-      "title": "Tu es hors ligne",
-      "description": "Tu peux regarder ton chemin et tes cartes. Pour jouer, reconnecte-toi."
-    },
-    "back": "Retour"
-  },
-  "worlds": {
-    "nature": "Nature",
-    "espace": "Espace",
-    "cuisine": "Cuisine",
-    "sport": "Sport",
-    "construction": "Construction",
-    "medecine": "Médecine",
-    "science": "Science",
-    "echecs": "Échecs"
-  },
   "screens": {
     "welcome": {
+      "kidButton": "Je suis un enfant",
+      "kidHint": "Touche ici pour jouer",
+      "adultButton": "Je suis un adulte",
+      "adultHint": "Compte, profils et suivi",
       "tagline": "Des aventures où les maths changent l'histoire.",
       "mascot": "Salut ! Prêt pour une nouvelle histoire ?",
       "play": "Jouer",
       "parentArea": "Espace parent",
       "grownUp": "Je suis un adulte"
+    },
+    "play": {
+      "picker": {
+        "needAdultTitle": "Un adulte doit d'abord se connecter",
+        "needAdultText": "Pour jouer, un adulte se connecte une seule fois sur cet appareil et crée ton profil. Ensuite, tu pourras jouer toute seule ou tout seul.",
+        "needAdultAction": "Je suis un adulte",
+        "demoPins": "Mode démo : le profil Zoé s'ouvre avec le code 1234. Max n'a pas encore l'autorisation d'un parent. Les profils que tu crées gardent le code que tu choisis.",
+        "who": "Qui joue aujourd'hui ?",
+        "none": "Aucun profil pour l'instant. Demande à un adulte d'en créer un.",
+        "pinProtected": "Protégé par un code",
+        "parentArea": "Espace parent",
+        "signOut": "Se déconnecter",
+        "pinTitle": "Code de {name}",
+        "pinLabel": "Code à 4 chiffres"
+      },
+      "nav": {
+        "label": "Navigation principale",
+        "home": "Accueil",
+        "worlds": "Mondes",
+        "discover": "Découvrir",
+        "cards": "Cartes",
+        "me": "Moi"
+      },
+      "home": {
+        "title": "Accueil",
+        "feedLabel": "Ton fil d'aventures",
+        "worlds": "Choisis un monde",
+        "recentCards": "Tes dernières cartes",
+        "growth": "Cette semaine : {now} chapitres. La semaine d'avant : {before}. Tu avances bien !",
+        "tour": {
+          "welcomeTitle": "Bienvenue !",
+          "welcome": "Ici, les maths décident de ce qui arrive au héros. Chaque réponse change l'histoire.",
+          "continueTitle": "Ta prochaine aventure",
+          "continue": "Touche cette carte pour continuer ton histoire.",
+          "streakTitle": "Tes jours d'histoire",
+          "streak": "Chaque jour où tu finis un chapitre, ta flamme grandit.",
+          "worldsTitle": "Tes mondes",
+          "worlds": "Choisis le monde que tu aimes : nature, espace, cuisine et plus encore."
+        }
+      },
+      "feed": {
+        "title": "Découvrir",
+        "label": "Fil de découvertes",
+        "hint": "Fais défiler pour découvrir",
+        "loadingMore": "Encore des surprises en route",
+        "empty": "Rien à découvrir pour l'instant.",
+        "error": "Le fil n'a pas pu se charger.",
+        "moreError": "Impossible de charger la suite.",
+        "retry": "Réessayer"
+      },
+      "worlds": {
+        "title": "Choisis ton monde"
+      },
+      "journey": {
+        "back": "Retour aux mondes",
+        "unknownWorld": "Ce monde n'existe pas. Retourne choisir un monde."
+      },
+      "collection": {
+        "title": "Tes cartes d'histoire"
+      },
+      "quest": {
+        "title": "Défi du jour",
+        "intro": "Un chapitre pour retrouver des choses déjà apprises, dans une nouvelle histoire."
+      },
+      "me": {
+        "title": "Moi",
+        "today": "Aujourd'hui",
+        "longest": "Ton plus long enchaînement : {days} jours.",
+        "growth": "Ta progression",
+        "growthLine": "Chapitres terminés cette semaine : {now} (avant : {before}).",
+        "skillsLine": "Nouvelles compétences : {now} (avant : {before}).",
+        "grownUps": "Espace des adultes"
+      },
+      "story": {
+        "pause": "Faire une pause",
+        "illustration": "Illustration de l'histoire",
+        "showQuestion": "Voir la question",
+        "choices": "Choix de réponse",
+        "continue": "Continuer",
+        "pauseTitle": "Une pause ?",
+        "pauseText": "Ton histoire t'attend. Tu pourras reprendre exactement ici.",
+        "takeBreak": "Faire une pause",
+        "keepPlaying": "Continuer à jouer",
+        "noVoice": {
+          "title": "Pas de voix pour lire à voix haute",
+          "description": "Cet appareil n'a pas de voix dans cette langue. L'histoire reste écrite à l'écran."
+        },
+        "mascot": {
+          "think": "Hmm, que choisirais-tu ?",
+          "cheer": "Bravo, bien vu !",
+          "curious": "Oh, un détour intéressant !",
+          "amazed": "Waouh, personne ne l’avait vu venir !"
+        }
+      }
     },
     "parentGate": {
       "title": "Réservé aux adultes",
@@ -148,7 +155,9 @@
         "consentNeeded": "Autorisation requise",
         "play": "Jouer",
         "giveConsent": "Donner l'autorisation",
-        "overview": "Suivi"
+        "overview": "Suivi",
+        "pinOn": "Code à 4 chiffres requis pour jouer",
+        "pinOff": "Pas de code"
       },
       "childForm": {
         "title": "Nouvel enfant",
@@ -288,86 +297,123 @@
         "replayGuide": "Revoir la visite"
       }
     },
-    "play": {
-      "nav": {
-        "label": "Navigation principale",
-        "home": "Accueil",
-        "worlds": "Mondes",
-        "cards": "Cartes",
-        "me": "Moi"
-      },
-      "picker": {
-        "who": "Qui joue aujourd'hui ?",
-        "none": "Aucun profil pour l'instant. Demande à un adulte d'en créer un.",
-        "pinProtected": "Protégé par un code",
-        "parentArea": "Espace parent",
-        "signOut": "Se déconnecter",
-        "pinTitle": "Code de {name}",
-        "pinLabel": "Code à 4 chiffres"
-      },
-      "home": {
-        "title": "Accueil",
-        "feedLabel": "Ton fil d'aventures",
-        "worlds": "Choisis un monde",
-        "recentCards": "Tes dernières cartes",
-        "growth": "Cette semaine : {now} chapitres. La semaine d'avant : {before}. Tu avances bien !",
-        "tour": {
-          "welcomeTitle": "Bienvenue !",
-          "welcome": "Ici, les maths décident de ce qui arrive au héros. Chaque réponse change l'histoire.",
-          "continueTitle": "Ta prochaine aventure",
-          "continue": "Touche cette carte pour continuer ton histoire.",
-          "streakTitle": "Tes jours d'histoire",
-          "streak": "Chaque jour où tu finis un chapitre, ta flamme grandit.",
-          "worldsTitle": "Tes mondes",
-          "worlds": "Choisis le monde que tu aimes : nature, espace, cuisine et plus encore."
-        }
-      },
-      "worlds": {
-        "title": "Choisis ton monde"
-      },
-      "journey": {
-        "back": "Retour aux mondes",
-        "unknownWorld": "Ce monde n'existe pas. Retourne choisir un monde."
-      },
-      "collection": {
-        "title": "Tes cartes d'histoire"
-      },
-      "quest": {
-        "title": "Défi du jour",
-        "intro": "Un chapitre pour retrouver des choses déjà apprises, dans une nouvelle histoire."
-      },
-      "me": {
-        "title": "Moi",
-        "today": "Aujourd'hui",
-        "longest": "Ton plus long enchaînement : {days} jours.",
-        "growth": "Ta progression",
-        "growthLine": "Chapitres terminés cette semaine : {now} (avant : {before}).",
-        "skillsLine": "Nouvelles compétences : {now} (avant : {before}).",
-        "grownUps": "Espace des adultes"
-      },
-      "story": {
-        "pause": "Faire une pause",
-        "illustration": "Illustration de l'histoire",
-        "showQuestion": "Voir la question",
-        "choices": "Choix de réponse",
-        "continue": "Continuer",
-        "pauseTitle": "Une pause ?",
-        "pauseText": "Ton histoire t'attend. Tu pourras reprendre exactement ici.",
-        "takeBreak": "Faire une pause",
-        "keepPlaying": "Continuer à jouer",
-        "noVoice": {
-          "title": "Pas de voix pour lire à voix haute",
-          "description": "Cet appareil n'a pas de voix dans cette langue. L'histoire reste écrite à l'écran."
-        }
-      }
-    },
     "pwa": {
       "updateTitle": "Une mise à jour est prête",
       "updateText": "Recharge pour profiter de la dernière version.",
       "updateAction": "Mettre à jour"
     }
   },
+  "errors": {
+    "ok": "D'accord",
+    "unauthorized": {
+      "title": "Ta session est terminée",
+      "description": "Connecte-toi de nouveau pour continuer.",
+      "action": "Se connecter"
+    },
+    "forbidden": {
+      "title": "Accès refusé",
+      "description": "Cet écran est réservé à un adulte."
+    },
+    "consent_missing": {
+      "title": "Un adulte doit d'abord dire oui",
+      "description": "Demande à un parent d'accepter dans l'espace parent."
+    },
+    "daily_limit_reached": {
+      "title": "C'est assez pour aujourd'hui",
+      "description": "À demain pour la suite de l'histoire."
+    },
+    "session_active": {
+      "title": "Un chapitre est déjà en cours",
+      "description": "Reprends-le ou recommence un nouveau chapitre."
+    },
+    "session_paused": {
+      "title": "Le chapitre est en pause",
+      "description": "Reprends-le pour continuer l'histoire."
+    },
+    "session_completed": {
+      "title": "Ce chapitre est terminé",
+      "description": "Retourne à ton chemin pour choisir la suite."
+    },
+    "beat_answered": {
+      "title": "Cette question a déjà reçu une réponse",
+      "description": "On recharge ton histoire."
+    },
+    "invalid_pin": {
+      "title": "Ce code ne correspond pas",
+      "description": "Essaie encore."
+    },
+    "not_found": {
+      "title": "Introuvable",
+      "description": "Cet élément n'existe plus. Retourne à l'accueil."
+    },
+    "validation_failed": {
+      "title": "Vérifie les informations",
+      "description": "Certains champs ne sont pas valides."
+    },
+    "rate_limited": {
+      "title": "Doucement",
+      "description": "Attends un instant, puis réessaie."
+    },
+    "internal_error": {
+      "title": "Un problème est survenu de notre côté",
+      "description": "Réessaie dans un moment. Si ça continue, préviens-nous.",
+      "retry": "Réessayer"
+    },
+    "unknown": {
+      "title": "Quelque chose s'est mal passé",
+      "description": "Réessaie. Si ça continue, préviens-nous.",
+      "retry": "Réessayer"
+    },
+    "sound": {
+      "title": "Le son n'a pas pu démarrer",
+      "description": "Le jeu continue sans son. Vérifie le volume de l'appareil."
+    },
+    "narrationFailed": {
+      "title": "L'histoire n'a pas pu se charger",
+      "description": "Touche Réessayer pour la relancer.",
+      "retry": "Réessayer"
+    },
+    "offline": {
+      "title": "Tu es hors ligne",
+      "description": "Tu peux regarder ton chemin et tes cartes. Pour jouer, reconnecte-toi."
+    },
+    "back": "Retour",
+    "device_offline": {
+      "title": "Ton appareil est hors ligne",
+      "description": "Vérifie ton Wi-Fi ou tes données mobiles, puis réessaie. Le problème vient de ta connexion."
+    },
+    "server_unreachable": {
+      "title": "On n'arrive pas à joindre Numerix",
+      "description": "Ton appareil se dit en ligne, mais Numerix ne répond pas. Si d'autres sites fonctionnent, le problème vient de notre côté. Sinon, vérifie ta connexion."
+    },
+    "backend_unreachable": {
+      "title": "Le problème vient de nous",
+      "description": "Nos serveurs ne répondent pas pour le moment. Ce n'est pas ta connexion. Réessaie dans un instant."
+    },
+    "backend_timeout": {
+      "title": "Nos serveurs sont trop lents",
+      "description": "Ce n'est pas ta connexion. Réessaie dans un instant."
+    },
+    "request_failed": {
+      "title": "La demande n'a pas abouti",
+      "description": "Ta connexion et nos serveurs répondent, mais cette demande a échoué. Réessaie."
+    },
+    "retry": "Réessayer"
+  },
+  "worlds": {
+    "nature": "Nature",
+    "espace": "Espace",
+    "cuisine": "Cuisine",
+    "sport": "Sport",
+    "construction": "Construction",
+    "medecine": "Médecine",
+    "science": "Science",
+    "echecs": "Échecs"
+  },
   "game": {
+    "aiBadge": {
+      "label": "Généré par IA"
+    },
     "chapterComplete": {
       "fallbackTitle": "Chapitre terminé",
       "congrats": "Quelle histoire ! Tu as fait avancer l'aventure.",
@@ -384,6 +430,15 @@
     "dailyGoalRing": {
       "label": "Objectif du jour : {done} sur {target}",
       "met": "Objectif du jour atteint"
+    },
+    "feedCard": {
+      "puzzleLabel": "Petit défi",
+      "kind": {
+        "story_short": "Mini-histoire",
+        "fun_fact": "Le savais-tu ?",
+        "puzzle": "Petit défi",
+        "challenge": "Défi"
+      }
     },
     "journeyNode": {
       "locked": "Bientôt",
@@ -412,6 +467,12 @@
       "unavailable": "Rien à revoir aujourd'hui. Profite de ta journée !",
       "completed": "Quête terminée. À demain pour la suite !",
       "play": "C'est parti"
+    },
+    "reactionBar": {
+      "like": "J'aime",
+      "liked": "Aimé",
+      "save": "Garder",
+      "saved": "Gardé"
     },
     "rewardBurst": {
       "continue": "Continuer",
@@ -454,7 +515,7 @@
       "scenario": "Cas à simuler",
       "options": {
         "none": "Aucun",
-        "network-error": "Connexion coupée",
+        "network-error": "Serveur injoignable",
         "unauthorized": "Session expirée",
         "rate-limited": "Trop de demandes",
         "server-error": "Erreur du serveur",

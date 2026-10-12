@@ -20,7 +20,7 @@ export function BottomNav({ items, ariaLabel }: BottomNavProps) {
           <li key={it.href} className="flex-1">
             <Link
               href={it.href}
-              onClick={() => play('tap')}
+              onClick={() => play('switch')}
               aria-current={it.active ? 'page' : undefined}
               className={cn(
                 'lift flex min-h-16 flex-col items-center justify-center gap-1 rounded-md px-2 py-2 font-display text-sm font-semibold',

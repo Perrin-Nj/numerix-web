@@ -4,13 +4,15 @@ import { useRouter } from 'next/navigation';
 import { useSessionStatus } from '@/features/api/hooks';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { Button } from '@/ui/button';
+import { Icon } from '@/ui/icon';
 import { Reveal } from '@/ui/reveal';
-import { Skeleton } from '@/ui/skeleton';
 
+/** Two clear doors: kids play, grown-ups manage. Neither is hidden behind the other. */
 export function WelcomeScreen() {
   const t = useTranslations('screens.welcome');
   const router = useRouter();
   const status = useSessionStatus();
+  const hasParent = Boolean(status.data?.parent);
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center gap-8 px-4 py-10">
@@ -24,28 +26,20 @@ export function WelcomeScreen() {
         </MascotBubble>
       </Reveal>
       <Reveal delayMs={220}>
-        {status.isLoading ? (
-          <div className="flex flex-col gap-3">
-            <Skeleton height={72} />
-            <Skeleton height={56} />
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {(status.data?.parent || status.data?.child) && (
-              <Button size="xl" fullWidth onClick={() => router.push(status.data?.child ? '/play/home' : '/play')}>
-                {t('play')}
-              </Button>
-            )}
-            <Button
-              size={status.data?.parent ? 'lg' : 'xl'}
-              variant={status.data?.parent ? 'secondary' : 'primary'}
-              fullWidth
-              onClick={() => router.push(status.data?.parent ? '/parent' : '/parent/login')}
-            >
-              {status.data?.parent ? t('parentArea') : t('grownUp')}
+        <div className="flex flex-col gap-4">
+          <div>
+            <Button size="xl" fullWidth iconLeft={<Icon name="play" size={28} />} onClick={() => router.push('/play')}>
+              {t('kidButton')}
             </Button>
+            <p className="mt-1 text-center text-sm text-muted">{t('kidHint')}</p>
           </div>
-        )}
+          <div>
+            <Button size="lg" variant="secondary" fullWidth iconLeft={<Icon name="shield" />} onClick={() => router.push(hasParent ? '/parent' : '/parent/login')}>
+              {t('adultButton')}
+            </Button>
+            <p className="mt-1 text-center text-sm text-muted">{t('adultHint')}</p>
+          </div>
+        </div>
       </Reveal>
     </main>
   );

@@ -1,0 +1,10 @@
+{
+  "screens": {
+    "parent": {
+      "home": {
+        "pinOn": "Code à 4 chiffres requis pour jouer",
+        "pinOff": "Pas de code"
+      }
+    }
+  }
+}

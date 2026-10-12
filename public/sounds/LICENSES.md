@@ -13,3 +13,18 @@ All sounds are derived from "Interface Sounds" by Kenney (https://kenney.nl/asse
 | streak_up | select_006 | streak extended |
 | notice_warning | bong_001 | system warning |
 | notice_error | error_005 | system error (parent area and network failures only) |
+| open | open_001 | dialog or sheet opens |
+| close | close_001 | dialog or sheet closes |
+| toggle | toggle_001 | switch turned on or off |
+| select | select_001 | a choice or option is selected |
+| switch | switch_003 | tab or navigation change |
+| scroll | scroll_002 | feed card snaps into place |
+| pluck | pluck_001 | like in the feed |
+| drop | drop_002 | save in the feed |
+| back | back_001 | going back |
+| confirm | confirmation_001 | success notification |
+| question | question_001 | mascot thinks, new puzzle |
+| glass | glass_001 | sparkle on a saved card |
+| tick | tick_001 | narration text arrives |
+| minimize | minimize_003 | panel collapses |
+| maximize | maximize_003 | panel expands |

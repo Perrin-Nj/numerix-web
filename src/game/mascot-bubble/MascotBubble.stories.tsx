@@ -4,13 +4,25 @@ import type { MascotConfig, MascotPose } from '@/game/mascot';
 
 const on: MascotConfig = { enabled: true, kind: 'emoji', emoji: '🦊', src: '' };
 const off: MascotConfig = { ...on, enabled: false };
-const poses: MascotPose[] = ['greet', 'cheer', 'think', 'rest'];
+const poses: MascotPose[] = ['greet', 'cheer', 'think', 'rest', 'curious', 'amazed'];
 
 const meta = {
   title: 'game/MascotBubble',
   component: MascotBubble,
   tags: ['autodocs'],
-  args: { pose: 'greet', size: 'md', config: on, children: 'Salut ! Choisis un monde pour commencer.' },
+  parameters: {
+    docs: {
+      description: {
+        component: 'Sound: `question` when the pose becomes `think`.',
+      },
+    },
+  }, // sounds-note
+  args: {
+    pose: 'greet',
+    size: 'md',
+    config: on,
+    children: 'Salut ! Choisis un monde pour commencer.',
+  },
 } satisfies Meta<typeof MascotBubble>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -18,7 +30,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 export const MascotDisabled: Story = { args: { config: off } };
 export const Small: Story = { args: { size: 'sm' } };
-export const Large: Story = { args: { size: 'lg', pose: 'cheer', children: 'Bravo, tu as fini le chapitre !' } };
+export const Large: Story = {
+  args: {
+    size: 'lg',
+    pose: 'cheer',
+    children: 'Bravo, tu as fini le chapitre !',
+  },
+};
 export const LongText: Story = {
   args: {
     children:

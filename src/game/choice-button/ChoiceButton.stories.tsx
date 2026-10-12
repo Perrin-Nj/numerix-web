@@ -8,8 +8,22 @@ const meta = {
   title: 'game/ChoiceButton',
   component: ChoiceButton,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Sound: `select` on choice. Never a sound or style for wrong answers. Selected pops, success does a small heart pulse.',
+      },
+    },
+  }, // sounds-note
   args: { value: 48, index: 0, state: 'idle', onSelect: fn() },
-  decorators: [(Story) => <div className="max-w-md"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-md">
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof ChoiceButton>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -48,10 +62,22 @@ function Group() {
 
 export const FourChoices: Story = {
   render: () => <Group />,
-  decorators: [(Story) => <div className="max-w-3xl"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-3xl">
+        <Story />
+      </div>
+    ),
+  ],
 };
 export const TVScale: Story = {
   globals: { display: 'tv' },
   render: () => <Group />,
-  decorators: [(Story) => <div className="max-w-3xl"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-3xl">
+        <Story />
+      </div>
+    ),
+  ],
 };

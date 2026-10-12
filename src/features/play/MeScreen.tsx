@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { useCountUp } from '@/lib/motion';
 import { reportError } from '@/lib/errors/bridge';
 import { signOut, useEngagement, useGrowth, useSessionStatus } from '@/features/api/hooks';
 import { ParentGate } from '@/features/common/ParentGate';
@@ -11,6 +12,18 @@ import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 import { Panel } from '@/ui/panel';
 import { Skeleton } from '@/ui/skeleton';
+
+function GrowthLines({ g }: { g: { current: { chapters_completed: number; skills_mastered: number }; previous: { chapters_completed: number; skills_mastered: number } } }) {
+  const t = useTranslations('screens.play.me');
+  const chapters = useCountUp(g.current.chapters_completed);
+  const skills = useCountUp(g.current.skills_mastered);
+  return (
+    <>
+      <p className="text-lg">{t('growthLine', { now: chapters, before: g.previous.chapters_completed })}</p>
+      <p className="text-lg">{t('skillsLine', { now: skills, before: g.previous.skills_mastered })}</p>
+    </>
+  );
+}
 
 export function MeScreen() {
   const t = useTranslations('screens.play.me');
@@ -36,8 +49,7 @@ export function MeScreen() {
       )}
       {growth.data && (
         <Panel title={t('growth')}>
-          <p className="text-lg">{t('growthLine', { now: growth.data.current.chapters_completed, before: growth.data.previous.chapters_completed })}</p>
-          <p className="text-lg">{t('skillsLine', { now: growth.data.current.skills_mastered, before: growth.data.previous.skills_mastered })}</p>
+          <GrowthLines g={growth.data} />
         </Panel>
       )}
       <div>

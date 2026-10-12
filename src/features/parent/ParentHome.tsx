@@ -44,6 +44,7 @@ export function ParentHome() {
                       <div>
                         <p className="font-display text-xl font-bold">{c.display_name}</p>
                         <p className="text-muted">{t('grade', { grade: c.grade })}</p>
+                        <p className="text-sm text-muted">{c.has_pin ? t('pinOn') : t('pinOff')}</p>
                         <p className={c.consent_given ? 'text-success' : 'text-warning'}>
                           {c.consent_given ? t('consentOk') : t('consentNeeded')}
                         </p>

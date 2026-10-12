@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Dialog as D } from 'radix-ui';
 import { cn } from '@/lib/cn';
+import { useOpenCloseSound } from '@/lib/audio';
 import { Icon } from '@/ui/icon';
 import { IconButton } from '@/ui/icon-button';
 
@@ -21,6 +22,7 @@ const SIDE = {
 
 export function Sheet({ open, onOpenChange, title, side = 'bottom', children }: SheetProps) {
   const t = useTranslations('ui.sheet');
+  useOpenCloseSound(open);
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <D.Portal>
@@ -32,7 +34,7 @@ export function Sheet({ open, onOpenChange, title, side = 'bottom', children }: 
           <div className="flex items-start justify-between gap-3">
             <D.Title className="font-display text-xl font-semibold">{title}</D.Title>
             <D.Close asChild>
-              <IconButton size="sm" tooltip={false} label={t('close')} icon={<Icon name="x" />} />
+              <IconButton size="sm" tooltip={false} sound={null} label={t('close')} icon={<Icon name="x" />} />
             </D.Close>
           </div>
           {children}

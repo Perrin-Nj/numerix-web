@@ -1,0 +1,17 @@
+{
+  "name": "numerix-mock",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Numerix backend mock for Vercel: serves the WireMock mappings from ../contracts/wiremock",
+  "scripts": {
+    "sync": "node ../contracts/wiremock/gen.mjs && node scripts/sync-mappings.mjs",
+    "dev": "node dev.mjs",
+    "deploy": "vercel deploy --prod --yes"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.8",
+    "jsonpath-plus": "^10.3.0"
+  },
+  "engines": { "node": "22.x" }
+}

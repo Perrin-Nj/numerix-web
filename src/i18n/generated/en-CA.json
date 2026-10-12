@@ -1,102 +1,109 @@
 {
-  "errors": {
-    "ok": "OK",
-    "network": {
-      "title": "No connection",
-      "description": "Check your network, then try again.",
-      "retry": "Try again"
-    },
-    "unauthorized": {
-      "title": "Your session ended",
-      "description": "Log in again to continue.",
-      "action": "Log in"
-    },
-    "forbidden": {
-      "title": "Access denied",
-      "description": "This screen is for a grown-up."
-    },
-    "consent_missing": {
-      "title": "A grown-up needs to say yes first",
-      "description": "Ask a parent to accept in the parent area."
-    },
-    "daily_limit_reached": {
-      "title": "That's enough for today",
-      "description": "See you tomorrow for the next part of the story."
-    },
-    "session_active": {
-      "title": "A chapter is already in progress",
-      "description": "Resume it or start a new chapter."
-    },
-    "session_paused": {
-      "title": "The chapter is paused",
-      "description": "Resume it to continue the story."
-    },
-    "session_completed": {
-      "title": "This chapter is finished",
-      "description": "Go back to your path to choose what comes next."
-    },
-    "beat_answered": {
-      "title": "This question was already answered",
-      "description": "We are reloading your story."
-    },
-    "invalid_pin": {
-      "title": "That code does not match",
-      "description": "Try again."
-    },
-    "not_found": {
-      "title": "Not found",
-      "description": "This item no longer exists. Go back home."
-    },
-    "validation_failed": {
-      "title": "Check the details",
-      "description": "Some fields are not valid."
-    },
-    "rate_limited": {
-      "title": "Easy does it",
-      "description": "Wait a moment, then try again."
-    },
-    "internal_error": {
-      "title": "Something went wrong on our side",
-      "description": "Try again in a moment. If it keeps happening, let us know.",
-      "retry": "Try again"
-    },
-    "unknown": {
-      "title": "Something went wrong",
-      "description": "Try again. If it keeps happening, let us know.",
-      "retry": "Try again"
-    },
-    "sound": {
-      "title": "Sound could not start",
-      "description": "The game goes on without sound. Check the device volume."
-    },
-    "narrationFailed": {
-      "title": "The story could not load",
-      "description": "Tap Try again to start it over.",
-      "retry": "Try again"
-    },
-    "offline": {
-      "title": "You are offline",
-      "description": "You can look at your path and your cards. To play, reconnect."
-    },
-    "back": "Back"
-  },
-  "worlds": {
-    "nature": "Nature",
-    "espace": "Space",
-    "cuisine": "Cooking",
-    "sport": "Sport",
-    "construction": "Building",
-    "medecine": "Medicine",
-    "science": "Science",
-    "echecs": "Chess"
-  },
   "screens": {
     "welcome": {
+      "kidButton": "I am a kid",
+      "kidHint": "Tap here to play",
+      "adultButton": "I am a grown-up",
+      "adultHint": "Account, profiles and progress",
       "tagline": "Adventures where math changes the story.",
       "mascot": "Hi there! Ready for a new story?",
       "play": "Play",
       "parentArea": "Parent area",
       "grownUp": "I am a grown-up"
+    },
+    "play": {
+      "picker": {
+        "needAdultTitle": "A grown-up needs to log in first",
+        "needAdultText": "To play, a grown-up logs in once on this device and creates your profile. After that you can play on your own.",
+        "needAdultAction": "I am a grown-up",
+        "demoPins": "Demo mode: the Zoé profile opens with the code 1234. Max does not have a parent's permission yet. Profiles you create keep the code you choose.",
+        "who": "Who is playing today?",
+        "none": "No profile yet. Ask a grown-up to create one.",
+        "pinProtected": "Protected by a code",
+        "parentArea": "Parent area",
+        "signOut": "Sign out",
+        "pinTitle": "{name}'s code",
+        "pinLabel": "4-digit code"
+      },
+      "nav": {
+        "label": "Main navigation",
+        "home": "Home",
+        "worlds": "Worlds",
+        "discover": "Discover",
+        "cards": "Cards",
+        "me": "Me"
+      },
+      "home": {
+        "title": "Home",
+        "feedLabel": "Your adventure feed",
+        "worlds": "Pick a world",
+        "recentCards": "Your latest cards",
+        "growth": "This week: {now} chapters. The week before: {before}. You are getting better!",
+        "tour": {
+          "welcomeTitle": "Welcome!",
+          "welcome": "Here, math decides what happens to the hero. Every answer changes the story.",
+          "continueTitle": "Your next adventure",
+          "continue": "Tap this card to continue your story.",
+          "streakTitle": "Your story days",
+          "streak": "Each day you finish a chapter, your flame grows.",
+          "worldsTitle": "Your worlds",
+          "worlds": "Pick the world you love: nature, space, cooking and more."
+        }
+      },
+      "feed": {
+        "title": "Discover",
+        "label": "Discovery feed",
+        "hint": "Scroll to discover",
+        "loadingMore": "More surprises on the way",
+        "empty": "Nothing to discover right now.",
+        "error": "The feed could not load.",
+        "moreError": "Could not load more.",
+        "retry": "Try again"
+      },
+      "worlds": {
+        "title": "Pick your world"
+      },
+      "journey": {
+        "back": "Back to worlds",
+        "unknownWorld": "This world does not exist. Go back and pick a world."
+      },
+      "collection": {
+        "title": "Your story cards"
+      },
+      "quest": {
+        "title": "Daily quest",
+        "intro": "One chapter to find things you already learned, in a brand new story."
+      },
+      "me": {
+        "title": "Me",
+        "today": "Today",
+        "longest": "Your longest run: {days} days.",
+        "growth": "Your growth",
+        "growthLine": "Chapters finished this week: {now} (before: {before}).",
+        "skillsLine": "New skills: {now} (before: {before}).",
+        "grownUps": "Grown-ups area"
+      },
+      "story": {
+        "pause": "Take a break",
+        "illustration": "Story illustration",
+        "showQuestion": "Show the question",
+        "choices": "Answer choices",
+        "continue": "Continue",
+        "pauseTitle": "Need a break?",
+        "pauseText": "Your story is waiting. You can pick up exactly here.",
+        "takeBreak": "Take a break",
+        "keepPlaying": "Keep playing",
+        "noVoice": {
+          "title": "No voice to read aloud",
+          "description": "This device has no voice in this language. The story stays written on screen."
+        },
+        "mascot": {
+          "think": "Hmm, what would you pick?",
+          "cheer": "Nice one!",
+          "curious": "Ooh, an interesting detour!",
+          "amazed": "Wow, nobody saw that coming!"
+        }
+      }
     },
     "parentGate": {
       "title": "Grown-ups only",
@@ -148,7 +155,9 @@
         "consentNeeded": "Permission needed",
         "play": "Play",
         "giveConsent": "Give permission",
-        "overview": "Progress"
+        "overview": "Progress",
+        "pinOn": "4-digit code needed to play",
+        "pinOff": "No code"
       },
       "childForm": {
         "title": "New child",
@@ -288,86 +297,123 @@
         "replayGuide": "Replay the tour"
       }
     },
-    "play": {
-      "nav": {
-        "label": "Main navigation",
-        "home": "Home",
-        "worlds": "Worlds",
-        "cards": "Cards",
-        "me": "Me"
-      },
-      "picker": {
-        "who": "Who is playing today?",
-        "none": "No profile yet. Ask a grown-up to create one.",
-        "pinProtected": "Protected by a code",
-        "parentArea": "Parent area",
-        "signOut": "Sign out",
-        "pinTitle": "{name}'s code",
-        "pinLabel": "4-digit code"
-      },
-      "home": {
-        "title": "Home",
-        "feedLabel": "Your adventure feed",
-        "worlds": "Pick a world",
-        "recentCards": "Your latest cards",
-        "growth": "This week: {now} chapters. The week before: {before}. You are getting better!",
-        "tour": {
-          "welcomeTitle": "Welcome!",
-          "welcome": "Here, math decides what happens to the hero. Every answer changes the story.",
-          "continueTitle": "Your next adventure",
-          "continue": "Tap this card to continue your story.",
-          "streakTitle": "Your story days",
-          "streak": "Each day you finish a chapter, your flame grows.",
-          "worldsTitle": "Your worlds",
-          "worlds": "Pick the world you love: nature, space, cooking and more."
-        }
-      },
-      "worlds": {
-        "title": "Pick your world"
-      },
-      "journey": {
-        "back": "Back to worlds",
-        "unknownWorld": "This world does not exist. Go back and pick a world."
-      },
-      "collection": {
-        "title": "Your story cards"
-      },
-      "quest": {
-        "title": "Daily quest",
-        "intro": "One chapter to find things you already learned, in a brand new story."
-      },
-      "me": {
-        "title": "Me",
-        "today": "Today",
-        "longest": "Your longest run: {days} days.",
-        "growth": "Your growth",
-        "growthLine": "Chapters finished this week: {now} (before: {before}).",
-        "skillsLine": "New skills: {now} (before: {before}).",
-        "grownUps": "Grown-ups area"
-      },
-      "story": {
-        "pause": "Take a break",
-        "illustration": "Story illustration",
-        "showQuestion": "Show the question",
-        "choices": "Answer choices",
-        "continue": "Continue",
-        "pauseTitle": "Need a break?",
-        "pauseText": "Your story is waiting. You can pick up exactly here.",
-        "takeBreak": "Take a break",
-        "keepPlaying": "Keep playing",
-        "noVoice": {
-          "title": "No voice to read aloud",
-          "description": "This device has no voice in this language. The story stays written on screen."
-        }
-      }
-    },
     "pwa": {
       "updateTitle": "An update is ready",
       "updateText": "Reload to get the latest version.",
       "updateAction": "Update now"
     }
   },
+  "errors": {
+    "ok": "OK",
+    "unauthorized": {
+      "title": "Your session ended",
+      "description": "Log in again to continue.",
+      "action": "Log in"
+    },
+    "forbidden": {
+      "title": "Access denied",
+      "description": "This screen is for a grown-up."
+    },
+    "consent_missing": {
+      "title": "A grown-up needs to say yes first",
+      "description": "Ask a parent to accept in the parent area."
+    },
+    "daily_limit_reached": {
+      "title": "That's enough for today",
+      "description": "See you tomorrow for the next part of the story."
+    },
+    "session_active": {
+      "title": "A chapter is already in progress",
+      "description": "Resume it or start a new chapter."
+    },
+    "session_paused": {
+      "title": "The chapter is paused",
+      "description": "Resume it to continue the story."
+    },
+    "session_completed": {
+      "title": "This chapter is finished",
+      "description": "Go back to your path to choose what comes next."
+    },
+    "beat_answered": {
+      "title": "This question was already answered",
+      "description": "We are reloading your story."
+    },
+    "invalid_pin": {
+      "title": "That code does not match",
+      "description": "Try again."
+    },
+    "not_found": {
+      "title": "Not found",
+      "description": "This item no longer exists. Go back home."
+    },
+    "validation_failed": {
+      "title": "Check the details",
+      "description": "Some fields are not valid."
+    },
+    "rate_limited": {
+      "title": "Easy does it",
+      "description": "Wait a moment, then try again."
+    },
+    "internal_error": {
+      "title": "Something went wrong on our side",
+      "description": "Try again in a moment. If it keeps happening, let us know.",
+      "retry": "Try again"
+    },
+    "unknown": {
+      "title": "Something went wrong",
+      "description": "Try again. If it keeps happening, let us know.",
+      "retry": "Try again"
+    },
+    "sound": {
+      "title": "Sound could not start",
+      "description": "The game goes on without sound. Check the device volume."
+    },
+    "narrationFailed": {
+      "title": "The story could not load",
+      "description": "Tap Try again to start it over.",
+      "retry": "Try again"
+    },
+    "offline": {
+      "title": "You are offline",
+      "description": "You can look at your path and your cards. To play, reconnect."
+    },
+    "back": "Back",
+    "device_offline": {
+      "title": "Your device is offline",
+      "description": "Check your Wi-Fi or mobile data, then try again. The problem is your connection."
+    },
+    "server_unreachable": {
+      "title": "We cannot reach Numerix",
+      "description": "Your device says it is online, but Numerix does not answer. If other sites work, the problem is on our side. If not, check your connection."
+    },
+    "backend_unreachable": {
+      "title": "This one is on us",
+      "description": "Our servers are not answering right now. It is not your connection. Try again in a moment."
+    },
+    "backend_timeout": {
+      "title": "Our servers are too slow",
+      "description": "It is not your connection. Try again in a moment."
+    },
+    "request_failed": {
+      "title": "The request did not go through",
+      "description": "Your connection and our servers both answer, but this request failed. Try again."
+    },
+    "retry": "Try again"
+  },
+  "worlds": {
+    "nature": "Nature",
+    "espace": "Space",
+    "cuisine": "Cooking",
+    "sport": "Sport",
+    "construction": "Building",
+    "medecine": "Medicine",
+    "science": "Science",
+    "echecs": "Chess"
+  },
   "game": {
+    "aiBadge": {
+      "label": "AI generated"
+    },
     "chapterComplete": {
       "fallbackTitle": "Chapter complete",
       "congrats": "What a story! You moved the adventure forward.",
@@ -384,6 +430,15 @@
     "dailyGoalRing": {
       "label": "Today's goal: {done} of {target}",
       "met": "Today's goal reached"
+    },
+    "feedCard": {
+      "puzzleLabel": "Little puzzle",
+      "kind": {
+        "story_short": "Mini story",
+        "fun_fact": "Did you know?",
+        "puzzle": "Little puzzle",
+        "challenge": "Challenge"
+      }
     },
     "journeyNode": {
       "locked": "Coming soon",
@@ -412,6 +467,12 @@
       "unavailable": "Nothing to revisit today. Enjoy your day!",
       "completed": "Quest done. See you tomorrow for more!",
       "play": "Let's go"
+    },
+    "reactionBar": {
+      "like": "Like",
+      "liked": "Liked",
+      "save": "Save",
+      "saved": "Saved"
     },
     "rewardBurst": {
       "continue": "Continue",
@@ -454,7 +515,7 @@
       "scenario": "Case to simulate",
       "options": {
         "none": "None",
-        "network-error": "Connection lost",
+        "network-error": "Backend unreachable",
         "unauthorized": "Session expired",
         "rate-limited": "Too many requests",
         "server-error": "Server error",

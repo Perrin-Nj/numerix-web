@@ -9,7 +9,12 @@ function Demo(props: Omit<DialogProps, 'open' | 'onOpenChange'> & { startOpen?: 
   return (
     <>
       <Button onClick={() => setOpen(true)}>Ouvrir</Button>
-      <Dialog {...rest} open={open} onOpenChange={setOpen} footer={rest.footer ?? <Button onClick={() => setOpen(false)}>D’accord</Button>} />
+      <Dialog
+        {...rest}
+        open={open}
+        onOpenChange={setOpen}
+        footer={rest.footer ?? <Button onClick={() => setOpen(false)}>D’accord</Button>}
+      />
     </>
   );
 }
@@ -18,13 +23,33 @@ const meta = {
   title: 'ui/Dialog',
   component: Dialog,
   tags: ['autodocs'],
-  args: { open: true, onOpenChange: () => {}, title: 'Quitter la partie ?', description: 'Tu pourras reprendre plus tard.' },
-  render: (args) => <Demo title={args.title} description={args.description} tone={args.tone} dismissible={args.dismissible} />,
+  parameters: {
+    docs: {
+      description: {
+        component: 'Sounds: `open` when it opens, `close` when it closes.',
+      },
+    },
+  }, // sounds-note
+  args: {
+    open: true,
+    onOpenChange: () => {},
+    title: 'Quitter la partie ?',
+    description: 'Tu pourras reprendre plus tard.',
+  },
+  render: (args) => (
+    <Demo title={args.title} description={args.description} tone={args.tone} dismissible={args.dismissible} />
+  ),
 } satisfies Meta<typeof Dialog>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-export const Danger: Story = { args: { tone: 'danger', title: 'Supprimer ce profil ?', description: 'Cette action est définitive.' } };
+export const Danger: Story = {
+  args: {
+    tone: 'danger',
+    title: 'Supprimer ce profil ?',
+    description: 'Cette action est définitive.',
+  },
+};
 export const NotDismissible: Story = { args: { dismissible: false } };
 export const NoDescription: Story = { args: { description: undefined } };

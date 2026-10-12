@@ -5,7 +5,10 @@ const meta = {
   title: 'ui/Panel',
   component: Panel,
   tags: ['autodocs'],
-  args: { title: 'Cette semaine', children: <p className="text-muted">Trois jours de suite, bravo.</p> },
+  args: {
+    title: 'Cette semaine',
+    children: <p className="text-muted">Trois jours de suite, bravo.</p>,
+  },
 } satisfies Meta<typeof Panel>;
 export default meta;
 type Story = StoryObj<typeof meta>;

@@ -2,6 +2,7 @@
 import { useId } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
+import { useSound } from '@/lib/audio';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 import { InlineError } from '@/ui/inline-error';
@@ -31,13 +32,17 @@ export function PinInput({
 }: PinInputProps) {
   const t = useTranslations('ui.pinInput');
   const id = useId();
+  const { play } = useSound();
   const errorId = `${id}-error`;
 
   const update = (next: string) => {
     const clean = next.replace(/\D/g, '').slice(0, length);
     if (clean === value) return;
     onChange(clean);
-    if (clean.length === length) onComplete?.(clean);
+    if (clean.length === length) {
+      play('confirm');
+      onComplete?.(clean);
+    }
   };
 
   return (

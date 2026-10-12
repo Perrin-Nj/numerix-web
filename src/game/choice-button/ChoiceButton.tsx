@@ -21,9 +21,9 @@ const LETTERS = ['A', 'B', 'C', 'D'];
 
 const STATE: Record<ChoiceState, string> = {
   idle: 'border-line bg-elevated text-fg shadow-1',
-  selected: 'border-brand bg-brand-soft text-fg ring-4 ring-brand/30',
+  selected: 'nx-pop border-brand bg-brand-soft text-fg ring-4 ring-brand/30',
   locked: 'border-line bg-sunken text-muted',
-  success: 'border-success bg-elevated text-fg',
+  success: 'nx-heart border-success bg-elevated text-fg',
 };
 
 function ChoiceButtonBase({ value, index, state, onSelect, shortcut }: ChoiceButtonProps) {
@@ -37,7 +37,7 @@ function ChoiceButtonBase({ value, index, state, onSelect, shortcut }: ChoiceBut
       const el = e.target as HTMLElement | null;
       if (e.metaKey || e.ctrlKey || e.altKey || el?.closest('input,textarea,select,[contenteditable]')) return;
       if (e.key === String(index + 1)) {
-        play('tap');
+        play('select');
         onSelect(value);
       }
     };
@@ -52,7 +52,7 @@ function ChoiceButtonBase({ value, index, state, onSelect, shortcut }: ChoiceBut
       aria-pressed={state === 'selected' || state === 'success'}
       data-state={state}
       onClick={() => {
-        play('tap');
+        play('select');
         onSelect(value);
       }}
       className={cn(

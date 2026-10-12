@@ -31,7 +31,7 @@ export function QuestCard({ quest, onPlay }: QuestCardProps) {
         <p className="text-base text-muted">{t(state)}</p>
       </div>
       {state === 'available' && (
-        <Button size="lg" onClick={onPlay}>
+        <Button size="lg" sound="maximize" onClick={onPlay}>
           {t('play')}
         </Button>
       )}

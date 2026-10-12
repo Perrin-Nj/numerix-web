@@ -16,7 +16,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-export const WithHint: Story = { args: { hint: 'Comme sur ta carte de joueur.' } };
+export const WithHint: Story = {
+  args: { hint: 'Comme sur ta carte de joueur.' },
+};
 export const Required: Story = { args: { required: true } };
 export const WithError: Story = {
   args: {

@@ -7,7 +7,13 @@ const meta = {
   component: IllustrationFrame,
   tags: ['autodocs'],
   args: { world: 'nature', alt: 'Une clairière dans la forêt' },
-  decorators: [(Story) => <div className="max-w-xl"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-xl">
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof IllustrationFrame>;
 export default meta;
 type Story = StoryObj<typeof meta>;

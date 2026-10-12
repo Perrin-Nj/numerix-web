@@ -1,14 +1,25 @@
 'use client';
+import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
-import { ApiError, newIdempotencyKey } from '@/lib/api/client';
+import { ApiError, classifyConnectionFailure, newIdempotencyKey } from '@/lib/api/client';
 import { streamNarration } from '@/lib/api/narration';
 import { reportError } from '@/lib/errors/bridge';
 import { initialStoryState, storyReducer } from '@/lib/session/machine';
 import { useReadAloud } from '@/lib/speech';
-import { getSession, pauseSession, requestBeat, resumeSession, sendAnswer, useChildSettings, useSessionStatus } from '@/features/api/hooks';
+import {
+  getSession,
+  pauseSession,
+  requestBeat,
+  resumeSession,
+  sendAnswer,
+  useChildSettings,
+  useSessionStatus,
+} from '@/features/api/hooks';
+import { MascotBubble } from '@/game/mascot-bubble';
+import { useReducedMotion } from '@/lib/motion';
 import { ChoiceButton } from '@/game/choice-button';
 import { IllustrationFrame } from '@/game/illustration-frame';
 import { NarrationText } from '@/game/narration-text';
@@ -23,7 +34,20 @@ import { InlineError } from '@/ui/inline-error';
 import { useNotify } from '@/ui/notification-center';
 import type { AnswerValue, WorldId } from '@/lib/api/types';
 
-const KNOWN = new Set(['network', 'unauthorized', 'session_completed', 'session_paused', 'beat_answered', 'rate_limited', 'internal_error', 'not_found']);
+const KNOWN = new Set([
+  'device_offline',
+  'server_unreachable',
+  'backend_unreachable',
+  'backend_timeout',
+  'request_failed',
+  'unauthorized',
+  'session_completed',
+  'session_paused',
+  'beat_answered',
+  'rate_limited',
+  'internal_error',
+  'not_found',
+]);
 
 /**
  * The play screen: one story, one question, four choices. No score, progress bar, timer or menu.
@@ -39,20 +63,30 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const [s, dispatch] = useReducer(storyReducer, initialStoryState);
   const [attempt, setAttempt] = useState(0);
   const [pauseOpen, setPauseOpen] = useState(false);
+  const reduced = useReducedMotion();
 
   const { speak, cancel: stopSpeaking } = useReadAloud(
     Boolean(settings.data?.read_aloud) && appConfig.features.readAloud,
-    () => notify({ id: 'no-voice', kind: 'info', title: t('noVoice.title'), description: t('noVoice.description') }),
+    () =>
+      notify({
+        id: 'no-voice',
+        kind: 'info',
+        title: t('noVoice.title'),
+        description: t('noVoice.description'),
+      }),
   );
 
-  const fail = useCallback((e: unknown) => {
-    const code = e instanceof ApiError && KNOWN.has(e.code) ? e.code : 'unknown';
-    if (e instanceof ApiError && e.code === 'session_completed') {
-      router.replace(`/play/session/${sessionId}/done`);
-      return;
-    }
-    dispatch({ type: 'FAILED', code, message: code });
-  }, [router, sessionId]);
+  const fail = useCallback(
+    (e: unknown) => {
+      const code = e instanceof ApiError && KNOWN.has(e.code) ? e.code : 'unknown';
+      if (e instanceof ApiError && e.code === 'session_completed') {
+        router.replace(`/play/session/${sessionId}/done`);
+        return;
+      }
+      dispatch({ type: 'FAILED', code, message: code });
+    },
+    [router, sessionId],
+  );
 
   // 1. Load (or resume) the session
   useEffect(() => {
@@ -113,7 +147,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
       },
       onError: () => {
         clearTimeout(slow);
-        dispatch({ type: 'FAILED', code: 'narrationFailed', message: 'narrationFailed' });
+        void classifyConnectionFailure().then((e) => dispatch({ type: 'FAILED', code: e.code, message: e.code }));
       },
     });
     return () => {
@@ -125,7 +159,11 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   // Read the scene aloud once it is complete
   const spoken = useRef<string | null>(null);
   useEffect(() => {
-    if ((s.sceneStatus === 'ready' || s.sceneStatus === 'fallback') && s.sceneText && spoken.current !== `${beatId}:scene`) {
+    if (
+      (s.sceneStatus === 'ready' || s.sceneStatus === 'fallback') &&
+      s.sceneText &&
+      spoken.current !== `${beatId}:scene`
+    ) {
       spoken.current = `${beatId}:scene`;
       speak(s.sceneText);
     }
@@ -165,17 +203,41 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
       onDelta: (text) => dispatch({ type: 'DEN_DELTA', text }),
       onDone: () => dispatch({ type: 'DEN_DONE' }),
       onFallback: (text) => dispatch({ type: 'DEN_FALLBACK', text }),
-      onError: () => dispatch({ type: 'FAILED', code: 'narrationFailed', message: 'narrationFailed' }),
+      onError: () =>
+        void classifyConnectionFailure().then((e) => dispatch({ type: 'FAILED', code: e.code, message: e.code })),
     });
   }, [s.phase, beatId, sessionId]);
 
   const denSpoken = useRef<string | null>(null);
   useEffect(() => {
-    if ((s.denouementStatus === 'ready' || s.denouementStatus === 'fallback') && s.denouementText && denSpoken.current !== beatId) {
+    if (
+      (s.denouementStatus === 'ready' || s.denouementStatus === 'fallback') &&
+      s.denouementText &&
+      denSpoken.current !== beatId
+    ) {
       denSpoken.current = beatId ?? null;
       speak(s.denouementText);
     }
   }, [s.denouementStatus, s.denouementText, beatId, speak]);
+
+  // Small confetti burst on a correct answer (skipped under reduced motion)
+  useEffect(() => {
+    if (s.phase !== 'outcome' || s.outcome !== 'correct' || reduced) return;
+    let cancelled = false;
+    void import('canvas-confetti').then(({ default: confetti }) => {
+      if (!cancelled)
+        void confetti({
+          particleCount: 30,
+          spread: 60,
+          ticks: 70,
+          origin: { y: 0.7 },
+          disableForReducedMotion: true,
+        });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [s.phase, s.outcome, beatId, reduced]);
 
   // 6. Continue to the next beat, the rewards, or the chapter-complete screen
   function onContinue() {
@@ -212,9 +274,24 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
 
   const world: WorldId = s.session?.world ?? 'echecs';
   const showQuestion = s.beat && ['question', 'answering', 'outcome'].includes(s.phase);
-  const mood = s.phase === 'outcome' ? (s.outcome === 'correct' ? 'success' : s.outcome === 'erreur_typique' ? 'detour' : 'surprise') : 'idle';
+  const mood =
+    s.phase === 'outcome'
+      ? s.outcome === 'correct'
+        ? 'success'
+        : s.outcome === 'erreur_typique'
+          ? 'detour'
+          : 'surprise'
+      : 'idle';
   const sameChoice = (a: AnswerValue | null, b: AnswerValue) => a !== null && JSON.stringify(a) === JSON.stringify(b);
   const answerError = s.phase === 'answering' && s.error ? s.error.code : null;
+  const pose =
+    s.phase !== 'outcome'
+      ? 'think'
+      : s.outcome === 'correct'
+        ? 'cheer'
+        : s.outcome === 'erreur_typique'
+          ? 'curious'
+          : 'amazed';
   const denReady = s.denouementStatus === 'ready' || s.denouementStatus === 'fallback';
 
   if (s.phase === 'error') {
@@ -224,7 +301,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
         <h1 className="font-display text-3xl font-bold">{te(`${code}.title`)}</h1>
         <p className="text-lg text-muted">{te(`${code}.description`)}</p>
         <div className="flex gap-3">
-          <Button onClick={retryAfterError}>{te('network.retry')}</Button>
+          <Button onClick={retryAfterError}>{te('retry')}</Button>
           <Button variant="ghost" onClick={() => router.replace('/play/home')}>
             {te('back')}
           </Button>
@@ -236,50 +313,72 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   return (
     <main className="relative min-h-dvh">
       <div className="fixed end-3 top-3 z-20 pt-[env(safe-area-inset-top)]">
-        <IconButton label={t('pause')} variant="ghost" icon={<Icon name="pause" />} onClick={() => setPauseOpen(true)} />
+        <IconButton
+          label={t('pause')}
+          variant="ghost"
+          icon={<Icon name="pause" />}
+          onClick={() => setPauseOpen(true)}
+        />
       </div>
 
       <StoryPanel
         illustration={<IllustrationFrame world={world} mood={mood} alt={t('illustration')} />}
         narration={
-          s.phase === 'outcome' && s.outcome ? (
-            <OutcomeBeat outcome={s.outcome}>
-              <NarrationText text={s.denouementText} status={s.denouementStatus} />
-            </OutcomeBeat>
-          ) : (
-            <>
-              <NarrationText text={s.sceneText} status={s.sceneStatus} slow={s.sceneSlow} onRetry={() => setAttempt((a) => a + 1)} />
-              {s.phase === 'narrating' && s.sceneSlow && s.beat && (
-                <div className="mt-3">
-                  <Button variant="secondary" onClick={() => dispatch({ type: 'SHOW_QUESTION' })}>
-                    {t('showQuestion')}
-                  </Button>
-                </div>
-              )}
-            </>
-          )
+          <>
+            {s.phase === 'outcome' && s.outcome ? (
+              <OutcomeBeat outcome={s.outcome}>
+                <NarrationText text={s.denouementText} status={s.denouementStatus} />
+              </OutcomeBeat>
+            ) : (
+              <>
+                <NarrationText
+                  text={s.sceneText}
+                  status={s.sceneStatus}
+                  slow={s.sceneSlow}
+                  onRetry={() => setAttempt((a) => a + 1)}
+                />
+                {s.phase === 'narrating' && s.sceneSlow && s.beat && (
+                  <div className="mt-3">
+                    <Button variant="secondary" onClick={() => dispatch({ type: 'SHOW_QUESTION' })}>
+                      {t('showQuestion')}
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {showQuestion && (
+              <MascotBubble size="sm" pose={pose} className="mt-4">
+                {t(`mascot.${pose}`)}
+              </MascotBubble>
+            )}
+          </>
         }
-        question={showQuestion && s.beat ? <p className="font-display text-4xl font-bold sm:text-5xl">{s.beat.question.math_text}</p> : undefined}
+        question={
+          showQuestion && s.beat ? (
+            <p className="font-display text-4xl font-bold sm:text-5xl">{s.beat.question.math_text}</p>
+          ) : undefined
+        }
         choices={
           showQuestion && s.beat ? (
             <>
               {s.beat.question.choices.map((c, i) => (
-                <ChoiceButton
-                  key={JSON.stringify(c)}
-                  value={c}
-                  index={i}
-                  shortcut={s.phase === 'question'}
-                  state={
-                    s.phase === 'question'
-                      ? 'idle'
-                      : sameChoice(s.chosen, c)
-                        ? s.phase === 'outcome' && s.outcome === 'correct'
-                          ? 'success'
-                          : 'selected'
-                        : 'locked'
-                  }
-                  onSelect={onSelect}
-                />
+                <div key={JSON.stringify(c)} className="nx-stagger" style={{ '--i': i } as CSSProperties}>
+                  <ChoiceButton
+                    value={c}
+                    index={i}
+                    shortcut={s.phase === 'question'}
+                    state={
+                      s.phase === 'question'
+                        ? 'idle'
+                        : sameChoice(s.chosen, c)
+                          ? s.phase === 'outcome' && s.outcome === 'correct'
+                            ? 'success'
+                            : 'selected'
+                          : 'locked'
+                    }
+                    onSelect={onSelect}
+                  />
+                </div>
               ))}
             </>
           ) : undefined
@@ -289,17 +388,17 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
             {answerError && (
               <>
                 <InlineError message={te(`${answerError}.title`)} recovery={te(`${answerError}.description`)} />
-                <Button
-                  onClick={() => s.pendingAnswer && void submit(s.pendingAnswer.value, s.pendingAnswer.key)}
-                >
-                  {te('network.retry')}
+                <Button onClick={() => s.pendingAnswer && void submit(s.pendingAnswer.value, s.pendingAnswer.key)}>
+                  {te('retry')}
                 </Button>
               </>
             )}
             {s.phase === 'outcome' && denReady && (
-              <Button size="xl" onClick={onContinue}>
-                {t('continue')}
-              </Button>
+              <div className="nx-rise">
+                <Button size="xl" onClick={onContinue}>
+                  {t('continue')}
+                </Button>
+              </div>
             )}
           </div>
         }

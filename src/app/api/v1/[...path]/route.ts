@@ -9,10 +9,12 @@ import { appConfig } from '@/config/app';
  * - A 401 on a parent call triggers one silent refresh and retry.
  */
 
+const MOCK_STATE_COOKIE = 'nx_mock_state';
 const COOKIE = { parent: 'nx_parent', refresh: 'nx_refresh', child: 'nx_child', childId: 'nx_child_id' } as const;
 const secure = process.env.NODE_ENV === 'production';
 
 type Ctx = { params: Promise<{ path: string[] }> };
+const UPSTREAM_TIMEOUT_MS = 15_000;
 
 function cookieOpts(maxAge: number, httpOnly = true) {
   return { httpOnly, secure, sameSite: 'lax' as const, path: '/', maxAge };
@@ -27,8 +29,13 @@ async function forward(req: NextRequest, upstream: string, token: string | undef
   const locale = req.cookies.get('NEXT_LOCALE')?.value ?? req.headers.get('accept-language');
   if (locale) headers.set('accept-language', locale);
   if (token) headers.set('authorization', `Bearer ${token}`);
-  const scenario = appConfig.useMock ? req.cookies.get('nx_mock_scenario')?.value : undefined;
-  if (scenario) headers.set('x-mock-scenario', scenario);
+  if (appConfig.useMock) {
+    const scenario = req.cookies.get('nx_mock_scenario')?.value;
+    if (scenario) headers.set('x-mock-scenario', scenario);
+    // The serverless mock keeps its scenario state with the client
+    const mockState = req.cookies.get(MOCK_STATE_COOKIE)?.value;
+    if (mockState) headers.set('x-mock-state', mockState);
+  }
   const hasBody = !['GET', 'HEAD'].includes(req.method);
   return fetch(upstream, {
     method: req.method,
@@ -36,7 +43,19 @@ async function forward(req: NextRequest, upstream: string, token: string | undef
     body: hasBody ? await req.arrayBuffer() : undefined,
     cache: 'no-store',
     redirect: 'manual',
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   });
+}
+
+function problem(status: number, code: string, title: string, detail: string) {
+  return NextResponse.json({ type: 'about:blank', title, status, code, detail }, { status, headers: { 'content-type': 'application/problem+json' } });
+}
+
+/** Carry the mock's scenario state back to the browser (mock mode only). */
+function keepMockState(out: NextResponse, upstream: Response) {
+  const state = upstream.headers.get('x-mock-state');
+  if (appConfig.useMock && state) out.cookies.set(MOCK_STATE_COOKIE, state, { path: '/', sameSite: 'lax', maxAge: 60 * 60 * 24 });
+  return out;
 }
 
 async function handle(req: NextRequest, ctx: Ctx) {
@@ -55,11 +74,12 @@ async function handle(req: NextRequest, ctx: Ctx) {
   let res: Response;
   try {
     res = await forward(req, upstream, token);
-  } catch {
-    return NextResponse.json(
-      { type: 'about:blank', title: 'Backend unreachable', status: 502, code: 'network', detail: 'The server did not answer.' },
-      { status: 502, headers: { 'content-type': 'application/problem+json' } },
-    );
+  } catch (e) {
+    // This app answered, but its backend did not: the problem is on our side, and we say which kind
+    const timedOut = e instanceof Error && (e.name === 'TimeoutError' || e.name === 'AbortError');
+    return timedOut
+      ? problem(504, 'backend_timeout', 'Backend timeout', 'The backend did not answer in time.')
+      : problem(502, 'backend_unreachable', 'Backend unreachable', 'The backend could not be reached.');
   }
 
   // Silent refresh for an expired parent session
@@ -79,6 +99,13 @@ async function handle(req: NextRequest, ctx: Ctx) {
   }
 
   const contentType = res.headers.get('content-type') ?? '';
+
+  // A gateway error without a problem body (HTML from a proxy, an empty reply) means the backend itself did not answer
+  if ([502, 503, 504].includes(res.status) && !contentType.includes('json')) {
+    return res.status === 504
+      ? problem(504, 'backend_timeout', 'Backend timeout', 'The backend did not answer in time.')
+      : problem(502, 'backend_unreachable', 'Backend unreachable', 'The backend could not be reached.');
+  }
   const outHeaders = new Headers();
   for (const name of ['content-type', 'cache-control']) {
     const v = res.headers.get(name);
@@ -87,7 +114,7 @@ async function handle(req: NextRequest, ctx: Ctx) {
   if (contentType.includes('text/event-stream')) {
     outHeaders.set('cache-control', 'no-cache, no-transform');
     outHeaders.set('x-accel-buffering', 'no');
-    return new NextResponse(res.body, { status: res.status, headers: outHeaders });
+    return keepMockState(new NextResponse(res.body, { status: res.status, headers: outHeaders }), res);
   }
 
   // Auth endpoints: move tokens into httpOnly cookies and strip them from the body
@@ -107,7 +134,7 @@ async function handle(req: NextRequest, ctx: Ctx) {
       out.cookies.set(COOKIE.child, access, cookieOpts(expires));
       if (childId) out.cookies.set(COOKIE.childId, childId, cookieOpts(expires, false));
     }
-    return out;
+    return keepMockState(out, res);
   }
 
   const out = new NextResponse(res.status === 204 || res.status === 202 ? null : res.body, { status: res.status, headers: outHeaders });
@@ -115,7 +142,7 @@ async function handle(req: NextRequest, ctx: Ctx) {
     out.cookies.set(COOKIE.parent, refreshed.access, cookieOpts(refreshed.expires));
     out.cookies.set(COOKIE.refresh, refreshed.refresh, cookieOpts(60 * 60 * 24 * 30));
   }
-  return out;
+  return keepMockState(out, res);
 }
 
 export const GET = handle;

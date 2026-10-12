@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { appConfig } from '@/config/app';
 import { ApiError, setApiMode } from '@/lib/api/client';
 import { reportError } from '@/lib/errors/bridge';
-import { useChildren, useChildToken, signOut } from '@/features/api/hooks';
+import { useChildren, useChildToken, useSessionStatus, signOut } from '@/features/api/hooks';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { Avatar } from '@/ui/avatar';
 import { Button } from '@/ui/button';
@@ -18,7 +19,9 @@ export function ProfilePicker() {
   const t = useTranslations('screens.play.picker');
   const te = useTranslations('errors');
   const router = useRouter();
-  const children = useChildren();
+  const status = useSessionStatus();
+  const hasParent = Boolean(status.data?.parent);
+  const children = useChildren(hasParent);
   const token = useChildToken();
   const [pinFor, setPinFor] = useState<Child | null>(null);
   const [pin, setPin] = useState('');
@@ -47,6 +50,25 @@ export function ProfilePicker() {
       setPinError(undefined);
       setPinFor(child);
     } else void enter(child);
+  }
+
+  if (status.data && !status.data.parent && status.data.child) {
+    router.replace('/play/home');
+    return null;
+  }
+
+  if (status.data && !status.data.parent) {
+    return (
+      <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center gap-6 px-4 py-10">
+        <h1 className="font-display text-3xl font-bold">{t('needAdultTitle')}</h1>
+        <MascotBubble pose="think" size="lg">
+          {t('needAdultText')}
+        </MascotBubble>
+        <Button size="lg" onClick={() => router.push('/parent/login')}>
+          {t('needAdultAction')}
+        </Button>
+      </main>
+    );
   }
 
   return (
@@ -81,6 +103,8 @@ export function ProfilePicker() {
           </li>
         ))}
       </ul>
+
+      {appConfig.useMock && <p className="rounded-md bg-sunken p-3 text-sm text-muted">{t('demoPins')}</p>}
 
       <div className="flex flex-wrap gap-3">
         <Button variant="ghost" onClick={() => router.push('/parent')}>

@@ -12,7 +12,11 @@ import { NotificationCenter, useNotify } from '@/ui/notification-center';
 
 function makeClient() {
   return new QueryClient({
-    defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 30_000 } },
+    // networkMode 'always': when offline, requests still run and fail loudly instead of pausing silently
+    defaultOptions: {
+      queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 30_000, networkMode: 'always' },
+      mutations: { networkMode: 'always' },
+    },
     // Every failed request is shown to the user, unless a screen already handles that error explicitly
     queryCache: new QueryCache({
       onError: (error, query) => {

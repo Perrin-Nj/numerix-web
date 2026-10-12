@@ -16,7 +16,13 @@ const meta = {
     },
     onOpen: fn(),
   },
-  decorators: [(Story) => <div className="max-w-xs"><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div className="max-w-xs">
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof StoryCard>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -29,5 +35,9 @@ export const Tile: Story = {
 };
 export const NotInteractive: Story = { args: { onOpen: undefined } };
 export const Reveal: Story = { args: { variant: 'reveal', onOpen: undefined } };
-export const Espace: Story = { args: { card: { ...meta.args.card, world: 'espace', title: 'La fusée en panne' } } };
+export const Espace: Story = {
+  args: {
+    card: { ...meta.args.card, world: 'espace', title: 'La fusée en panne' },
+  },
+};
 export const TVScale: Story = { globals: { display: 'tv' } };

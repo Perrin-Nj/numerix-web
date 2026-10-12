@@ -170,7 +170,6 @@ add('child-token-bad-pin', {
   priority: 2, request: { method: 'POST', urlPath: `${V}/children/${ZOE}/token`, bodyPatterns: [{ matchesJsonPath: "$[?(@.pin != '1234')]" }] },
   response: problem(403, 'invalid_pin', 'Wrong PIN', 'That PIN does not match.'),
 });
-add('child-token-no-pin', { priority: 3, request: { method: 'POST', urlPath: `${V}/children/${ZOE}/token`, bodyPatterns: [{ absent: '$.pin' }] }, response: problem(403, 'invalid_pin', 'PIN needed', 'This profile is protected by a PIN.') });
 add('child-token-zoe', { priority: 5, request: { method: 'POST', urlPath: `${V}/children/${ZOE}/token` }, response: ok(200, { access_token: 'mock-child-token', expires_in: 3600, child: zoe }) });
 add('child-token-other', { priority: 6, request: { method: 'POST', urlPathPattern: `${V}/children/[^/]+/token` }, response: ok(200, { access_token: 'mock-child-token', expires_in: 3600, child: max }) });
 const settings = { daily_goal_chapters: 1, daily_time_limit_minutes: null, enabled_worlds: worlds.map((w) => w.id), read_aloud: true, sound: true };
@@ -217,12 +216,10 @@ for (let i = 0; i < 3; i++) states.push(`B${i}`, `A${i}c`, `A${i}t`, `A${i}r`);
 for (const s of states) {
   add(`session-start-${s}`, {
     priority: 5, scenarioName: SC, requiredScenarioState: s, newScenarioState: 'S0',
-    request: { method: 'POST', urlPathPattern: `${V}/children/${ZOE}/sessions` },
+    request: { method: 'POST', urlPathPattern: `${V}/children/[^/]+/sessions` },
     response: ok(201, session()),
   });
 }
-add('session-start-max-consent', { priority: 3, request: { method: 'POST', urlPath: `${V}/children/${MAX}/sessions` }, response: problem(403, 'consent_missing', 'Consent needed', 'A parent must give consent before this child can play.') });
-add('session-start-other', { priority: 8, request: { method: 'POST', urlPathPattern: `${V}/children/[^/]+/sessions` }, response: ok(201, session()) });
 add('sessions-list', { priority: 5, request: { method: 'GET', urlPathPattern: `${V}/children/[^/]+/sessions` }, response: ok(200, { items: [session({ status: 'completed', beats_answered: 3, story_title: t('Le tournoi des tours', 'The tower tournament'), ended_at: NOW })], next_cursor: null }, { transformers: ['response-template'] }) });
 add('session-get', { priority: 5, request: { method: 'GET', urlPath: `${V}/sessions/${SESSION}` }, response: ok(200, session({ story_title: t('Le tournoi des tours', 'The tower tournament') }), { transformers: ['response-template'] }) });
 

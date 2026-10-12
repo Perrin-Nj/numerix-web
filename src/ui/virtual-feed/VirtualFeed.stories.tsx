@@ -4,7 +4,13 @@ import { VirtualFeed } from './VirtualFeed';
 import { Icon } from '@/ui/icon';
 import { Mascot, type MascotConfig } from '@/game/mascot';
 
-type Entry = { id: string; title: string; world: string; day: string; stars: number };
+type Entry = {
+  id: string;
+  title: string;
+  world: string;
+  day: string;
+  stars: number;
+};
 
 const WORLDS = ['Nature', 'Espace', 'Cuisine', 'Sport', 'Science'];
 const DAYS = ['Aujourd’hui', 'Hier', 'Cette semaine', 'Le mois dernier', 'Plus tôt'];
@@ -43,7 +49,17 @@ const getKey = (e: Entry) => e.id;
 const groupBy = (e: Entry) => e.day;
 
 /** Simulates a cursor-paged API: 500 ms latency, pages of 20, `total` entries. */
-function Paged({ total, mascot, grouped, failAt }: { total: number; mascot?: MascotConfig; grouped?: boolean; failAt?: number }) {
+function Paged({
+  total,
+  mascot,
+  grouped,
+  failAt,
+}: {
+  total: number;
+  mascot?: MascotConfig;
+  grouped?: boolean;
+  failAt?: number;
+}) {
   const [items, setItems] = useState<Entry[]>(() => makeEntries(0, Math.min(20, total)));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -112,18 +128,43 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-export const LongListWithInfiniteLoad: Story = { render: () => <Paged total={400} /> };
-export const StickyGroupHeaders: Story = { render: () => <Paged total={60} grouped /> };
-export const WithMascot: Story = { render: () => <Paged total={40} mascot={on} /> };
-export const WithoutMascot: Story = { render: () => <Paged total={40} mascot={off} /> };
-export const Loading: Story = { args: { items: [], loading: true, hasMore: true } };
+export const LongListWithInfiniteLoad: Story = {
+  render: () => <Paged total={400} />,
+};
+export const StickyGroupHeaders: Story = {
+  render: () => <Paged total={60} grouped />,
+};
+export const WithMascot: Story = {
+  render: () => <Paged total={40} mascot={on} />,
+};
+export const WithoutMascot: Story = {
+  render: () => <Paged total={40} mascot={off} />,
+};
+export const Loading: Story = {
+  args: { items: [], loading: true, hasMore: true },
+};
 export const LoadingMore: Story = { args: { loading: true, hasMore: true } };
 export const Empty: Story = { args: { items: [] } };
 export const CustomEmpty: Story = {
-  args: { items: [], emptySlot: <p className="font-display text-xl text-fg">Aucune carte pour le moment.</p> },
+  args: {
+    items: [],
+    emptySlot: <p className="font-display text-xl text-fg">Aucune carte pour le moment.</p>,
+  },
 };
-export const ErrorOnFirstLoad: Story = { args: { items: [], error: true, onRetry: () => {} } };
-export const ErrorWhileLoadingMore: Story = { args: { error: true, hasMore: true, onRetry: () => {} } };
-export const ErrorAfterSecondPage: Story = { render: () => <Paged total={200} failAt={40} /> };
-export const ReducedMotion: Story = { render: () => <Paged total={100} grouped />, globals: { motion: 'reduced' } };
-export const TvScale: Story = { render: () => <Paged total={100} grouped />, globals: { display: 'tv' } };
+export const ErrorOnFirstLoad: Story = {
+  args: { items: [], error: true, onRetry: () => {} },
+};
+export const ErrorWhileLoadingMore: Story = {
+  args: { error: true, hasMore: true, onRetry: () => {} },
+};
+export const ErrorAfterSecondPage: Story = {
+  render: () => <Paged total={200} failAt={40} />,
+};
+export const ReducedMotion: Story = {
+  render: () => <Paged total={100} grouped />,
+  globals: { motion: 'reduced' },
+};
+export const TvScale: Story = {
+  render: () => <Paged total={100} grouped />,
+  globals: { display: 'tv' },
+};

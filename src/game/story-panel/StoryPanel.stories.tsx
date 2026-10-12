@@ -9,7 +9,8 @@ import { Button } from '@/ui/button';
 import type { AnswerValue } from '@/lib/api/types';
 
 const VALUES: AnswerValue[] = [12, 14, 16, 18];
-const TEXT = 'Zoé arrive devant le grand arbre. Quarante-huit pommes sont tombées, et elle doit les partager entre quatre écureuils.';
+const TEXT =
+  'Zoé arrive devant le grand arbre. Quarante-huit pommes sont tombées, et elle doit les partager entre quatre écureuils.';
 
 function Choices({ lock }: { lock?: boolean }) {
   const [picked, setPicked] = useState<number | null>(lock ? 1 : null);
@@ -45,10 +46,18 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 export const Loading: Story = {
-  args: { narration: <NarrationText text={null} status="pending" />, question: undefined, choices: undefined },
+  args: {
+    narration: <NarrationText text={null} status="pending" />,
+    question: undefined,
+    choices: undefined,
+  },
 };
 export const Streaming: Story = {
-  args: { narration: <NarrationText text={TEXT.slice(0, 60)} status="streaming" />, question: undefined, choices: undefined },
+  args: {
+    narration: <NarrationText text={TEXT.slice(0, 60)} status="streaming" />,
+    question: undefined,
+    choices: undefined,
+  },
 };
 export const AnswerLocked: Story = { args: { choices: <Choices lock /> } };
 export const OutcomeShown: Story = {
@@ -66,4 +75,6 @@ export const OutcomeShown: Story = {
 };
 export const Phone: Story = { globals: { viewport: { value: 'phone' } } };
 export const Tablet: Story = { globals: { viewport: { value: 'tablet' } } };
-export const TV: Story = { globals: { display: 'tv', viewport: { value: 'tv' } } };
+export const TV: Story = {
+  globals: { display: 'tv', viewport: { value: 'tv' } },
+};

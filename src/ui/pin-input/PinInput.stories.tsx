@@ -11,6 +11,13 @@ const meta = {
   title: 'ui/PinInput',
   component: PinInput,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: 'Sounds: keypad digits `tap`, `confirm` when the code is complete.',
+      },
+    },
+  }, // sounds-note
   args: { label: 'Code secret', value: '', onChange: () => {} },
   render: (args) => <Controlled {...args} />,
 } satisfies Meta<typeof PinInput>;
@@ -20,7 +27,9 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 export const PartlyFilled: Story = { args: { value: '12' } };
 export const Complete: Story = { args: { value: '1234' } };
-export const WithError: Story = { args: { value: '1234', error: 'Ce code n’est pas le bon.' } };
+export const WithError: Story = {
+  args: { value: '1234', error: 'Ce code n’est pas le bon.' },
+};
 export const NoKeypad: Story = { args: { keypad: false } };
 export const SixDigits: Story = { args: { length: 6 } };
 export const Disabled: Story = { args: { disabled: true, value: '12' } };

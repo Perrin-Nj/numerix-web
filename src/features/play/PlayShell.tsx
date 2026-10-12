@@ -35,6 +35,7 @@ export function PlayShell({ children }: { children: ReactNode }) {
           items={[
             { href: '/play/home', label: t('home'), icon: 'home', active: is('/play/home') },
             { href: '/play/worlds', label: t('worlds'), icon: 'map', active: is('/play/worlds') || is('/play/journey') },
+            { href: '/play/feed', label: t('discover'), icon: 'sparkles', active: is('/play/feed') },
             { href: '/play/collection', label: t('cards'), icon: 'star', active: is('/play/collection') },
             { href: '/play/me', label: t('me'), icon: 'user', active: is('/play/me') },
           ]}

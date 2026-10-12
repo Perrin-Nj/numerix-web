@@ -18,6 +18,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-export const Emoji: Story = { args: { children: <span className="text-6xl">🎉</span> } };
+export const Emoji: Story = {
+  args: { children: <span className="text-6xl">🎉</span> },
+};
 export const ReducedMotion: Story = { globals: { motion: 'reduced' } };
 export const TvScale: Story = { globals: { display: 'tv' } };

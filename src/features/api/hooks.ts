@@ -74,8 +74,8 @@ export function useConsent() {
 }
 
 // ───────── Children ─────────
-export function useChildren() {
-  return useQuery({ queryKey: keys.children, queryFn: () => unwrap(api.GET('/children')).then((r) => r.items) });
+export function useChildren(enabled = true) {
+  return useQuery({ queryKey: keys.children, enabled, queryFn: () => unwrap(api.GET('/children')).then((r) => r.items) });
 }
 
 export function useCreateChild() {
@@ -249,4 +249,25 @@ export function pauseSession(sessionId: string) {
 
 export function resumeSession(sessionId: string) {
   return unwrap(api.POST('/sessions/{sessionId}/resume', { params: { path: { sessionId } } }));
+}
+
+// ───────── Endless AI feed ─────────
+export function useFeed(childId: string | null) {
+  return useInfiniteQuery({
+    queryKey: ['feed', childId ?? ''],
+    enabled: Boolean(childId),
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) =>
+      unwrap(api.GET('/children/{childId}/feed', { params: { path: { childId: childId! }, query: { cursor: pageParam, limit: 5 } } })),
+    getNextPageParam: (last) => last.next_cursor,
+    staleTime: Infinity,
+  });
+}
+
+export function reactToFeedItem(childId: string, itemId: string, state: { liked: boolean; saved: boolean }) {
+  return unwrap(api.PUT('/children/{childId}/feed/{itemId}/reaction', { params: { path: { childId, itemId } }, body: state }));
+}
+
+export function answerFeedPuzzle(childId: string, itemId: string, answer: AnswerValue) {
+  return unwrap(api.POST('/children/{childId}/feed/{itemId}/answer', { params: { path: { childId, itemId } }, body: { answer } }));
 }

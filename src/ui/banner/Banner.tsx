@@ -50,7 +50,7 @@ export function Banner({ tone = 'info', title, description, action, onDismiss }:
           {action.label}
         </Button>
       )}
-      {onDismiss && <IconButton size="sm" label={t('dismiss')} icon={<Icon name="x" />} onClick={onDismiss} />}
+      {onDismiss && <IconButton size="sm" label={t('dismiss')} icon={<Icon name="x" />} onClick={onDismiss} sound="minimize" />}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
+import { useSound, type SoundName } from '@/lib/audio';
 import { Tooltip } from '@/ui/tooltip';
 
 const iconButton = cva(
@@ -28,10 +28,12 @@ export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'ari
     icon: ReactNode;
     /** Hide the tooltip where it would be noise (for example the close button of a dialog). */
     tooltip?: boolean;
+    /** Sound on click. Default `tap`; `null` is silent. */
+    sound?: SoundName | null;
   };
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
-  { label, icon, variant, size, className, onClick, tooltip = true, type = 'button', ...rest },
+  { label, icon, variant, size, className, onClick, tooltip = true, sound = 'tap', type = 'button', ...rest },
   ref,
 ) {
   const { play } = useSound();
@@ -42,7 +44,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
       aria-label={label}
       className={cn(iconButton({ variant, size }), className)}
       onClick={(e) => {
-        play('tap');
+        if (sound) play(sound);
         onClick?.(e);
       }}
       {...rest}

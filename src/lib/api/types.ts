@@ -33,3 +33,6 @@ export type ReviewDue = S['ReviewDue'];
 export const WORLD_IDS: WorldId[] = [
   'nature', 'espace', 'cuisine', 'sport', 'construction', 'medecine', 'science', 'echecs',
 ];
+
+export type FeedItem = S['FeedItem'];
+export type FeedPage = S['FeedPage'];
