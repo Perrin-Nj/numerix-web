@@ -1,12 +1,19 @@
 'use client';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import { useSound } from '@/lib/audio';
+import { usePickLine } from '@/lib/lines';
 import type { Outcome } from '@/lib/api/types';
 import { Icon, type IconName } from '@/ui/icon';
 
-export type OutcomeBeatProps = { outcome: Outcome; children: ReactNode; className?: string };
+export type OutcomeBeatProps = {
+  outcome: Outcome;
+  children: ReactNode;
+  className?: string;
+  /** Fixed label (stories, tests). Default: a varied line from the `outcome.*` pool. */
+  label?: string;
+};
 
 type Beat = {
   key: 'success' | 'detour' | 'surprise';
@@ -43,10 +50,13 @@ const BEATS: Record<Outcome, Beat> = {
   },
 };
 
-export function OutcomeBeat({ outcome, children, className }: OutcomeBeatProps) {
+export function OutcomeBeat({ outcome, children, className, label }: OutcomeBeatProps) {
   const t = useTranslations('game.outcomeBeat');
   const { play } = useSound();
+  const pick = usePickLine();
   const beat = BEATS[outcome];
+  // Picked once on mount. The beat only appears after an answer, so it is never server rendered.
+  const [line] = useState(() => label ?? pick(`outcome.${beat.key === 'success' ? 'correct' : beat.key}`));
   const played = useRef(false);
   useEffect(() => {
     if (played.current) return;
@@ -61,7 +71,7 @@ export function OutcomeBeat({ outcome, children, className }: OutcomeBeatProps) 
     >
       <p className="flex items-center gap-2 font-display text-lg font-bold text-fg">
         <Icon name={beat.icon} size={24} />
-        {t(beat.key)}
+        {label ?? (line || t(beat.key))}
       </p>
       {children}
     </div>

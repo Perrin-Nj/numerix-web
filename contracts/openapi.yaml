@@ -1383,6 +1383,12 @@ components:
         text: { type: string }
         ai_generated: { type: boolean, const: true, description: Always true. The UI shows an "AI generated" label. }
         generated_by: { type: string, example: mock }
+        author:
+          type: object
+          description: The storyteller persona that "wrote" the item (an AI character, never a real person).
+          properties:
+            name: { type: string, example: Pip }
+            emoji: { type: string, example: "🦊" }
         liked: { type: boolean }
         saved: { type: boolean }
         puzzle:

@@ -10,6 +10,7 @@ import { AppHeader } from '@/ui/app-header';
 import { Icon } from '@/ui/icon';
 import { IconButton } from '@/ui/icon-button';
 import { PageContainer } from '@/ui/page-container';
+import { ThemeToggle } from '@/ui/theme-toggle';
 
 type Props = { title: string; backHref?: string; children: ReactNode };
 
@@ -30,6 +31,7 @@ export function ParentPage({ title, backHref, children }: Props) {
         }
         right={
           <>
+            <ThemeToggle variant="icon" />
             <IconButton label={t('account')} variant="ghost" icon={<Icon name="settings" />} onClick={() => router.push('/parent/account')} />
             <IconButton
               label={t('signOut')}

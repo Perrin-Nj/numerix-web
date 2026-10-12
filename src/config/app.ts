@@ -5,6 +5,8 @@ export type MascotKind = 'emoji' | 'image' | 'lottie' | 'rive';
 export const appConfig = {
   env: publicEnv.NEXT_PUBLIC_APP_ENV,
   useMock: publicEnv.NEXT_PUBLIC_USE_MOCK,
+  /** local: progress is derived from the on-device event log. api: the server owns it (BE-21). */
+  stateSource: publicEnv.NEXT_PUBLIC_STATE_SOURCE,
   locales: publicEnv.NEXT_PUBLIC_LOCALES,
   defaultLocale: publicEnv.NEXT_PUBLIC_DEFAULT_LOCALE,
   mascot: {

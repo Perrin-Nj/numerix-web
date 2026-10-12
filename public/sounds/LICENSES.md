@@ -1,13 +1,23 @@
 # Sound licenses
 
-All sounds are derived from "Interface Sounds" by Kenney (https://kenney.nl/assets/interface-sounds), released under Creative Commons CC0 1.0 (public domain). Original license text: `KENNEY_LICENSE.txt`. Files were converted to mono, WebM/Opus (32 kbps) and MP3 (64 kbps) with ffmpeg.
+All sounds are derived from "Interface Sounds" by Kenney (https://kenney.nl/assets/interface-sounds), released under Creative Commons CC0 1.0 (public domain). Original license text: `KENNEY_LICENSE.txt`. Files were converted to mono, WebM/Opus (32 kbps) and MP3 (64 kbps) with ffmpeg. New variants were also normalized (loudnorm I=-20, limiter 0.8) and capped at 1.1 s.
 
 | File | Source file | Event |
 |---|---|---|
 | tap | click_002 | any tap or select |
-| beat_success | confirmation_002 | correct outcome beat |
-| beat_detour | question_002 | typical error outcome beat |
-| beat_surprise | glass_002 | random error outcome beat |
+| beat_success | confirmation_002 | correct outcome beat, variant 1 |
+| beat_success_2 | confirmation_003 | variant 2, loudnorm only |
+| beat_success_3 | confirmation_001 | variant 3, pitched up 12% (asetrate 1.12) |
+| beat_success_4 | confirmation_002 | variant 4, pitched down 10% and tempo 1.1 |
+| beat_detour | question_002 | typical error outcome beat, variant 1 |
+| beat_detour_2 | question_003 | variant 2, loudnorm only |
+| beat_detour_3 | question_004 | variant 3, pitched down 8% |
+| beat_detour_4 | question_001 | variant 4, pitched up 10% and tempo 0.95 |
+| beat_surprise | question_001 | random error outcome beat, low voice 1: asetrate 0.62, tempo 1.15, lowpass 2400 Hz |
+| beat_surprise_2 | bong_001 | low voice 2: asetrate 0.5, lowpass 1800 Hz |
+| beat_surprise_3 | glass_003 | low voice 3: asetrate 0.55, lowpass 2000 Hz |
+| beat_surprise_4 | drop_004 | low voice 4: asetrate 0.6, lowpass 1600 Hz |
+| beat_surprise_5 | question_004 | low voice 5: asetrate 0.68, tempo 1.1, lowpass 2200 Hz |
 | chapter_complete | confirmation_004 | chapter finished |
 | card_earned | glass_006 | story card earned |
 | streak_up | select_006 | streak extended |
@@ -18,7 +28,7 @@ All sounds are derived from "Interface Sounds" by Kenney (https://kenney.nl/asse
 | toggle | toggle_001 | switch turned on or off |
 | select | select_001 | a choice or option is selected |
 | switch | switch_003 | tab or navigation change |
-| scroll | scroll_002 | feed card snaps into place |
+| scroll | scroll_002 | feed card snaps into place (volume 0, no longer played) |
 | pluck | pluck_001 | like in the feed |
 | drop | drop_002 | save in the feed |
 | back | back_001 | going back |

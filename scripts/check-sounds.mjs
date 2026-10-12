@@ -1,11 +1,13 @@
-// Sound policy: every sound in the event list exists as webm and mp3, is listed in LICENSES.md,
+// Sound policy: every sound variant in SOUND_FILES exists as webm and mp3, is listed in LICENSES.md,
 // and the whole folder stays under 1 MB.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const dir = fileURLToPath(new URL('../public/sounds', import.meta.url));
-const names = ['tap', 'beat_success', 'beat_detour', 'beat_surprise', 'chapter_complete', 'card_earned', 'streak_up', 'notice_warning', 'notice_error', 'open', 'close', 'toggle', 'select', 'switch', 'scroll', 'pluck', 'drop', 'back', 'confirm', 'question', 'glass', 'tick', 'minimize', 'maximize'];
+const map = readFileSync(new URL('../src/lib/audio/sound-map.ts', import.meta.url), 'utf8');
+const block = map.slice(map.indexOf('SOUND_FILES'), map.indexOf('SOUND_VOLUME'));
+const names = [...block.matchAll(/'\/sounds\/(\w+)'/g)].map((m) => m[1]); // every variant base file
 const license = readFileSync(join(dir, 'LICENSES.md'), 'utf8');
 const files = readdirSync(dir);
 const errors = [];

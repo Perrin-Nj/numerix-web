@@ -2,7 +2,8 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
-import { useSound } from '@/lib/audio';
+import { appConfig } from '@/config/app';
+import { useGameStore } from '@/lib/game/store';
 import { reportError } from '@/lib/errors/bridge';
 import type { AnswerValue, FeedItem, FeedPage } from '@/lib/api/types';
 import { answerFeedPuzzle, reactToFeedItem, useFeed, useSessionStatus } from '@/features/api/hooks';
@@ -32,7 +33,8 @@ function LoadingCard() {
 export function FeedScreen() {
   const t = useTranslations('screens.play.feed');
   const qc = useQueryClient();
-  const { play } = useSound();
+  const record = useGameStore((s) => s.append);
+  const local = appConfig.stateSource === 'local';
   const status = useSessionStatus();
   const childId = status.data?.childId ?? null;
   const feed = useFeed(childId);
@@ -54,13 +56,12 @@ export function FeedScreen() {
       if (i !== lastActive.current) {
         lastActive.current = i;
         setActive(i);
-        setScrolled(true);
-        play('scroll');
+        setScrolled(true); // no sound here: the feed scrolls silently
       }
       // Second-to-last card in view: ask for more, the feed never ends.
       if (i >= total - 2 && hasNextPage && !isFetchingNextPage) void fetchNextPage();
     },
-    [total, hasNextPage, isFetchingNextPage, fetchNextPage, play],
+    [total, hasNextPage, isFetchingNextPage, fetchNextPage],
   );
 
   const patch = useCallback(
@@ -76,6 +77,7 @@ export function FeedScreen() {
       if (!childId) return;
       const before = { liked: item.liked, saved: item.saved };
       patch(item.id, next);
+      if (local) record(childId, { k: 'react', item: item.id, liked: next.liked, saved: next.saved });
       try {
         await reactToFeedItem(childId, item.id, next);
       } catch (e) {
@@ -83,19 +85,21 @@ export function FeedScreen() {
         reportError(e);
       }
     },
-    [childId, patch],
+    [childId, patch, local, record],
   );
 
   const onAnswer = useCallback(
     async (item: FeedItem, answer: AnswerValue) => {
       try {
-        return await answerFeedPuzzle(childId ?? '', item.id, answer);
+        const res = await answerFeedPuzzle(childId ?? '', item.id, answer);
+        if (local && childId) record(childId, { k: 'puzzle', item: item.id, outcome: res.outcome });
+        return res;
       } catch (e) {
         reportError(e);
         throw e;
       }
     },
-    [childId],
+    [childId, local, record],
   );
 
   const onCta = useCallback(
@@ -122,7 +126,7 @@ export function FeedScreen() {
         <>
           <SnapFeed
             ariaLabel={t('label')}
-            className="h-[calc(100dvh-6rem)] max-h-none snap-mandatory"
+            scroll="page"
             onActiveChange={onActiveChange}
           >
             {entries.map(({ key, item }, i) => (

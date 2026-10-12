@@ -103,3 +103,18 @@ The messages name the real cause:
 - Language follows the device (French or English). Change it in the grown-up area, Compte et préférences.
 - Themes: system, light, dark, high contrast. Reduced motion switches animations off.
 - Install: in Chrome or Edge, use the install icon in the address bar; on iPhone, Share then Add to Home Screen. Turn the network off: the app still opens and shows the offline page for pages it has not cached.
+
+## I. What changed in v2 (try these too)
+
+1. **Gift on first login.** The first time a child reaches the home screen after the tour, a gift box appears. Tap it: it opens and a "Le cadeau de bienvenue" card joins the collection. It never comes back for that child.
+2. **One scroll.** The home screen scrolls with the page only (one scrollbar). The Discover feed also scrolls with the page and snaps card to card, silently.
+3. **Home menu.** Big tiles: Play, Challenges, Discover, Worlds, Cards, Progress. The Challenges tile shows how many are still open.
+4. **Challenges.** Open one, tap **Relever le défi**, then play. Progress counts only after you accept it. When it completes you get a celebration and a card. The grown-up overview lists the challenges and their progress.
+5. **Real world map.** Finish a chapter with 3 right answers: that node becomes "Réussi" and the next one unlocks, in that world only. Mistakes keep a node "En cours". After about a week without practice a mastered node says "À revoir".
+6. **Every world, its own story.** Play Nature, then Espace, then Cuisine: different heroes, places and wording. Replaying the same node gives different numbers and text.
+7. **Leave the game.** In a chapter, the X at the top left asks "Quitter cette histoire ?". Leaving marks the session as left early. The grown-up recap says so, and it does not count for the streak.
+8. **Theme switch.** The sun/moon button (home header, welcome screen, parent header) switches system, light, dark and high contrast.
+9. **Different voices.** Outcomes use several sounds each. "Une surprise" is a low voice and changes from play to play. The feed makes no sound while scrolling.
+10. **Everything stays.** Close the tab and come back: progress, cards, challenges and likes are still there on the same device (on-device state, `NEXT_PUBLIC_STATE_SOURCE=local`).
+
+Shell tests: `bash scripts/test.sh` (all), or `bash scripts/test.sh state|mock|flows|ui|live`.

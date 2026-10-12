@@ -1,45 +1,68 @@
 'use client';
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
-import { useHome, useSessionStatus } from '@/features/api/hooks';
+import { useChallenges, useHome, useSessionStatus } from '@/features/api/hooks';
 import { useStartChapter } from './useStartChapter';
+import { giftClaimed, welcomeCard } from '@/lib/game/selectors';
+import { nowMs } from '@/lib/game/clock';
+import { useGameEvents, useGameStore } from '@/lib/game/store';
+import { usePickLine } from '@/lib/lines';
 import { ContinueCard } from '@/game/continue-card';
 import { DailyGoalRing } from '@/game/daily-goal-ring';
 import { MascotBubble } from '@/game/mascot-bubble';
+import { MenuTile } from '@/game/menu-tile';
 import { QuestCard } from '@/game/quest-card';
 import { StoryCard } from '@/game/story-card';
 import { StreakBadge } from '@/game/streak-badge';
+import { WelcomeGift } from '@/game/welcome-gift';
 import { WorldTeaser } from '@/game/world-teaser';
 import { GuidedTour } from '@/ui/guided-tour';
+import { Reveal } from '@/ui/reveal';
 import { Skeleton } from '@/ui/skeleton';
-import { SnapFeed } from '@/ui/snap-feed';
+import { ThemeToggle } from '@/ui/theme-toggle';
 
 const onboardingKey = (id: string) => `nx:onboarding:${id}`;
 
+/** The child's home: one normal page scroll, a clear primary action, and a menu with more to do. */
 export function HomeFeed() {
   const t = useTranslations('screens.play.home');
   const router = useRouter();
+  const lang = useLocale().startsWith('en') ? 'en' : 'fr';
+  const pick = usePickLine();
   const status = useSessionStatus();
   const childId = status.data?.childId ?? null;
   const home = useHome(childId);
+  const challenges = useChallenges(childId);
+  const events = useGameEvents(childId);
+  const claimGift = useGameStore((g) => g.claimGift);
+  const record = useGameStore((g) => g.append);
   const { begin, dialog } = useStartChapter(childId);
   const [tourDone, setTourDone] = useState(false);
+  const [greeting] = useState(() => pick('mascot.welcome'));
   // Data loads on the client only, so reading storage here cannot mismatch the server render
   const tour = Boolean(childId && home.data && !tourDone && !localStorage.getItem(onboardingKey(childId)));
+  const local = appConfig.stateSource === 'local';
+  const giftOpen = local && Boolean(childId && home.data && !tour && !giftClaimed(events));
 
   function endTour() {
     setTourDone(true);
-    if (childId) localStorage.setItem(onboardingKey(childId), 'done');
+    if (childId) {
+      localStorage.setItem(onboardingKey(childId), 'done');
+      if (local) record(childId, { k: 'tour' });
+    }
   }
 
   const d = home.data;
-  const feed = appConfig.features.feed;
+  const openChallenges = challenges.filter((c) => c.status !== 'done').length;
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-6">
-      <h1 className="sr-only">{t('title')}</h1>
+    <main className="mx-auto w-full max-w-2xl px-4 pb-6 pt-3">
+      <header className="mb-4 flex items-center justify-between gap-3">
+        <h1 className="font-display text-3xl font-extrabold text-brand">{t('title')}</h1>
+        <ThemeToggle variant="icon" />
+      </header>
       {(home.isLoading || status.isLoading) && (
         <div className="flex flex-col gap-4">
           <Skeleton height={160} />
@@ -48,7 +71,10 @@ export function HomeFeed() {
         </div>
       )}
       {d && (
-        <SnapFeed ariaLabel={t('feedLabel')} className={feed ? undefined : 'snap-none'}>
+        <div className="flex flex-col gap-5">
+          <Reveal>
+            <MascotBubble pose="greet">{greeting}</MascotBubble>
+          </Reveal>
           <div id="tour-continue">
             <ContinueCard
               label={d.suggested.label}
@@ -61,6 +87,16 @@ export function HomeFeed() {
               }
             />
           </div>
+
+          <nav aria-label={t('menu.label')} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <MenuTile icon="trophy" label={t('menu.challenges')} hint={t('menu.challengesHint')} badge={openChallenges || undefined} tone="warning" onSelect={() => router.push('/play/challenges')} />
+            <MenuTile icon="sparkles" label={t('menu.discover')} hint={t('menu.discoverHint')} tone="brand" onSelect={() => router.push('/play/feed')} />
+            <MenuTile icon="map" label={t('menu.worlds')} hint={t('menu.worldsHint')} tone="info" onSelect={() => router.push('/play/worlds')} />
+            <MenuTile icon="star" label={t('menu.cards')} hint={t('menu.cardsHint')} badge={d.recent_cards.length || undefined} tone="success" onSelect={() => router.push('/play/collection')} />
+            <MenuTile icon="flame" label={t('menu.progress')} hint={t('menu.progressHint')} tone="world" onSelect={() => router.push('/play/me')} />
+            <MenuTile icon="book" label={t('menu.quest')} hint={t('menu.questHint')} badge={d.quest.completed ? undefined : '!'} tone="brand" onSelect={() => router.push('/play/quest')} />
+          </nav>
+
           <QuestCard quest={d.quest} onPlay={() => begin(d.suggested.world, { kind: 'daily_quest' })} />
           <div id="tour-streak" className="flex flex-wrap items-center justify-between gap-4 rounded-lg border-2 border-line bg-elevated p-4">
             <StreakBadge days={d.engagement.streak.current_days} />
@@ -82,8 +118,7 @@ export function HomeFeed() {
               </div>
             </div>
           )}
-          <MascotBubble pose="cheer">{t('growth', { now: d.growth.current.chapters_completed, before: d.growth.previous.chapters_completed })}</MascotBubble>
-        </SnapFeed>
+        </div>
       )}
       {dialog}
       <GuidedTour
@@ -97,6 +132,7 @@ export function HomeFeed() {
           { target: '#tour-worlds', title: t('tour.worldsTitle'), description: t('tour.worlds') },
         ]}
       />
+      <WelcomeGift open={giftOpen} card={welcomeCard(nowMs(), lang)} onClaim={() => childId && claimGift(childId)} />
     </main>
   );
 }

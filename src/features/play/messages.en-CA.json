@@ -1,0 +1,39 @@
+{
+  "screens": {
+    "play": {
+      "story": {
+        "exit": {
+          "label": "Leave the game",
+          "title": "Leave this story?",
+          "text": "Your story will be put away. You can start another one whenever you like.",
+          "confirm": "Leave the game",
+          "stay": "Keep playing"
+        }
+      },
+      "home": {
+        "menu": {
+          "label": "Game menu",
+          "challenges": "Challenges",
+          "challengesHint": "Take one on",
+          "discover": "Discover",
+          "discoverHint": "A feed that never ends",
+          "worlds": "Worlds",
+          "worldsHint": "Pick your adventure",
+          "cards": "Cards",
+          "cardsHint": "Your collection",
+          "progress": "My progress",
+          "progressHint": "Your streak and steps",
+          "quest": "Daily quest",
+          "questHint": "A chapter to revisit"
+        }
+      },
+      "challenges": {
+        "title": "Challenges",
+        "intro": "Pick a challenge, take it on by playing, and win a card that is all yours."
+      },
+      "celebrate": {
+        "title": "Challenge done!"
+      }
+    }
+  }
+}

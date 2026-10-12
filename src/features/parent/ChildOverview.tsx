@@ -2,7 +2,9 @@
 import Link from 'next/link';
 import { useFormatter, useTranslations } from 'next-intl';
 import { useCountUp } from '@/lib/motion';
-import { useGrowth, useProgress, useSessionList } from '@/features/api/hooks';
+import { useChallenges, useGrowth, useProgress, useSessionList } from '@/features/api/hooks';
+import { appConfig } from '@/config/app';
+import { Progress } from '@/ui/progress';
 import { ParentPage } from './ParentPage';
 import { Card, CardBody } from '@/ui/card';
 import { Panel } from '@/ui/panel';
@@ -42,6 +44,8 @@ export function ChildOverview({ childId }: { childId: string }) {
   const growth = useGrowth(childId);
   const progress = useProgress(childId);
   const sessions = useSessionList(childId);
+  const challenges = useChallenges(childId);
+  const tc = useTranslations('screens.parent.overview.challenges');
 
   return (
     <ParentPage title={t('title')} backHref="/parent">
@@ -58,6 +62,22 @@ export function ChildOverview({ childId }: { childId: string }) {
       </nav>
 
       {growth.isLoading ? <Skeleton height={140} /> : growth.data && <GrowthPanel growth={growth.data} />}
+
+      {appConfig.stateSource === 'local' && (
+        <Panel title={tc('title')}>
+          <ul className="flex flex-col gap-3">
+            {challenges.map((c) => (
+              <li key={c.id} className="rounded-md bg-sunken p-3">
+                <p className="font-display font-semibold">
+                  <span aria-hidden>{c.emoji} </span>
+                  {c.title} <span className="text-sm text-muted">{tc(c.status)}</span>
+                </p>
+                {c.status !== 'available' && <Progress value={c.progress} max={c.target} label={`${c.progress}/${c.target}`} />}
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      )}
 
       <Panel title={t('stuck.title')}>
         {progress.isLoading && <Skeleton height={80} />}

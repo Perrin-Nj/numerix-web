@@ -1046,6 +1046,13 @@ export interface components {
             ai_generated: true;
             /** @example mock */
             generated_by?: string;
+            /** @description The storyteller persona that "wrote" the item (an AI character, never a real person). */
+            author?: {
+                /** @example Pip */
+                name?: string;
+                /** @example 🦊 */
+                emoji?: string;
+            };
             liked: boolean;
             saved: boolean;
             /** @description Present for kind=puzzle. Never contains the answer. */

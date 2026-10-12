@@ -1,6 +1,6 @@
 'use client';
 import type { CSSProperties } from 'react';
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
@@ -9,7 +9,10 @@ import { streamNarration } from '@/lib/api/narration';
 import { reportError } from '@/lib/errors/bridge';
 import { initialStoryState, storyReducer } from '@/lib/session/machine';
 import { useReadAloud } from '@/lib/speech';
+import { useGameStore } from '@/lib/game/store';
+import { usePickLine } from '@/lib/lines';
 import {
+  finishSession,
   getSession,
   pauseSession,
   requestBeat,
@@ -63,6 +66,12 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const [s, dispatch] = useReducer(storyReducer, initialStoryState);
   const [attempt, setAttempt] = useState(0);
   const [pauseOpen, setPauseOpen] = useState(false);
+  const [exitOpen, setExitOpen] = useState(false);
+  const pick = usePickLine();
+  // Local game state (NEXT_PUBLIC_STATE_SOURCE=local): every play is traced as it happens
+  const record = useGameStore((g) => g.append);
+  const trace = appConfig.stateSource === 'local' ? status.data?.childId ?? null : null;
+  const traced = useRef(new Set<string>());
   const reduced = useReducedMotion();
 
   const { speak, cancel: stopSpeaking } = useReadAloud(
@@ -255,6 +264,37 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     if (s.phase === 'done') router.replace(`/play/session/${sessionId}/done`);
   }, [s.phase, router, sessionId]);
 
+  // Trace the play: start when the first beat arrives, then every answer, the finish and the cards
+  useEffect(() => {
+    if (!trace || !s.beat || !s.session) return;
+    record(trace, { k: 'start', sid: sessionId, world: s.session.world, skill: s.beat.skill_id, mode: s.session.kind === 'daily_quest' ? 'daily_quest' : s.session.kind === 'onboarding' ? 'onboarding' : 'chapter' });
+  }, [trace, record, s.beat, s.session, sessionId]);
+
+  useEffect(() => {
+    if (!trace || s.phase !== 'outcome' || !s.outcome || !s.beat || !s.session) return;
+    const key = `a:${s.beat.id}`;
+    if (traced.current.has(key)) return;
+    traced.current.add(key);
+    record(trace, { k: 'answer', sid: sessionId, world: s.session.world, skill: s.beat.skill_id, outcome: s.outcome, i: s.beat.index });
+    for (const r of s.rewards) {
+      if (r.type === 'card_earned' && r.card) {
+        record(trace, { k: 'card', card: { id: r.card.id, world: r.card.world, title: r.card.title, earnedAt: r.card.earned_at, source: 'chapter' } });
+      }
+    }
+    if (s.session.status === 'completed') record(trace, { k: 'finish', sid: sessionId, done: true, title: s.session.story_title ?? undefined });
+  }, [trace, record, s.phase, s.outcome, s.beat, s.session, s.rewards, sessionId]);
+
+  async function exitPlay() {
+    try {
+      await finishSession(sessionId);
+      if (trace) record(trace, { k: 'finish', sid: sessionId, done: false });
+      stopSpeaking();
+      router.replace('/play/home');
+    } catch (e) {
+      reportError(e);
+    }
+  }
+
   async function takeBreak() {
     try {
       await pauseSession(sessionId);
@@ -293,6 +333,9 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
           ? 'curious'
           : 'amazed';
   const denReady = s.denouementStatus === 'ready' || s.denouementStatus === 'fallback';
+  // A fresh line for each moment, never the same one twice in a row
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const mascotLine = useMemo(() => pick(`mascot.${pose}`), [pose, s.beat?.id, s.outcome]);
 
   if (s.phase === 'error') {
     const code = s.error?.code ?? 'unknown';
@@ -312,6 +355,9 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
 
   return (
     <main className="relative min-h-dvh">
+      <div className="fixed start-3 top-3 z-20 pt-[env(safe-area-inset-top)]">
+        <IconButton label={t('exit.label')} variant="ghost" sound="back" icon={<Icon name="x" />} onClick={() => setExitOpen(true)} />
+      </div>
       <div className="fixed end-3 top-3 z-20 pt-[env(safe-area-inset-top)]">
         <IconButton
           label={t('pause')}
@@ -348,7 +394,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
             )}
             {showQuestion && (
               <MascotBubble size="sm" pose={pose} className="mt-4">
-                {t(`mascot.${pose}`)}
+                {mascotLine}
               </MascotBubble>
             )}
           </>
@@ -409,6 +455,21 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
           <RewardBurst reward={s.rewards[s.rewardIndex]} onDone={() => dispatch({ type: 'REWARD_DONE' })} />
         </div>
       )}
+
+      <Dialog
+        open={exitOpen}
+        onOpenChange={setExitOpen}
+        title={t('exit.title')}
+        description={t('exit.text')}
+        footer={
+          <>
+            <Button variant="secondary" onClick={exitPlay}>
+              {t('exit.confirm')}
+            </Button>
+            <Button onClick={() => setExitOpen(false)}>{t('exit.stay')}</Button>
+          </>
+        }
+      />
 
       <Dialog
         open={pauseOpen}

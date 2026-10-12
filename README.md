@@ -11,19 +11,23 @@ Next.js PWA for Numerix: children play math through stories, parents follow prog
 
 ```bash
 pnpm install
-pnpm mock        # WireMock on :8080 (Docker), driven by contracts/
-pnpm dev         # app on :3000, uses .env.local (copy .env.example)
+pnpm dev         # starts the mock backend (:8081) and the app (:3000) together; copy .env.example to .env.local first
 pnpm storybook   # component library on :6006
 ```
 
-Walk through the real app (needs `pnpm dev` and `pnpm mock` running, Playwright browsers installed):
+`pnpm dev` reuses a mock that is already running. `pnpm mock` starts only the mock; `pnpm mock:wiremock` runs the pure WireMock engine in Docker (static contract only).
+
+Progress state: `NEXT_PUBLIC_STATE_SOURCE=local` (default) derives the world map, streak, cards, challenges and reports from an on-device event log; `api` makes the server own them (BE-21). The log lives in the browser's localStorage, keyed by child.
+
+Automated checks, one line each (`bash scripts/test.sh` runs them all):
 
 ```bash
-pnpm smoke            # parent signup flow, PIN, three-beat chapter, rewards, collection
-pnpm smoke:errors     # every failure scenario shows a visible message
+bash scripts/test.sh state    # pure game-state selectors, instant
+bash scripts/test.sh mock     # mock backend self test
+bash scripts/test.sh flows    # HTTP flows through the app
+bash scripts/test.sh ui       # browser checks (needs Playwright browsers installed)
+bash scripts/test.sh live     # flows and ui against the deployed app
 ```
-
-Try the failure scenarios by hand with the "Demo data" badge at the bottom left.
 
 ## Checks
 

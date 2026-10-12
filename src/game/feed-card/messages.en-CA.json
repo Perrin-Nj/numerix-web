@@ -1,1 +1,1 @@
-{ "game": { "feedCard": { "puzzleLabel": "Little puzzle", "kind": { "story_short": "Mini story", "fun_fact": "Did you know?", "puzzle": "Little puzzle", "challenge": "Challenge" } } } }
+{ "game": { "feedCard": { "author": "Told by {name}", "puzzleLabel": "Little puzzle", "kind": { "story_short": "Mini story", "fun_fact": "Did you know?", "puzzle": "Little puzzle", "challenge": "Challenge" } } } }

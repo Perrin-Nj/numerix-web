@@ -225,3 +225,174 @@ body {
     animation: none;
   }
 }
+
+/* ---- Joy pack: bounce, wobble, twinkle, drift, glow pulse, staggered pop-in, scene motion ---- */
+@keyframes nx-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  40% {
+    transform: translateY(-14px) scale(0.97, 1.04);
+  }
+  60% {
+    transform: translateY(0) scale(1.05, 0.94);
+  }
+}
+@keyframes nx-wobble {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  15% {
+    transform: rotate(-6deg);
+  }
+  35% {
+    transform: rotate(5deg);
+  }
+  55% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+}
+@keyframes nx-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+@keyframes nx-drift {
+  from {
+    transform: translateX(calc(var(--dx, 10px) * -1));
+  }
+  to {
+    transform: translateX(var(--dx, 10px));
+  }
+}
+@keyframes nx-glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--beat-detour) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 22px 6px color-mix(in srgb, var(--beat-detour) 55%, transparent);
+  }
+}
+@keyframes nx-pop-in-stagger {
+  0% {
+    transform: scale(0.6) translateY(8px);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.06) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes nx-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes nx-tilt {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0);
+  }
+  80% {
+    transform: rotate(-7deg);
+  }
+  90% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes nx-rise-up {
+  from {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-46px) scale(1);
+    opacity: 0;
+  }
+}
+@keyframes nx-swirl {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.nx-bounce {
+  animation: nx-bounce calc(1100ms * var(--motion-scale, 1)) ease-in-out 2;
+}
+.nx-wobble {
+  animation: nx-wobble calc(1400ms * var(--motion-scale, 1)) ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+.nx-twinkle {
+  animation: nx-twinkle calc(2400ms * var(--motion-scale, 1)) ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-delay: calc(var(--i, 0) * 370ms * var(--motion-scale, 1));
+}
+.nx-drift {
+  animation: nx-drift calc(var(--drift-s, 24s) * var(--motion-scale, 1)) ease-in-out infinite alternate;
+}
+.nx-glow-pulse {
+  animation: nx-glow-pulse calc(2200ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-pop-in-stagger {
+  animation: nx-pop-in-stagger var(--dur-4) var(--ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 90ms * var(--motion-scale, 1));
+}
+.nx-blink {
+  animation: nx-blink calc(5200ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-tilt {
+  animation: nx-tilt calc(7000ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-rise-up {
+  animation: nx-rise-up calc(2600ms * var(--motion-scale, 1)) ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-delay: calc(var(--i, 0) * 420ms * var(--motion-scale, 1));
+}
+.nx-swirl {
+  animation: nx-swirl calc(4200ms * var(--motion-scale, 1)) linear infinite;
+  transform-origin: 0 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-bounce,
+  .nx-wobble,
+  .nx-twinkle,
+  .nx-drift,
+  .nx-glow-pulse,
+  .nx-pop-in-stagger,
+  .nx-blink,
+  .nx-tilt,
+  .nx-rise-up,
+  .nx-swirl {
+    animation: none;
+  }
+}
+:root[data-motion='reduced'] :is(.nx-bounce, .nx-wobble, .nx-twinkle, .nx-drift, .nx-glow-pulse, .nx-pop-in-stagger, .nx-blink, .nx-tilt, .nx-rise-up, .nx-swirl) {
+  animation: none;
+}

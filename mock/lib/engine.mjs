@@ -111,15 +111,17 @@ export function handle(req) {
   const current = headerState && headerState.s && headerState.d ? headerState : memoryState;
   const state = { ...current.s };
 
-  // Stateful domain first (children, consent, PINs, settings, feed)
-  const handled = domain(r, current.d);
-  if (handled) {
-    const out = { s: state, d: handled.d };
-    if (!headerState) memoryState = out;
-    return { ...handled.plan, state: out };
+  // 1) injected failures (priority 1 + X-Mock-Scenario) win everywhere, 2) stateful domain, 3) the other mappings
+  let hit = ordered.find((m) => (m.priority ?? 5) === 1 && matches(m, r, state));
+  if (!hit) {
+    const handled = domain(r, current.d);
+    if (handled) {
+      const out = { s: state, d: handled.d };
+      if (!headerState) memoryState = out;
+      return { ...handled.plan, state: out };
+    }
+    hit = ordered.find((m) => matches(m, r, state));
   }
-
-  const hit = ordered.find((m) => matches(m, r, state));
   if (!hit) {
     return { status: 404, headers: { 'content-type': 'application/json' }, chunks: [JSON.stringify({ error: `No mapping for ${r.method} ${r.path}` })], delays: [0], state: null };
   }

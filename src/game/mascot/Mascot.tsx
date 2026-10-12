@@ -50,7 +50,7 @@ export function Mascot({ pose = 'greet', size = 'md', speaking, config, classNam
   if (!cfg.enabled) return null;
   return (
     <span aria-hidden className={cn('inline-flex shrink-0', pose !== 'rest' && 'nx-float', className)}>
-      <span className={cn('inline-flex', speaking && 'nx-pulse')}>{emojiAdapter(cfg.emoji).render(pose, size)}</span>
+      <span className={cn('inline-flex', speaking && 'nx-pulse', !speaking && (pose === 'greet' || pose === 'curious') && 'nx-tilt')}>{emojiAdapter(cfg.emoji).render(pose, size)}</span>
     </span>
   );
 }

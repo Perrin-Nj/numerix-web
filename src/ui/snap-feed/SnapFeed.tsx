@@ -12,13 +12,15 @@ export type SnapFeedProps = {
   itemClassName?: string;
   /** Called when a card becomes the one mostly in view (scroll, swipe or keys). */
   onActiveChange?: (index: number) => void;
+  /** `box` scrolls inside the list. `page` uses the page scroll (one scrollbar) and snaps the document. */
+  scroll?: 'box' | 'page';
 };
 
 const STEP_KEYS = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1 } as const;
 const TEXT_TARGETS = 'input, textarea, select, [contenteditable="true"]';
 
 /** Vertical scroll-snap feed. Arrow and page keys move focus card to card (TV remote friendly). */
-export function SnapFeed({ ariaLabel, children, className, itemClassName, onActiveChange }: SnapFeedProps) {
+export function SnapFeed({ ariaLabel, children, className, itemClassName, onActiveChange, scroll = 'box' }: SnapFeedProps) {
   const reduced = useReducedMotion();
   const listRef = useRef<HTMLUListElement>(null);
   const [active, setActive] = useState(0);
@@ -34,11 +36,22 @@ export function SnapFeed({ ariaLabel, children, className, itemClassName, onActi
           if (e.isIntersecting) onActiveChange(Array.prototype.indexOf.call(list.children, e.target));
         }
       },
-      { root: list, threshold: 0.6 },
+      { root: scroll === 'page' ? null : list, threshold: 0.6 },
     );
     Array.from(list.children).forEach((c) => io.observe(c));
     return () => io.disconnect();
-  }, [onActiveChange, count]);
+  }, [onActiveChange, count, scroll]);
+
+  // Page mode: the document itself snaps, so there is exactly one scrollbar
+  useEffect(() => {
+    if (scroll !== 'page') return;
+    const root = document.documentElement;
+    const before = root.style.scrollSnapType;
+    root.style.scrollSnapType = 'y proximity';
+    return () => {
+      root.style.scrollSnapType = before;
+    };
+  }, [scroll]);
 
   function onKeyDown(e: KeyboardEvent<HTMLUListElement>) {
     const dir = STEP_KEYS[e.key as keyof typeof STEP_KEYS];
@@ -59,8 +72,8 @@ export function SnapFeed({ ariaLabel, children, className, itemClassName, onActi
       aria-label={ariaLabel}
       onKeyDown={onKeyDown}
       className={cn(
-        'm-0 h-full max-h-dvh snap-y snap-proximity list-none overflow-y-auto overscroll-contain p-0',
-        'scroll-smooth [:root[data-motion=reduced]_&]:scroll-auto motion-reduce:scroll-auto',
+        'm-0 list-none p-0',
+        scroll === 'box' && 'h-full max-h-dvh snap-y snap-proximity overflow-y-auto overscroll-contain scroll-smooth [:root[data-motion=reduced]_&]:scroll-auto motion-reduce:scroll-auto',
         className,
       )}
     >

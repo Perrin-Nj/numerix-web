@@ -1,0 +1,39 @@
+{
+  "screens": {
+    "play": {
+      "story": {
+        "exit": {
+          "label": "Quitter la partie",
+          "title": "Quitter cette histoire ?",
+          "text": "Ton histoire sera rangée. Tu pourras en commencer une autre quand tu veux.",
+          "confirm": "Quitter la partie",
+          "stay": "Continuer à jouer"
+        }
+      },
+      "home": {
+        "menu": {
+          "label": "Menu de jeu",
+          "challenges": "Défis",
+          "challengesHint": "Relève-en un",
+          "discover": "Découvrir",
+          "discoverHint": "Un fil sans fin",
+          "worlds": "Mondes",
+          "worldsHint": "Choisis ton aventure",
+          "cards": "Cartes",
+          "cardsHint": "Ta collection",
+          "progress": "Mes progrès",
+          "progressHint": "Ta série et tes pas",
+          "quest": "Défi du jour",
+          "questHint": "Un chapitre à retrouver"
+        }
+      },
+      "challenges": {
+        "title": "Défis",
+        "intro": "Choisis un défi, relève-le en jouant, et gagne une carte rien qu'à toi."
+      },
+      "celebrate": {
+        "title": "Défi réussi !"
+      }
+    }
+  }
+}

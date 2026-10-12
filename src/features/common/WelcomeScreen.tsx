@@ -6,6 +6,7 @@ import { MascotBubble } from '@/game/mascot-bubble';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 import { Reveal } from '@/ui/reveal';
+import { ThemeToggle } from '@/ui/theme-toggle';
 
 /** Two clear doors: kids play, grown-ups manage. Neither is hidden behind the other. */
 export function WelcomeScreen() {
@@ -16,6 +17,9 @@ export function WelcomeScreen() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center gap-8 px-4 py-10">
+      <div className="fixed end-3 top-3 z-20">
+        <ThemeToggle variant="icon" />
+      </div>
       <Reveal>
         <h1 className="font-display text-5xl font-extrabold leading-tight text-brand">Numerix</h1>
         <p className="mt-2 text-xl text-muted">{t('tagline')}</p>

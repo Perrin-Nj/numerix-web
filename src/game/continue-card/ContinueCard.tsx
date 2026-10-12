@@ -2,7 +2,8 @@
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import type { WorldId } from '@/lib/api/types';
-import { WORLD_BG, WORLD_EMOJI } from '@/game/illustration-frame';
+import { WORLD_BG } from '@/game/illustration-frame';
+import { WorldScene } from '@/game/world-scene';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 
@@ -23,9 +24,9 @@ export function ContinueCard({ label, world, hasOpenSession, onContinue }: Conti
     >
       <span
         aria-hidden
-        className={cn('flex size-24 shrink-0 items-center justify-center rounded-md text-6xl', WORLD_BG[world])}
+        className={cn('size-24 shrink-0 overflow-hidden rounded-md', WORLD_BG[world])}
       >
-        {WORLD_EMOJI[world]}
+        <WorldScene world={world} variant="tile" />
       </span>
       <div className="flex flex-1 flex-col gap-1">
         <p className="text-sm font-semibold text-muted">{hasOpenSession ? t('resume') : t('start')}</p>

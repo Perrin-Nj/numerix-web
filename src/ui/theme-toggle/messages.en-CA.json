@@ -1,0 +1,1 @@
+{ "ui": { "themeToggle": { "group": "Appearance", "change": "Change appearance (current: {current})", "system": "Automatic", "light": "Light", "dark": "Dark", "hc": "High contrast" } } }

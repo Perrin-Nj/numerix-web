@@ -5,10 +5,12 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Contrast,
   Download,
   Eye,
   EyeOff,
   Flame,
+  Gift,
   Globe,
   Heart,
   Home,
@@ -16,6 +18,7 @@ import {
   Lock,
   LogOut,
   Map,
+  Monitor,
   Moon,
   Pause,
   Play,
@@ -74,6 +77,9 @@ const REGISTRY = {
   map: Map,
   heart: Heart,
   bookmark: Bookmark,
+  contrast: Contrast,
+  monitor: Monitor,
+  gift: Gift,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof REGISTRY;

@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { cn } from '@/lib/cn';
+import { WorldScene } from '@/game/world-scene';
 import type { WorldId } from '@/lib/api/types';
 
 export const WORLD_EMOJI: Record<WorldId, string> = {
@@ -27,13 +28,6 @@ export const WORLD_BG: Record<WorldId, string> = {
 
 export type IllustrationMood = 'idle' | 'success' | 'detour' | 'surprise';
 
-const MOOD: Record<IllustrationMood, string> = {
-  idle: '',
-  success: 'nx-pop',
-  detour: 'nx-rise',
-  surprise: 'nx-pulse',
-};
-
 export type IllustrationFrameProps = {
   world: WorldId;
   src?: string | null;
@@ -51,13 +45,13 @@ export function IllustrationFrame({ world, src, alt, mood = 'idle', className }:
         className,
       )}
     >
-      <div className={cn('absolute inset-0 flex items-center justify-center', MOOD[mood])}>
+      <div className="absolute inset-0">
         {src ? (
           <Image src={src} alt={alt} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
         ) : (
-          <span role="img" aria-label={alt} className="select-none text-[6rem] leading-none drop-shadow">
-            {WORLD_EMOJI[world]}
-          </span>
+          <div role="img" aria-label={alt} className="size-full">
+            <WorldScene world={world} variant="hero" mood={mood} />
+          </div>
         )}
       </div>
       <div

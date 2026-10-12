@@ -7,7 +7,7 @@ import { Skeleton } from '@/ui/skeleton';
 
 export function RecapScreen({ childId, sessionId }: { childId: string; sessionId: string }) {
   const t = useTranslations('screens.parent.recap');
-  const summary = useSessionSummary(sessionId);
+  const summary = useSessionSummary(sessionId, childId);
   const s = summary.data;
 
   return (

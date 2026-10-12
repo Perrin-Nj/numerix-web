@@ -4,6 +4,14 @@
       "home": {
         "pinOn": "4-digit code needed to play",
         "pinOff": "No code"
+      },
+      "overview": {
+        "challenges": {
+          "title": "Challenges",
+          "available": "not taken yet",
+          "active": "in progress",
+          "done": "done"
+        }
       }
     }
   }

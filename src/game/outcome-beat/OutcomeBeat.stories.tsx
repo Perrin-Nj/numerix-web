@@ -8,6 +8,7 @@ const meta = {
   tags: ['autodocs'],
   args: {
     outcome: 'correct',
+    label: 'Bien joué',
     children: (
       <NarrationText text="Les quatre écureuils reçoivent douze pommes chacun et applaudissent Zoé." status="ready" />
     ),
@@ -59,3 +60,9 @@ export const AllThree: Story = {
     </div>
   ),
 };
+export const VariedLabel: Story = { args: { label: undefined } };
+export const Dark: Story = { globals: { theme: 'dark' } };
+export const HighContrast: Story = { globals: { theme: 'hc' } };
+export const ReducedMotion: Story = { globals: { motion: 'reduced' } };
+export const TVScale: Story = { globals: { display: 'tv' } };
+export const English: Story = { args: { label: undefined }, globals: { locale: 'en-CA' } };

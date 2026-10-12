@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import { useSound } from '@/lib/audio';
 import type { World } from '@/lib/api/types';
-import { WORLD_BG, WORLD_EMOJI } from '@/game/illustration-frame';
+import { WORLD_BG } from '@/game/illustration-frame';
+import { WorldScene } from '@/game/world-scene';
 import { Icon } from '@/ui/icon';
 
 export type WorldTeaserProps = { world: World; onOpen: (world: World) => void };
@@ -23,9 +24,9 @@ function WorldTeaserBase({ world, onOpen }: WorldTeaserProps) {
     >
       <span
         aria-hidden
-        className={cn('flex size-20 shrink-0 items-center justify-center rounded-md text-5xl transition-transform duration-[var(--dur-3)] ease-[var(--ease-spring)] group-hover:scale-110 group-focus-visible:scale-110', WORLD_BG[world.id])}
+        className={cn('size-20 shrink-0 overflow-hidden rounded-md transition-transform duration-[var(--dur-3)] ease-[var(--ease-spring)] group-hover:scale-110 group-focus-visible:scale-110', WORLD_BG[world.id])}
       >
-        {WORLD_EMOJI[world.id]}
+        <WorldScene world={world.id} variant="tile" />
       </span>
       <span className="flex flex-1 flex-col gap-1">
         <span className="font-display text-xl font-bold">{world.name}</span>

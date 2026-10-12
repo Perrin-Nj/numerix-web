@@ -3,7 +3,8 @@ import { memo } from 'react';
 import { cn } from '@/lib/cn';
 import { useSound } from '@/lib/audio';
 import type { World } from '@/lib/api/types';
-import { WORLD_BG, WORLD_EMOJI } from '@/game/illustration-frame';
+import { WORLD_BG } from '@/game/illustration-frame';
+import { WorldScene } from '@/game/world-scene';
 import { Icon } from '@/ui/icon';
 
 export type WorldTileProps = {
@@ -30,10 +31,10 @@ function WorldTileBase({ world, selected = false, onSelect, size = 'md' }: World
         size === 'lg' ? 'aspect-square w-48' : 'aspect-square w-32',
       )}
     >
-      <span aria-hidden className={cn('flex flex-1 items-center justify-center transition-transform duration-[var(--dur-3)] ease-[var(--ease-spring)] group-hover:scale-110 group-focus-visible:scale-110', size === 'lg' ? 'text-7xl' : 'text-5xl')}>
-        {WORLD_EMOJI[world.id]}
+      <span aria-hidden className="absolute inset-0 transition-transform duration-[var(--dur-3)] ease-[var(--ease-spring)] group-hover:scale-110 group-focus-visible:scale-110">
+        <WorldScene world={world.id} variant="tile" />
       </span>
-      <span className="flex w-full items-center justify-center gap-1 bg-black/55 px-2 py-2 font-display text-base font-bold">
+      <span className="relative flex w-full items-center justify-center gap-1 bg-black/55 px-2 py-2 font-display text-base font-bold">
         {selected && <Icon name="check" size={18} />}
         {world.name}
       </span>

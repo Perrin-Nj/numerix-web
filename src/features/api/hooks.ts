@@ -1,7 +1,17 @@
 'use client';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { useLocale } from 'next-intl';
+import { appConfig } from '@/config/app';
+import * as G from '@/lib/game/selectors';
+import { nowMs } from '@/lib/game/clock';
+import { useGameEvents } from '@/lib/game/store';
+import type { GameEvent } from '@/lib/game/events';
+import type { Lang } from '@/lib/game/catalog';
 import { api, newIdempotencyKey, unwrap } from '@/lib/api/client';
 import type { AnswerValue, ChildSettings, WorldId } from '@/lib/api/types';
+
+const apiOn = appConfig.stateSource === 'api';
 
 /** Query keys in one place so invalidation stays consistent. */
 export const keys = {
@@ -117,7 +127,7 @@ export function useChildToken() {
 export function useChildSettings(id: string) {
   return useQuery({
     queryKey: keys.settings(id),
-    enabled: Boolean(id),
+    enabled: apiOn && Boolean(id),
     queryFn: () => unwrap(api.GET('/children/{childId}/settings', { params: { path: { childId: id } } })),
   });
 }
@@ -140,74 +150,75 @@ export function useWorlds() {
   return useQuery({ queryKey: keys.worlds, queryFn: () => unwrap(api.GET('/worlds')).then((r) => r.items), staleTime: 10 * 60_000 });
 }
 
-export function useHome(id: string | null) {
+function useApiHome(id: string | null) {
   return useQuery({
     queryKey: keys.home(id ?? ''),
-    enabled: Boolean(id),
+    enabled: apiOn && Boolean(id),
     queryFn: () => unwrap(api.GET('/children/{childId}/home', { params: { path: { childId: id! } } })),
   });
 }
 
-export function useJourney(id: string | null, world: WorldId) {
+function useApiJourney(id: string | null, world: WorldId) {
   return useQuery({
     queryKey: keys.journey(id ?? '', world),
-    enabled: Boolean(id),
+    enabled: apiOn && Boolean(id),
     queryFn: () => unwrap(api.GET('/children/{childId}/journey', { params: { path: { childId: id! }, query: { world } } })),
   });
 }
 
-export function useCollection(id: string | null) {
+function useApiCollection(id: string | null) {
   return useInfiniteQuery({
     queryKey: keys.collection(id ?? ''),
-    enabled: Boolean(id),
+    enabled: apiOn && Boolean(id),
     initialPageParam: undefined as string | undefined,
     queryFn: () => unwrap(api.GET('/children/{childId}/collection', { params: { path: { childId: id! } } })),
     getNextPageParam: () => undefined,
   });
 }
 
-export function useEngagement(id: string | null) {
+function useApiEngagement(id: string | null) {
   return useQuery({
     queryKey: keys.engagement(id ?? ''),
-    enabled: Boolean(id),
+    enabled: apiOn && Boolean(id),
     queryFn: () => unwrap(api.GET('/children/{childId}/engagement', { params: { path: { childId: id! } } })),
   });
 }
 
-export function useGrowth(id: string | null) {
+function useApiGrowth(id: string | null) {
   return useQuery({
     queryKey: keys.growth(id ?? ''),
-    enabled: Boolean(id),
+    enabled: apiOn && Boolean(id),
     queryFn: () => unwrap(api.GET('/children/{childId}/growth', { params: { path: { childId: id! } } })),
   });
 }
 
-export function useDailyQuest(id: string | null) {
+function useApiDailyQuest(id: string | null) {
   return useQuery({
     queryKey: keys.quest(id ?? ''),
-    enabled: Boolean(id),
+    enabled: apiOn && Boolean(id),
     queryFn: () => unwrap(api.GET('/children/{childId}/quests/daily', { params: { path: { childId: id! } } })),
   });
 }
 
 // ───────── Parent data ─────────
-export function useProgress(id: string) {
-  return useQuery({ queryKey: keys.progress(id), queryFn: () => unwrap(api.GET('/children/{childId}/progress', { params: { path: { childId: id } } })) });
+function useApiProgress(id: string) {
+  return useQuery({ queryKey: keys.progress(id), enabled: apiOn, queryFn: () => unwrap(api.GET('/children/{childId}/progress', { params: { path: { childId: id } } })) });
 }
 
-export function useSessionList(id: string) {
+function useApiSessionList(id: string) {
   return useQuery({
     queryKey: keys.sessions(id),
+    enabled: apiOn,
     queryFn: () => unwrap(api.GET('/children/{childId}/sessions', { params: { path: { childId: id } } })).then((r) => r.items),
   });
 }
 
-export function useSessionSummary(sid: string) {
-  return useQuery({ queryKey: keys.summary(sid), queryFn: () => unwrap(api.GET('/sessions/{sessionId}/summary', { params: { path: { sessionId: sid } } })) });
+function useApiSessionSummary(sid: string) {
+  return useQuery({ queryKey: keys.summary(sid), enabled: apiOn, queryFn: () => unwrap(api.GET('/sessions/{sessionId}/summary', { params: { path: { sessionId: sid } } })) });
 }
 
-export function useWeeklyReport(id: string) {
-  return useQuery({ queryKey: keys.weekly(id), queryFn: () => unwrap(api.GET('/reports/weekly', { params: { query: { child_id: id } } })) });
+function useApiWeeklyReport(id: string) {
+  return useQuery({ queryKey: keys.weekly(id), enabled: apiOn, queryFn: () => unwrap(api.GET('/reports/weekly', { params: { query: { child_id: id } } })) });
 }
 
 // ───────── Play ─────────
@@ -270,4 +281,104 @@ export function reactToFeedItem(childId: string, itemId: string, state: { liked:
 
 export function answerFeedPuzzle(childId: string, itemId: string, answer: AnswerValue) {
   return unwrap(api.POST('/children/{childId}/feed/{itemId}/answer', { params: { path: { childId, itemId } }, body: { answer } }));
+}
+
+// ───────── State source: on-device game state (local) or the server (api) ─────────
+// Screens call these wrappers only. In local mode the numbers come from the event log; in api mode from the server.
+function useLang(): Lang {
+  return useLocale().startsWith('en') ? 'en' : 'fr';
+}
+
+function fake<T>(data: T | undefined) {
+  return { data, isLoading: false, isFetching: false, isError: false, error: null, refetch: async () => ({ data }) };
+}
+
+function useDerived<T>(childId: string | null, fn: (ev: GameEvent[], now: number, lang: Lang) => T): T | undefined {
+  const ev = useGameEvents(childId);
+  const lang = useLang();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => (childId && !apiOn ? fn(ev, nowMs(), lang) : undefined), [ev, lang, childId]);
+}
+
+function useGoal(childId: string | null) {
+  return useChildSettings(childId ?? '').data?.daily_goal_chapters ?? 1;
+}
+
+export function useHome(id: string | null) {
+  const api = useApiHome(id);
+  const goal = useGoal(id);
+  const local = useDerived(id, (ev, now, lang) => G.home(ev, now, lang, goal));
+  return (apiOn ? api : fake(local)) as typeof api;
+}
+
+export function useJourney(id: string | null, world: WorldId) {
+  const api = useApiJourney(id, world);
+  const local = useDerived(id, (ev, now, lang) => G.journey(ev, world, now, lang));
+  return (apiOn ? api : fake(local)) as typeof api;
+}
+
+export function useCollection(id: string | null) {
+  const api = useApiCollection(id);
+  const local = useDerived(id, (ev) => G.collection(ev));
+  const shaped = {
+    ...fake(local ? { pages: [{ items: local, next_cursor: null }], pageParams: [undefined] } : undefined),
+    hasNextPage: false,
+    isFetchingNextPage: false,
+    fetchNextPage: async () => ({}),
+  };
+  return (apiOn ? api : shaped) as typeof api;
+}
+
+export function useEngagement(id: string | null) {
+  const api = useApiEngagement(id);
+  const goal = useGoal(id);
+  const local = useDerived(id, (ev, now) => G.engagement(ev, now, goal));
+  return (apiOn ? api : fake(local)) as typeof api;
+}
+
+export function useGrowth(id: string | null) {
+  const api = useApiGrowth(id);
+  const local = useDerived(id, (ev, now) => G.growth(ev, now));
+  return (apiOn ? api : fake(local)) as typeof api;
+}
+
+export function useDailyQuest(id: string | null) {
+  const api = useApiDailyQuest(id);
+  const local = useDerived(id, (ev, now, lang) => G.home(ev, now, lang).quest);
+  return (apiOn ? api : fake(local)) as typeof api;
+}
+
+export function useProgress(id: string) {
+  const api = useApiProgress(id);
+  const local = useDerived(id, (ev, now, lang) => G.progress(ev, now, lang));
+  return (apiOn ? api : fake(local)) as typeof api;
+}
+
+export function useSessionList(id: string) {
+  const api = useApiSessionList(id);
+  const local = useDerived(id, (ev) => G.sessionList(ev, id));
+  return (apiOn ? api : fake(local)) as typeof api;
+}
+
+export function useSessionSummary(sid: string, childId?: string) {
+  const api = useApiSessionSummary(sid);
+  const local = useDerived(childId ?? null, (ev, _now, lang) => G.sessionSummary(ev, sid, lang, childId) ?? undefined);
+  return (apiOn ? api : fake(local)) as typeof api;
+}
+
+export function useWeeklyReport(id: string) {
+  const api = useApiWeeklyReport(id);
+  const local = useDerived(id, (ev, now, lang) => G.weeklyReport(ev, id, now, lang));
+  return (apiOn ? api : fake(local)) as typeof api;
+}
+
+/** Challenges are local-only until the server has them (BE-20). */
+export function useChallenges(id: string | null) {
+  const lang = useLang();
+  const ev = useGameEvents(id);
+  return useMemo(() => G.challengeViews(ev, lang), [ev, lang]);
+}
+
+export function finishSession(sessionId: string) {
+  return unwrap(api.POST('/sessions/{sessionId}/finish', { params: { path: { sessionId } } }));
 }

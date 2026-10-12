@@ -1,11 +1,11 @@
 'use client';
 import { memo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
 import type { AnswerValue, FeedItem, Outcome } from '@/lib/api/types';
 import { AiBadge } from '@/game/ai-badge';
 import { ChoiceButton, type ChoiceState } from '@/game/choice-button';
-import { IllustrationFrame, WORLD_BG, WORLD_EMOJI } from '@/game/illustration-frame';
+import { IllustrationFrame } from '@/game/illustration-frame';
+import { WorldScene } from '@/game/world-scene';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { NarrationText } from '@/game/narration-text';
 import { OutcomeBeat } from '@/game/outcome-beat';
@@ -40,6 +40,15 @@ function FeedCardBase({ item, onReact, onAnswer, onCta, active = false }: FeedCa
 
   const choiceState = (v: AnswerValue): ChoiceState => (picked === null ? 'idle' : v === picked ? 'selected' : 'locked');
 
+  const author = item.author?.name ? (
+    <p className="flex items-center gap-2 text-sm font-semibold text-muted">
+      <span aria-hidden className="flex size-8 items-center justify-center rounded-full bg-brand-soft text-lg">
+        {item.author.emoji}
+      </span>
+      {t('author', { name: item.author.name })}
+    </p>
+  ) : null;
+
   return (
     <article
       data-active={active}
@@ -54,9 +63,10 @@ function FeedCardBase({ item, onReact, onAnswer, onCta, active = false }: FeedCa
       <div className="flex flex-1 flex-col justify-center gap-4">
         {item.kind === 'fun_fact' ? (
           <>
-            <span aria-hidden className={cn('flex h-28 items-center justify-center rounded-lg text-7xl', WORLD_BG[item.world])}>
-              {WORLD_EMOJI[item.world]}
+            <span aria-hidden className="block h-32 overflow-hidden rounded-lg">
+              <WorldScene world={item.world} variant="banner" />
             </span>
+            {author}
             <h2 className="font-display text-3xl font-bold text-fg md:text-4xl">{item.title}</h2>
             <MascotBubble pose="think" size="lg">
               {item.text}
@@ -65,6 +75,7 @@ function FeedCardBase({ item, onReact, onAnswer, onCta, active = false }: FeedCa
         ) : (
           <>
             <IllustrationFrame world={item.world} alt={item.title} />
+            {author}
             <h2 className="font-display text-2xl font-bold text-fg md:text-3xl">{item.title}</h2>
             <p className="font-display text-xl text-fg">{item.text}</p>
           </>

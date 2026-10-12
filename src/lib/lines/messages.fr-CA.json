@@ -1,0 +1,112 @@
+{
+  "lines": {
+    "mascot": {
+      "think": [
+        "Hmm, voyons ça ensemble.",
+        "Prends ton temps, je réfléchis avec toi.",
+        "Bonne question, on la tourne dans tous les sens ?",
+        "Chut, ça mijote dans ma tête.",
+        "Et si on essayait de faire des petits groupes ?",
+        "Je plisse les yeux, je crois que j'ai une piste.",
+        "Doucement, rien ne presse ici.",
+        "Dessine-le dans ta tête, ça aide parfois."
+      ],
+      "cheer": [
+        "Tu y es presque, continue !",
+        "Yeah, quel beau coup !",
+        "Ça, c'est bien pensé !",
+        "Bravo, tu as le coup d'œil !",
+        "Hop, un pas de plus dans l'aventure !",
+        "Tu t'amuses bien, ça se voit !",
+        "Super idée, vraiment !",
+        "Youpi, on avance ensemble !"
+      ],
+      "curious": [
+        "Oh, qu'est-ce qui se cache par là ?",
+        "J'ai remarqué un truc bizarre, tu viens voir ?",
+        "Ça sent l'aventure, non ?",
+        "Je me demande ce que tu vas choisir.",
+        "Tiens, un petit chemin inconnu.",
+        "Mes moustaches frétillent, il y a un secret.",
+        "Et si on regardait de plus près ?",
+        "Je suis curieux de voir la suite."
+      ],
+      "amazed": [
+        "Oh là là, quel tour inattendu !",
+        "Tu as vu ça ? Moi, j'en reste bouche bée.",
+        "Incroyable, l'histoire vient de rebondir !",
+        "Wouah, je ne m'y attendais vraiment pas.",
+        "Quelle surprise, mes yeux brillent !",
+        "Ça alors, la page vient de se retourner !",
+        "Hé, c'est magique, non ?",
+        "Mince, l'aventure fait un grand saut !",
+        "Ouh là, voilà du nouveau !",
+        "Même moi, je n'avais rien deviné."
+      ],
+      "encourage": [
+        "Tu peux le faire, je suis là.",
+        "Chaque essai t'apprend quelque chose.",
+        "Respire, et regarde encore une fois.",
+        "Pas de souci, on repart sur un autre sentier.",
+        "Tu es plus fort que tu ne le crois.",
+        "Un petit pas, et puis un autre.",
+        "Ici, on a le droit de chercher.",
+        "Je crois en toi, vraiment."
+      ],
+      "welcome": [
+        "Salut, content de te revoir !",
+        "Bienvenue, l'aventure t'attendait.",
+        "Coucou ! Prêt pour une nouvelle histoire ?",
+        "Te voilà, j'avais gardé ta place.",
+        "Bonjour, explorateur !",
+        "Hé, quelle bonne surprise de te voir !",
+        "Installe-toi, on a plein de choses à découvrir.",
+        "Ravi que tu sois là."
+      ],
+      "exit": [
+        "Ton histoire t'attend, reviens quand tu veux.",
+        "À bientôt, je garde ta place au chaud.",
+        "Repose-toi bien, la suite sera là demain.",
+        "Belle aventure aujourd'hui, à très vite !",
+        "On se retrouve plus tard, d'accord ?",
+        "Va te dégourdir, l'histoire ne s'enfuit pas.",
+        "Merci d'avoir joué avec moi.",
+        "Fais de beaux rêves de chiffres et d'étoiles."
+      ]
+    },
+    "outcome": {
+      "correct": [
+        "Bien joué",
+        "Joli coup",
+        "En plein dans le mille",
+        "Tu l'as trouvé",
+        "Super réflexion",
+        "Ça roule",
+        "Quel bel élan",
+        "Bravo à toi",
+        "Tout juste",
+        "Belle trouvaille"
+      ],
+      "detour": [
+        "Un détour inattendu",
+        "Un petit chemin de côté",
+        "Tiens, une autre route",
+        "On change de sentier",
+        "Un raccourci tout neuf",
+        "Le chemin tourne",
+        "Une idée de plus",
+        "Et si on bifurquait ?"
+      ],
+      "surprise": [
+        "Une surprise dans l'histoire",
+        "Oh, un coup de vent !",
+        "Voilà un rebondissement",
+        "Quelque chose a bougé",
+        "Ça alors, du neuf !",
+        "Un tourbillon d'idées",
+        "L'histoire fait une pirouette",
+        "Un clin d'œil du hasard"
+      ]
+    }
+  }
+}

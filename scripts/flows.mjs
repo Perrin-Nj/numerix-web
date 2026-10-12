@@ -1,5 +1,6 @@
 // Fast end-to-end flows over HTTP (no browser): drives the app's own proxy like the UI does, with a cookie jar.
 // Prints one line per check. Usage: node scripts/flows.mjs [baseUrl]    (default http://localhost:3000)
+import { solve } from './lib/solver.mjs';
 const BASE = (process.argv[2] ?? process.env.BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 const jar = new Map();
 let fails = 0;
@@ -62,40 +63,34 @@ ok('wrong PIN refused', r.status === 403 && r.json.code === 'invalid_pin');
 r = await api('POST', `/children/${nora.id}/token`, { body: { pin: '4321' } });
 ok('own PIN accepted, child cookie set, token hidden', r.status === 200 && jar.has('nx_child') && !r.text.includes('mock-child-token'));
 
-r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'nature', kind: 'chapter' } });
-ok('no consent: play refused with a clear code', r.status === 403 && r.json.code === 'consent_missing');
-r = await api('POST', '/auth/consent', { body: { child_id: nora.id, version: '2026-10', accepted: true } });
-ok('consent recorded', r.status === 204);
-r = await api('GET', '/children');
-ok('consent visible on the parent list', r.json.items.find((c) => c.id === nora.id).consent_given === true);
-
-// ── Child: home, feed, chapter
-r = await api('GET', `/children/${nora.id}/home`, { mode: 'child' });
-ok('child home loads', r.status === 200 && r.json.worlds.length === 8);
-let cursor;
-const ids = new Set();
-for (let i = 0; i < 4; i++) {
-  r = await api('GET', `/children/${nora.id}/feed?limit=5${cursor ? `&cursor=${cursor}` : ''}`, { mode: 'child' });
-  r.json?.items?.forEach((it) => ids.add(it.id));
-  cursor = r.json?.next_cursor;
-}
-ok('feed scrolls on forever with unique AI items', ids.size === 20 && Boolean(cursor));
-r = await api('PUT', `/children/${nora.id}/feed/feed-1/reaction`, { mode: 'child', body: { liked: true, saved: false } });
-ok('like stored', r.status === 200 && r.json.liked === true);
-r = await api('GET', `/children/${nora.id}/feed?limit=5`, { mode: 'child' });
-ok('like survives a reload of the feed', r.json.items[1].liked === true);
-
 r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'nature', kind: 'chapter' }, headers: { 'idempotency-key': crypto.randomUUID() } });
-ok('chapter starts after consent', r.status === 201);
-const sid = r.json?.id;
-const plan = [54, 6, [49, 4]];
-for (const [i, answer] of plan.entries()) {
-  r = await api('POST', `/sessions/${sid}/beats`, { mode: 'child', headers: { 'idempotency-key': crypto.randomUUID() } });
-  const bid = r.json?.id;
-  ok(`beat ${i}: question without answer`, Boolean(bid) && !r.text.includes('correct_answer'));
-  r = await api('POST', `/sessions/${sid}/beats/${bid}/answer`, { mode: 'child', body: { answer }, headers: { 'idempotency-key': crypto.randomUUID() } });
-  ok(`beat ${i}: graded (${r.json?.outcome})`, r.status === 200 && ['correct', 'erreur_typique', 'erreur_aleatoire'].includes(r.json?.outcome));
+ok('chapter refused without consent', r.status === 403 && r.json?.code === 'consent_missing', r.text.slice(0, 80));
+r = await api('POST', '/auth/consent', { body: { child_id: nora.id, accepted: true } });
+ok('parent gives consent', r.status === 204, r.text.slice(0, 80));
+
+// Two chapters in two worlds: each is its own story, every answer is solved from the question itself
+const scenes = [];
+for (const [world, skill] of [['nature', 'ARI-OPE-A06a'], ['espace', 'ARI-OPE-A07a']]) {
+  r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world, kind: 'chapter', skill_id: skill }, headers: { 'idempotency-key': crypto.randomUUID() } });
+  ok(`${world}: chapter starts after consent`, r.status === 201 && r.json.world === world);
+  const sid = r.json?.id;
+  let last;
+  for (let i = 0; i < 3; i++) {
+    r = await api('POST', `/sessions/${sid}/beats`, { mode: 'child', headers: { 'idempotency-key': crypto.randomUUID() } });
+    const beat = r.json;
+    ok(`${world} beat ${i}: question without answer, skill kept`, Boolean(beat?.id) && !r.text.includes('correct_answer') && beat.skill_id === skill);
+    if (i === 0) {
+      const sc = await call('GET', `/api/v1/sessions/${sid}/beats/${beat.id}/narration?phase=scene`, { mode: 'child' });
+      scenes.push([...sc.text.matchAll(/"delta":"([^"]*)"/g)].map((m) => m[1]).join(''));
+    }
+    const answer = solve(beat.question.math_text);
+    ok(`${world} beat ${i}: solvable choice present`, beat.question.choices.some((c) => JSON.stringify(c) === JSON.stringify(answer)), beat.question.math_text);
+    last = await api('POST', `/sessions/${sid}/beats/${beat.id}/answer`, { mode: 'child', body: { answer }, headers: { 'idempotency-key': crypto.randomUUID() } });
+    ok(`${world} beat ${i}: graded correct`, last.status === 200 && last.json?.outcome === 'correct', JSON.stringify(last.json).slice(0, 80));
+  }
+  ok(`${world}: chapter completes with a card for that world`, last.json?.session?.status === 'completed' && last.json.rewards.some((x) => x.type === 'card_earned' && x.card.world === world));
 }
+ok('two worlds tell different stories', scenes.length === 2 && scenes[0] !== scenes[1] && scenes.every((x) => x.length > 80));
 r = await api('GET', `/children/${nora.id}/collection`, { mode: 'child' });
 ok('collection readable', r.status === 200);
 

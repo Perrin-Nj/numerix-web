@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/dev.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -26,7 +26,10 @@
     "mock:wiremock": "docker compose -f contracts/wiremock/docker-compose.yml up",
     "flows": "node scripts/flows.mjs",
     "mock:selftest": "node mock/scripts/selftest.mjs",
-    "ui-checks": "node scripts/ui-checks.mjs"
+    "ui-checks": "node scripts/ui-checks.mjs",
+    "dev:next": "next dev",
+    "test:state": "node scripts/state-checks.mjs",
+    "test": "bash scripts/test.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
