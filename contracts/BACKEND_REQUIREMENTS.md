@@ -23,7 +23,7 @@ Status values: `proposed` (not in `openapi.yaml` yet), `in-contract` (in `openap
 | ID | Change | Why | Status |
 |---|---|---|---|
 | CR-1 | Honor `Accept-Language` (fr-CA, en-CA) on catalog, journey and narration; localized world, skill and node titles | Two locales from day one | proposed |
-| CR-2 | `onboarding_completed` flags per parent and per child | Persist guided flow across devices | proposed |
+| CR-2 | `onboarding_completed` flags per parent and per child | Persist guided flow across devices | in-contract (child only; parent flag still proposed) |
 | CR-3 | Avatar catalog endpoint | Avoid hardcoded avatars | proposed |
 | CR-4 | Add 429 and 5xx responses to every operation | Complete error handling | proposed |
 | CR-5 | Define the `Problem.code` vocabulary above in the contract | Stable client error mapping | proposed |
@@ -31,12 +31,14 @@ Status values: `proposed` (not in `openapi.yaml` yet), `in-contract` (in `openap
 | CR-7 | Parent password re-check endpoint (or documented use of login) | Parent gate to leave child mode | proposed |
 | CR-8 | Misconception suggestion text for parents | P-09 suggestion line | proposed |
 | CR-9 | Parent web push subscription and reminder preferences | Optional parent reminders | proposed |
-| CR-10 | `GET /children/{id}/home` aggregate (suggested chapter, quest, world teasers, recent cards, engagement, growth) | Home feed without request waterfalls | proposed |
-| BE-11 | Streak day boundary needs the child's time zone: add `timezone` (IANA) to `Child` | Streak and daily goal in local days | proposed |
-| BE-12 | `Session.kind` gains `onboarding` (fixed easy practice problems, not counted in mastery) | Child first-run guide | proposed |
+| CR-10 | `GET /children/{id}/home` aggregate (suggested chapter, quest, world teasers, recent cards, engagement, growth) | Home feed without request waterfalls | in-contract |
+| BE-11 | Streak day boundary needs the child's time zone: add `timezone` (IANA) to `Child` | Streak and daily goal in local days | in-contract |
+| BE-12 | `Session.kind` gains `onboarding` (fixed easy practice problems, not counted in mastery) | Child first-run guide | in-contract |
 | BE-13 | Image URLs (worlds, cards, avatars) served from a CDN with stable cache headers; the frontend CSP `img-src` allows only that host | Performance and CSP | proposed |
 | BE-14 | `GET /health` reports narrator state (`llm`, `stub`, `down`) | Parent area status notice | in-contract |
 | BE-15 | Mock-only: `X-Mock-Scenario` header triggers failure and edge scenarios in WireMock. The real backend ignores it. | Failure-injection tests | mock only |
+| BE-16 | `World.hook` localized teaser line for the home feed | Home feed world cards | in-contract |
+| BE-17 | `GET /children/{id}/settings` readable with a child token (sound, read aloud, enabled worlds); writes stay parent only | Play follows parent choices | in-contract |
 
 ## Mock coverage
 

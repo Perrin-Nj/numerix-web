@@ -1,0 +1,11 @@
+{
+  "ui": {
+    "guidedTour": {
+      "next": "Next",
+      "back": "Back",
+      "skip": "Skip the tour",
+      "done": "Let's go",
+      "progress": "{current} of {total}"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/children"
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "transformers": [
+      "response-template"
+    ],
+    "body": "{\"id\":\"66666666-6666-4666-8666-666666666666\",\"display_name\":\"{{jsonPath request.body '$.display_name'}}\",\"grade\":{{jsonPath request.body '$.grade'}},\"avatar_id\":\"{{jsonPath request.body '$.avatar_id'}}\",\"has_pin\":false,\"consent_given\":false,\"favorite_world\":null,\"timezone\":\"America/Toronto\",\"onboarding_completed\":false,\"created_at\":\"2026-10-12T14:00:00Z\"}"
+  }
+}

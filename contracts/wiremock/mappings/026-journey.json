@@ -1,0 +1,99 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v1/children/[^/]+/journey.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "world": "{{request.query.world}}",
+      "nodes": [
+        {
+          "skill_id": "ARI-OPE-A02a",
+          "label": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}Quick sums{{else}}Additions rapides{{/if}}",
+          "state": "mastered",
+          "position": {
+            "row": 0,
+            "col": 2
+          },
+          "level": 3,
+          "next_review_at": null
+        },
+        {
+          "skill_id": "ARI-OPE-A03a",
+          "label": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}Mental math{{else}}Calcul mental{{/if}}",
+          "state": "mastered",
+          "position": {
+            "row": 1,
+            "col": 3
+          },
+          "level": 2,
+          "next_review_at": null
+        },
+        {
+          "skill_id": "ARI-OPE-A05",
+          "label": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}The missing term{{else}}Le terme manquant{{/if}}",
+          "state": "needs_review",
+          "position": {
+            "row": 2,
+            "col": 2
+          },
+          "level": 1,
+          "next_review_at": "2026-10-12T18:00:00Z"
+        },
+        {
+          "skill_id": "ARI-OPE-A06a",
+          "label": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}Times tables{{else}}Les tables{{/if}}",
+          "state": "available",
+          "position": {
+            "row": 3,
+            "col": 1
+          },
+          "level": 0,
+          "next_review_at": null
+        },
+        {
+          "skill_id": "ARI-SOP-A03a",
+          "label": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}Share and group{{else}}Partager et grouper{{/if}}",
+          "state": "in_progress",
+          "position": {
+            "row": 4,
+            "col": 2
+          },
+          "level": 0,
+          "next_review_at": null
+        },
+        {
+          "skill_id": "ARI-OPE-A07a",
+          "label": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}Division with remainder{{else}}Division avec reste{{/if}}",
+          "state": "locked",
+          "position": {
+            "row": 5,
+            "col": 3
+          },
+          "level": 0,
+          "next_review_at": null
+        },
+        {
+          "skill_id": "ARI-SEN-A01c",
+          "label": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}Big numbers{{else}}Grands nombres{{/if}}",
+          "state": "locked",
+          "position": {
+            "row": 6,
+            "col": 2
+          },
+          "level": 0,
+          "next_review_at": null
+        }
+      ],
+      "current_skill_id": "ARI-OPE-A06a"
+    },
+    "transformers": [
+      "response-template"
+    ]
+  }
+}

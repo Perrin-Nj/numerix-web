@@ -1,0 +1,132 @@
+'use client';
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { ApiError, setApiMode } from '@/lib/api/client';
+import { reportError } from '@/lib/errors/bridge';
+import { useChildren, useChildToken, signOut } from '@/features/api/hooks';
+import { MascotBubble } from '@/game/mascot-bubble';
+import { Avatar } from '@/ui/avatar';
+import { Button } from '@/ui/button';
+import { Dialog } from '@/ui/dialog';
+import { PinInput } from '@/ui/pin-input';
+import { Reveal } from '@/ui/reveal';
+import { Skeleton } from '@/ui/skeleton';
+import type { Child } from '@/lib/api/types';
+
+export function ProfilePicker() {
+  const t = useTranslations('screens.play.picker');
+  const te = useTranslations('errors');
+  const router = useRouter();
+  const children = useChildren();
+  const token = useChildToken();
+  const [pinFor, setPinFor] = useState<Child | null>(null);
+  const [pin, setPin] = useState('');
+  const [pinError, setPinError] = useState<string | undefined>();
+  const [blocked, setBlocked] = useState(false);
+
+  async function enter(child: Child, withPin?: string) {
+    try {
+      await token.mutateAsync({ id: child.id, pin: withPin });
+      setApiMode('child');
+      setPinFor(null);
+      router.push('/play/home');
+    } catch (e) {
+      if (e instanceof ApiError && e.code === 'invalid_pin') {
+        setPinError(te('invalid_pin.title'));
+        setPin('');
+      } else if (e instanceof ApiError && e.code === 'consent_missing') setBlocked(true);
+      else reportError(e, { retry: () => void enter(child, withPin) });
+    }
+  }
+
+  function choose(child: Child) {
+    if (!child.consent_given) return setBlocked(true);
+    if (child.has_pin) {
+      setPin('');
+      setPinError(undefined);
+      setPinFor(child);
+    } else void enter(child);
+  }
+
+  return (
+    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center gap-8 px-4 py-10">
+      <Reveal>
+        <MascotBubble pose="greet" size="lg">
+          {t('who')}
+        </MascotBubble>
+      </Reveal>
+
+      {children.isLoading && (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <Skeleton height={160} />
+          <Skeleton height={160} />
+        </div>
+      )}
+      {children.data && children.data.length === 0 && <p className="text-lg text-muted">{t('none')}</p>}
+      <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        {(children.data ?? []).map((c, i) => (
+          <li key={c.id}>
+            <Reveal delayMs={80 * i}>
+              <button
+                type="button"
+                onClick={() => choose(c)}
+                className="lift flex w-full flex-col items-center gap-3 rounded-lg border-2 border-line bg-elevated p-5 shadow-1"
+              >
+                <Avatar avatarId={c.avatar_id} name={c.display_name} size="lg" />
+                <span className="font-display text-2xl font-bold">{c.display_name}</span>
+                {c.has_pin && <span className="text-sm text-muted">{t('pinProtected')}</span>}
+              </button>
+            </Reveal>
+          </li>
+        ))}
+      </ul>
+
+      <div className="flex flex-wrap gap-3">
+        <Button variant="ghost" onClick={() => router.push('/parent')}>
+          {t('parentArea')}
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={async () => {
+            try {
+              await signOut('all');
+              router.replace('/');
+              router.refresh();
+            } catch (e) {
+              reportError(e);
+            }
+          }}
+        >
+          {t('signOut')}
+        </Button>
+      </div>
+
+      <Dialog
+        open={pinFor !== null}
+        onOpenChange={(o) => !o && setPinFor(null)}
+        title={t('pinTitle', { name: pinFor?.display_name ?? '' })}
+      >
+        <PinInput
+          label={t('pinLabel')}
+          value={pin}
+          onChange={(v) => {
+            setPin(v);
+            setPinError(undefined);
+          }}
+          onComplete={(v) => pinFor && enter(pinFor, v)}
+          disabled={token.isPending}
+          error={pinError}
+        />
+      </Dialog>
+
+      <Dialog
+        open={blocked}
+        onOpenChange={setBlocked}
+        title={te('consent_missing.title')}
+        description={te('consent_missing.description')}
+        footer={<Button onClick={() => setBlocked(false)}>{te('ok')}</Button>}
+      />
+    </main>
+  );
+}

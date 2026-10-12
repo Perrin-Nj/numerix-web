@@ -1,0 +1,14 @@
+# Local and CI mock of the Numerix backend, driven by the files in this folder.
+# Start: docker compose -f contracts/wiremock/docker-compose.yml up
+# Admin UI: http://localhost:8080/__admin/  Reset scenarios: POST http://localhost:8080/__admin/scenarios/reset
+services:
+  wiremock:
+    image: wiremock/wiremock:3.13.1
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./mappings:/home/wiremock/mappings
+    command:
+      - --global-response-templating
+      - --disable-gzip
+      - --verbose

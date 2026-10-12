@@ -1,0 +1,25 @@
+{
+  "priority": 2,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/children/11111111-1111-4111-8111-111111111111/token",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.pin != '1234')]"
+      }
+    ]
+  },
+  "response": {
+    "status": 403,
+    "headers": {
+      "Content-Type": "application/problem+json"
+    },
+    "jsonBody": {
+      "type": "https://numerix.app/problems/invalid-pin",
+      "title": "Wrong PIN",
+      "status": 403,
+      "detail": "That PIN does not match.",
+      "code": "invalid_pin"
+    }
+  }
+}
