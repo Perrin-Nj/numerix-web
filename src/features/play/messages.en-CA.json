@@ -40,6 +40,8 @@
           "title": "Voice and help",
           "voice": "Read aloud",
           "voiceHint": "Stories and hints can be heard.",
+          "vibration": "Gentle buzz",
+          "vibrationHint": "A short buzz when you answer, on phones that can.",
           "hints": "Little nudges",
           "hintsHint": "A gentle hint when you think for a while.",
           "delay": "Hint after",

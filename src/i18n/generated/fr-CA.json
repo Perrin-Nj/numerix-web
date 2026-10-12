@@ -22,7 +22,8 @@
         "parentArea": "Espace parent",
         "signOut": "Se déconnecter",
         "pinTitle": "Code de {name}",
-        "pinLabel": "Code à 4 chiffres"
+        "pinLabel": "Code à 4 chiffres",
+        "playNow": "Jouer avec {name}"
       },
       "nav": {
         "label": "Navigation principale",
@@ -101,6 +102,8 @@
           "title": "Voix et aide",
           "voice": "Lire à voix haute",
           "voiceHint": "Les histoires et les indices se font entendre.",
+          "vibration": "Petite vibration",
+          "vibrationHint": "Une courte vibration quand tu réponds, sur les téléphones qui peuvent.",
           "hints": "Petits coups de pouce",
           "hintsHint": "Un indice doux quand tu réfléchis longtemps.",
           "delay": "Indice après",
@@ -643,6 +646,10 @@
       "detour": "Un détour inattendu",
       "surprise": "Une surprise dans l'histoire"
     },
+    "outcomeSheet": {
+      "review": "Revoir la question",
+      "reopen": "Revenir"
+    },
     "outcomeSim": {
       "skip": "Passer l'animation",
       "caption": {
@@ -815,7 +822,8 @@
       "hint": "Touche le cadeau pour l'ouvrir.",
       "open": "Ouvrir le cadeau",
       "opened": "Voici ta première carte !",
-      "claim": "La garder dans ma collection"
+      "claim": "La garder dans ma collection",
+      "later": "Plus tard"
     },
     "worldTeaser": {
       "open": "Découvrir ce monde"

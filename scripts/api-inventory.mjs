@@ -33,7 +33,7 @@ function walk(dir, out = []) {
 }
 
 // ───────── openapi (tiny parser: only paths, methods, operationId) ─────────
-function parseOpenapi(file) {
+function parseOpenapi(file, prefix = '') {
   const ops = new Map(); // "GET /path" -> operationId
   let inPaths = false;
   let path = null;
@@ -43,7 +43,7 @@ function parseOpenapi(file) {
     if (inPaths && /^\S/.test(line) && !line.startsWith('#')) inPaths = false;
     if (!inPaths) continue;
     let m = /^ {2}(\/[^:\s]*):\s*$/.exec(line);
-    if (m) { path = m[1]; method = null; continue; }
+    if (m) { path = prefix + m[1]; method = null; continue; }
     m = /^ {4}(get|post|put|patch|delete):\s*$/.exec(line);
     if (m && path) { method = m[1].toUpperCase(); ops.set(`${method} ${path}`, ''); continue; }
     m = /^ {6}operationId:\s*(\S+)/.exec(line);
@@ -56,7 +56,7 @@ const normKey = (k) => { const i = k.indexOf(' '); return `${k.slice(0, i)} ${no
 
 const kidOps = parseOpenapi('contracts/openapi.yaml');
 const adminFile = 'contracts/openapi.admin.yaml';
-const adminOps = existsSync(join(ROOT, adminFile)) ? parseOpenapi(adminFile) : new Map();
+const adminOps = existsSync(join(ROOT, adminFile)) ? parseOpenapi(adminFile, '/admin/v1') : new Map();
 const kidIndex = new Map([...kidOps].map(([k, v]) => [normKey(k), { key: k, id: v }]));
 const adminIndex = new Map([...adminOps].map(([k, v]) => [normKey(k), { key: k, id: v }]));
 

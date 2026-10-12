@@ -49,12 +49,17 @@ export function useSubscription(enabled = true) {
   return useQuery({ queryKey: platformKeys.subscription, enabled, queryFn: () => call<Subscription>('GET', '/subscription') });
 }
 
+type RawPlan = Partial<Plan> & { id: Plan['id']; price_cad_cents?: number };
+
 export function usePlans(enabled = true) {
   return useQuery({
     queryKey: platformKeys.plans,
     enabled,
     staleTime: 5 * 60_000,
-    queryFn: () => call<Plan[] | { items: Plan[] }>('GET', '/subscription/plans').then(items),
+    queryFn: () =>
+      call<{ plans: RawPlan[] } | RawPlan[]>('GET', '/subscription/plans').then((r) =>
+        (Array.isArray(r) ? r : r.plans).map((p): Plan => ({ id: p.id, price_cad: p.price_cad ?? (p.price_cad_cents ?? 0) / 100, interval: p.interval })),
+      ),
   });
 }
 

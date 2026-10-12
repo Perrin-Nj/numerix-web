@@ -776,3 +776,39 @@ body {
 :root[data-motion='reduced'] .nx-card-sweep::after {
   animation: none;
 }
+
+/* ===== Answer experience (PLAN_V5 section 3) ===== */
+@keyframes nx-react-bounce { 0%,100% { transform: translateY(0) scale(1); } 40% { transform: translateY(-12%) scale(1.08); } }
+@keyframes nx-react-sway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+@keyframes nx-react-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+@keyframes nx-react-wave { 0%,100% { transform: rotate(0); } 25% { transform: rotate(14deg); } 75% { transform: rotate(-10deg); } }
+.nx-react-bounce { animation: nx-react-bounce calc(1100ms * var(--motion-scale, 1)) ease-in-out infinite; }
+.nx-react-sway { animation: nx-react-sway calc(2400ms * var(--motion-scale, 1)) ease-in-out infinite; }
+.nx-react-pulse { animation: nx-react-pulse calc(1300ms * var(--motion-scale, 1)) ease-in-out infinite; }
+.nx-react-wave { animation: nx-react-wave calc(1200ms * var(--motion-scale, 1)) ease-in-out infinite; transform-origin: 70% 70%; }
+
+@keyframes nx-choice-right { 0% { transform: scale(1); } 40% { transform: scale(1.06); box-shadow: 0 0 0 0 rgb(34 197 94 / 0.5); } 100% { transform: scale(1); box-shadow: 0 0 0 14px rgb(34 197 94 / 0); } }
+@keyframes nx-choice-wrong { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.nx-choice-right { animation: nx-choice-right 450ms ease-out both; }
+.nx-choice-wrong { animation: nx-choice-wrong 400ms ease-in-out both; opacity: 0.7; }
+
+@keyframes nx-sparkle-burst { 0% { transform: translate(0,0) scale(0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; } }
+.nx-spark { position: absolute; inset-inline-start: 50%; top: 50%; font-size: 1rem; pointer-events: none; animation: nx-sparkle-burst 700ms ease-out both; }
+
+@keyframes nx-stage-in { from { opacity: 0; } to { opacity: 1; } }
+.nx-stage-in { animation: nx-stage-in 250ms ease-out both; }
+
+@keyframes nx-sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.nx-sheet-up { animation: nx-sheet-up 350ms var(--ease-out, ease-out) both; }
+
+@keyframes nx-dust { 0% { transform: translateY(0); opacity: 0.6; } 100% { transform: translateY(-40px); opacity: 0; } }
+.nx-dust { position: absolute; width: 8px; height: 8px; border-radius: 9999px; background: rgb(180 170 150 / 0.7); pointer-events: none; animation: nx-dust 1400ms ease-out both; }
+
+.nx-hero-glow { transition: box-shadow 400ms ease-out; border-radius: 9999px; box-shadow: 0 0 calc(var(--glow, 0) * 10px) calc(var(--glow, 0) * 3px) rgb(250 204 21 / calc(0.25 + var(--glow, 0) * 0.15)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-react-bounce, .nx-react-sway, .nx-react-pulse, .nx-react-wave, .nx-choice-right, .nx-choice-wrong, .nx-spark, .nx-dust { animation: none; }
+  .nx-sheet-up { animation: nx-stage-in 250ms ease-out both; }
+}
+:root[data-motion='reduced'] :is(.nx-react-bounce, .nx-react-sway, .nx-react-pulse, .nx-react-wave, .nx-choice-right, .nx-choice-wrong, .nx-spark, .nx-dust) { animation: none; }
+:root[data-motion='reduced'] .nx-sheet-up { animation: nx-stage-in 250ms ease-out both; }

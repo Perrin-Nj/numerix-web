@@ -63,3 +63,4 @@ export const ReducedMotion: Story = { args: { good: false }, globals: { motion: 
 export const TVScale: Story = { globals: { display: 'tv' } };
 export const French: Story = { args: { world: 'medecine', good: false }, globals: { locale: 'fr-CA' } };
 export const English: Story = { args: { world: 'medecine', good: false }, globals: { locale: 'en-CA' } };
+export const CaptionHidden: Story = { args: { showCaption: false, playing: false } };

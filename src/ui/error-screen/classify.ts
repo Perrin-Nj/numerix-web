@@ -6,7 +6,7 @@ export type ErrorArea = 'play' | 'parent' | 'root';
 // Codes that have copy under `errors.*` (same list as ErrorBridge)
 const KNOWN = new Set([
   'device_offline', 'server_unreachable', 'backend_unreachable', 'backend_timeout', 'request_failed', 'unauthorized', 'forbidden', 'consent_missing', 'daily_limit_reached', 'session_active',
-  'session_paused', 'session_completed', 'beat_answered', 'invalid_pin', 'not_found', 'validation_failed', 'rate_limited', 'internal_error', 'unknown',
+  'session_paused', 'session_completed', 'beat_answered', 'invalid_pin', 'not_found', 'validation_failed', 'rate_limited', 'internal_error', 'subscription_inactive', 'account_blocked', 'unknown',
 ]);
 
 const KIND: Record<string, ErrorKind> = {

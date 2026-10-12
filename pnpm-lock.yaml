@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@dicebear/core':
+        specifier: ^9.4.2
+        version: 9.4.2
+      '@dicebear/open-peeps':
+        specifier: ^9.4.2
+        version: 9.4.2(@dicebear/core@9.4.2)
       '@hookform/resolvers':
         specifier: ^5.9.1
         version: 5.9.1(@standard-schema/spec@1.1.0)(react-hook-form@7.90.0(@types/react@19.3.0)(react@19.3.0))(valibot@1.5.0(typescript@5.9.3))(zod@4.6.6)
@@ -228,6 +234,16 @@ packages:
 
   '@blazediff/core@1.9.1':
     resolution: {integrity: sha512-ehg3jIkYKulZh+8om/O25vkvSsXXwC+skXmyA87FFx6A/45eqOkZsBltMw/TVteb0mloiGT8oGRTcjRAz66zaA==}
+
+  '@dicebear/core@9.4.2':
+    resolution: {integrity: sha512-MF0042+Z3s8PGZKZLySfhft28bUa3B1iq0e5NSjCvY8gfMi5aIH/iRJGRJa1N9Jz1BNkxYb4yvJ/N9KO8Z6Y+w==}
+    engines: {node: '>=18.0.0'}
+
+  '@dicebear/open-peeps@9.4.2':
+    resolution: {integrity: sha512-i01tLgtp2g937T81sVeAOVlqsCtiTck/Kw20g7hN80+7xrXjOUepz2HPLy3HeiMjwjMGRy5o54kSd0/8Ht4Dqg==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@dicebear/core': ^9.0.0
 
   '@eloqnt/config@0.1.1':
     resolution: {integrity: sha512-YRDigSaiJEzKDfzTth5kG+L/PKfB3mo8h7yNzpXExPfvQmcD05WoZT57PdhJE0jI+Vva6eb0OCU8hnHHgdME3g==}
@@ -4926,6 +4942,14 @@ snapshots:
   '@bcoe/v8-coverage@1.0.2': {}
 
   '@blazediff/core@1.9.1': {}
+
+  '@dicebear/core@9.4.2':
+    dependencies:
+      '@types/json-schema': 7.0.15
+
+  '@dicebear/open-peeps@9.4.2(@dicebear/core@9.4.2)':
+    dependencies:
+      '@dicebear/core': 9.4.2
 
   '@eloqnt/config@0.1.1': {}
 

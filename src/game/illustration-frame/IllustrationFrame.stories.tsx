@@ -43,3 +43,7 @@ export const ReducedMotion: Story = { globals: { motion: 'reduced' } };
 export const TvScale: Story = { globals: { display: 'tv' } };
 export const French: Story = { args: { alt: 'Une clairière dans la forêt' }, globals: { locale: 'fr-CA' } };
 export const English: Story = { args: { alt: 'A forest clearing' }, globals: { locale: 'en-CA' } };
+export const StageSwap: Story = {
+  args: { stage: <span className="text-6xl">🌱🌱🌱</span>, stageKey: 'scene' },
+  decorators: [(Story) => <div className="h-56"><Story /></div>],
+};

@@ -29,6 +29,8 @@ export type ErrorCode =
   | 'validation_failed'
   | 'rate_limited'
   | 'internal_error'
+  | 'subscription_inactive'
+  | 'account_blocked'
   | 'device_offline'
   | 'server_unreachable'
   | 'backend_unreachable'

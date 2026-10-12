@@ -1,1 +1,13 @@
-{ "game": { "outcomeBeat": { "success": "Nicely done", "detour": "An unexpected detour", "surprise": "A twist in the story" } } }
+{
+  "game": {
+    "outcomeBeat": {
+      "success": "Nicely done",
+      "detour": "An unexpected detour",
+      "surprise": "A twist in the story"
+    },
+    "outcomeSheet": {
+      "review": "Look at the question again",
+      "reopen": "Back"
+    }
+  }
+}

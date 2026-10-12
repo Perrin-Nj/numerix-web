@@ -10,6 +10,7 @@ const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
 const DATA = `${VERSION}-data`;
 const OFFLINE_URL = '/offline';
+const REACTION_FILES = ['happy', 'sad', 'thinking', 'party', 'hug', 'thumbs-up', 'star-struck', 'pleading', 'sleepy', 'wave', 'clap', 'hearts'].map((n) => `/reactions/${n}.svg`);
 
 const READABLE = /^\/api\/v1\/(worlds|children\/[^/]+\/(journey|collection|home|engagement|growth))/;
 
@@ -17,7 +18,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(STATIC)
-      .then((c) => c.addAll([OFFLINE_URL, '/icons/icon-192.png', '/icons/icon-512.png']))
+      .then((c) => c.addAll([OFFLINE_URL, '/icons/icon-192.png', '/icons/icon-512.png', ...REACTION_FILES]))
       // Do not take over mid-session; the page asks for the update with SKIP_WAITING
       .catch(() => undefined),
   );

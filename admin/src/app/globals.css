@@ -19,6 +19,12 @@
   --info: #2563eb;
   --info-soft: #e5edff;
   --focus: #2d5bff;
+  --c1: #5b4bdb;
+  --c2: #e8731a;
+  --c3: #1f8f5f;
+  --c4: #2563eb;
+  --c5: #8e44ad;
+  --c6: #0f8a8a;
 }
 :root[data-theme='dark'] {
   --bg: #14111f;
@@ -39,6 +45,12 @@
   --info: #7aa7ff;
   --info-soft: #172544;
   --focus: #8fb0ff;
+  --c1: #9b8cff;
+  --c2: #f59a4a;
+  --c3: #4cd196;
+  --c4: #7aa7ff;
+  --c5: #c58bf0;
+  --c6: #4fd1d1;
 }
 
 @theme inline {

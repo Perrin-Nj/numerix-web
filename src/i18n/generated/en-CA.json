@@ -22,7 +22,8 @@
         "parentArea": "Parent area",
         "signOut": "Sign out",
         "pinTitle": "{name}'s code",
-        "pinLabel": "4-digit code"
+        "pinLabel": "4-digit code",
+        "playNow": "Play as {name}"
       },
       "nav": {
         "label": "Main navigation",
@@ -101,6 +102,8 @@
           "title": "Voice and help",
           "voice": "Read aloud",
           "voiceHint": "Stories and hints can be heard.",
+          "vibration": "Gentle buzz",
+          "vibrationHint": "A short buzz when you answer, on phones that can.",
           "hints": "Little nudges",
           "hintsHint": "A gentle hint when you think for a while.",
           "delay": "Hint after",
@@ -643,6 +646,10 @@
       "detour": "An unexpected detour",
       "surprise": "A twist in the story"
     },
+    "outcomeSheet": {
+      "review": "Look at the question again",
+      "reopen": "Back"
+    },
     "outcomeSim": {
       "skip": "Skip the animation",
       "caption": {
@@ -815,7 +822,8 @@
       "hint": "Tap the gift to open it.",
       "open": "Open the gift",
       "opened": "Here is your first card!",
-      "claim": "Keep it in my collection"
+      "claim": "Keep it in my collection",
+      "later": "Later"
     },
     "worldTeaser": {
       "open": "Explore this world"

@@ -84,6 +84,7 @@ function VoicePanel() {
   return (
     <Panel title={t('title')}>
       <div className="flex flex-col gap-4">
+        <Switch label={t('vibration')} description={t('vibrationHint')} checked={prefs.vibration} onCheckedChange={(vibration) => prefs.set({ vibration })} />
         <Switch label={t('voice')} description={t('voiceHint')} checked={prefs.voice} onCheckedChange={(voice) => prefs.set({ voice })} />
         <Switch label={t('hints')} description={t('hintsHint')} checked={prefs.hints} onCheckedChange={(hints) => prefs.set({ hints })} />
         {prefs.hints && (

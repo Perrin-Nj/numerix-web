@@ -35,7 +35,12 @@ try {
   };
 
   let o = await call('overview');
-  check('overview returns data', o.status === 200 && typeof o.data?.parents_total === 'number' && Array.isArray(o.data?.signups_30d), o.status);
+  check('overview returns data', o.status === 200 && typeof o.data?.parents_total === 'number' && Array.isArray(o.data?.signups_by_day_30), o.status);
+  const ov = o.data;
+  const sum = (a, k) => a.reduce((x, y) => x + y[k], 0);
+  check('overview series present (day, month, activity, mix, worlds)', o.status === 200 && ov.signups_by_day_30?.length === 30 && ov.signups_by_month_12?.length === 12 && ov.active_kids_by_day_30?.length === 30 && ov.activity_by_day_90?.length === 90 && ov.top_worlds?.length > 0 && ov.trend_30?.length === 31);
+  check('overview consistency: mixes and grades add up', sum(ov.subscription_mix, 'count') === ov.parents_total && sum(ov.kids_by_grade, 'count') === ov.kids_total && sum(ov.plan_mix, 'mrr_cad_cents') === ov.mrr_cad_cents);
+  check('overview consistency: last points match tiles', ov.active_kids_by_day_30[29].value === ov.active_today && ov.mrr_by_month_12[11].mrr_cad_cents === ov.mrr_cad_cents);
   const pl = await call('parents?page_size=5');
   check('parents list returns data', pl.status === 200 && pl.data.items?.length > 0, pl.status);
   const cl = await call('children?page_size=5');

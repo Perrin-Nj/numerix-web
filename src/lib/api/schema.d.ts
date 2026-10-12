@@ -130,7 +130,9 @@ export interface paths {
         put?: never;
         /**
          * Switch to a child (play mode)
-         * @description Returns a child-scoped token. A PIN is required if the profile has one.
+         * @description Returns a child-scoped token. A PIN is required if the profile has one (403 `invalid_pin`). The backend
+         *     should also refuse with 403 `consent_missing` while the parent has not consented; the profile picker
+         *     handles that answer (the mock still issues the token and refuses at session start).
          */
         post: operations["createChildToken"];
         delete?: never;
@@ -344,9 +346,19 @@ export interface paths {
         };
         /**
          * Stream the scene or the consequence as it is written
-         * @description Server-sent events. Events: `scene` (text delta), `denouement` (text
-         *     delta), `done`, `fallback` (the model failed; the data holds the canned
-         *     text to show instead). The stream closes after `done` or `fallback`.
+         * @description Server-sent events (`Content-Type: text/event-stream`, `Cache-Control: no-cache`). Each block is
+         *     `event: <name>\ndata: <json>\n\n`. Events:
+         *     - `scene` or `denouement` (the name equals `phase`): `data: {"delta":"text chunk"}`; chunks are about 4 words
+         *       and keep their trailing space so the client can concatenate them as they are.
+         *     - `done`: `data: {}`, last event of a healthy stream, then close.
+         *     - `fallback`: `data: {"text":"full canned text"}`, sent instead of `done` when the model failed or leaked
+         *       an answer. The client shows the text and tells the user the story is simplified. Then close.
+         *     - A comment line `: ping` every 5 s while the model thinks (heartbeat; the client ignores it).
+         *     Add `id: <n>` to every block. A reconnect with `Last-Event-ID: <n>` resumes after that chunk. The client
+         *     reconnects once, from scratch, when the stream drops before `done`.
+         *     `phase=denouement` before the beat is answered returns 409 `beat_not_answered`.
+         *     The first byte must arrive within 3 s; the whole scene within 8 s or send `fallback`. The web proxy
+         *     cuts every request at 15 s.
          */
         get: operations["streamNarration"];
         put?: never;
@@ -698,7 +710,13 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Start a paid plan (BE-24). The real backend returns the processor's hosted page; the mock completes instantly. */
+        /**
+         * Start a paid plan (BE-24). The real backend returns the processor's hosted page URL; the mock completes instantly.
+         * @description Idempotent: the client sends `Idempotency-Key`; a retry with the same key returns the same
+         *     `checkout_url` (or the same activated subscription) and never creates a second checkout.
+         *     With a processor, the response carries `checkout_url` (https only) and the subscription stays
+         *     unchanged until the processor webhook confirms payment. The app never collects card details.
+         */
         post: operations["checkoutSubscription"];
         delete?: never;
         options?: never;
@@ -764,10 +782,152 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Public platform settings (unpaid policy, card threshold, trial length) */
+        /**
+         * Public platform settings (unpaid policy, card threshold, trial length, feature flags)
+         * @description Safe to cache for 5 minutes. No personal data. Read by the parent app to explain the paywall and by reminders.
+         */
         get: operations["getPlatformPublic"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/push/subscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Store the parent's Web Push subscription (VAPID)
+         * @description Body is the browser `PushSubscription.toJSON()`. Upsert by `endpoint`: the same endpoint twice is
+         *     one subscription. Returns 404, 405 or 501 while push is not built (the app then explains it).
+         */
+        post: operations["subscribePush"];
+        /** Remove a Web Push subscription (sign out, permission revoked, expired endpoint) */
+        delete: operations["unsubscribePush"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/challenges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        /**
+         * The challenge catalogue with this child's progress
+         * @description Until this exists the web app derives challenges from the on-device event log. Progress counts only
+         *     events after the child accepted the challenge. Completion awards the card `ch-<challenge id>` once.
+         */
+        get: operations["listChallenges"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/challenges/{challengeId}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+                challengeId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * The child accepts a challenge (progress starts counting now)
+         * @description Idempotent. Accepting twice returns the same challenge with the first `accepted_at`.
+         */
+        post: operations["acceptChallenge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/children/{childId}/gift/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Claim the one-time welcome gift (a card)
+         * @description Idempotent. The first call creates the card `welcome`; later calls return the same card with 200.
+         */
+        post: operations["claimWelcomeGift"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The parent's own profile
+         * @description Not called by the web app yet. The account screen changes the language with a cookie only, so the backend never learns the parent's language (see known mismatches).
+         */
+        get: operations["getAccount"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete the parent and everything that belongs to the family
+         * @description Irreversible cascade (children, sessions, progress, subscription and processor customer, notifications, push subscriptions, tokens). Requires the password. Not called by the web app yet.
+         */
+        delete: operations["deleteAccount"];
+        options?: never;
+        head?: never;
+        /**
+         * Change name or language
+         * @description The language decides the text of notifications and emails created later.
+         */
+        patch: operations["updateAccount"];
+        trace?: never;
+    };
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke the parent's refresh token family
+         * @description Sign out must revoke server side. The web app only clears its cookies today (see known mismatches),
+         *     so the backend must also expire refresh tokens by itself. Idempotent; always 204.
+         */
+        post: operations["logoutParent"];
         delete?: never;
         options?: never;
         head?: never;
@@ -781,8 +941,31 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Liveness and readiness */
+        /**
+         * Liveness, with the narrator state
+         * @description Cheap, no database call. The Next app reads it through `/api/health` to tell "our backend is down" from "your connection is down".
+         */
         get: operations["health"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Readiness (database, cache, engine, narrator)
+         * @description Returns 503 with the failing check names when the service must not receive traffic. Used by the platform load balancer, not by the web app.
+         */
+        get: operations["ready"];
         put?: never;
         post?: never;
         delete?: never;
@@ -800,7 +983,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Batch of privacy-safe UI events (no names, no free text) */
+        /**
+         * Batch of privacy-safe UI events (no names, no free text)
+         * @description Product analytics. Not called by the web app yet (the `NEXT_PUBLIC_ANALYTICS_ENABLED` flag exists
+         *     but no sender is wired). Never accept names, emails, free text or ids of other people in `props`.
+         *     Drop unknown `name` values silently, always answer 202.
+         */
         post: operations["sendEvents"];
         delete?: never;
         options?: never;
@@ -812,7 +1000,26 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description RFC 9457 problem details */
+        /**
+         * @description RFC 9457 problem details
+         * @example {
+         *       "type": "https://numerix.app/problems/subscription-inactive",
+         *       "title": "A little break for now",
+         *       "status": 402,
+         *       "code": "subscription_inactive",
+         *       "detail": "Your family's subscription is paused.",
+         *       "i18n": {
+         *         "fr": {
+         *           "title": "Petite pause pour l’instant",
+         *           "detail": "L’abonnement de ta famille est en pause."
+         *         },
+         *         "en": {
+         *           "title": "A little break for now",
+         *           "detail": "Your family's subscription is paused."
+         *         }
+         *       }
+         *     }
+         */
         Problem: {
             /** @example https://numerix.app/problems/consent-missing */
             type: string;
@@ -820,10 +1027,27 @@ export interface components {
             status: number;
             detail?: string;
             /**
-             * @description Stable machine code the UI switches on
+             * @description Stable machine code the UI switches on. Vocabulary (guide, error catalogue):
+             *     unauthorized, forbidden, forbidden_origin, not_found, validation_failed, rate_limited, internal_error,
+             *     consent_missing, daily_limit_reached, session_active, session_paused, session_completed,
+             *     beat_answered, beat_not_answered, invalid_pin, subscription_inactive, account_blocked,
+             *     not_cancelable, conflict, email_taken.
              * @example consent_missing
              */
             code?: string;
+            /** @description On 429 and 503. Also sent as header Retry-After, but the Next proxy forwards only content-type and cache-control, so the body copy is the one the app can read. */
+            retry_after_seconds?: number;
+            /** @description Optional ready-made copy in both languages (used by subscription_inactive and account_blocked). */
+            i18n?: {
+                fr?: {
+                    title?: string;
+                    detail?: string;
+                };
+                en?: {
+                    title?: string;
+                    detail?: string;
+                };
+            };
             errors?: {
                 field?: string;
                 message?: string;
@@ -872,6 +1096,18 @@ export interface components {
                 locale: string;
             };
         };
+        Account: {
+            /** Format: uuid */
+            id: string;
+            /** Format: email */
+            email: string;
+            name: string;
+            /** @enum {string} */
+            locale: "fr-CA" | "en-CA";
+            email_verified?: boolean;
+            /** Format: date-time */
+            created_at?: string;
+        };
         ConsentRequest: {
             /** Format: uuid */
             child_id: string;
@@ -883,6 +1119,21 @@ export interface components {
             /** @constant */
             accepted: true;
         };
+        /**
+         * @example {
+         *       "id": "11111111-1111-4111-8111-111111111111",
+         *       "display_name": "Zoé",
+         *       "birth_year": 2018,
+         *       "grade": 3,
+         *       "avatar_id": "fox",
+         *       "has_pin": true,
+         *       "consent_given": true,
+         *       "favorite_world": "echecs",
+         *       "timezone": "America/Toronto",
+         *       "onboarding_completed": false,
+         *       "created_at": "2026-10-12T14:00:00Z"
+         *     }
+         */
         Child: {
             /** Format: uuid */
             id: string;
@@ -917,6 +1168,8 @@ export interface components {
             grade?: number;
             avatar_id?: string;
             onboarding_completed?: boolean;
+            /** @description IANA zone; changes the day boundary from the next day on */
+            timezone?: string;
             pin?: string | null;
         };
         ChildToken: {
@@ -924,6 +1177,25 @@ export interface components {
             expires_in: number;
             child: components["schemas"]["Child"];
         };
+        /**
+         * @example {
+         *       "daily_goal_chapters": 1,
+         *       "daily_time_limit_minutes": null,
+         *       "enabled_worlds": [
+         *         "nature",
+         *         "espace",
+         *         "cuisine",
+         *         "sport",
+         *         "construction",
+         *         "medecine",
+         *         "science",
+         *         "echecs"
+         *       ],
+         *       "read_aloud": true,
+         *       "sound": true,
+         *       "kid_can_change_language": true
+         *     }
+         */
         ChildSettings: {
             /** @default 1 */
             daily_goal_chapters: number;
@@ -940,6 +1212,15 @@ export interface components {
         };
         /** @enum {string} */
         PaymentMethod: "card" | "interac" | "paypal" | "apple_pay" | "google_pay";
+        /**
+         * @example {
+         *       "status": "trial",
+         *       "plan": "free",
+         *       "trial_ends_at": "2026-10-26T14:00:00Z",
+         *       "can_play": true,
+         *       "days_left": 14
+         *     }
+         */
         SubscriptionView: {
             /**
              * @description Effective status (a trial or paid period that ended reads expired)
@@ -954,8 +1235,9 @@ export interface components {
             /** Format: date-time */
             trial_ends_at?: string;
             marked_by_admin?: boolean;
-            /** @description Kids can start chapters (also true for every family when the platform policy is allow) */
+            /** @description The subscription alone allows play (trial running, paid period running, or canceled but not ended). The start gate is can_play OR unpaid_policy allow, and a blocked parent is always refused. */
             can_play: boolean;
+            /** @description Whole days, rounded up, until trial_ends_at or renews_at; null when there is no end */
             days_left?: number | null;
         };
         PlanCatalog: {
@@ -984,6 +1266,17 @@ export interface components {
                 };
             }[];
         };
+        /**
+         * @example {
+         *       "id": "nt-1",
+         *       "kind": "play_reminder",
+         *       "title": "C’est l’heure d’une petite aventure",
+         *       "body": "Un chapitre de 10 minutes attend votre enfant.",
+         *       "created_at": "2026-10-12T14:00:00Z",
+         *       "read": false,
+         *       "audience": "parent"
+         *     }
+         */
         Notification: {
             id: string;
             /** @enum {string} */
@@ -996,12 +1289,35 @@ export interface components {
             /** @enum {string} */
             audience: "parent" | "child";
         };
+        /**
+         * @example {
+         *       "unpaid_policy": "block",
+         *       "card_threshold_pct": 70,
+         *       "trial_days": 14,
+         *       "default_locale": "fr-CA",
+         *       "expiring_warning_days": 7,
+         *       "reminder_hour_local": 17,
+         *       "daily_time_limit_minutes_default": 60,
+         *       "features": {
+         *         "feed": true,
+         *         "challenges": true,
+         *         "push": false,
+         *         "payments": true
+         *       }
+         *     }
+         */
         PlatformPublic: {
             /** @enum {string} */
             unpaid_policy: "block" | "allow";
             card_threshold_pct: number;
             trial_days?: number;
             default_locale?: string;
+            /** @description Days before the end of a trial or canceled period that trigger subscription_expiring */
+            expiring_warning_days?: number;
+            /** @description Local hour after which a play reminder is allowed */
+            reminder_hour_local?: number;
+            /** @description Default daily limit for new children */
+            daily_time_limit_minutes_default?: number | null;
             features?: {
                 [key: string]: boolean;
             };
@@ -1082,6 +1398,73 @@ export interface components {
             started_at: string;
             /** Format: date-time */
             ended_at?: string | null;
+            /** @description Required on the session inside `AnswerResult` and `SessionSummary`. Recommended on every session once one beat is answered, so the done screen survives a reload (the web app keeps the rewards in sessionStorage only). */
+            score?: components["schemas"]["Score"];
+        };
+        /**
+         * @description First-try score of a chapter. `correct` counts beats whose outcome is `correct`; `total` counts answered beats;
+         *     `pct = round(1000 * correct / total) / 10` (one decimal, 0 when total is 0). `card_awarded` is true only
+         *     when the chapter is completed and `pct >= threshold_pct`. The threshold is `PlatformConfig.card_threshold_pct`
+         *     (default 70), echoed here so the client never recomputes it. The play screen must not show this object; only
+         *     the done screen and the parent recap may.
+         * @example {
+         *       "correct": 2,
+         *       "total": 3,
+         *       "pct": 66.7,
+         *       "threshold_pct": 70,
+         *       "card_awarded": false
+         *     }
+         */
+        Score: {
+            correct: number;
+            total: number;
+            pct: number;
+            threshold_pct: number;
+            card_awarded: boolean;
+        };
+        /** @description A challenge as the child sees it. The catalogue (ids, metrics, targets) is server data; the six launch challenges are in the guide. */
+        Challenge: {
+            /** @example sharp_three */
+            id: string;
+            /** @example Triplé gagnant */
+            title: string;
+            /** @example Réponds juste 3 fois de suite. */
+            description: string;
+            /** @example 3 */
+            target: number;
+            /**
+             * @description Capped at target. Counts events after accepted_at only.
+             * @example 1
+             */
+            progress: number;
+            /** @enum {string} */
+            status: "available" | "active" | "done";
+            /** @example Une carte rare */
+            reward_label: string;
+            /** @example 🎯 */
+            emoji: string;
+            /** Format: date-time */
+            accepted_at?: string | null;
+            /** @description Set when status is done */
+            card?: components["schemas"]["StoryCard"] | null;
+        };
+        /** @description Browser PushSubscription.toJSON() */
+        PushSubscription: {
+            /** Format: uri */
+            endpoint: string;
+            expirationTime?: number | null;
+            keys: {
+                p256dh: string;
+                auth: string;
+            };
+        };
+        /** @description The subscription view, plus the processor's hosted page when payment is not instant. */
+        CheckoutResult: components["schemas"]["SubscriptionView"] & {
+            /**
+             * Format: uri
+             * @description https only; the browser navigates to it
+             */
+            checkout_url?: string;
         };
         /** @description Built by the engine. Never contains the correct answer on its own. */
         Question: {
@@ -1098,6 +1481,29 @@ export interface components {
             /** Format: uri */
             illustration_url?: string | null;
         };
+        /**
+         * @example {
+         *       "id": "44444444-4444-4444-8444-444444444440",
+         *       "session_id": "33333333-3333-4333-8333-333333333333",
+         *       "index": 0,
+         *       "skill_id": "ARI-OPE-A06a",
+         *       "question": {
+         *         "math_text": "6 × 7 = ?",
+         *         "choices": [
+         *           42,
+         *           13,
+         *           48,
+         *           36
+         *         ]
+         *       },
+         *       "scene": {
+         *         "status": "pending",
+         *         "text": null,
+         *         "illustration_url": null
+         *       },
+         *       "created_at": "2026-10-12T14:00:00Z"
+         *     }
+         */
         Beat: {
             /** Format: uuid */
             id: string;
@@ -1128,6 +1534,57 @@ export interface components {
             streak_days?: number;
             skill_id?: components["schemas"]["SkillId"];
         };
+        /**
+         * @example {
+         *       "outcome": "correct",
+         *       "correct_answer": 42,
+         *       "denouement": {
+         *         "status": "pending",
+         *         "text": null,
+         *         "illustration_url": null
+         *       },
+         *       "session": {
+         *         "id": "33333333-3333-4333-8333-333333333333",
+         *         "child_id": "11111111-1111-4111-8111-111111111111",
+         *         "world": "echecs",
+         *         "kind": "chapter",
+         *         "status": "completed",
+         *         "chapter_length": 3,
+         *         "beats_answered": 3,
+         *         "current_beat": null,
+         *         "story_title": "Le tournoi des tours",
+         *         "started_at": "2026-10-12T14:00:00Z",
+         *         "ended_at": "2026-10-12T14:00:00Z",
+         *         "score": {
+         *           "correct": 3,
+         *           "total": 3,
+         *           "pct": 100,
+         *           "threshold_pct": 70,
+         *           "card_awarded": true
+         *         }
+         *       },
+         *       "rewards": [
+         *         {
+         *           "type": "chapter_complete"
+         *         },
+         *         {
+         *           "type": "card_earned",
+         *           "card": {
+         *             "id": "55555555-5555-4555-8555-555555555551",
+         *             "world": "echecs",
+         *             "title": "Le tournoi des tours",
+         *             "image_url": "",
+         *             "session_id": "33333333-3333-4333-8333-333333333333",
+         *             "earned_at": "2026-10-12T14:00:00Z"
+         *           }
+         *         },
+         *         {
+         *           "type": "skill_mastered",
+         *           "skill_id": "ARI-OPE-A06a"
+         *         }
+         *       ]
+         *     }
+         */
         AnswerResult: {
             outcome: components["schemas"]["Outcome"];
             correct_answer: components["schemas"]["AnswerValue"];
@@ -1211,6 +1668,13 @@ export interface components {
                 target_chapters: number;
                 done_chapters: number;
             };
+            /** @description Active play minutes today in the child time zone. The kid home needs it for the time-limit reminder; in local mode it is derived on the device. */
+            minutes_today?: number;
+            /**
+             * Format: date-time
+             * @description End of the last chapter, used for the play reminder
+             */
+            last_played_at?: string | null;
         };
         StoryCard: {
             /** Format: uuid */
@@ -1273,6 +1737,10 @@ export interface components {
             recent_cards: components["schemas"]["StoryCard"][];
             engagement: components["schemas"]["Engagement"];
             growth: components["schemas"]["Growth"];
+            /** @description True until the welcome gift is claimed (BE-20). The web app shows the gift overlay when true. */
+            gift_available?: boolean;
+            /** @description Count of challenges not done, for the Challenges tab badge (BE-20). */
+            active_challenges?: number;
         };
         DailyQuest: {
             /** @description False when no review is due */
@@ -1318,8 +1786,27 @@ export interface components {
                 "application/problem+json": components["schemas"]["Problem"];
             };
         };
-        /** @description Invalid request body */
+        /** @description Invalid request body (code validation_failed, with `errors[]` per field) */
         ValidationError: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["Problem"];
+            };
+        };
+        /** @description Too many requests (code rate_limited). Send `Retry-After` in seconds. */
+        RateLimited: {
+            headers: {
+                "Retry-After"?: number;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["Problem"];
+            };
+        };
+        /** @description Unexpected failure (code internal_error). Never leak stack traces or model output. */
+        ServerError: {
             headers: {
                 [name: string]: unknown;
             };
@@ -1336,6 +1823,8 @@ export interface components {
         IdempotencyKey: string;
         Limit: number;
         Cursor: string;
+        /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+        AcceptLanguage: string;
     };
     requestBodies: never;
     headers: never;
@@ -1367,6 +1856,8 @@ export interface operations {
             };
             409: components["responses"]["Conflict"];
             422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     loginParent: {
@@ -1392,6 +1883,8 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     refreshToken: {
@@ -1419,12 +1912,17 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     recordConsent: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1442,13 +1940,19 @@ export interface operations {
                 content?: never;
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     listChildren: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1466,12 +1970,18 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     createChild: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1491,13 +2001,19 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getChild: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -1514,13 +2030,20 @@ export interface operations {
                     "application/json": components["schemas"]["Child"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     deleteChild: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -1535,13 +2058,20 @@ export interface operations {
                 };
                 content?: never;
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     updateChild: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -1562,13 +2092,20 @@ export interface operations {
                     "application/json": components["schemas"]["Child"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     createChildToken: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -1591,13 +2128,19 @@ export interface operations {
                     "application/json": components["schemas"]["ChildToken"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getChildSettings: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -1614,12 +2157,19 @@ export interface operations {
                     "application/json": components["schemas"]["ChildSettings"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     updateChildSettings: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -1640,13 +2190,20 @@ export interface operations {
                     "application/json": components["schemas"]["ChildSettings"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     exportChildData: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -1665,12 +2222,19 @@ export interface operations {
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     listWorlds: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1687,6 +2251,10 @@ export interface operations {
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     listSkills: {
@@ -1697,7 +2265,10 @@ export interface operations {
                 /** @description Only skills that have a generator today (8 of 75) */
                 implemented?: boolean;
             };
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1714,6 +2285,10 @@ export interface operations {
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getJourney: {
@@ -1721,7 +2296,10 @@ export interface operations {
             query: {
                 world: components["schemas"]["WorldId"];
             };
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -1738,7 +2316,11 @@ export interface operations {
                     "application/json": components["schemas"]["Journey"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     listSessions: {
@@ -1747,7 +2329,10 @@ export interface operations {
                 limit?: components["parameters"]["Limit"];
                 cursor?: components["parameters"]["Cursor"];
             };
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -1767,12 +2352,18 @@ export interface operations {
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     startSession: {
         parameters: {
             query?: never;
             header: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
                 /** @description Client-generated UUID. A retry with the same key returns the first result. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
@@ -1796,6 +2387,7 @@ export interface operations {
                     "application/json": components["schemas"]["Session"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
             /** @description subscription_inactive: unpaid, expired or ended subscription (policy block). Problem carries i18n {fr,en}{title,detail}. account_blocked is a 403. */
             402: {
                 headers: {
@@ -1805,7 +2397,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description No consent on file, or the daily time limit is reached */
+            /** @description consent_missing (no consent on file), daily_limit_reached (daily time limit), or account_blocked (the parent is blocked, even when unpaid_policy is allow) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1823,12 +2415,17 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getSession: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 sessionId: components["parameters"]["SessionId"];
             };
@@ -1845,13 +2442,19 @@ export interface operations {
                     "application/json": components["schemas"]["Session"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     nextBeat: {
         parameters: {
             query?: never;
             header: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
                 /** @description Client-generated UUID. A retry with the same key returns the first result. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
@@ -1880,6 +2483,8 @@ export interface operations {
                     "application/json": components["schemas"]["Beat"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             /** @description Session is paused or completed */
             409: {
                 headers: {
@@ -1889,12 +2494,16 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     answerBeat: {
         parameters: {
             query?: never;
             header: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
                 /** @description Client-generated UUID. A retry with the same key returns the first result. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
@@ -1919,6 +2528,8 @@ export interface operations {
                     "application/json": components["schemas"]["AnswerResult"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             /** @description This beat was already answered */
             409: {
                 headers: {
@@ -1929,6 +2540,8 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     streamNarration: {
@@ -1936,7 +2549,11 @@ export interface operations {
             query: {
                 phase: "scene" | "denouement";
             };
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                "Last-Event-ID"?: string;
+            };
             path: {
                 sessionId: components["parameters"]["SessionId"];
                 beatId: components["parameters"]["BeatId"];
@@ -1951,15 +2568,41 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example event: scene
+                     *     data: {"delta":"Zoé et la tour "}
+                     *
+                     *     event: scene
+                     *     data: {"delta":"arrivent au pont. "}
+                     *
+                     *     event: done
+                     *     data: {}
+                     */
                     "text/event-stream": string;
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description beat_not_answered (denouement requested too early) or session_completed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     pauseSession: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 sessionId: components["parameters"]["SessionId"];
             };
@@ -1976,12 +2619,19 @@ export interface operations {
                     "application/json": components["schemas"]["Session"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     resumeSession: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 sessionId: components["parameters"]["SessionId"];
             };
@@ -1998,12 +2648,19 @@ export interface operations {
                     "application/json": components["schemas"]["Session"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     finishSession: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 sessionId: components["parameters"]["SessionId"];
             };
@@ -2020,12 +2677,19 @@ export interface operations {
                     "application/json": components["schemas"]["Session"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getSessionSummary: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 sessionId: components["parameters"]["SessionId"];
             };
@@ -2042,13 +2706,20 @@ export interface operations {
                     "application/json": components["schemas"]["SessionSummary"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getProgress: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -2065,6 +2736,10 @@ export interface operations {
                     "application/json": components["schemas"]["Progress"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getReviewCalendar: {
@@ -2072,7 +2747,10 @@ export interface operations {
             query?: {
                 days?: number;
             };
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -2091,6 +2769,10 @@ export interface operations {
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getGrowth: {
@@ -2098,7 +2780,10 @@ export interface operations {
             query?: {
                 window_days?: 7 | 30;
             };
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -2115,6 +2800,10 @@ export interface operations {
                     "application/json": components["schemas"]["Growth"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getWeeklyReport: {
@@ -2124,7 +2813,10 @@ export interface operations {
                 /** @description Monday of the week. Defaults to the last full week. */
                 week_start?: string;
             };
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2139,12 +2831,19 @@ export interface operations {
                     "application/json": components["schemas"]["WeeklyReport"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getEngagement: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -2161,12 +2860,19 @@ export interface operations {
                     "application/json": components["schemas"]["Engagement"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getHome: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -2183,7 +2889,11 @@ export interface operations {
                     "application/json": components["schemas"]["Home"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getFeed: {
@@ -2192,7 +2902,10 @@ export interface operations {
                 cursor?: string;
                 limit?: number;
             };
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -2209,13 +2922,20 @@ export interface operations {
                     "application/json": components["schemas"]["FeedPage"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     reactToFeedItem: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
                 itemId: string;
@@ -2240,15 +2960,24 @@ export interface operations {
                     "application/json": {
                         liked: boolean;
                         saved: boolean;
+                        /** @description Set when this like completed a challenge: a card_earned reward with the card (id ch-<challenge>). */
+                        rewards?: components["schemas"]["Reward"][];
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     answerFeedPuzzle: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
                 itemId: string;
@@ -2272,10 +3001,16 @@ export interface operations {
                     "application/json": {
                         outcome: components["schemas"]["Outcome"];
                         message: string;
+                        /** @description Set when this answer completed a challenge: a card_earned reward with the card (id ch-<challenge>). */
+                        rewards?: components["schemas"]["Reward"][];
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getCollection: {
@@ -2283,7 +3018,10 @@ export interface operations {
             query?: {
                 world?: components["schemas"]["WorldId"];
             };
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -2302,12 +3040,19 @@ export interface operations {
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getDailyQuest: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 childId: components["parameters"]["ChildId"];
             };
@@ -2324,12 +3069,19 @@ export interface operations {
                     "application/json": components["schemas"]["DailyQuest"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getSubscription: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2344,12 +3096,19 @@ export interface operations {
                     "application/json": components["schemas"]["SubscriptionView"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     listSubscriptionPlans: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2364,17 +3123,32 @@ export interface operations {
                     "application/json": components["schemas"]["PlanCatalog"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     checkoutSubscription: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                /** @description Recommended. Not yet sent by the web app (see the guide, known mismatches). */
+                "Idempotency-Key"?: string;
+            };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "plan": "family_monthly",
+                 *       "method": "card"
+                 *     }
+                 */
                 "application/json": {
                     /** @enum {string} */
                     plan: "family_monthly" | "family_yearly";
@@ -2383,22 +3157,30 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Subscription after checkout */
+            /** @description Subscription after checkout (mock), or the current subscription plus `checkout_url` (processor) */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SubscriptionView"];
+                    "application/json": components["schemas"]["CheckoutResult"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
             422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     cancelSubscription: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2413,7 +3195,11 @@ export interface operations {
                     "application/json": components["schemas"]["SubscriptionView"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     listNotifications: {
@@ -2421,7 +3207,10 @@ export interface operations {
             query?: {
                 audience?: "parent" | "child";
             };
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2439,12 +3228,19 @@ export interface operations {
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     markNotificationRead: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path: {
                 notificationId: string;
             };
@@ -2459,13 +3255,20 @@ export interface operations {
                 };
                 content?: never;
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     getPlatformPublic: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2480,6 +3283,308 @@ export interface operations {
                     "application/json": components["schemas"]["PlatformPublic"];
                 };
             };
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    subscribePush: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "endpoint": "https://fcm.googleapis.com/fcm/send/abc",
+                 *       "expirationTime": null,
+                 *       "keys": {
+                 *         "p256dh": "BNc...",
+                 *         "auth": "xyz..."
+                 *       }
+                 *     }
+                 */
+                "application/json": components["schemas"]["PushSubscription"];
+            };
+        };
+        responses: {
+            /** @description Stored */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Already stored */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    unsubscribePush: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uri */
+                    endpoint: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Removed or never existed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    listChallenges: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Challenges, active first, then available, then done */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["Challenge"][];
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    acceptChallenge: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                childId: components["parameters"]["ChildId"];
+                challengeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The accepted challenge */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Challenge"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    claimWelcomeGift: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Gift was already claimed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoryCard"];
+                };
+            };
+            /** @description Gift claimed now */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoryCard"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    getAccount: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The account */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    deleteAccount: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    password: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    updateAccount: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "locale": "en-CA"
+                 *     }
+                 */
+                "application/json": {
+                    name?: string;
+                    /** @enum {string} */
+                    locale?: "fr-CA" | "en-CA";
+                };
+            };
+        };
+        responses: {
+            /** @description The account after the change */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    logoutParent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    refresh_token?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Signed out */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
     health: {
@@ -2497,11 +3602,74 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "status": "ok",
+                     *       "narrator": "llm",
+                     *       "version": "1.4.2"
+                     *     }
+                     */
                     "application/json": {
                         /** @enum {string} */
                         status: "ok" | "degraded";
                         /** @enum {string} */
                         narrator?: "llm" | "stub" | "down";
+                        /** @example 1.4.2 */
+                        version?: string;
+                    };
+                };
+            };
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    ready: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ready */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "status": "ok",
+                     *       "checks": {
+                     *         "database": "ok",
+                     *         "cache": "ok",
+                     *         "engine": "ok",
+                     *         "narrator": "ok"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "ok";
+                        checks: {
+                            [key: string]: "ok" | "degraded";
+                        };
+                    };
+                };
+            };
+            /** @description Not ready */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status?: "down";
+                        checks?: {
+                            [key: string]: "ok" | "degraded" | "down";
+                        };
                     };
                 };
             };
@@ -2537,6 +3705,10 @@ export interface operations {
                 };
                 content?: never;
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
         };
     };
 }

@@ -117,41 +117,88 @@ function buildSeed(now) {
   statuses[0] = 'trial';
   const blocked = new Set([5, 11, 23, 31]);
 
+  const todayStart = Math.floor(now / DAY) * DAY;
+  const dstr = (ms) => new Date(ms).toISOString().slice(0, 10);
+  const DAYS = 90;
+  const subhist = {};
   const parents = [];
   for (let i = 0; i < 40; i++) {
     const demo = i === 0;
     const first = demo ? 'Camille' : pick(FIRST), last = demo ? 'Demo' : pick(LAST);
     const st = statuses[i];
-    const paid = pick(['family_monthly', 'family_monthly', 'family_yearly']);
-    const created = demo ? now - 30 * DAY : now - Math.pow(R(), 1.6) * 240 * DAY;
+    // unpaid and expired families are monthly plans so the whole history stays inside about 12 months
+    const paid = st === 'unpaid' || st === 'expired' ? 'family_monthly' : pick(['family_monthly', 'family_monthly', 'family_yearly']);
     const sub = { status: st, plan: 'free' };
-    if (st === 'trial') sub.trial_ends_at = iso(demo ? now + 14 * DAY : now + (1 + Math.floor(R() * 13)) * DAY);
-    else {
+    const segs = [];
+    let created;
+    if (st === 'trial') {
+      sub.trial_ends_at = iso(demo ? now + 14 * DAY : now + (1 + Math.floor(R() * 13)) * DAY);
+      created = demo ? now - 30 * DAY : Date.parse(sub.trial_ends_at) - 14 * DAY;
+    } else {
       sub.plan = paid; sub.method = pick(METHOD_IDS);
       const span = paid === 'family_yearly' ? 300 : 29;
-      if (st === 'active') sub.renews_at = iso(now + (1 + Math.floor(R() * span)) * DAY);
-      if (st === 'unpaid') sub.renews_at = iso(now - (1 + Math.floor(R() * 20)) * DAY);
-      if (st === 'expired') sub.renews_at = iso(now - (10 + Math.floor(R() * 90)) * DAY);
-      if (st === 'canceled') sub.renews_at = iso(now + (R() < 0.5 ? 1 : -1) * (2 + Math.floor(R() * 25)) * DAY);
+      let end;
+      if (st === 'active') end = now + (1 + Math.floor(R() * span)) * DAY;
+      if (st === 'unpaid') end = now - (1 + Math.floor(R() * 20)) * DAY;
+      if (st === 'expired') end = now - (10 + Math.floor(R() * 200)) * DAY;
+      if (st === 'canceled') end = now + (R() < 0.5 ? 1 : -1) * (2 + Math.floor(R() * 25)) * DAY;
+      sub.renews_at = iso(end);
       if (st === 'unpaid' && R() < 0.5) sub.marked_by_admin = true;
+      const ref = Math.min(end, now);
+      const start = paid === 'family_yearly' ? end - 365 * DAY : ref - (30 + Math.floor(R() * (st === 'active' ? 9 : 4)) * 30) * DAY;
+      created = start - (14 + Math.floor(R() * 12)) * DAY;
+      const seg = { plan: paid, started_at: iso(start), ended_at: st === 'active' ? null : iso(ref), canceled_at: null };
+      if (st === 'canceled') seg.canceled_at = iso(Math.max(start + DAY, ref - (1 + Math.floor(R() * 14)) * DAY));
+      segs.push(seg);
     }
     const p = {
       id: demo ? '99999999-9999-4999-8999-999999999999' : uid('aaaaaaaa', i),
       email: demo ? DEMO_EMAIL : `${slug(first)}.${slug(last)}${i}@example.com`,
       name: `${first} ${last}`, created_at: iso(created), locale: demo ? 'fr-CA' : pick(LOCALES), status: 'active', subscription: sub,
     };
-    if (blocked.has(i)) { p.status = 'blocked'; p.blocked_reason = REASONS[i % REASONS.length]; }
+    if (blocked.has(i)) { p.status = 'blocked'; p.blocked_reason = REASONS[i % REASONS.length]; p.blocked_at = iso(Math.max(created + DAY, now - (3 + Math.floor(R() * 40)) * DAY)); }
     parents.push(p);
+    subhist[p.id] = segs;
   }
 
   const children = [];
+  const activity = {};
   const kid = (parent, id, name, grade, avatar, idx) => {
-    const today = R() < 0.35;
-    const seen = today ? now - Math.floor(R() * 10) * 36e5 : now - (1 + Math.floor(R() * 40)) * DAY;
-    const sessions = Math.floor(R() * 120);
+    const pc = Date.parse(parent.created_at);
+    // kids join after their parent signed up
+    const created = pc + Math.floor(Math.pow(R(), 1.4) * Math.max(0, (now - pc) / DAY - 1) * 0.7) * DAY;
+    const demoKid = id === ZOE || id === MAX;
+    const eng = demoKid ? 0.85 : 0.25 + R() * 0.7;
+    const lapsed = !demoKid && R() < 0.2;
+    const lapseAt = todayStart - (5 + Math.floor(R() * 70)) * DAY;
+    const favs = [Math.floor(R() * WORLD_IDS.length), Math.floor(R() * WORLD_IDS.length)];
+    const sb = parent.subscription;
+    const cut = parent.status === 'blocked' ? Date.parse(parent.blocked_at)
+      : sb.status === 'unpaid' || sb.status === 'expired' || sb.status === 'canceled' ? Date.parse(sb.renews_at) : Infinity;
+    const act = { from: dstr(todayStart - (DAYS - 1) * DAY), m: [], s: [], w: [] };
+    let lastDay = -1, sum = 0;
+    for (let k = 0; k < DAYS; k++) {
+      const day = todayStart - (DAYS - 1 - k) * DAY;
+      let m = 0, w = -1;
+      const wd = new Date(day).getUTCDay(), weekend = wd === 0 || wd === 6;
+      const live = day + DAY > created && day <= cut && !(lapsed && day > lapseAt);
+      const pPlay = Math.min(0.95, eng * (weekend ? 1.25 : 1) * (sb.status === 'trial' ? 0.6 : 1));
+      if (live && R() < pPlay) {
+        m = Math.round((weekend ? 15 + R() * 40 : 8 + R() * 22) * (sb.status === 'trial' ? 0.8 : 1));
+        w = R() < 0.7 ? favs[R() < 0.6 ? 0 : 1] : Math.floor(R() * WORLD_IDS.length);
+      }
+      const s = m ? Math.max(1, Math.round(m / 12)) : 0;
+      act.m.push(m); act.s.push(s); act.w.push(w);
+      if (m) lastDay = k;
+      sum += s;
+    }
+    activity[id] = act;
+    const today = act.m[DAYS - 1];
+    const seen = today ? Math.max(todayStart, now - Math.floor(R() * 10) * 36e5) : lastDay >= 0 ? todayStart - (DAYS - 1 - lastDay) * DAY + 17 * 36e5 : created;
+    const sessions = sum + (created < todayStart - DAYS * DAY ? Math.floor(R() * 80) : 0);
     children.push({
-      id, parent_id: parent.id, display_name: name, grade, avatar_id: avatar, created_at: iso(Math.max(Date.parse(parent.created_at), now - Math.floor(R() * 200) * DAY)),
-      last_seen_at: iso(seen), minutes_today: today ? 5 + Math.floor(R() * 45) : 0, sessions_total: sessions,
+      id, parent_id: parent.id, display_name: name, grade, avatar_id: avatar, created_at: iso(created),
+      last_seen_at: iso(Math.min(seen, now)), minutes_today: today, sessions_total: sessions,
       cards_total: Math.floor(sessions * 0.7 * R()), skills_mastered: Math.min(SKILLS.length * 3, Math.floor(sessions / 6 + R() * 4)),
       settings: {
         daily_goal_chapters: 1 + Math.floor(R() * 3), daily_time_limit_minutes: pick([null, null, 20, 30, 45, 60]),
@@ -178,7 +225,7 @@ function buildSeed(now) {
     const [action, target_type] = acts[i % acts.length];
     audit.push({ id: `au-seed-${i}`, at: iso(now - (i + 1) * 5 * 36e5), actor: 'admin', action, target_type, target_id: target_type === 'child' ? children[i].id : target_type === 'parent' ? parents[i].id : 'platform', detail: 'seed' });
   }
-  return { parents, children, notifications, audit, config: DEFAULT_CONFIG, plans: DEFAULT_PLANS };
+  return { parents, children, notifications, audit, config: DEFAULT_CONFIG, plans: DEFAULT_PLANS, activity, subhist };
 }
 
 // ───────────── Subscription logic ─────────────

@@ -84,7 +84,8 @@ export function HomeFeed() {
   // Data loads on the client only, so reading storage here cannot mismatch the server render
   const tour = Boolean(childId && home.data && !tourDone && !localStorage.getItem(onboardingKey(childId)));
   const local = appConfig.stateSource === 'local';
-  const giftOpen = local && Boolean(childId && home.data && !tour && !giftClaimed(events));
+  const [giftLater, setGiftLater] = useState(false);
+  const giftOpen = local && !giftLater && Boolean(childId && home.data && !tour && !giftClaimed(events));
 
   function endTour() {
     setTourDone(true);
@@ -175,7 +176,7 @@ export function HomeFeed() {
           { target: '#tour-worlds', title: t('tour.worldsTitle'), description: t('tour.worlds') },
         ]}
       />
-      <WelcomeGift open={giftOpen} card={welcomeCard(nowMs(), lang)} onClaim={() => childId && claimGift(childId)} />
+      <WelcomeGift open={giftOpen} card={welcomeCard(nowMs(), lang)} onClaim={() => childId && claimGift(childId)} onLater={() => setGiftLater(true)} />
     </main>
   );
 }

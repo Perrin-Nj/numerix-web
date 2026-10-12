@@ -1,6 +1,7 @@
 // Platform admin API under /admin/v1/*: bearer ADMIN_API_TOKEN, CORS only for ADMIN_ORIGIN, every mutation and every child read is audited.
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { WORLD_IDS } from './domain.mjs';
+import { computeOverview } from './analytics.mjs';
 import { SKILLS } from './session.mjs';
 import { DAY, DEFAULT_CONFIG, DEFAULT_PLANS, KINDS, METHOD_IDS, PLAN_IDS, getStore, json, empty, problem, parentView, subView } from './platform.mjs';
 
@@ -77,24 +78,7 @@ export async function adminHandle(r) {
     // ── overview
     if (route(/^\/admin\/v1\/overview$/, 'GET')) {
       const [parents, children, plans] = [await s.list('parents'), await s.list('children'), (await s.get('plans')) ?? DEFAULT_PLANS];
-      const by = { trial: 0, active: 0, unpaid: 0, expired: 0, canceled: 0 };
-      let mrr = 0;
-      for (const p of parents) {
-        const sub = subView(p.subscription);
-        by[sub.status] += 1;
-        if (sub.status === 'active' && p.status !== 'blocked') {
-          const pl = plans.plans.find((x) => x.id === sub.plan);
-          if (pl) mrr += pl.period === 'year' ? Math.round(pl.price_cad_cents / 12) : pl.price_cad_cents;
-        }
-      }
-      const today = iso(Date.now()).slice(0, 10);
-      const series = Array.from({ length: 30 }, (_, i) => ({ date: iso(Date.now() - (29 - i) * DAY).slice(0, 10), count: 0 }));
-      for (const p of parents) { const row = series.find((x) => x.date === p.created_at.slice(0, 10)); if (row) row.count += 1; }
-      return out(json(200, {
-        parents_total: parents.length, by_subscription: by, blocked: parents.filter((p) => p.status === 'blocked').length,
-        kids_total: children.length, active_today: children.filter((c) => c.last_seen_at.slice(0, 10) === today).length,
-        mrr_cad_cents: mrr, currency: 'CAD', signups_30d: series, signups_30d_total: series.reduce((a, x) => a + x.count, 0),
-      }));
+      return out(json(200, computeOverview(Date.now(), { parents, children, plans, activity: (await s.get('activity')) ?? {}, subhist: (await s.get('subhist')) ?? {} })));
     }
 
     // ── parents
@@ -134,7 +118,7 @@ export async function adminHandle(r) {
       const changes = [];
       if (b.name !== undefined) { next.name = b.name.trim(); changes.push('name'); }
       if (b.locale !== undefined) { next.locale = b.locale; changes.push('locale'); }
-      if (b.status === 'blocked') { next.status = 'blocked'; next.blocked_reason = String(b.blocked_reason ?? '').slice(0, 200) || 'Blocked by admin'; changes.push('block'); }
+      if (b.status === 'blocked') { next.status = 'blocked'; next.blocked_at = iso(Date.now()); next.blocked_reason = String(b.blocked_reason ?? '').slice(0, 200) || 'Blocked by admin'; changes.push('block'); }
       else if (b.status === 'active') { next.status = 'active'; delete next.blocked_reason; changes.push('unblock'); }
       const now = Date.now(), sub = next.subscription;
       if (sb) {

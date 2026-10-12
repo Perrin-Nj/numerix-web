@@ -1,12 +1,13 @@
 'use client';
-import { memo, useEffect } from 'react';
+import { memo, useEffect, type CSSProperties } from 'react';
 import { cn } from '@/lib/cn';
 import { useSound } from '@/lib/audio';
 import { useFormatAnswer } from '@/lib/format';
+import { useReducedMotion } from '@/lib/motion';
 import type { AnswerValue } from '@/lib/api/types';
 import { Icon } from '@/ui/icon';
 
-export type ChoiceState = 'idle' | 'selected' | 'locked' | 'success';
+export type ChoiceState = 'idle' | 'selected' | 'locked' | 'success' | 'miss';
 
 export type ChoiceButtonProps = {
   value: AnswerValue;
@@ -17,19 +18,23 @@ export type ChoiceButtonProps = {
   shortcut?: boolean;
 };
 
+const SPARKS = [['-60px', '-34px'], ['58px', '-38px'], ['-36px', '30px'], ['40px', '34px'], ['0px', '-48px']];
 const LETTERS = ['A', 'B', 'C', 'D'];
 
 const STATE: Record<ChoiceState, string> = {
   idle: 'border-line bg-elevated text-fg shadow-1',
   selected: 'nx-pop border-brand bg-brand-soft text-fg ring-4 ring-brand/30',
   locked: 'border-line bg-sunken text-muted',
-  success: 'nx-heart border-success bg-elevated text-fg',
+  success: 'nx-choice-right relative border-success bg-elevated text-fg',
+  // A soft wobble and a dim: never red, never a shake of the page
+  miss: 'nx-choice-wrong border-line bg-sunken text-muted',
 };
 
 function ChoiceButtonBase({ value, index, state, onSelect, shortcut }: ChoiceButtonProps) {
   const { play } = useSound();
   const format = useFormatAnswer();
-  const disabled = state === 'locked' || state === 'success';
+  const disabled = state === 'locked' || state === 'success' || state === 'miss';
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     if (!shortcut || state !== 'idle') return;
@@ -57,21 +62,28 @@ function ChoiceButtonBase({ value, index, state, onSelect, shortcut }: ChoiceBut
       }}
       className={cn(
         // 3.75rem = 60px, 90px at TV scale (html font-size scales)
-        'lift flex min-h-[3.75rem] w-full items-center gap-4 rounded-md border-2 px-4 py-3 text-start font-display text-xl font-semibold disabled:pointer-events-none',
+        'lift relative flex min-h-[3.75rem] w-full items-center gap-2 rounded-md border-2 px-3 py-3 sm:gap-4 sm:px-4 text-start font-display text-xl font-semibold disabled:pointer-events-none',
         STATE[state],
       )}
     >
       <span
         aria-hidden
         className={cn(
-          'flex size-9 shrink-0 items-center justify-center rounded-full border-2 text-base',
+          'flex size-8 shrink-0 sm:size-9 items-center justify-center rounded-full border-2 text-base',
           state === 'selected' ? 'border-brand bg-brand text-brand-fg' : 'border-line bg-sunken text-muted',
           state === 'success' && 'border-success bg-success text-bg',
         )}
       >
         {state === 'success' ? <Icon name="check" size={20} /> : LETTERS[index]}
       </span>
-      <span className="flex-1">{format(value)}</span>
+      <span className="min-w-0 flex-1">{format(value)}</span>
+      {state === 'success' &&
+        !reduced &&
+        SPARKS.map(([dx, dy], i) => (
+          <span key={i} aria-hidden className="nx-spark" style={{ '--dx': dx, '--dy': dy } as CSSProperties}>
+            ✨
+          </span>
+        ))}
     </button>
   );
 }

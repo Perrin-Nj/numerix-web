@@ -36,20 +36,32 @@ export type IllustrationFrameProps = {
   mood?: IllustrationMood;
   /** Drawn over the scene, e.g. a ScenePicture. The frame keeps its alt. */
   picture?: ReactNode;
+  /**
+   * The only image of the frame (a ScenePicture, then an OutcomeSim). Replaces the world scene,
+   * never drawn on top of it. Change stageKey to cross-fade to the next stage. Fills its parent height.
+   */
+  stage?: ReactNode;
+  stageKey?: string;
   /** Free overlay (badges, sim). */
   children?: ReactNode;
   className?: string;
 };
 
-export function IllustrationFrame({ world, src, alt, mood = 'idle', picture, children, className }: IllustrationFrameProps) {
+export function IllustrationFrame({ world, src, alt, mood = 'idle', picture, stage, stageKey, children, className }: IllustrationFrameProps) {
   return (
     <div
       className={cn(
-        'relative aspect-[16/9] max-h-[30dvh] w-full overflow-hidden rounded-lg shadow-2 lg:aspect-[4/3] lg:max-h-none',
+        'relative w-full overflow-hidden rounded-lg shadow-2',
+        stage ? 'h-full min-h-40' : 'aspect-[16/9] max-h-[30dvh] lg:aspect-[4/3] lg:max-h-none',
         WORLD_BG[world],
         className,
       )}
     >
+      {stage ? (
+        <div key={stageKey} data-stage="" className="nx-stage-in absolute inset-0 flex items-center justify-center overflow-hidden p-2">
+          {stage}
+        </div>
+      ) : (
       <div className="absolute inset-0">
         {src ? (
           <Image src={src} alt={alt} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
@@ -59,6 +71,7 @@ export function IllustrationFrame({ world, src, alt, mood = 'idle', picture, chi
           </div>
         )}
       </div>
+      )}
       {picture && <div className="absolute inset-0 flex items-center justify-center overflow-auto p-2">{picture}</div>}
       {children && <div className="absolute inset-0">{children}</div>}
       <div

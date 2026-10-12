@@ -40,6 +40,8 @@
           "title": "Voix et aide",
           "voice": "Lire à voix haute",
           "voiceHint": "Les histoires et les indices se font entendre.",
+          "vibration": "Petite vibration",
+          "vibrationHint": "Une courte vibration quand tu réponds, sur les téléphones qui peuvent.",
           "hints": "Petits coups de pouce",
           "hintsHint": "Un indice doux quand tu réfléchis longtemps.",
           "delay": "Indice après",

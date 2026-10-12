@@ -3,6 +3,7 @@ import { useId, useMemo, type CSSProperties, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/cn';
 import type { WorldId } from '@/lib/api/types';
+import { HumanAvatar } from '@/game/human-avatar';
 import { layoutFor, type Group, type Layout } from './layout';
 
 /** The world's object: two looks so the second group differs from the first. */
@@ -21,6 +22,10 @@ export type ScenePictureProps = {
   world: WorldId;
   skillId: string;
   numbers: number[];
+  /** Hero name: a Peeps person stands beside the objects. */
+  hero?: string;
+  /** 0 to 3 right answers in a row: a growing glow around the hero, never a score. */
+  glow?: number;
   className?: string;
 };
 
@@ -110,7 +115,7 @@ function NumberLine({ value, max }: { value: number; max: number }) {
   );
 }
 
-export function ScenePicture({ world, skillId, numbers, className }: ScenePictureProps) {
+export function ScenePicture({ world, skillId, numbers, hero, glow = 0, className }: ScenePictureProps) {
   const t = useTranslations('game.scenePicture');
   const [e1, e2] = ITEMS[world];
   const l = useMemo(() => layoutFor(skillId, numbers), [skillId, numbers]);
@@ -181,9 +186,16 @@ export function ScenePicture({ world, skillId, numbers, className }: ScenePictur
     body = <NumberLine value={l.value} max={l.max} />;
   }
   return (
-    <div role="img" aria-label={alt} className={cn('w-full [container-type:inline-size]', className)}>
-      <div key={key} aria-hidden className="flex items-center justify-center">
-        {body}
+    <div role="img" aria-label={alt} className={cn('flex w-full items-center gap-2', className)}>
+      {hero && (
+        <span aria-hidden className="nx-hero-glow shrink-0" style={{ '--glow': Math.min(glow, 3) } as CSSProperties}>
+          <HumanAvatar seed={hero} size={52} />
+        </span>
+      )}
+      <div className="min-w-0 flex-1 [container-type:inline-size]">
+        <div key={key} aria-hidden className="flex items-center justify-center">
+          {body}
+        </div>
       </div>
     </div>
   );

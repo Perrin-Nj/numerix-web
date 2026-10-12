@@ -78,3 +78,4 @@ export const Tablet: Story = { globals: { viewport: { value: 'tablet' } } };
 export const TV: Story = {
   globals: { display: 'tv', viewport: { value: 'tv' } },
 };
+export const ChoicesHidden: Story = { args: { choicesHidden: true } };

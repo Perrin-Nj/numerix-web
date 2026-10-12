@@ -29,7 +29,9 @@ import { OutcomeSim } from '@/game/outcome-sim';
 import { ScenePicture } from '@/game/scene-picture';
 import { useCoach } from '@/lib/coach/useCoach';
 import { NarrationText } from '@/game/narration-text';
-import { OutcomeBeat } from '@/game/outcome-beat';
+import { OutcomeBeat, OutcomeSheet } from '@/game/outcome-beat';
+import { HERO_BY_WORLD } from '@/game/human-avatar';
+import { getPrefs } from '@/lib/prefs/store';
 import { RewardBurst } from '@/game/reward-burst';
 import { StoryPanel } from '@/game/story-panel';
 import { Button } from '@/ui/button';
@@ -55,6 +57,18 @@ const KNOWN = new Set([
   'not_found',
 ]);
 
+const DUST = [8, 22, 38, 54, 70, 86];
+/** Soft dust drifting up after a miss. Decorative, no red. */
+function Dust() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-2 h-10">
+      {DUST.map((left, i) => (
+        <span key={i} className="nx-dust" style={{ left: `${left}%`, animationDelay: `${i * 120}ms` }} />
+      ))}
+    </div>
+  );
+}
+
 /**
  * The play screen: one story, one question, four choices. No score, progress bar, timer or menu.
  * The only chrome is a quiet pause button.
@@ -76,6 +90,11 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const trace = appConfig.stateSource === 'local' ? status.data?.childId ?? null : null;
   const traced = useRef(new Set<string>());
   const reduced = useReducedMotion();
+  // Right answers in a row in this chapter: shown only as a glow around the hero
+  const [streak, setStreak] = useState(0);
+  // Outcome entrance: 0 stage only, 1 caption, 2 sheet. Tap on the stage skips ahead.
+  const [reveal, setReveal] = useState<{ key: string; step: 0 | 1 | 2 }>({ key: '', step: 0 });
+  const [collapsedFor, setCollapsedFor] = useState<string | null>(null);
 
   const { speak, cancel: stopSpeaking, pending: speechWaiting } = useReadAloud(
     (settings.data?.read_aloud ?? true) && appConfig.features.readAloud,
@@ -188,6 +207,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
       try {
         const result = await sendAnswer(sessionId, beatId, value, key);
         dispatch({ type: 'ANSWER_RESULT', result });
+        setStreak((n) => (result.outcome === 'correct' ? n + 1 : 0));
       } catch (e) {
         const code = e instanceof ApiError && KNOWN.has(e.code) ? e.code : 'unknown';
         dispatch({ type: 'ANSWER_FAILED', code, message: code });
@@ -231,6 +251,28 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
       speak(s.denouementText);
     }
   }, [s.denouementStatus, s.denouementText, beatId, speak]);
+
+  // Stage, then caption, then sheet (0, 600, 1200 ms)
+  useEffect(() => {
+    if (s.phase !== 'outcome' || !beatId) return;
+    const up = (step: 1 | 2) => setReveal((r) => (r.key === beatId && r.step >= step ? r : { key: beatId, step }));
+    const a = setTimeout(() => up(1), 600);
+    const b = setTimeout(() => up(2), 1200);
+    return () => {
+      clearTimeout(a);
+      clearTimeout(b);
+    };
+  }, [s.phase, beatId]);
+  const step = reveal.key === beatId ? reveal.step : 0;
+  const skipAhead = useCallback(() => {
+    if (beatId) setReveal({ key: beatId, step: 2 });
+  }, [beatId]);
+
+  // Optional buzz: short for right, double for wrong
+  useEffect(() => {
+    if (s.phase !== 'outcome' || !s.outcome || !getPrefs().vibration || typeof navigator.vibrate !== 'function') return;
+    navigator.vibrate(s.outcome === 'correct' ? 40 : [40, 70, 40]);
+  }, [s.phase, s.outcome, beatId]);
 
   // Small confetti burst on a correct answer (skipped under reduced motion)
   useEffect(() => {
@@ -327,9 +369,6 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
       : 'idle';
   const sameChoice = (a: AnswerValue | null, b: AnswerValue) => a !== null && JSON.stringify(a) === JSON.stringify(b);
   const answerError = s.phase === 'answering' && s.error ? s.error.code : null;
-  // Happy after a right answer, sad (gentle, never blaming) after a miss
-  const pose =
-    s.phase !== 'outcome' ? 'think' : s.outcome === 'correct' ? 'happy' : 'sad';
   const linePool = s.phase !== 'outcome' ? 'think' : s.outcome === 'correct' ? 'cheer' : s.outcome === 'erreur_typique' ? 'curious' : 'encourage';
   const lang = useLocale();
   const coach = useCoach({
@@ -340,6 +379,8 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   });
   const nums = (s.beat?.question.math_text.match(/\d+/g) ?? []).map(Number);
   const denReady = s.denouementStatus === 'ready' || s.denouementStatus === 'fallback';
+  const outcomeStage = s.phase === 'outcome' && !!s.outcome;
+  const sheetVisible = outcomeStage && step >= 2;
   // A fresh line for each moment, never the same one twice in a row
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const mascotLine = useMemo(() => pick(`mascot.${linePool}`), [linePool, s.beat?.id, s.outcome]);
@@ -362,10 +403,8 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
 
   return (
     <main className="relative min-h-dvh">
-      <div className="fixed start-3 top-3 z-20 pt-[env(safe-area-inset-top)]">
+      <div className="fixed inset-x-0 top-0 z-20 box-content flex h-14 items-center justify-between bg-bg/85 px-3 pt-[env(safe-area-inset-top)] backdrop-blur">
         <IconButton label={t('exit.label')} variant="ghost" sound="back" icon={<Icon name="x" />} onClick={() => setExitOpen(true)} />
-      </div>
-      <div className="fixed end-3 top-3 z-20 pt-[env(safe-area-inset-top)]">
         <IconButton
           label={t('pause')}
           variant="ghost"
@@ -375,16 +414,22 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
       </div>
 
       <StoryPanel
+        choicesHidden={sheetVisible}
+        choicesClassName={appConfig.useMock ? 'pb-14' : undefined}
         illustration={
           <IllustrationFrame
             world={world}
             mood={mood}
             alt={t('illustration')}
-            picture={
-              s.beat && s.phase === 'outcome' && s.outcome ? (
-                <OutcomeSim key={s.beat.id} world={world} good={s.outcome === 'correct'} />
+            stageKey={s.beat && outcomeStage ? `sim-${s.beat.id}` : `scene-${s.beat?.id ?? ''}`}
+            stage={
+              s.beat && outcomeStage ? (
+                <div className="relative flex size-full items-center justify-center">
+                  <OutcomeSim world={world} good={s.outcome === 'correct'} showCaption={step >= 1} onDone={skipAhead} />
+                  {s.outcome !== 'correct' && !reduced && step >= 1 && <Dust />}
+                </div>
               ) : s.beat && nums.length > 0 ? (
-                <ScenePicture key={s.beat.id} world={world} skillId={s.beat.skill_id} numbers={nums} />
+                <ScenePicture world={world} skillId={s.beat.skill_id} numbers={nums} hero={HERO_BY_WORLD[world]} glow={streak} />
               ) : undefined
             }
           />
@@ -424,8 +469,8 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                 {coach.hint}
               </MascotBubble>
             )}
-            {showQuestion && (
-              <MascotBubble size="sm" pose={pose} className="mt-4">
+            {showQuestion && s.phase !== 'outcome' && (
+              <MascotBubble size="sm" pose="think" className="mt-4 hidden lg:flex">
                 {mascotLine}
               </MascotBubble>
             )}
@@ -433,7 +478,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
         }
         question={
           showQuestion && s.beat ? (
-            <p className="font-display text-4xl font-bold sm:text-5xl">{s.beat.question.math_text}</p>
+            <p>{s.beat.question.math_text}</p>
           ) : undefined
         }
         choices={
@@ -449,8 +494,10 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                       s.phase === 'question'
                         ? 'idle'
                         : sameChoice(s.chosen, c)
-                          ? s.phase === 'outcome' && s.outcome === 'correct'
-                            ? 'success'
+                          ? s.phase === 'outcome'
+                            ? s.outcome === 'correct'
+                              ? 'success'
+                              : 'miss'
                             : 'selected'
                           : 'locked'
                     }
@@ -462,25 +509,31 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
           ) : undefined
         }
         footer={
-          <div className="flex flex-col items-start gap-3">
-            {answerError && (
-              <>
-                <InlineError message={te(`${answerError}.title`)} recovery={te(`${answerError}.description`)} />
-                <Button onClick={() => s.pendingAnswer && void submit(s.pendingAnswer.value, s.pendingAnswer.key)}>
-                  {te('retry')}
-                </Button>
-              </>
-            )}
-            {s.phase === 'outcome' && denReady && (
-              <div className="nx-rise">
-                <Button size="xl" onClick={onContinue}>
-                  {t('continue')}
-                </Button>
-              </div>
-            )}
-          </div>
+          answerError ? (
+            <div className="flex flex-col items-start gap-3">
+              <InlineError message={te(`${answerError}.title`)} recovery={te(`${answerError}.description`)} />
+              <Button onClick={() => s.pendingAnswer && void submit(s.pendingAnswer.value, s.pendingAnswer.key)}>
+                {te('retry')}
+              </Button>
+            </div>
+          ) : undefined
         }
       />
+
+      {sheetVisible && s.outcome && (
+        <OutcomeSheet
+          right={s.outcome === 'correct'}
+          line={mascotLine}
+          hero={HERO_BY_WORLD[world]}
+          glow={streak}
+          continueLabel={t('continue')}
+          canContinue={denReady}
+          onContinue={onContinue}
+          className={appConfig.useMock ? 'pb-14' : undefined}
+          collapsed={collapsedFor === beatId}
+          onCollapsedChange={(c) => setCollapsedFor(c ? (beatId ?? null) : null)}
+        />
+      )}
 
       {s.phase === 'rewards' && s.rewards[s.rewardIndex] && (
         <div className="fixed inset-0 z-30 flex items-center justify-center bg-bg/80 p-4">

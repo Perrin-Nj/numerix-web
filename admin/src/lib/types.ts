@@ -81,6 +81,20 @@ export interface Plans {
   plans: PlanDef[];
   methods: MethodDef[];
 }
+export interface DayVal {
+  date: string;
+  value: number;
+}
+export interface Trend {
+  date: string;
+  parents: number;
+  kids: number;
+  paid: number;
+  mrr_cad_cents: number;
+  arpu_cad_cents: number;
+  churn_30d: number;
+  retention_pct: number;
+}
 export interface Overview {
   parents_total: number;
   by_subscription: Record<SubStatus, number>;
@@ -88,8 +102,22 @@ export interface Overview {
   kids_total: number;
   active_today: number;
   mrr_cad_cents: number;
-  signups_30d: { date: string; count: number }[];
   signups_30d_total: number;
+  signups_by_day_30: { date: string; count: number }[];
+  signups_by_month_12: { month: string; count: number }[];
+  active_kids_by_day_30: DayVal[];
+  minutes_by_day_30: DayVal[];
+  sessions_by_day_30: DayVal[];
+  activity_by_day_90: { date: string; active_kids: number; minutes: number; sessions: number }[];
+  subscription_mix: { status: SubStatus; count: number }[];
+  plan_mix: { plan: Plan; count: number; mrr_cad_cents: number }[];
+  mrr_by_month_12: { month: string; mrr_cad_cents: number }[];
+  kids_by_grade: { grade: number; count: number }[];
+  retention: { pct: number; eligible: number; active: number };
+  churn_30d: number;
+  arpu_cad_cents: number;
+  top_worlds: { world: string; sessions_30d: number }[];
+  trend_30: Trend[];
 }
 export interface AuditEntry {
   id: string;

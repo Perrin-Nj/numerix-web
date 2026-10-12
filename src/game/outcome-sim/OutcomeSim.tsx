@@ -29,10 +29,12 @@ export type OutcomeSimProps = {
   onDone?: () => void;
   /** Caption variant 0 or 1. Defaults to a stable pick per instance. */
   variant?: 0 | 1;
+  /** False keeps the caption invisible (it fades in later). */
+  showCaption?: boolean;
   className?: string;
 };
 
-export function OutcomeSim({ world, good, playing = true, onDone, variant, className }: OutcomeSimProps) {
+export function OutcomeSim({ world, good, playing = true, onDone, variant, showCaption = true, className }: OutcomeSimProps) {
   const t = useTranslations('game.outcomeSim');
   const { play } = useSound();
   const uid = useId();
@@ -69,11 +71,11 @@ export function OutcomeSim({ world, good, playing = true, onDone, variant, class
         className="nx-sim-root block w-full overflow-hidden rounded-lg border-2 border-line shadow-2"
         data-skip={still ? '' : undefined}
       >
-        <svg key={runKey} viewBox="0 0 320 180" aria-hidden className="block aspect-[16/9] w-full">
+        <svg key={runKey} viewBox="0 0 320 180" role="img" aria-label={t(`caption.${world}.${outcome}.${v}`)} className="block aspect-[16/9] w-full">
           {SCENES[world][outcome]}
         </svg>
       </button>
-      <figcaption className="mt-2 text-center font-display text-lg text-fg">{t(`caption.${world}.${outcome}.${v}`)}</figcaption>
+      <figcaption aria-hidden={!showCaption} className={cn('mt-2 text-center font-display text-lg text-fg transition-opacity duration-300', !showCaption && 'opacity-0')}>{t(`caption.${world}.${outcome}.${v}`)}</figcaption>
     </figure>
   );
 }

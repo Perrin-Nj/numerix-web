@@ -81,3 +81,4 @@ export const TVScale: Story = {
     ),
   ],
 };
+export const Miss: Story = { args: { state: 'miss' } };

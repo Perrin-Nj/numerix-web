@@ -236,14 +236,33 @@ await check('wrong answer: sad mascot and a risk simulation, then encouragement'
   const buttons = await page.evaluate(() => [...document.querySelectorAll('button')].map((b) => b.innerText).filter((t) => /^[ABCD]\n/.test(t)));
   const wrongLabel = buttons.map((t) => t.split('\n')[1]).find((v) => v !== String(Array.isArray(right) ? right[0] : right));
   await page.getByRole('button', { name: new RegExp(`(^|\\D)${wrongLabel}(\\D|$)`) }).first().click();
-  await page.getByText('😔').first().waitFor({ timeout: 25000 });
+  await page.locator('[data-reaction="sad"]').first().waitFor({ timeout: 25000 });
   await page.getByRole('button', { name: /passer l.animation/i }).first().waitFor({ timeout: 8000 });
 });
 await check('right answer: happy mascot and a success simulation', async () => {
   await page.getByRole('button', { name: /continuer/i }).first().click({ timeout: 25000 });
   await answerCorrectly();
-  await page.getByText('😄').first().waitFor({ timeout: 25000 });
+  await page.locator('[data-reaction="happy"]').first().waitFor({ timeout: 25000 });
   await page.getByRole('button', { name: /passer l.animation/i }).first().waitFor({ timeout: 8000 });
+});
+await check('outcome: one stage image, sheet within 1.5 s, Continue inside a 360x740 screen', async () => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  try {
+    await page.getByRole('button', { name: /continuer/i }).first().click({ timeout: 25000 });
+    await question();
+    await answerCorrectly();
+    const t0 = Date.now();
+    await page.locator('[data-outcome-sheet]').waitFor({ timeout: 1500 });
+    const waited = Date.now() - t0;
+    const imgs = await page.locator('[data-stage] [role="img"]').count();
+    if (imgs !== 1) throw new Error(`${imgs} images in the stage during the outcome`);
+    const btn = page.getByRole('button', { name: /continuer/i }).first();
+    const box = await btn.boundingBox();
+    if (!box || box.y < 0 || box.y + box.height > 740 || box.x < 0 || box.x + box.width > 360) throw new Error(`Continue outside the viewport: ${JSON.stringify(box)}`);
+    console.log(`info sheet appeared ${waited} ms after the tap after the tap`);
+  } finally {
+    await page.setViewportSize({ width: 420, height: 880 });
+  }
 });
 await check('idle for a while: the coach gives a hint that never states the answer', async () => {
   await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
