@@ -10,8 +10,7 @@
       "picker": {
         "needAdultTitle": "Un adulte doit d'abord se connecter",
         "needAdultText": "Pour jouer, un adulte se connecte une seule fois sur cet appareil et crée ton profil. Ensuite, tu pourras jouer toute seule ou tout seul.",
-        "needAdultAction": "Je suis un adulte",
-        "demoPins": "Mode démo : le profil Zoé s'ouvre avec le code 1234. Max n'a pas encore l'autorisation d'un parent. Les profils que tu crées gardent le code que tu choisis."
+        "needAdultAction": "Je suis un adulte"
       }
     }
   }

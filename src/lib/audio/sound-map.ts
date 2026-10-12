@@ -26,6 +26,12 @@ export const SOUND_FILES: Record<SoundName, readonly string[]> = {
   tick: ['/sounds/tick'],
   minimize: ['/sounds/minimize'],
   maximize: ['/sounds/maximize'],
+  collapse: ['/sounds/collapse'],
+  rumble: ['/sounds/rumble'],
+  splash: ['/sounds/splash'],
+  sparkle: ['/sounds/sparkle'],
+  whoosh: ['/sounds/whoosh'],
+  gift_open: ['/sounds/gift_open'],
 };
 
 export const SOUND_VOLUME: Record<SoundName, number> = {
@@ -53,4 +59,10 @@ export const SOUND_VOLUME: Record<SoundName, number> = {
   tick: 0.2,
   minimize: 0.3,
   maximize: 0.3,
+  collapse: 0.45,
+  rumble: 0.4,
+  splash: 0.5,
+  sparkle: 0.5,
+  whoosh: 0.4,
+  gift_open: 0.6,
 };

@@ -8,7 +8,7 @@ const meta = {
   tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
-    docs: { description: { component: 'Sounds: `card_earned` when the gift opens, `chapter_complete` on claim. Confetti is off under reduced motion.' } },
+    docs: { description: { component: 'Sounds: `gift_open` on tap, `card_earned` when the card rises, `chapter_complete` on claim. Lid flight, rays, spin and confetti are off under reduced motion (simple fade).' } },
   }, // sounds-note
   args: {
     open: true,
@@ -30,7 +30,7 @@ export const OpenAndClaim: Story = {
   play: async ({ args }) => {
     const body = within(document.body);
     await userEvent.click(await body.findByRole('button', { name: /cadeau|gift/i }));
-    await userEvent.click(await body.findByRole('button', { name: /collection/i }));
+    await userEvent.click(await body.findByRole('button', { name: /collection/i }, { timeout: 5000 }));
     await expect(args.onClaim).toHaveBeenCalled();
   },
 };

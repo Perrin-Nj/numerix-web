@@ -1,0 +1,24 @@
+{
+  "game": {
+    "scenePicture": {
+      "item": {
+        "nature": "{n, plural, one {seed} other {seeds}}",
+        "espace": "{n, plural, one {star} other {stars}}",
+        "cuisine": "{n, plural, one {egg} other {eggs}}",
+        "sport": "{n, plural, one {ball} other {balls}}",
+        "construction": "{n, plural, one {brick} other {bricks}}",
+        "medecine": "{n, plural, one {pill} other {pills}}",
+        "science": "{n, plural, one {crystal} other {crystals}}",
+        "echecs": "{n, plural, one {pawn} other {pawns}}"
+      },
+      "alt": {
+        "add": "{a} {ia} and {b} {ib}, to put together.",
+        "sub": "{total} {it}, {removed} of them going away.",
+        "missing": "{known} {ik} and an empty spot for {missing} more.",
+        "mul": "{rows} rows of {cols} {it}.",
+        "div": "{total} {it} shared into {bowls} bowls, {rem, plural, =0 {nothing left over} other {# left over}}.",
+        "line": "A number line from 0 to {max} with a marker on {value}."
+      }
+    }
+  }
+}

@@ -31,3 +31,15 @@ export const AllWorlds: Story = {
     </div>
   ),
 };
+export const WithOverlay: Story = {
+  args: {
+    picture: <span className="text-6xl">🌱🌱🌱 ➕ 🌱🌱</span>,
+    children: <span className="absolute right-2 top-2 rounded-full bg-elevated px-2 text-fg">5</span>,
+  },
+};
+export const Dark: Story = { globals: { theme: 'dark' } };
+export const HighContrast: Story = { globals: { theme: 'hc' } };
+export const ReducedMotion: Story = { globals: { motion: 'reduced' } };
+export const TvScale: Story = { globals: { display: 'tv' } };
+export const French: Story = { args: { alt: 'Une clairière dans la forêt' }, globals: { locale: 'fr-CA' } };
+export const English: Story = { args: { alt: 'A forest clearing' }, globals: { locale: 'en-CA' } };

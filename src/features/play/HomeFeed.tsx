@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
@@ -9,6 +9,8 @@ import { giftClaimed, welcomeCard } from '@/lib/game/selectors';
 import { nowMs } from '@/lib/game/clock';
 import { useGameEvents, useGameStore } from '@/lib/game/store';
 import { usePickLine } from '@/lib/lines';
+import { useChildName } from '@/lib/game/who';
+import { useSpokenLine } from '@/lib/speech/useSpokenLine';
 import { ContinueCard } from '@/game/continue-card';
 import { DailyGoalRing } from '@/game/daily-goal-ring';
 import { MascotBubble } from '@/game/mascot-bubble';
@@ -40,7 +42,12 @@ export function HomeFeed() {
   const record = useGameStore((g) => g.append);
   const { begin, dialog } = useStartChapter(childId);
   const [tourDone, setTourDone] = useState(false);
-  const [greeting] = useState(() => pick('mascot.welcome'));
+  const kidName = useChildName(childId);
+  const [greeting, setGreeting] = useState('');
+  // Random line chosen after mount so server and client markup match
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setGreeting(pick('mascot.welcome', { name: kidName })), [kidName, pick]);
+  useSpokenLine(greeting || null, { lang });
   // Data loads on the client only, so reading storage here cannot mismatch the server render
   const tour = Boolean(childId && home.data && !tourDone && !localStorage.getItem(onboardingKey(childId)));
   const local = appConfig.stateSource === 'local';
@@ -73,7 +80,7 @@ export function HomeFeed() {
       {d && (
         <div className="flex flex-col gap-5">
           <Reveal>
-            <MascotBubble pose="greet">{greeting}</MascotBubble>
+            <MascotBubble pose="greet">{greeting || ' '}</MascotBubble>
           </Reveal>
           <div id="tour-continue">
             <ContinueCard

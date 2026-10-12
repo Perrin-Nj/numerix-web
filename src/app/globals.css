@@ -396,3 +396,383 @@ body {
 :root[data-motion='reduced'] :is(.nx-bounce, .nx-wobble, .nx-twinkle, .nx-drift, .nx-glow-pulse, .nx-pop-in-stagger, .nx-blink, .nx-tilt, .nx-rise-up, .nx-swirl) {
   animation: none;
 }
+
+/* ---- Visuals pack: mascot happy and sad, outcome sim. Base style is the end state, so reduced motion shows the result. ---- */
+@keyframes nx-mascot-happy {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-12px) scale(1.06, 0.96);
+  }
+  55% {
+    transform: translateY(0) scale(0.96, 1.04);
+  }
+}
+@keyframes nx-mascot-sad {
+  0%,
+  100% {
+    transform: translateY(2px) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(5px) rotate(3deg);
+  }
+}
+@keyframes nx-sim {
+  from {
+    transform: translate(var(--fx, 0px), var(--fy, 0px)) scale(var(--fs, 1)) scale(1, var(--fsy, 1)) rotate(var(--fr, 0deg));
+    opacity: var(--fo, 1);
+  }
+}
+@keyframes nx-sim-out {
+  0%,
+  99% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes nx-sim-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@keyframes nx-sim-puff {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.3);
+  }
+  30% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-16px) scale(1.5);
+  }
+}
+@keyframes nx-sim-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-3px, 2px);
+  }
+  40% {
+    transform: translate(3px, -2px);
+  }
+  60% {
+    transform: translate(-2px, 1px);
+  }
+  80% {
+    transform: translate(2px, 0);
+  }
+}
+.nx-mascot-happy {
+  animation: nx-mascot-happy calc(900ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-mascot-sad {
+  animation: nx-mascot-sad calc(4200ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-sim {
+  animation: nx-sim calc(var(--d, 600ms) * var(--motion-scale, 1)) var(--e, ease-out) calc(var(--dl, 0ms) * var(--motion-scale, 1)) both;
+  transform-box: fill-box;
+  transform-origin: var(--to, center);
+}
+.nx-sim-out {
+  opacity: 0;
+  animation: nx-sim-out calc(var(--d, 600ms) * var(--motion-scale, 1)) linear calc(var(--dl, 0ms) * var(--motion-scale, 1)) both;
+}
+.nx-sim-draw {
+  stroke-dasharray: 1;
+  animation: nx-sim-draw calc(var(--d, 1200ms) * var(--motion-scale, 1)) linear calc(var(--dl, 0ms) * var(--motion-scale, 1)) both;
+}
+.nx-sim-puff {
+  opacity: 0;
+  animation: nx-sim-puff calc(900ms * var(--motion-scale, 1)) ease-out calc(var(--dl, 0ms) * var(--motion-scale, 1)) both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.nx-sim-shake {
+  animation: nx-sim-shake calc(420ms * var(--motion-scale, 1)) ease-in-out calc(var(--dl, 0ms) * var(--motion-scale, 1)) 1;
+}
+.nx-sim-root[data-skip] :is(.nx-sim, .nx-sim-puff, .nx-sim-shake, .nx-sim-out, .nx-sim-draw) {
+  animation-duration: 1ms;
+  animation-delay: 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-mascot-happy,
+  .nx-mascot-sad,
+  .nx-sim,
+  .nx-sim-puff,
+  .nx-sim-shake,
+  .nx-sim-out,
+  .nx-sim-draw {
+    animation: none;
+  }
+}
+:root[data-motion='reduced'] :is(.nx-mascot-happy, .nx-mascot-sad, .nx-sim, .nx-sim-puff, .nx-sim-shake, .nx-sim-out, .nx-sim-draw) {
+  animation: none;
+}
+
+/* Cards agent: story card sweep, welcome gift sequence, reward burst art. */
+@keyframes nx-card-sweep {
+  from {
+    transform: translateX(-130%) skewX(-20deg);
+  }
+  to {
+    transform: translateX(230%) skewX(-20deg);
+  }
+}
+.nx-card-sweep {
+  overflow: hidden;
+}
+.nx-card-sweep::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent);
+  animation: nx-card-sweep calc(1100ms * var(--motion-scale, 1)) ease-out 250ms both;
+}
+@keyframes nx-gift-invite {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  68% {
+    transform: translateY(-10px) rotate(-5deg);
+  }
+  76% {
+    transform: translateY(0) rotate(5deg);
+  }
+  84% {
+    transform: translateY(-4px) rotate(-3deg);
+  }
+  92% {
+    transform: translateY(0) rotate(0);
+  }
+}
+@keyframes nx-gift-lid {
+  0% {
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(-34px) rotate(-6deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(120px, -220px) rotate(38deg);
+    opacity: 0;
+  }
+}
+@keyframes nx-gift-rays {
+  0% {
+    transform: scale(0.2) rotate(0);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6) rotate(50deg);
+    opacity: 0;
+  }
+}
+@keyframes nx-gift-card {
+  0% {
+    transform: translateY(70px) scale(0.4) rotateY(0);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-40px) scale(1.08) rotateY(540deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotateY(720deg);
+    opacity: 1;
+  }
+}
+@keyframes nx-gift-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.nx-gift-invite {
+  animation: nx-gift-invite calc(2600ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-gift-lid {
+  animation: nx-gift-lid calc(900ms * var(--motion-scale, 1)) cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+.nx-gift-rays {
+  background: repeating-conic-gradient(from 0deg, rgb(255 214 90 / 0.8) 0deg 8deg, transparent 8deg 24deg);
+  mask-image: radial-gradient(circle, #000 15%, transparent 68%);
+  animation: nx-gift-rays calc(1400ms * var(--motion-scale, 1)) ease-out both;
+}
+.nx-gift-card {
+  animation: nx-gift-card calc(1500ms * var(--motion-scale, 1)) cubic-bezier(0.2, 0.8, 0.3, 1) 350ms both;
+}
+.nx-gift-fade {
+  animation: nx-gift-fade calc(500ms * var(--motion-scale, 1)) ease-out both;
+}
+@keyframes nx-rb-flicker {
+  0%,
+  100% {
+    transform: scale(1) rotate(-2deg);
+  }
+  50% {
+    transform: scale(1.08) rotate(2deg);
+  }
+}
+@keyframes nx-rb-ring {
+  from {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+.nx-rb-flicker {
+  animation: nx-rb-flicker calc(900ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-rb-ring {
+  animation: nx-rb-ring calc(1600ms * var(--motion-scale, 1)) ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-card-sweep::after,
+  .nx-gift-invite,
+  .nx-gift-lid,
+  .nx-gift-rays,
+  .nx-gift-card,
+  .nx-rb-flicker,
+  .nx-rb-ring {
+    animation: none;
+  }
+}
+:root[data-motion='reduced'] :is(.nx-gift-invite, .nx-gift-lid, .nx-gift-rays, .nx-gift-card, .nx-rb-flicker, .nx-rb-ring) {
+  animation: none;
+}
+:root[data-motion='reduced'] .nx-card-sweep::after {
+  animation: none;
+}
+@keyframes nx-gift-holo {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+.nx-gift-holo {
+  background: linear-gradient(115deg, #ff7eb3, #ffd86b, #7bffb0, #6ec6ff, #c58bff, #ff7eb3) 0 0 / 200% 100% !important;
+  opacity: 0.45 !important;
+  animation: nx-gift-holo calc(3500ms * var(--motion-scale, 1)) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-gift-holo {
+    animation: none;
+  }
+}
+:root[data-motion='reduced'] .nx-gift-holo {
+  animation: none;
+}
+
+/* Cards agent v2: three card families (postcard, badge, present). */
+@keyframes nx-card-enter {
+  from {
+    transform: translateY(90px) rotateY(180deg) scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-14px) rotateY(20deg) scale(1.05);
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes nx-card-pop {
+  from {
+    transform: scale(0.85) translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes nx-card-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-5px) rotate(0.6deg);
+  }
+}
+@keyframes nx-badge-glow {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+@keyframes nx-card-sweep-loop {
+  0% {
+    transform: translateX(-130%) skewX(-20deg);
+  }
+  28%,
+  100% {
+    transform: translateX(260%) skewX(-20deg);
+  }
+}
+.nx-card-enter {
+  animation: nx-card-enter calc(1100ms * var(--motion-scale, 1)) cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+.nx-card-pop {
+  animation: nx-card-pop calc(450ms * var(--motion-scale, 1)) ease-out both;
+}
+.nx-card-float {
+  animation: nx-card-float calc(4200ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-badge-glow {
+  animation: nx-badge-glow calc(2600ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-card-spin {
+  animation: nx-swirl calc(24000ms * var(--motion-scale, 1)) linear infinite;
+}
+.nx-card-sweep::after {
+  animation: nx-card-sweep-loop calc(5200ms * var(--motion-scale, 1)) ease-in-out 600ms infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-card-enter,
+  .nx-card-pop,
+  .nx-card-float,
+  .nx-badge-glow,
+  .nx-card-spin,
+  .nx-card-sweep::after {
+    animation: none;
+  }
+}
+:root[data-motion='reduced'] :is(.nx-card-enter, .nx-card-pop, .nx-card-float, .nx-badge-glow, .nx-card-spin) {
+  animation: none;
+}
+:root[data-motion='reduced'] .nx-card-sweep::after {
+  animation: none;
+}

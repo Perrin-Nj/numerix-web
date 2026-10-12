@@ -16,7 +16,6 @@
         "needAdultTitle": "Un adulte doit d'abord se connecter",
         "needAdultText": "Pour jouer, un adulte se connecte une seule fois sur cet appareil et crée ton profil. Ensuite, tu pourras jouer toute seule ou tout seul.",
         "needAdultAction": "Je suis un adulte",
-        "demoPins": "Mode démo : le profil Zoé s'ouvre avec le code 1234. Max n'a pas encore l'autorisation d'un parent. Les profils que tu crées gardent le code que tu choisis.",
         "who": "Qui joue aujourd'hui ?",
         "none": "Aucun profil pour l'instant. Demande à un adulte d'en créer un.",
         "pinProtected": "Protégé par un code",
@@ -96,7 +95,31 @@
         "growth": "Ta progression",
         "growthLine": "Chapitres terminés cette semaine : {now} (avant : {before}).",
         "skillsLine": "Nouvelles compétences : {now} (avant : {before}).",
-        "grownUps": "Espace des adultes"
+        "grownUps": "Espace des adultes",
+        "voice": {
+          "title": "Voix et aide",
+          "voice": "Lire à voix haute",
+          "voiceHint": "Les histoires et les indices se font entendre.",
+          "hints": "Petits coups de pouce",
+          "hintsHint": "Un indice doux quand tu réfléchis longtemps.",
+          "delay": "Indice après",
+          "delayUnit": "{n} s",
+          "volume": "Volume des indices",
+          "low": "Doux",
+          "medium": "Moyen",
+          "normal": "Normal",
+          "test": "Tester la voix",
+          "sample": "Bonjour ! Je suis ta voix pour les histoires. On y va ?",
+          "using": "Voix choisie : {name}",
+          "noVoice": "Aucune voix trouvée sur cet appareil.",
+          "tapToHear": "Touche l'écran pour entendre."
+        },
+        "account": {
+          "title": "Qui joue ?",
+          "hint": "Change de joueur, ou déconnecte l'appareil. Quand un adulte se déconnecte, tout ce que l'appareil retenait est effacé.",
+          "switch": "Changer de joueur",
+          "signOut": "Déconnecter l'appareil (adulte)"
+        }
       },
       "story": {
         "pause": "Faire une pause",
@@ -132,6 +155,10 @@
       },
       "celebrate": {
         "title": "Défi réussi !"
+      },
+      "done": {
+        "noCard": "Pas de carte cette fois. Il faut au moins {pct} % de bonnes réponses pour la gagner. Rejoue ce chapitre, tu vas y arriver !",
+        "missed": "Tu as trouvé {right} bonne{right, plural, one {} other {s}} réponse{right, plural, one {} other {s}} sur {total}. Ce n'est pas encore ça, et c'est normal : on apprend en essayant. Reviens plus tard, on le refera ensemble. Il faut {pct} % de bonnes réponses pour gagner la carte."
       }
     },
     "parentGate": {
@@ -503,6 +530,91 @@
       "detour": "Un détour inattendu",
       "surprise": "Une surprise dans l'histoire"
     },
+    "outcomeSim": {
+      "skip": "Passer l'animation",
+      "caption": {
+        "construction": {
+          "good": {
+            "0": "Voilà, le pont tient, et les camions passent.",
+            "1": "Bien calculé : la structure est solide et la route est ouverte."
+          },
+          "bad": {
+            "0": "On a vu ce qui peut arriver quand le calcul est trop juste. Tu peux réessayer, tu y es presque.",
+            "1": "Un pont mal calculé peut céder. Bonne nouvelle : on peut le reconstruire ensemble."
+          }
+        },
+        "nature": {
+          "good": {
+            "0": "Voilà, la graine a assez d'eau et de soleil : elle fleurit et les abeilles arrivent.",
+            "1": "Bien compté : le jardin pousse et se remplit de vie."
+          },
+          "bad": {
+            "0": "Quand on manque d'eau, la plante se fane. Une goutte arrive : tu peux réessayer, tu y es presque.",
+            "1": "Un mauvais compte peut assécher le jardin. Pas de souci, on arrose et on recommence."
+          }
+        },
+        "espace": {
+          "good": {
+            "0": "Voilà, la fusée se pose sur la Lune et plante son drapeau.",
+            "1": "Bon calcul : l'atterrissage est tout doux."
+          },
+          "bad": {
+            "0": "Avec un petit écart, la fusée peut passer à côté de sa cible. Tu peux réessayer, tu y es presque.",
+            "1": "Un calcul un peu décalé et le voyage change de route. On corrige le cap ensemble."
+          }
+        },
+        "cuisine": {
+          "good": {
+            "0": "Voilà, le gâteau gonfle et dore à la perfection.",
+            "1": "Bonne mesure : la recette réussit et ça sent bon."
+          },
+          "bad": {
+            "0": "Avec une mauvaise quantité, le gâteau peut retomber. Tu peux réessayer, tu y es presque.",
+            "1": "Une recette mal dosée, ça arrive aux grands chefs. On repart avec une nouvelle fournée."
+          }
+        },
+        "sport": {
+          "good": {
+            "0": "Voilà, le ballon file au fond du filet et la foule saute de joie.",
+            "1": "Bien visé : c'est un but, et tout le monde fête ça."
+          },
+          "bad": {
+            "0": "Un tir mal réglé peut toucher le poteau. Tu peux réessayer, tu y es presque.",
+            "1": "Le ballon a frôlé le but. Les grands joueurs retentent toujours."
+          }
+        },
+        "medecine": {
+          "good": {
+            "0": "Voilà, la bonne dose aide : le cœur est stable et le patient sourit.",
+            "1": "Bon calcul : le patient va mieux, et c'est grâce à toi."
+          },
+          "bad": {
+            "0": "Une dose mal calculée peut déranger le rythme du cœur. L'infirmière rassure, et tu peux réessayer.",
+            "1": "On a vu pourquoi il faut bien compter. On est là pour t'aider, tu y es presque."
+          }
+        },
+        "science": {
+          "good": {
+            "0": "Voilà, le mélange est juste : la fiole brille et fait des bulles.",
+            "1": "Bien dosé : la réaction réussit sous tes yeux."
+          },
+          "bad": {
+            "0": "Avec un mauvais dosage, la réaction s'éteint. Un petit pouf, rien de grave : tu peux réessayer.",
+            "1": "Les chercheurs ratent souvent avant de réussir. On refait l'expérience ensemble."
+          }
+        },
+        "echecs": {
+          "good": {
+            "0": "Voilà, échec et mat : la couronne est pour toi.",
+            "1": "Bien joué : ton plan fonctionne jusqu'au bout."
+          },
+          "bad": {
+            "0": "Une pièce peut rester coincée quand on compte mal. Regarde, le cavalier a un autre chemin.",
+            "1": "On a vu le piège. Il y a toujours une autre route, tu y es presque."
+          }
+        }
+      }
+    },
     "questCard": {
       "title": "Quête du jour",
       "available": "Quelques vieilles histoires ont besoin de toi.",
@@ -539,6 +651,38 @@
         "detail": "Bravo, c'est fait pour aujourd'hui."
       }
     },
+    "scenePicture": {
+      "item": {
+        "nature": "{n, plural, one {graine} other {graines}}",
+        "espace": "{n, plural, one {étoile} other {étoiles}}",
+        "cuisine": "{n, plural, one {œuf} other {œufs}}",
+        "sport": "{n, plural, one {ballon} other {ballons}}",
+        "construction": "{n, plural, one {brique} other {briques}}",
+        "medecine": "{n, plural, one {pilule} other {pilules}}",
+        "science": "{n, plural, one {cristal} other {cristaux}}",
+        "echecs": "{n, plural, one {pion} other {pions}}"
+      },
+      "alt": {
+        "add": "{a} {ia} et {b} {ib}, à réunir.",
+        "sub": "{total} {it}, dont {removed} qui s'en vont.",
+        "missing": "{known} {ik} et une place vide pour {missing} de plus.",
+        "mul": "{rows} rangées de {cols} {it}.",
+        "div": "{total} {it} partagés dans {bowls} bols, {rem, plural, =0 {sans reste} other {il en reste #}}.",
+        "line": "Une droite de 0 à {max} avec un repère sur {value}."
+      }
+    },
+    "storyCard": {
+      "flip": "{title}. Retourner la carte.",
+      "rarity": {
+        "common": "Histoire",
+        "rare": "Rare",
+        "epic": "Épique"
+      },
+      "banner": {
+        "gift": "Cadeau"
+      },
+      "giftBack": "Un petit cadeau rien que pour toi. Garde-le bien !"
+    },
     "streakBadge": {
       "days": "{count, plural, one {jour d'histoire} other {jours d'histoire}}",
       "fresh": "Une nouvelle série t'attend"
@@ -553,6 +697,48 @@
     "worldTeaser": {
       "open": "Découvrir ce monde"
     }
+  },
+  "coach": {
+    "ARI-OPE-A02a": [
+      "Essaie de séparer chaque nombre en dizaines et en unités. Tu ajoutes d'abord les dizaines, puis les unités.",
+      "Commence par le plus grand nombre dans ta tête, puis ajoute l'autre par petits pas.",
+      "Dessine des paquets de dix et des petits points. Qu'est-ce que ça donne quand tu les regroupes ?"
+    ],
+    "ARI-OPE-A03a": [
+      "Pense à un nombre rond tout près. Comment tu pourrais t'en servir pour t'aider ?",
+      "Coupe le calcul en deux petites étapes faciles. Tu peux le dire à voix haute.",
+      "Compte par sauts de dix, puis par sauts de un. Où est-ce que tu te retrouves ?"
+    ],
+    "ARI-OPE-A05": [
+      "Quelque chose manque dans l'égalité. Qu'est-ce que tu sais déjà des deux côtés ?",
+      "Essaie de faire le chemin à l'envers. Quelle opération défait celle que tu vois ?",
+      "Mets un petit nombre dans la case vide pour tester. Est-ce que les deux côtés se ressemblent ?"
+    ],
+    "ARI-OPE-A06a": [
+      "Une multiplication, c'est des groupes pareils. Peux-tu dessiner les groupes ?",
+      "Compte par sauts, comme 2, 4, 6. Combien de sauts te faut-il ?",
+      "Tu connais peut-être une table voisine. Comment elle pourrait t'aider ?"
+    ],
+    "ARI-OPE-A07a": [
+      "Combien de fois le petit nombre entre-t-il dans le grand sans le dépasser ?",
+      "Fais des groupes un à un avec des petits dessins. Qu'est-ce qui reste à la fin ?",
+      "Utilise ta table de multiplication pour t'approcher du grand nombre. Qu'est-ce qui reste ?"
+    ],
+    "ARI-SOP-A03a": [
+      "Imagine que tu partages entre des amis, un objet à la fois. Que se passe-t-il ?",
+      "Dessine les groupes ou les parts. Combien y en a-t-il dans chacun ?",
+      "Qu'est-ce que tu cherches : le nombre de groupes ou la taille d'un groupe ?"
+    ],
+    "ARI-SEN-A01c": [
+      "Lis le nombre en le coupant en tranches, de la droite vers la gauche. Que vaut chaque chiffre ?",
+      "Regarde la place de chaque chiffre : unités, dizaines, centaines, milliers.",
+      "Compare les chiffres un à un en partant de la gauche. Où est la première différence ?"
+    ],
+    "generic": [
+      "Prends ton temps. Qu'est-ce que tu remarques dans l'histoire ?",
+      "Relis la question tout doucement. Quels sont les nombres importants ?",
+      "Essaie de faire un petit dessin de ce qui se passe. Ça aide souvent !"
+    ]
   },
   "lines": {
     "mascot": {
@@ -614,9 +800,13 @@
         "Coucou ! Prêt pour une nouvelle histoire ?",
         "Te voilà, j'avais gardé ta place.",
         "Bonjour, explorateur !",
-        "Hé, quelle bonne surprise de te voir !",
         "Installe-toi, on a plein de choses à découvrir.",
-        "Ravi que tu sois là."
+        "Ravi que tu sois là.",
+        "Hé {name}, quelle bonne surprise de te voir !",
+        "Salut {name}, content de te revoir !",
+        "{name}, ton aventure t'attendait.",
+        "Te voilà, {name} ! J'avais gardé ta place.",
+        "Bonjour {name}, prêt pour une nouvelle histoire ?"
       ],
       "exit": [
         "Ton histoire t'attend, reviens quand tu veux.",

@@ -1,0 +1,1 @@
+{ "game": { "storyCard": { "flip": "{title}. Retourner la carte.", "rarity": { "common": "Histoire", "rare": "Rare", "epic": "Épique" }, "banner": { "gift": "Cadeau" }, "giftBack": "Un petit cadeau rien que pour toi. Garde-le bien !" } } }

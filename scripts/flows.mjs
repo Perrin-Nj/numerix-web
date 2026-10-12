@@ -1,6 +1,6 @@
 // Fast end-to-end flows over HTTP (no browser): drives the app's own proxy like the UI does, with a cookie jar.
 // Prints one line per check. Usage: node scripts/flows.mjs [baseUrl]    (default http://localhost:3000)
-import { solve } from './lib/solver.mjs';
+import { solve, wrong } from './lib/solver.mjs';
 const BASE = (process.argv[2] ?? process.env.BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 const jar = new Map();
 let fails = 0;
@@ -89,6 +89,20 @@ for (const [world, skill] of [['nature', 'ARI-OPE-A06a'], ['espace', 'ARI-OPE-A0
     ok(`${world} beat ${i}: graded correct`, last.status === 200 && last.json?.outcome === 'correct', JSON.stringify(last.json).slice(0, 80));
   }
   ok(`${world}: chapter completes with a card for that world`, last.json?.session?.status === 'completed' && last.json.rewards.some((x) => x.type === 'card_earned' && x.card.world === world));
+}
+// Card threshold: 2 right answers out of 3 (67%) is below 70%, so no card
+{
+  r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'sport', kind: 'chapter', skill_id: 'ARI-OPE-A06a' }, headers: { 'idempotency-key': crypto.randomUUID() } });
+  const sid = r.json?.id;
+  let last;
+  for (let i = 0; i < 3; i++) {
+    r = await api('POST', `/sessions/${sid}/beats`, { mode: 'child', headers: { 'idempotency-key': crypto.randomUUID() } });
+    const beat = r.json;
+    const right = solve(beat.question.math_text);
+    const answer = i === 0 ? wrong(beat.question.choices, right) : right;
+    last = await api('POST', `/sessions/${sid}/beats/${beat.id}/answer`, { mode: 'child', body: { answer }, headers: { 'idempotency-key': crypto.randomUUID() } });
+  }
+  ok('2 of 3 right: chapter completes without a card', last.json?.session?.status === 'completed' && !last.json.rewards.some((x) => x.type === 'card_earned'), JSON.stringify(last.json?.rewards ?? []).slice(0, 100));
 }
 ok('two worlds tell different stories', scenes.length === 2 && scenes[0] !== scenes[1] && scenes.every((x) => x.length > 80));
 r = await api('GET', `/children/${nora.id}/collection`, { mode: 'child' });

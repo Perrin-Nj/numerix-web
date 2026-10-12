@@ -1,6 +1,7 @@
 // Browser checks that print one line each (no screenshots, no images): the kid and grown-up journeys on screen.
 // Usage: node scripts/ui-checks.mjs [baseUrl]
 import { chromium } from 'playwright';
+import { readFileSync } from 'node:fs';
 import { solve } from './lib/solver.mjs';
 
 const BASE = (process.argv[2] ?? process.env.BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
@@ -64,6 +65,7 @@ await check('new child is visible with PIN and permission status', async () => {
 });
 await check('kid door lists the profiles and the new PIN works', async () => {
   await page.goto(`${BASE}/play`, { waitUntil: 'networkidle' });
+  if (await page.getByText(/mode démo/i).count()) throw new Error('demo text still shown');
   await page.getByRole('button', { name: new RegExp(childName) }).click();
   const dialog = page.getByRole('dialog');
   await dialog.waitFor(T);
@@ -71,6 +73,11 @@ await check('kid door lists the profiles and the new PIN works', async () => {
   await page.getByText(/ne correspond pas/i).first().waitFor(T);
   for (const d of ['4', '3', '2', '1']) await dialog.getByRole('button', { name: new RegExp(`^${d}$`) }).first().click();
   await page.waitForURL('**/play/home', T);
+});
+await check('a signed-in kid opening /play goes straight to home (no second picker)', async () => {
+  await page.goto(`${BASE}/play`, { waitUntil: 'domcontentloaded' });
+  await page.waitForURL('**/play/home', T);
+  if (await page.getByText(/qui joue aujourd/i).count()) throw new Error('picker shown');
 });
 await check('close the tour', async () => {
   const close = page.getByRole('button', { name: /passer la visite/i });
@@ -173,6 +180,42 @@ await check('leaving a chapter asks first and returns home', async () => {
   await page.getByRole('button', { name: /quitter la partie/i }).first().click();
   await page.getByRole('dialog').getByRole('button', { name: /quitter la partie/i }).click();
   await page.waitForURL('**/play/home', T);
+});
+async function startChapter() {
+  await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: /jouer|continuer|reprendre/i }).first().click();
+  await page.waitForURL('**/play/session/**', T);
+  return question();
+}
+await check('question comes with a picture of its numbers', async () => {
+  await startChapter();
+  await page.getByRole('img', { name: /\d/ }).first().waitFor({ timeout: 8000 });
+});
+await check('wrong answer: sad mascot and a risk simulation, then encouragement', async () => {
+  const q = await question();
+  const right = solve(q);
+  const buttons = await page.evaluate(() => [...document.querySelectorAll('button')].map((b) => b.innerText).filter((t) => /^[ABCD]\n/.test(t)));
+  const wrongLabel = buttons.map((t) => t.split('\n')[1]).find((v) => v !== String(Array.isArray(right) ? right[0] : right));
+  await page.getByRole('button', { name: new RegExp(`(^|\\D)${wrongLabel}(\\D|$)`) }).first().click();
+  await page.getByText('😔').first().waitFor({ timeout: 25000 });
+  await page.getByRole('button', { name: /passer l.animation/i }).first().waitFor({ timeout: 8000 });
+});
+await check('right answer: happy mascot and a success simulation', async () => {
+  await page.getByRole('button', { name: /continuer/i }).first().click({ timeout: 25000 });
+  await answerCorrectly();
+  await page.getByText('😄').first().waitFor({ timeout: 25000 });
+  await page.getByRole('button', { name: /passer l.animation/i }).first().waitFor({ timeout: 8000 });
+});
+await check('idle for a while: the coach gives a hint that never states the answer', async () => {
+  await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
+  await page.evaluate(() => localStorage.setItem('nx:prefs:v1', JSON.stringify({ state: { voice: false, hints: true, hintDelaySec: 2, hintVolume: 0.1, voiceName: null, rate: 1 }, version: 0 })));
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: /jouer|continuer|reprendre/i }).first().click();
+  await page.waitForURL('**/play/session/**', T);
+  await question();
+  const hints = Object.values(JSON.parse(readFileSync(new URL('../src/lib/coach/messages.fr-CA.json', import.meta.url), 'utf8')).coach).flat();
+  await page.waitForFunction((hs) => hs.some((h) => document.body.innerText.includes(h)), hints, { timeout: 15000 });
+  await page.evaluate(() => localStorage.removeItem('nx:prefs:v1'));
 });
 await check('challenges: accept one and see it in progress', async () => {
   await page.goto(`${BASE}/play/challenges`, { waitUntil: 'networkidle' });

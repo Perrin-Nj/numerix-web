@@ -22,7 +22,7 @@ trap stop_all EXIT
 run() { # name command...
   local name="$1"; shift
   local out; out=$("$@" 2>&1); local code=$?
-  echo "$out" | grep -E "^(ok|FAIL|console errors|[0-9]+ FAILED|all .* pass)" | sed "s/^/[$name] /"
+  echo "$out" | grep -E "^(ok|FAIL|console errors|[0-9]+ FAILED|all .* pass|.* (ok|passed)( \(.*\))?$)" | sed "s/^/[$name] /"
   [ $code -ne 0 ] && { echo "[$name] FAILED (exit $code)"; echo "$out" | grep -vE "^(ok|Warning|\(node|Reparsing|To eliminate)" | tail -5; FAILS=$((FAILS+1)); }
 }
 
@@ -44,14 +44,14 @@ ensure_app() {
 }
 
 case "$MODE" in
-  state)  run state node scripts/state-checks.mjs ;;
+  state)  run state node scripts/state-checks.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs ;;
   sounds) run sounds node scripts/check-sounds.mjs; run variants node scripts/check-sound-variants.mjs ;;
   mock)   ensure_mock; run mock node mock/scripts/selftest.mjs "$MOCK_URL" ;;
   flows)  ensure_app; run flows node scripts/flows.mjs "$BASE" ;;
   ui)     ensure_app; run ui node scripts/ui-checks.mjs "$BASE" ;;
   live)   LIVE="${LIVE_URL:-https://numerix-web-snowy.vercel.app}"
           run flows node scripts/flows.mjs "$LIVE"; run ui node scripts/ui-checks.mjs "$LIVE" ;;
-  all)    run state node scripts/state-checks.mjs
+  all)    run state node scripts/state-checks.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs
           run sounds node scripts/check-sounds.mjs; run variants node scripts/check-sound-variants.mjs
           ensure_mock; run mock node mock/scripts/selftest.mjs "$MOCK_URL"
           ensure_app; run flows node scripts/flows.mjs "$BASE"; run ui node scripts/ui-checks.mjs "$BASE" ;;

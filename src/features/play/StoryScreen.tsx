@@ -1,7 +1,7 @@
 'use client';
 import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
 import { ApiError, classifyConnectionFailure, newIdempotencyKey } from '@/lib/api/client';
@@ -25,6 +25,9 @@ import { MascotBubble } from '@/game/mascot-bubble';
 import { useReducedMotion } from '@/lib/motion';
 import { ChoiceButton } from '@/game/choice-button';
 import { IllustrationFrame } from '@/game/illustration-frame';
+import { OutcomeSim } from '@/game/outcome-sim';
+import { ScenePicture } from '@/game/scene-picture';
+import { useCoach } from '@/lib/coach/useCoach';
 import { NarrationText } from '@/game/narration-text';
 import { OutcomeBeat } from '@/game/outcome-beat';
 import { RewardBurst } from '@/game/reward-burst';
@@ -324,18 +327,22 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
       : 'idle';
   const sameChoice = (a: AnswerValue | null, b: AnswerValue) => a !== null && JSON.stringify(a) === JSON.stringify(b);
   const answerError = s.phase === 'answering' && s.error ? s.error.code : null;
+  // Happy after a right answer, sad (gentle, never blaming) after a miss
   const pose =
-    s.phase !== 'outcome'
-      ? 'think'
-      : s.outcome === 'correct'
-        ? 'cheer'
-        : s.outcome === 'erreur_typique'
-          ? 'curious'
-          : 'amazed';
+    s.phase !== 'outcome' ? 'think' : s.outcome === 'correct' ? 'happy' : 'sad';
+  const linePool = s.phase !== 'outcome' ? 'think' : s.outcome === 'correct' ? 'cheer' : s.outcome === 'erreur_typique' ? 'curious' : 'encourage';
+  const lang = useLocale();
+  const coach = useCoach({
+    skillId: s.beat?.skill_id ?? 'generic',
+    beatKey: s.beat?.id ?? 'none',
+    active: s.phase === 'question' || s.phase === 'answering',
+    lang,
+  });
+  const nums = (s.beat?.question.math_text.match(/\d+/g) ?? []).map(Number);
   const denReady = s.denouementStatus === 'ready' || s.denouementStatus === 'fallback';
   // A fresh line for each moment, never the same one twice in a row
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const mascotLine = useMemo(() => pick(`mascot.${pose}`), [pose, s.beat?.id, s.outcome]);
+  const mascotLine = useMemo(() => pick(`mascot.${linePool}`), [linePool, s.beat?.id, s.outcome]);
 
   if (s.phase === 'error') {
     const code = s.error?.code ?? 'unknown';
@@ -368,7 +375,20 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
       </div>
 
       <StoryPanel
-        illustration={<IllustrationFrame world={world} mood={mood} alt={t('illustration')} />}
+        illustration={
+          <IllustrationFrame
+            world={world}
+            mood={mood}
+            alt={t('illustration')}
+            picture={
+              s.beat && s.phase === 'outcome' && s.outcome ? (
+                <OutcomeSim key={s.beat.id} world={world} good={s.outcome === 'correct'} />
+              ) : s.beat && nums.length > 0 ? (
+                <ScenePicture key={s.beat.id} world={world} skillId={s.beat.skill_id} numbers={nums} />
+              ) : undefined
+            }
+          />
+        }
         narration={
           <>
             {s.phase === 'outcome' && s.outcome ? (
@@ -391,6 +411,11 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                   </div>
                 )}
               </>
+            )}
+            {coach.hint && s.phase !== 'outcome' && (
+              <MascotBubble size="sm" pose="think" className="mt-4">
+                {coach.hint}
+              </MascotBubble>
             )}
             {showQuestion && (
               <MascotBubble size="sm" pose={pose} className="mt-4">

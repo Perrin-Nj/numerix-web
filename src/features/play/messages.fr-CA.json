@@ -33,6 +33,36 @@
       },
       "celebrate": {
         "title": "Défi réussi !"
+      },
+      "me": {
+        "voice": {
+          "title": "Voix et aide",
+          "voice": "Lire à voix haute",
+          "voiceHint": "Les histoires et les indices se font entendre.",
+          "hints": "Petits coups de pouce",
+          "hintsHint": "Un indice doux quand tu réfléchis longtemps.",
+          "delay": "Indice après",
+          "delayUnit": "{n} s",
+          "volume": "Volume des indices",
+          "low": "Doux",
+          "medium": "Moyen",
+          "normal": "Normal",
+          "test": "Tester la voix",
+          "sample": "Bonjour ! Je suis ta voix pour les histoires. On y va ?",
+          "using": "Voix choisie : {name}",
+          "noVoice": "Aucune voix trouvée sur cet appareil.",
+          "tapToHear": "Touche l'écran pour entendre."
+        },
+        "account": {
+          "title": "Qui joue ?",
+          "hint": "Change de joueur, ou déconnecte l'appareil. Quand un adulte se déconnecte, tout ce que l'appareil retenait est effacé.",
+          "switch": "Changer de joueur",
+          "signOut": "Déconnecter l'appareil (adulte)"
+        }
+      },
+      "done": {
+        "noCard": "Pas de carte cette fois. Il faut au moins {pct} % de bonnes réponses pour la gagner. Rejoue ce chapitre, tu vas y arriver !",
+        "missed": "Tu as trouvé {right} bonne{right, plural, one {} other {s}} réponse{right, plural, one {} other {s}} sur {total}. Ce n'est pas encore ça, et c'est normal : on apprend en essayant. Reviens plus tard, on le refera ensemble. Il faut {pct} % de bonnes réponses pour gagner la carte."
       }
     }
   }

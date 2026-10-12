@@ -1,5 +1,5 @@
 // Sound policy: every sound variant in SOUND_FILES exists as webm and mp3, is listed in LICENSES.md,
-// and the whole folder stays under 1 MB.
+// and the whole folder stays under 400 KB.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +23,7 @@ for (const n of names) {
   }
   if (!license.includes(`| ${n} |`)) errors.push(`${n} not listed in LICENSES.md`);
 }
-if (total > 1024 * 1024) errors.push('sounds folder over 1 MB');
+if (total > 400 * 1024) errors.push('sounds folder over 400 KB');
 if (errors.length) {
   console.error('Sound check failed:\n' + errors.map((e) => '  ' + e).join('\n'));
   process.exit(1);

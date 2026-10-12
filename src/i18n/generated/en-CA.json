@@ -16,7 +16,6 @@
         "needAdultTitle": "A grown-up needs to log in first",
         "needAdultText": "To play, a grown-up logs in once on this device and creates your profile. After that you can play on your own.",
         "needAdultAction": "I am a grown-up",
-        "demoPins": "Demo mode: the Zoé profile opens with the code 1234. Max does not have a parent's permission yet. Profiles you create keep the code you choose.",
         "who": "Who is playing today?",
         "none": "No profile yet. Ask a grown-up to create one.",
         "pinProtected": "Protected by a code",
@@ -96,7 +95,31 @@
         "growth": "Your growth",
         "growthLine": "Chapters finished this week: {now} (before: {before}).",
         "skillsLine": "New skills: {now} (before: {before}).",
-        "grownUps": "Grown-ups area"
+        "grownUps": "Grown-ups area",
+        "voice": {
+          "title": "Voice and help",
+          "voice": "Read aloud",
+          "voiceHint": "Stories and hints can be heard.",
+          "hints": "Little nudges",
+          "hintsHint": "A gentle hint when you think for a while.",
+          "delay": "Hint after",
+          "delayUnit": "{n} s",
+          "volume": "Hint volume",
+          "low": "Soft",
+          "medium": "Medium",
+          "normal": "Normal",
+          "test": "Test the voice",
+          "sample": "Hello! I am your voice for the stories. Ready to go?",
+          "using": "Chosen voice: {name}",
+          "noVoice": "No voice found on this device.",
+          "tapToHear": "Tap the screen to hear it."
+        },
+        "account": {
+          "title": "Who is playing?",
+          "hint": "Switch player, or sign the device out. When a grown-up signs out, everything the device remembered is erased.",
+          "switch": "Switch player",
+          "signOut": "Sign the device out (grown-up)"
+        }
       },
       "story": {
         "pause": "Take a break",
@@ -132,6 +155,10 @@
       },
       "celebrate": {
         "title": "Challenge done!"
+      },
+      "done": {
+        "noCard": "No card this time. You need at least {pct}% right answers to win it. Play this chapter again, you can do it!",
+        "missed": "You found {right} right answer{right, plural, one {} other {s}} out of {total}. Not quite yet, and that is fine: we learn by trying. Come back later and we will do it together. You need {pct}% right answers to win the card."
       }
     },
     "parentGate": {
@@ -503,6 +530,91 @@
       "detour": "An unexpected detour",
       "surprise": "A twist in the story"
     },
+    "outcomeSim": {
+      "skip": "Skip the animation",
+      "caption": {
+        "construction": {
+          "good": {
+            "0": "There it is, the bridge holds and the trucks roll across.",
+            "1": "Well counted: the structure is strong and the road is open."
+          },
+          "bad": {
+            "0": "We saw what can happen when the numbers are too tight. You can try again, you are close.",
+            "1": "A bridge with a wrong count can give way. Good news: we can rebuild it together."
+          }
+        },
+        "nature": {
+          "good": {
+            "0": "There it is, the seed gets enough water and sun: it blooms and the bees arrive.",
+            "1": "Well counted: the garden grows and fills with life."
+          },
+          "bad": {
+            "0": "Without enough water, a plant wilts. A drop is on its way: you can try again, you are close.",
+            "1": "A wrong count can dry out a garden. No worries, we water it and start again."
+          }
+        },
+        "espace": {
+          "good": {
+            "0": "There it is, the rocket lands on the Moon and plants its flag.",
+            "1": "Good count: the landing is nice and gentle."
+          },
+          "bad": {
+            "0": "With a small slip, a rocket can miss its target. You can try again, you are close.",
+            "1": "A slightly off count changes the route. We fix the course together."
+          }
+        },
+        "cuisine": {
+          "good": {
+            "0": "There it is, the cake rises and turns a perfect gold.",
+            "1": "Good measuring: the recipe works and it smells great."
+          },
+          "bad": {
+            "0": "With the wrong amount, a cake can fall flat. You can try again, you are close.",
+            "1": "A badly measured recipe happens to great chefs too. We start a fresh batch."
+          }
+        },
+        "sport": {
+          "good": {
+            "0": "There it is, the ball flies into the net and the crowd jumps for joy.",
+            "1": "Well aimed: it is a goal, and everyone is celebrating."
+          },
+          "bad": {
+            "0": "A shot that is off can hit the post. You can try again, you are close.",
+            "1": "The ball just brushed the goal. Great players always try again."
+          }
+        },
+        "medecine": {
+          "good": {
+            "0": "There it is, the right dose helps: the heart is steady and the patient smiles.",
+            "1": "Good count: the patient feels better, thanks to you."
+          },
+          "bad": {
+            "0": "A dose that is off can upset the heart rhythm. The nurse reassures, and you can try again.",
+            "1": "We saw why counting well matters. We are here to help, you are close."
+          }
+        },
+        "science": {
+          "good": {
+            "0": "There it is, the mix is right: the flask glows and bubbles.",
+            "1": "Well measured: the reaction works right before your eyes."
+          },
+          "bad": {
+            "0": "With the wrong mix, the reaction fizzles. A tiny pop, nothing serious: you can try again.",
+            "1": "Scientists miss often before they succeed. Let's redo the experiment together."
+          }
+        },
+        "echecs": {
+          "good": {
+            "0": "There it is, checkmate: the crown is yours.",
+            "1": "Well played: your plan works all the way."
+          },
+          "bad": {
+            "0": "A piece can get stuck when we count wrong. Look, the knight has another path.",
+            "1": "We saw the trap. There is always another route, you are close."
+          }
+        }
+      }
+    },
     "questCard": {
       "title": "Daily quest",
       "available": "A few old stories could use your help.",
@@ -539,6 +651,38 @@
         "detail": "Well done, that's it for today."
       }
     },
+    "scenePicture": {
+      "item": {
+        "nature": "{n, plural, one {seed} other {seeds}}",
+        "espace": "{n, plural, one {star} other {stars}}",
+        "cuisine": "{n, plural, one {egg} other {eggs}}",
+        "sport": "{n, plural, one {ball} other {balls}}",
+        "construction": "{n, plural, one {brick} other {bricks}}",
+        "medecine": "{n, plural, one {pill} other {pills}}",
+        "science": "{n, plural, one {crystal} other {crystals}}",
+        "echecs": "{n, plural, one {pawn} other {pawns}}"
+      },
+      "alt": {
+        "add": "{a} {ia} and {b} {ib}, to put together.",
+        "sub": "{total} {it}, {removed} of them going away.",
+        "missing": "{known} {ik} and an empty spot for {missing} more.",
+        "mul": "{rows} rows of {cols} {it}.",
+        "div": "{total} {it} shared into {bowls} bowls, {rem, plural, =0 {nothing left over} other {# left over}}.",
+        "line": "A number line from 0 to {max} with a marker on {value}."
+      }
+    },
+    "storyCard": {
+      "flip": "{title}. Turn the card over.",
+      "rarity": {
+        "common": "Story",
+        "rare": "Rare",
+        "epic": "Epic"
+      },
+      "banner": {
+        "gift": "Gift"
+      },
+      "giftBack": "A little gift, just for you. Keep it close!"
+    },
     "streakBadge": {
       "days": "{count, plural, one {story day} other {story days}}",
       "fresh": "A new streak is waiting"
@@ -553,6 +697,48 @@
     "worldTeaser": {
       "open": "Explore this world"
     }
+  },
+  "coach": {
+    "ARI-OPE-A02a": [
+      "Try splitting each number into tens and ones. Add the tens first, then the ones.",
+      "Start with the bigger number in your head, then add the other one in small steps.",
+      "Draw bundles of ten and little dots. What do you get when you put them together?"
+    ],
+    "ARI-OPE-A03a": [
+      "Think of a round number close by. How could it help you?",
+      "Break the problem into two small, easy steps. You can say them out loud.",
+      "Count in jumps of ten, then in jumps of one. Where do you land?"
+    ],
+    "ARI-OPE-A05": [
+      "Something is missing in the equal sign puzzle. What do you already know about both sides?",
+      "Try going backwards. Which operation undoes the one you see?",
+      "Put a small number in the empty box to test it. Do both sides match?"
+    ],
+    "ARI-OPE-A06a": [
+      "Multiplying means equal groups. Can you draw the groups?",
+      "Count in jumps, like 2, 4, 6. How many jumps do you need?",
+      "Maybe you know a table next door. How could it help you?"
+    ],
+    "ARI-OPE-A07a": [
+      "How many times does the small number fit in the big one without going over?",
+      "Make groups one by one with little drawings. What is left at the end?",
+      "Use your times table to get close to the big number. What is left over?"
+    ],
+    "ARI-SOP-A03a": [
+      "Imagine sharing with friends, one thing at a time. What happens?",
+      "Draw the groups or the shares. How many are in each one?",
+      "What are you looking for: the number of groups or the size of one group?"
+    ],
+    "ARI-SEN-A01c": [
+      "Read the number in slices, from right to left. What is each digit worth?",
+      "Look at where each digit sits: ones, tens, hundreds, thousands.",
+      "Compare the digits one by one from the left. Where is the first difference?"
+    ],
+    "generic": [
+      "Take your time. What do you notice in the story?",
+      "Read the question again, nice and slow. Which numbers matter?",
+      "Try a quick drawing of what is happening. It often helps!"
+    ]
   },
   "lines": {
     "mascot": {
@@ -614,9 +800,13 @@
         "Hello! Ready for a new story?",
         "There you are, I saved your spot.",
         "Good day, explorer!",
-        "Hey, what a lovely surprise!",
         "Settle in, there's lots to discover.",
-        "Glad you're here."
+        "Glad you're here.",
+        "Hey {name}, what a nice surprise to see you!",
+        "Hi {name}, so happy you are back!",
+        "{name}, your adventure was waiting.",
+        "There you are, {name}! I kept your seat.",
+        "Hello {name}, ready for a new story?"
       ],
       "exit": [
         "Your story is waiting, come back any time.",

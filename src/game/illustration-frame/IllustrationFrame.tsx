@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/cn';
 import { WorldScene } from '@/game/world-scene';
@@ -33,10 +34,14 @@ export type IllustrationFrameProps = {
   src?: string | null;
   alt: string;
   mood?: IllustrationMood;
+  /** Drawn over the scene, e.g. a ScenePicture. The frame keeps its alt. */
+  picture?: ReactNode;
+  /** Free overlay (badges, sim). */
+  children?: ReactNode;
   className?: string;
 };
 
-export function IllustrationFrame({ world, src, alt, mood = 'idle', className }: IllustrationFrameProps) {
+export function IllustrationFrame({ world, src, alt, mood = 'idle', picture, children, className }: IllustrationFrameProps) {
   return (
     <div
       className={cn(
@@ -54,6 +59,8 @@ export function IllustrationFrame({ world, src, alt, mood = 'idle', className }:
           </div>
         )}
       </div>
+      {picture && <div className="absolute inset-0 flex items-center justify-center overflow-auto p-2">{picture}</div>}
+      {children && <div className="absolute inset-0">{children}</div>}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 to-transparent"

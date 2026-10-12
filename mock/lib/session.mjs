@@ -1,31 +1,31 @@
 // World-aware chapter loop. A play is built from (world, skill, seed): numbers and wording change on every
 // play, and everything is recomputed from the compact state d.sess = {id, c, w, k, seed, n, a, len, st, ti, kd?}
 // (n beats served, a outcome codes c/t/r). Beats never carry the answer.
-import { KIT, HOOKS } from './kit.mjs';
+import { KIT } from './kit.mjs';
 
 const NOW = '2026-10-12T14:00:00Z';
 const LEN = 3;
 
 // [id, fr, en, code, misconception fr, misconception en, detour nudge fr, detour nudge en]
 export const SKILLS = [
-  ['ARI-OPE-A02a', 'Additions rapides', 'Quick sums', 'retenue_oubliee', 'Oublie la retenue dans une addition', 'Forgets the carry in an addition', 'Quand les unités dépassent dix, une dizaine file vers la colonne d’à côté.', 'When the ones go past ten, a ten slides over to the next column.'],
-  ['ARI-OPE-A03a', 'Calcul mental', 'Mental math', 'petit_moins_grand', 'Soustrait toujours le plus petit chiffre du plus grand', 'Always subtracts the smaller digit from the larger one', 'Si le chiffre du haut est plus petit, on emprunte une dizaine au voisin.', 'When the top digit is smaller, you borrow a ten from its neighbor.'],
-  ['ARI-OPE-A05', 'Le terme manquant', 'The missing term', 'addition_au_lieu_soustraction', 'Additionne au lieu de soustraire pour trouver le terme manquant', 'Adds instead of subtracting to find the missing term', 'Pour trouver ce qui manque, on retire ce qu’on a déjà du total.', 'To find what is missing, take what you already have away from the total.'],
-  ['ARI-OPE-A06a', 'Les tables', 'Times tables', 'addition_au_lieu_multiplication', 'Additionne les deux nombres au lieu de les multiplier', 'Adds the two numbers instead of multiplying them', 'Des groupes égaux se comptent en multipliant, pas en additionnant les deux nombres.', 'Equal groups are counted by multiplying, not by adding the two numbers.'],
-  ['ARI-SOP-A03a', 'Partager et grouper', 'Share and group', 'soustraction_au_lieu_division', 'Soustrait au lieu de partager en parts égales', 'Subtracts instead of sharing equally', 'Partager en parts égales, c’est chercher ce que chacun reçoit, pas ce qui reste.', 'Sharing equally means finding what each one gets, not what is left over.'],
-  ['ARI-OPE-A07a', 'Division avec reste', 'Division with remainder', 'reste_ignore', 'Ignore le reste dans une division', 'Ignores the remainder in a division', 'Ce qui ne remplit pas un groupe entier existe quand même : c’est le reste.', 'What does not fill a whole group still counts: that is the remainder.'],
-  ['ARI-SEN-A01c', 'Grands nombres', 'Big numbers', 'retenue_grands_nombres', 'Oublie la retenue avec les grands nombres', 'Forgets the carry with big numbers', 'Dix centaines font un millier : cette retenue compte aussi.', 'Ten hundreds make a thousand: that carry counts too.'],
+  ['ARI-OPE-A02a', 'Additions rapides', 'Quick sums', 'retenue_oubliee', 'Oublie la retenue dans une addition', 'Forgets the carry in an addition', 'Quand les unités dépassent dix, on ajoute une dizaine à gauche.', 'When the ones go past ten, you add one ten on the left.'],
+  ['ARI-OPE-A03a', 'Calcul mental', 'Mental math', 'petit_moins_grand', 'Soustrait toujours le plus petit chiffre du plus grand', 'Always subtracts the smaller digit from the larger one', 'Si le chiffre du haut est trop petit, on prend une dizaine à côté.', 'If the top digit is too small, you borrow one ten from the next column.'],
+  ['ARI-OPE-A05', 'Le terme manquant', 'The missing term', 'addition_au_lieu_soustraction', 'Additionne au lieu de soustraire pour trouver le terme manquant', 'Adds instead of subtracting to find the missing term', 'Pour trouver ce qui manque, on enlève ce qu’on a du total.', 'To find what is missing, you take what you have away from the total.'],
+  ['ARI-OPE-A06a', 'Les tables', 'Times tables', 'addition_au_lieu_multiplication', 'Additionne les deux nombres au lieu de les multiplier', 'Adds the two numbers instead of multiplying them', 'Avec des groupes égaux, on multiplie au lieu d’additionner.', 'With equal groups, you multiply instead of adding.'],
+  ['ARI-SOP-A03a', 'Partager et grouper', 'Share and group', 'soustraction_au_lieu_division', 'Soustrait au lieu de partager en parts égales', 'Subtracts instead of sharing equally', 'Partager, c’est chercher la part de chacun, pas ce qui reste.', 'Sharing means finding each one’s part, not what is left.'],
+  ['ARI-OPE-A07a', 'Division avec reste', 'Division with remainder', 'reste_ignore', 'Ignore le reste dans une division', 'Ignores the remainder in a division', 'Ce qui ne remplit pas un groupe, c’est le reste. Il compte aussi.', 'What does not fill a group is the remainder. It counts too.'],
+  ['ARI-SEN-A01c', 'Grands nombres', 'Big numbers', 'retenue_grands_nombres', 'Oublie la retenue avec les grands nombres', 'Forgets the carry with big numbers', 'Dix centaines font un millier. Cette retenue compte aussi.', 'Ten hundreds make a thousand. That carry counts too.'],
 ];
 
-// Scene sentences that embed the math context; {m} is the same math_text sent in the Question.
+// Problem statements in plain words (no symbols). {do} = "de graines" / "d’œufs". The question ends each statement.
 const MATH = {
-  'ARI-OPE-A02a': [['{h} doit réunir {a} {o} et encore {b} {o}. Pour avancer, voici le calcul : {m}', '{h} must gather {a} {o} and {b} more {o}. To move on, here is the sum: {m}'], ['Il y a {a} {o} d’un côté, {b} de l’autre, et le temps presse un peu. {h} se demande : {m}', 'There are {a} {o} on one side, {b} on the other, and time is short. {h} wonders: {m}']],
-  'ARI-OPE-A03a': [['{h} a {a} {o} et en donne {b}. Pas de papier ici, tout se passe dans la tête : {m}', '{h} has {a} {o} and gives away {b}. No paper here, it all happens in the head: {m}'], ['Dans son sac, {h} compte {a} {o}, mais {b} doivent partir. Un calcul de tête s’impose : {m}', 'In the bag, {h} counts {a} {o}, but {b} have to go. A mental calculation is needed: {m}']],
-  'ARI-OPE-A05': [['{h} possède déjà {a} {o}, mais il en faut {c} en tout. Que manque-t-il ? Voici le calcul : {m}', '{h} already has {a} {o}, but {c} are needed in all. What is missing? Here is the calculation: {m}'], ['Le compte doit atteindre {c} {o}, et {h} en a déjà réuni {a}. Il reste un trou à combler : {m}', 'The count must reach {c} {o}, and {h} has already gathered {a}. There is a gap to fill: {m}']],
-  'ARI-OPE-A06a': [['Devant {h}, il y a {b} paniers, avec {a} {o} dans chacun. Le total se calcule ainsi : {m}', 'In front of {h} stand {b} baskets, with {a} {o} in each one. The total is found like this: {m}'], ['{h} aligne {b} rangées de {a} {o}. Chaque rangée est identique, et le calcul s’écrit : {m}', '{h} lines up {b} rows of {a} {o}. Every row is identical, and the calculation reads: {m}']],
-  'ARI-SOP-A03a': [['{h} doit partager {N} {o} en {k} groupes égaux, sans en oublier un seul. Voici le calcul : {m}', '{h} has to share {N} {o} into {k} equal groups, without forgetting a single one. Here is the calculation: {m}'], ['{N} {o} attendent d’être répartis entre {k} équipes, à parts égales. {h} réfléchit : {m}', '{N} {o} are waiting to be split among {k} teams, in equal parts. {h} thinks: {m}']],
-  'ARI-OPE-A07a': [['{h} range {N} {o} dans des sacs de {k}. Combien de sacs pleins, et que reste-t-il ? {m}', '{h} packs {N} {o} into bags of {k}. How many full bags, and what is left? {m}'], ['Avec {N} {o} en groupes de {k}, tout ne rentre pas pile. Combien de groupes, et que reste-t-il ? {m}', 'With {N} {o} in groups of {k}, not everything fits. How many groups, and what is left over? {m}']],
-  'ARI-SEN-A01c': [['{h} a ramassé {a} {o}, puis {b} de plus au même endroit. Voici le grand total à trouver : {m}', '{h} collected {a} {o}, then {b} more at the same spot. Here is the big total to find: {m}'], ['Le compteur affiche {a} {o}, et une nouvelle livraison de {b} vient d’arriver. Que lit-on ensuite ? {m}', 'The counter shows {a} {o}, and a new delivery of {b} has just arrived. What does it read next? {m}']],
+  'ARI-OPE-A02a': [['{h} a {a} {o}. {h} en trouve {b} de plus. Combien {do} y a-t-il en tout ?', '{h} has {a} {o}. {h} finds {b} more. How many {o} are there in all?'], ['La première boîte a {a} {o}. La seconde en a {b}. Combien {do} en tout ?', 'The first box has {a} {o}. The second box has {b}. How many {o} in all?']],
+  'ARI-OPE-A03a': [['{h} avait {a} {o}. {h} en donne {b}. Combien lui en reste-t-il ?', '{h} had {a} {o}. {h} gives away {b}. How many are left?'], ['Il y a {a} {o} dans le sac. On en enlève {b}. Combien en reste-t-il ?', 'There are {a} {o} in the bag. {b} are taken out. How many are left?']],
+  'ARI-OPE-A05': [['{h} a {a} {o}. {h} veut en avoir {c}. Combien lui en manque-t-il ?', '{h} has {a} {o}. {h} wants to have {c}. How many more are needed?'], ['Il faut {c} {o} en tout. Il y en a déjà {a}. Combien en manque-t-il ?', '{c} {o} are needed in all. There are already {a}. How many are missing?']],
+  'ARI-OPE-A06a': [['Il y a {b} rangées de {a} {o}. Combien {do} en tout ?', 'There are {b} rows of {a} {o}. How many {o} in all?'], ['{h} a {b} paniers. Il y a {a} {o} dans chaque panier. Combien {do} en tout ?', '{h} has {b} baskets. Each basket holds {a} {o}. How many {o} in all?']],
+  'ARI-SOP-A03a': [['On partage {N} {o} entre {k} boîtes. Combien {do} dans chaque boîte ?', 'We share {N} {o} between {k} boxes. How many in each box?'], ['{h} a {N} {o}. {h} les range en {k} tas égaux. Combien {do} dans chaque tas ?', '{h} has {N} {o}. {h} makes {k} equal piles. How many {o} in each pile?']],
+  'ARI-OPE-A07a': [['{h} a {N} {o}. {h} remplit des sacs de {k}. Combien de sacs pleins ? Il en reste combien ?', '{h} has {N} {o}. {h} fills bags of {k}. How many full bags? How many are left over?'], ['On range {N} {o} par groupes de {k}. Combien de groupes pleins ? Il en reste combien ?', '{N} {o} go into groups of {k}. How many full groups? How many are left over?']],
+  'ARI-SEN-A01c': [['{h} a ramassé {a} {o}. {h} en ramasse {b} de plus. Combien {do} en tout ?', '{h} collected {a} {o}. {h} collects {b} more. How many {o} in all?'], ['Le compteur montre {a} {o}. On en ajoute {b}. Combien {do} maintenant ?', 'The counter shows {a} {o}. {b} more come in. How many {o} now?']],
 };
 
 // Deterministic helpers
@@ -115,15 +115,15 @@ const heroOf = (s) => KIT[s.w].h[h(s.seed, 1) % KIT[s.w].h.length];
 
 function fill(text, s, en, extra = {}) {
   const kit = KIT[s.w], hero = heroOf(s), L = en ? 1 : 0;
-  const slots = { h: hero[0], r: hero[1 + L], p: kit.p[L], o: kit.o[L], ...extra };
-  return text.replace(/\{(\w+)\}/g, (_, k) => slots[k] ?? '');
+  const o = kit.o[L], slots = { h: hero[0], r: hero[1 + L], p: kit.p[L], o, do: (/^[aeiouhœéèêàâîôû]/i.test(o) ? 'd’' : 'de ') + o, ...extra };
+  return text.replace(/\{(\w+)\}/g, (_, k) => slots[k] ?? '').replace(/\bde ([AEIOUÉ])/g, en ? 'de $1' : 'd’$1');
 }
 const pick = (arr, s, i, salt) => arr[h(s.seed, i, salt) % arr.length];
 
 export function sceneText(s, i, en) {
   const kit = KIT[s.w], p = problemFor(s.k, s.seed, i), L = en ? 1 : 0;
-  const parts = [pick(kit.op, s, i, 11), pick(MATH[s.k], s, i, 12), pick(HOOKS, s, i, 13)].map((t) => t[L]);
-  return parts.map((t) => fill(t, s, en, { ...p.v, m: p.m[L] })).join(' ');
+  const parts = [pick(kit.op, s, i, 11), pick(MATH[s.k], s, i, 12)].map((t) => t[L]);
+  return parts.map((t) => fill(t, s, en, p.v)).join(' ');
 }
 
 export function denouementText(s, i, outcome, en) {
@@ -141,10 +141,20 @@ function beatOf(s, i, en) {
   const p = problemFor(s.k, s.seed, i);
   return { id: uuid(s.seed, 10 + i), session_id: s.id, index: i, skill_id: s.k, question: { math_text: p.m[en ? 1 : 0], choices: p.choices }, scene: { status: 'pending', text: null, illustration_url: null }, created_at: NOW };
 }
-const sessionOut = (s, en, withBeat = true) => ({
+// Share of right answers (first-try 'c' codes in s.a) against the card threshold; derived, so the cookie state stays compact.
+const scoreOf = (s, thr) => {
+  const total = s.a.length, correct = [...s.a].filter((x) => x === 'c').length, pct = total ? Math.round((1000 * correct) / total) / 10 : 0;
+  return { correct, total, pct, threshold_pct: thr, card_awarded: total > 0 && pct >= thr };
+};
+const thresholdOf = (req) => {
+  const v = String(req.headers['x-card-threshold-pct'] ?? '').trim();
+  return /^\d+$/.test(v) && Number(v) <= 100 ? Number(v) : 70;
+};
+const sessionOut = (s, en, withBeat = true, score) => ({
   id: s.id, child_id: s.c, world: s.w, kind: s.kd ?? 'chapter', status: s.st, chapter_length: s.len, beats_answered: s.a.length,
   current_beat: withBeat && s.n > s.a.length ? beatOf(s, s.n - 1, en) : null,
   story_title: titleOf(s, en), started_at: NOW, ended_at: s.st === 'completed' ? NOW : null,
+  ...(score ? { score } : {}),
 });
 const beatIndex = (s, beatId) => [0, 1, 2].find((i) => uuid(s.seed, 10 + i) === beatId);
 
@@ -196,7 +206,7 @@ export function sessionRoutes(req, d, X) {
       ? `${name} and ${heroOf(s)[0]} lived “${titleOf(s, en)}” ${KIT[s.w].p[1]}. ${good} of ${s.a.length} right on the first try.`
       : `${name} et ${heroOf(s)[0]} ont vécu « ${titleOf(s, en)} » ${KIT[s.w].p[0]}. ${good} sur ${s.a.length} du premier coup.`;
     const stuck = s.a.includes('t') ? [{ code: sk[3], description: sk[4 + L], skill_ids: [sk[0]] }] : [];
-    return { plan: json(200, { session: sessionOut(s, en), duration_seconds: 180 * Math.max(1, s.a.length), story_recap: recap, skills: [{ skill_id: sk[0], label: sk[1 + L], reason: 'nouvelle', attempts: s.a.length, correct: good }], stuck_points: stuck }), d };
+    return { plan: json(200, { session: sessionOut(s, en, true, scoreOf(s, thresholdOf(req))), duration_seconds: 180 * Math.max(1, s.a.length), story_recap: recap, skills: [{ skill_id: sk[0], label: sk[1 + L], reason: 'nouvelle', attempts: s.a.length, correct: good }], stuck_points: stuck }), d };
   }
   if (method === 'POST' && ['pause', 'resume', 'finish'].includes(rest)) {
     const ns = { ...s, st: rest === 'pause' ? 'paused' : rest === 'resume' ? (s.st === 'completed' ? 'completed' : 'active') : 'completed' };
@@ -228,11 +238,12 @@ export function sessionRoutes(req, d, X) {
       const ns = { ...s, a: s.a + code };
       const done = ns.a.length >= ns.len;
       if (done) ns.st = 'completed';
+      const score = scoreOf(ns, thresholdOf(req));
       const rewards = done
-        ? [{ type: 'chapter_complete' }, { type: 'card_earned', card: { id: uuid(s.seed, 900), world: s.w, title: titleOf(s, en), image_url: '', session_id: s.id, earned_at: NOW } },
+        ? [{ type: 'chapter_complete' }, ...(score.card_awarded ? [{ type: 'card_earned', card: { id: uuid(s.seed, 900), world: s.w, title: titleOf(s, en), image_url: '', session_id: s.id, earned_at: NOW } }] : []),
           ...(ns.a === 'ccc' ? [{ type: 'skill_mastered', skill_id: s.k }] : [])]
         : [];
-      return save(ns, json(200, { outcome, correct_answer: p.correct, denouement: { status: 'pending', text: null, illustration_url: null }, session: sessionOut(ns, en, false), rewards }));
+      return save(ns, json(200, { outcome, correct_answer: p.correct, denouement: { status: 'pending', text: null, illustration_url: null }, session: sessionOut(ns, en, false, score), rewards }));
     }
   }
   return null;

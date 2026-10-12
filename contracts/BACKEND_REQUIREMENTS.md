@@ -47,3 +47,7 @@ Status values: `proposed` (not in `openapi.yaml` yet), `in-contract` (in `openap
 ## Mock coverage
 
 Every operation in `openapi.yaml` must have a WireMock mapping in `contracts/wiremock/` and typed fixtures in `contracts/fixtures/`. CI checks both.
+
+## BE-22: card threshold (admin dashboard, later)
+
+A chapter awards its card only when correct answers / answered beats >= `card_threshold_pct` (default 70). The value must be a setting owned by an admin dashboard (to be built), readable by the engine per deployment, and returned on the session summary as `score { correct, total, pct, threshold_pct, card_awarded }`. Until then the web app sends it as header `x-card-threshold-pct` (from `NEXT_PUBLIC_CARD_THRESHOLD_PCT`) and the mock honours it.

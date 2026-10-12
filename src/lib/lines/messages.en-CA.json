@@ -59,9 +59,13 @@
         "Hello! Ready for a new story?",
         "There you are, I saved your spot.",
         "Good day, explorer!",
-        "Hey, what a lovely surprise!",
         "Settle in, there's lots to discover.",
-        "Glad you're here."
+        "Glad you're here.",
+        "Hey {name}, what a nice surprise to see you!",
+        "Hi {name}, so happy you are back!",
+        "{name}, your adventure was waiting.",
+        "There you are, {name}! I kept your seat.",
+        "Hello {name}, ready for a new story?"
       ],
       "exit": [
         "Your story is waiting, come back any time.",

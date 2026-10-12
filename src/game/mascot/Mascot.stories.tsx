@@ -3,7 +3,7 @@ import { Mascot, type MascotConfig, type MascotPose, type MascotSize } from './M
 
 const on: MascotConfig = { enabled: true, kind: 'emoji', emoji: '🦊', src: '' };
 const off: MascotConfig = { ...on, enabled: false };
-const poses: MascotPose[] = ['greet', 'cheer', 'think', 'rest', 'curious', 'amazed'];
+const poses: MascotPose[] = ['greet', 'cheer', 'think', 'rest', 'curious', 'amazed', 'happy', 'sad'];
 const sizes: MascotSize[] = ['sm', 'md', 'lg'];
 
 const meta = {
@@ -75,4 +75,10 @@ export const ReducedMotion: Story = {
   args: { pose: 'cheer', speaking: true },
   globals: { motion: 'reduced' },
 };
+export const Happy: Story = { args: { pose: 'happy', size: 'lg' } };
+export const Sad: Story = { args: { pose: 'sad', size: 'lg' } };
+export const Dark: Story = { render: AllPoses.render, globals: { theme: 'dark' } };
+export const HighContrast: Story = { render: AllPoses.render, globals: { theme: 'hc' } };
+export const French: Story = { args: { pose: 'sad' }, globals: { locale: 'fr-CA' } };
+export const English: Story = { args: { pose: 'happy' }, globals: { locale: 'en-CA' } };
 export const TvScale: Story = { globals: { display: 'tv' } };

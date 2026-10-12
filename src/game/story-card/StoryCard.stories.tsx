@@ -6,6 +6,14 @@ const meta = {
   title: 'game/StoryCard',
   component: StoryCard,
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Each card gets a unique look from its id and world (`cardStyleFor`). Pointer tilt with glare, tap or Enter/Space flips to the back. Rarity by source: chapter common, challenge rare, gift epic.',
+      },
+    },
+  },
   args: {
     card: {
       id: '5f1c1b0e-0000-4000-8000-000000000001',
@@ -33,11 +41,42 @@ export const Tile: Story = {
     await expect(args.onOpen).toHaveBeenCalled();
   },
 };
-export const NotInteractive: Story = { args: { onOpen: undefined } };
-export const Reveal: Story = { args: { variant: 'reveal', onOpen: undefined } };
-export const Espace: Story = {
-  args: {
-    card: { ...meta.args.card, world: 'espace', title: 'La fusée en panne' },
+export const FlipWithKeyboard: Story = {
+  args: { onOpen: undefined },
+  play: async ({ canvasElement }) => {
+    const b = within(canvasElement).getByRole('button');
+    b.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect(b).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.keyboard(' ');
+    await expect(b).toHaveAttribute('aria-pressed', 'false');
   },
 };
+export const NotInteractive: Story = { args: { onOpen: undefined } };
+export const Reveal: Story = { args: { variant: 'reveal', onOpen: undefined } };
+export const Badge: Story = { args: { source: 'challenge' } };
+export const BadgeDark: Story = { args: { source: 'challenge' }, globals: { theme: 'dark' } };
+export const BadgeHighContrast: Story = { args: { source: 'challenge' }, globals: { theme: 'hc' } };
+export const BadgeReducedMotion: Story = { args: { source: 'challenge' }, globals: { motion: 'reduced' } };
+export const BadgeTV: Story = { args: { source: 'challenge' }, globals: { display: 'tv' } };
+export const BadgeFrench: Story = { args: { source: 'challenge' }, globals: { locale: 'fr-CA' } };
+export const BadgeEnglish: Story = { args: { source: 'challenge' }, globals: { locale: 'en-CA' } };
+export const Gift: Story = { args: { source: 'gift' } };
+export const GiftDark: Story = { args: { source: 'gift' }, globals: { theme: 'dark' } };
+export const GiftHighContrast: Story = { args: { source: 'gift' }, globals: { theme: 'hc' } };
+export const GiftReducedMotion: Story = { args: { source: 'gift' }, globals: { motion: 'reduced' } };
+export const GiftTV: Story = { args: { source: 'gift' }, globals: { display: 'tv' } };
+export const GiftFrench: Story = { args: { source: 'gift' }, globals: { locale: 'fr-CA' } };
+export const GiftEnglish: Story = { args: { source: 'gift' }, globals: { locale: 'en-CA' } };
+export const Espace: Story = {
+  args: { card: { ...meta.args.card, id: 'espace-card', world: 'espace', title: 'La fusée en panne' } },
+};
+export const Cuisine: Story = {
+  args: { card: { ...meta.args.card, id: 'cuisine-card', world: 'cuisine', title: 'La soupe de minuit' }, source: 'challenge' },
+};
+export const Dark: Story = { globals: { theme: 'dark' } };
+export const HighContrast: Story = { globals: { theme: 'hc' } };
+export const ReducedMotion: Story = { globals: { motion: 'reduced' } };
 export const TVScale: Story = { globals: { display: 'tv' } };
+export const French: Story = { globals: { locale: 'fr-CA' } };
+export const English: Story = { globals: { locale: 'en-CA' } };

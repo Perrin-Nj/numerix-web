@@ -1,5 +1,5 @@
 'use client';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { appConfig } from '@/config/app';
@@ -7,6 +7,7 @@ import { AudioProvider } from '@/lib/audio';
 import { reportError } from '@/lib/errors/bridge';
 import { ThemeProvider, type DisplayMode, type ThemeChoice } from '@/lib/theme';
 import { ErrorBridge } from '@/features/common/ErrorBridge';
+import { registerQueryClient } from '@/lib/session/clear';
 import { PwaManager } from '@/features/common/PwaManager';
 import { NotificationCenter, useNotify } from '@/ui/notification-center';
 
@@ -56,6 +57,7 @@ export function Providers({
   display: DisplayMode;
 }) {
   const [client] = useState(makeClient);
+  useEffect(() => registerQueryClient(client), [client]);
   return (
     <QueryClientProvider client={client}>
       <ThemeProvider initialTheme={theme} initialReducedMotion={reducedMotion} initialDisplay={display}>

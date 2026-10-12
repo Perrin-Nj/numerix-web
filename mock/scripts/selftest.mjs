@@ -57,7 +57,9 @@ const narrate = async (sid, bid, phase, lang = 'fr') => {
   const ev = events(r.text);
   return { ev, text: ev.filter((e) => e.ev === phase).map((e) => e.data.delta).join(''), raw: r.text, status: r.status };
 };
-const answer = (sid, bid, v) => call('POST', `/v1/sessions/${sid}/beats/${bid}/answer`, { answer: v });
+let answerHeaders = {};
+const answer = (sid, bid, v) => call('POST', `/v1/sessions/${sid}/beats/${bid}/answer`, { answer: v }, answerHeaders);
+const NO_SYMBOLS = /[+−×÷=]/;
 const pickOther = (choices, c, t) => choices.find((x) => !same(x, c) && !same(x, t));
 
 /** Plays a whole chapter. plan: array of 'c' | 't' | 'r'. narr: 's' scenes, 'd' denouements (streams take 1.2 s each). */
@@ -99,7 +101,8 @@ for (const w of WORLDS) {
   sceneByWorld[w] = (await narrate(s.id, b.id, 'scene')).text;
 }
 expect('8 worlds give 8 different scenes', new Set(Object.values(sceneByWorld)).size === 8);
-expect('scene is 40-70 words in every world', Object.values(sceneByWorld).every((t) => words(t) >= 40 && words(t) <= 70));
+expect('scene is 25-60 words in every world', Object.values(sceneByWorld).every((t) => words(t) >= 25 && words(t) <= 60));
+expect('no + − × ÷ = in scene narration', !Object.values(sceneByWorld).some((t) => NO_SYMBOLS.test(t)));
 expect('no em dash in scenes', !Object.values(sceneByWorld).join(' ').includes('—'));
 
 const p1 = await play('echecs', 'ARI-OPE-A06a', ['c', 'c', 'c'], 'fr', 's');
@@ -126,7 +129,8 @@ for (const skill of SKILLS) {
   const sc = (await narrate(s.id, b.id, 'scene')).text;
   const inMath = b.question.math_text.match(/\d+/g).map(Number);
   const c = Array.isArray(sol.c) ? null : sol.c;
-  expect(`${skill}: scene embeds the math text and not the answer`, sc.includes(b.question.math_text) && (c === null || inMath.includes(c) || !new RegExp(`(^|\\D)${c}(\\D|$)`).test(sc.replace(b.question.math_text, ''))));
+  const inScene = (n) => new RegExp(`(^|\\D)${n}(\\D|$)`).test(sc);
+  expect(`${skill}: scene states the numbers in words, no symbols, ends with a question, not the answer`, inMath.every(inScene) && !NO_SYMBOLS.test(sc) && sc.trim().endsWith('?') && (c === null || inMath.includes(c) || !inScene(c)));
 }
 
 // outcomes, per skill: typical error, correct, random
@@ -135,20 +139,36 @@ for (const skill of SKILLS) {
   expect(`${skill}: typical error, random error and correct are told apart`, same(o.results.map((x) => x.outcome), ['erreur_typique', 'erreur_aleatoire', 'correct']));
 }
 const mix = await play('cuisine', 'ARI-OPE-A06a', ['t', 'c', 'r'], 'fr', 'd');
-expect('chapter ends after 3 answers with chapter_complete and a card', mix.results[2].session.status === 'completed' && mix.results[2].rewards.some((x) => x.type === 'chapter_complete'));
-const card = mix.results[2].rewards.find((x) => x.type === 'card_earned')?.card;
-expect('card has world, story title and session', card && card.world === 'cuisine' && card.title === mix.results[2].session.story_title && card.session_id === mix.s.id && card.image_url === '');
+expect('chapter ends after 3 answers with chapter_complete', mix.results[2].session.status === 'completed' && mix.results[2].rewards.some((x) => x.type === 'chapter_complete'));
+expect('1 of 3 right: no card at the default 70 percent', !mix.results[2].rewards.some((x) => x.type === 'card_earned'));
 expect('mistakes: no skill_mastered', !mix.results[2].rewards.some((x) => x.type === 'skill_mastered'));
 expect('early answers carry no rewards and keep the chapter open', mix.results[0].rewards.length === 0 && mix.results[1].session.status === 'active' && mix.results[1].session.beats_answered === 2);
 expect('wrong answers still return correct_answer for the engine', mix.results.every((x) => x.correct_answer !== undefined) && mix.results[0].denouement.status === 'pending');
 const perfect = await play('medecine', 'ARI-SOP-A03a', ['c', 'c', 'c'], 'fr', 'd');
 expect('3 correct answers earn skill_mastered', perfect.results[2].rewards.some((x) => x.type === 'skill_mastered' && x.skill_id === 'ARI-SOP-A03a'));
+const card = perfect.results[2].rewards.find((x) => x.type === 'card_earned')?.card;
+expect('3 of 3 earns a card with world, story title and session', card && card.world === 'medecine' && card.title === perfect.results[2].session.story_title && card.session_id === perfect.s.id && card.image_url === '');
+expect('final answer carries score (3/3, 100, threshold 70, card awarded)', same(perfect.results[2].session.score, { correct: 3, total: 3, pct: 100, threshold_pct: 70, card_awarded: true }));
+const two = await play('sport', 'ARI-OPE-A06a', ['c', 'c', 't']);
+expect('2 of 3 (66.7 percent) earns no card at 70 and no skill_mastered', !two.results[2].rewards.some((x) => x.type === 'card_earned' || x.type === 'skill_mastered') && two.results[2].rewards.some((x) => x.type === 'chapter_complete'));
+expect('score shows 2/3, 66.7, card_awarded false', same(two.results[2].session.score, { correct: 2, total: 3, pct: 66.7, threshold_pct: 70, card_awarded: false }));
+answerHeaders = { 'x-card-threshold-pct': '50' };
+const lenient = await play('sport', 'ARI-OPE-A06a', ['c', 'c', 't']);
+expect('threshold 50 header: 2 of 3 earns a card', lenient.results[2].rewards.some((x) => x.type === 'card_earned') && lenient.results[2].session.score.threshold_pct === 50 && lenient.results[2].session.score.card_awarded === true);
+answerHeaders = { 'x-card-threshold-pct': 'abc' };
+const bad = await play('sport', 'ARI-OPE-A06a', ['c', 'c', 't']);
+expect('invalid threshold header falls back to 70', bad.results[2].session.score.threshold_pct === 70 && !bad.results[2].rewards.some((x) => x.type === 'card_earned'));
+answerHeaders = { 'x-card-threshold-pct': '100' };
+const strict = await play('sport', 'ARI-OPE-A06a', ['c', 'c', 'c']);
+expect('threshold 100: 3 of 3 still earns a card', strict.results[2].rewards.some((x) => x.type === 'card_earned'));
+answerHeaders = {};
 expect('story title is per world kit and bilingual', perfect.results[2].session.story_title && perfect.s.story_title === perfect.results[2].session.story_title);
 const enPlay = await play('medecine', 'ARI-OPE-A07a', ['c', 't', 'r'], 'en-CA', 'sd');
 expect('english play: english math text, scenes and titles', enPlay.maths[0].includes('with remainder') && /^[\x00-\x7F’“”]+$/.test(enPlay.scenes[0].replace(/[^\x00-\x7F’“”]/g, '')) && enPlay.scenes[0] !== '' && enPlay.results[2].session.story_title !== perfect.results[2].session.story_title);
 
 const dwords = [...mix.dens, ...perfect.dens, ...enPlay.dens].map(words);
-expect('denouement is 25-45 words', dwords.every((n) => n >= 25 && n <= 45));
+expect('denouement is 15-45 words', dwords.every((n) => n >= 15 && n <= 45));
+expect('no + − × ÷ = in denouements', ![...mix.dens, ...perfect.dens, ...enPlay.dens].some((t) => NO_SYMBOLS.test(t)));
 expect('no em dash in denouements', ![...mix.dens, ...perfect.dens, ...enPlay.dens].join(' ').includes('—'));
 const [dT, dC, dR] = mix.dens;
 expect('denouement depends on the outcome', new Set([dT, dC, dR]).size === 3);

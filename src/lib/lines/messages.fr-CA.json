@@ -59,9 +59,13 @@
         "Coucou ! Prêt pour une nouvelle histoire ?",
         "Te voilà, j'avais gardé ta place.",
         "Bonjour, explorateur !",
-        "Hé, quelle bonne surprise de te voir !",
         "Installe-toi, on a plein de choses à découvrir.",
-        "Ravi que tu sois là."
+        "Ravi que tu sois là.",
+        "Hé {name}, quelle bonne surprise de te voir !",
+        "Salut {name}, content de te revoir !",
+        "{name}, ton aventure t'attendait.",
+        "Te voilà, {name} ! J'avais gardé ta place.",
+        "Bonjour {name}, prêt pour une nouvelle histoire ?"
       ],
       "exit": [
         "Ton histoire t'attend, reviens quand tu veux.",

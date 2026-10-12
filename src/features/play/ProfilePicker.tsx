@@ -1,8 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { appConfig } from '@/config/app';
 import { ApiError, setApiMode } from '@/lib/api/client';
 import { reportError } from '@/lib/errors/bridge';
 import { useChildren, useChildToken, useSessionStatus, signOut } from '@/features/api/hooks';
@@ -13,6 +12,7 @@ import { Dialog } from '@/ui/dialog';
 import { PinInput } from '@/ui/pin-input';
 import { Reveal } from '@/ui/reveal';
 import { Skeleton } from '@/ui/skeleton';
+import { rememberChild } from '@/lib/game/who';
 import type { Child } from '@/lib/api/types';
 
 export function ProfilePicker() {
@@ -27,12 +27,20 @@ export function ProfilePicker() {
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState<string | undefined>();
   const [blocked, setBlocked] = useState(false);
+  const [entering, setEntering] = useState(false);
+
+  const hasChild = Boolean(status.data?.child);
+  useEffect(() => {
+    if (hasChild) router.replace('/play/home');
+  }, [hasChild, router]);
 
   async function enter(child: Child, withPin?: string) {
     try {
       await token.mutateAsync({ id: child.id, pin: withPin });
       setApiMode('child');
+      rememberChild(child.id, child.display_name);
       setPinFor(null);
+      setEntering(true);
       router.push('/play/home');
     } catch (e) {
       if (e instanceof ApiError && e.code === 'invalid_pin') {
@@ -52,10 +60,8 @@ export function ProfilePicker() {
     } else void enter(child);
   }
 
-  if (status.data && !status.data.parent && status.data.child) {
-    router.replace('/play/home');
-    return null;
-  }
+  // A profile is already chosen on this device: go straight to play. Switching player lives in the Me screen.
+  if (entering || status.data?.child) return null;
 
   if (status.data && !status.data.parent) {
     return (
@@ -103,8 +109,6 @@ export function ProfilePicker() {
           </li>
         ))}
       </ul>
-
-      {appConfig.useMock && <p className="rounded-md bg-sunken p-3 text-sm text-muted">{t('demoPins')}</p>}
 
       <div className="flex flex-wrap gap-3">
         <Button variant="ghost" onClick={() => router.push('/parent')}>

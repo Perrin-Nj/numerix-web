@@ -10,8 +10,7 @@
       "picker": {
         "needAdultTitle": "A grown-up needs to log in first",
         "needAdultText": "To play, a grown-up logs in once on this device and creates your profile. After that you can play on your own.",
-        "needAdultAction": "I am a grown-up",
-        "demoPins": "Demo mode: the Zoé profile opens with the code 1234. Max does not have a parent's permission yet. Profiles you create keep the code you choose."
+        "needAdultAction": "I am a grown-up"
       }
     }
   }

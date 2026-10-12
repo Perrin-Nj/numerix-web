@@ -23,6 +23,12 @@ export const SOUND_NAMES = [
   'tick',
   'minimize',
   'maximize',
+  'collapse',
+  'rumble',
+  'splash',
+  'sparkle',
+  'whoosh',
+  'gift_open',
 ] as const;
 export type SoundName = (typeof SOUND_NAMES)[number];
 

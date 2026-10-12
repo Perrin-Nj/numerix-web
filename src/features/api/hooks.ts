@@ -1,4 +1,5 @@
 'use client';
+import { clearLocalState } from '@/lib/session/clear';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useLocale } from 'next-intl';
@@ -51,6 +52,7 @@ export async function signOut(scope: 'child' | 'all') {
   const res = await fetch(`/api/session?scope=${scope}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Sign out failed');
   // forget cached child data on this device
+  clearLocalState(scope);
   if ('serviceWorker' in navigator) navigator.serviceWorker.controller?.postMessage('CLEAR_DATA');
 }
 

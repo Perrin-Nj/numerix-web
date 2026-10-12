@@ -33,6 +33,36 @@
       },
       "celebrate": {
         "title": "Challenge done!"
+      },
+      "me": {
+        "voice": {
+          "title": "Voice and help",
+          "voice": "Read aloud",
+          "voiceHint": "Stories and hints can be heard.",
+          "hints": "Little nudges",
+          "hintsHint": "A gentle hint when you think for a while.",
+          "delay": "Hint after",
+          "delayUnit": "{n} s",
+          "volume": "Hint volume",
+          "low": "Soft",
+          "medium": "Medium",
+          "normal": "Normal",
+          "test": "Test the voice",
+          "sample": "Hello! I am your voice for the stories. Ready to go?",
+          "using": "Chosen voice: {name}",
+          "noVoice": "No voice found on this device.",
+          "tapToHear": "Tap the screen to hear it."
+        },
+        "account": {
+          "title": "Who is playing?",
+          "hint": "Switch player, or sign the device out. When a grown-up signs out, everything the device remembered is erased.",
+          "switch": "Switch player",
+          "signOut": "Sign the device out (grown-up)"
+        }
+      },
+      "done": {
+        "noCard": "No card this time. You need at least {pct}% right answers to win it. Play this chapter again, you can do it!",
+        "missed": "You found {right} right answer{right, plural, one {} other {s}} out of {total}. Not quite yet, and that is fine: we learn by trying. Come back later and we will do it together. You need {pct}% right answers to win the card."
       }
     }
   }
