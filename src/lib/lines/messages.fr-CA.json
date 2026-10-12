@@ -111,6 +111,22 @@
         "L'histoire fait une pirouette",
         "Un clin d'œil du hasard"
       ]
+    },
+    "appreciation": {
+      "pass": [
+        "Bravo, chapitre réussi !",
+        "Super travail, continue comme ça !",
+        "Quelle belle réussite !",
+        "Excellent, tu progresses vite !",
+        "Génial, la carte est à toi !",
+        "Chapeau, c'était du beau travail !"
+      ],
+      "miss": [
+        "Presque ! Reviens plus tard, on réessaie ensemble.",
+        "Ce n'est pas encore ça, et c'est normal. À bientôt pour un autre essai !",
+        "On apprend en essayant. Reviens quand tu veux !",
+        "Courage ! La prochaine fois sera la bonne."
+      ]
     }
   }
 }

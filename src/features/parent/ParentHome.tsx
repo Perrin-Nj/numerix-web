@@ -4,12 +4,14 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useChildren } from '@/features/api/hooks';
 import { ParentPage } from './ParentPage';
+import { SubscriptionPill } from '@/features/common/SubscriptionPill';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { Avatar } from '@/ui/avatar';
 import { Button } from '@/ui/button';
 import { Card, CardBody, CardFooter } from '@/ui/card';
 import { Icon } from '@/ui/icon';
 import { Skeleton } from '@/ui/skeleton';
+import { ScreenState } from '@/ui/screen-state';
 
 export function ParentHome() {
   const t = useTranslations('screens.parent.home');
@@ -18,12 +20,27 @@ export function ParentHome() {
 
   return (
     <ParentPage title={t('title')}>
-      {children.isLoading && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Skeleton height={160} />
-          <Skeleton height={160} />
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-line bg-elevated p-4">
+        <div className="flex flex-col gap-1">
+          <span className="font-display text-lg font-semibold">{t('subscription')}</span>
+          <SubscriptionPill variant="settings" href={null} />
         </div>
-      )}
+        <Button variant="secondary" iconLeft={<Icon name="settings" />} onClick={() => router.push('/parent/subscription')}>
+          {t('manageSubscription')}
+        </Button>
+      </div>
+      <ScreenState
+        isLoading={children.isLoading}
+        error={children.error}
+        onRetry={() => void children.refetch()}
+        area="parent"
+        skeleton={
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Skeleton height={160} />
+            <Skeleton height={160} />
+          </div>
+        }
+      >
       {children.data && children.data.length === 0 && (
         <div className="flex flex-col items-start gap-4">
           <MascotBubble pose="greet">{t('empty')}</MascotBubble>
@@ -79,6 +96,7 @@ export function ParentHome() {
           </div>
         </>
       )}
+      </ScreenState>
     </ParentPage>
   );
 }

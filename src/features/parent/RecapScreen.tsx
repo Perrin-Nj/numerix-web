@@ -4,6 +4,7 @@ import { useSessionSummary } from '@/features/api/hooks';
 import { ParentPage } from './ParentPage';
 import { Panel } from '@/ui/panel';
 import { Skeleton } from '@/ui/skeleton';
+import { ScreenState } from '@/ui/screen-state';
 
 export function RecapScreen({ childId, sessionId }: { childId: string; sessionId: string }) {
   const t = useTranslations('screens.parent.recap');
@@ -12,7 +13,7 @@ export function RecapScreen({ childId, sessionId }: { childId: string; sessionId
 
   return (
     <ParentPage title={t('title')} backHref={`/parent/children/${childId}`}>
-      {summary.isLoading && <Skeleton height={200} />}
+      <ScreenState isLoading={summary.isLoading} error={summary.error} isEmpty={!s} onRetry={() => void summary.refetch()} area="parent" skeleton={<Skeleton height={200} />}>
       {s && (
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
           <Panel title={s.session.story_title ?? t('untitled')}>
@@ -44,6 +45,7 @@ export function RecapScreen({ childId, sessionId }: { childId: string; sessionId
           </Panel>
         </div>
       )}
+      </ScreenState>
     </ParentPage>
   );
 }

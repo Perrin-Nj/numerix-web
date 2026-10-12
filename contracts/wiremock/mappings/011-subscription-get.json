@@ -1,0 +1,20 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/subscription"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "status": "trial",
+      "plan": "free",
+      "trial_ends_at": "2026-10-26T14:00:00Z",
+      "can_play": true,
+      "days_left": 14
+    }
+  }
+}

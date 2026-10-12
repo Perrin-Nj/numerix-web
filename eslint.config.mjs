@@ -18,6 +18,7 @@ const eslintConfig = defineConfig([
     "src/lib/api/schema.d.ts",
     "src/i18n/generated/**",
     "mock/**",
+    "admin/**",
   ]),
   ...storybook.configs["flat/recommended"],
   {

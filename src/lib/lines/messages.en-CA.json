@@ -111,6 +111,22 @@
         "The story does a pirouette",
         "A wink from chance"
       ]
+    },
+    "appreciation": {
+      "pass": [
+        "Bravo, chapter done!",
+        "Great work, keep it up!",
+        "What a nice win!",
+        "Excellent, you are learning fast!",
+        "Awesome, the card is yours!",
+        "Well done, that was great work!"
+      ],
+      "miss": [
+        "Almost! Come back later and we will try again together.",
+        "Not quite yet, and that is fine. See you for another try!",
+        "We learn by trying. Come back whenever you like!",
+        "Keep going! Next time will be the one."
+      ]
     }
   }
 }

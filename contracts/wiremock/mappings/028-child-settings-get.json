@@ -23,7 +23,8 @@
         "echecs"
       ],
       "read_aloud": true,
-      "sound": true
+      "sound": true,
+      "kid_can_change_language": true
     }
   }
 }

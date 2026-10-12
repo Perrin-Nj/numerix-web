@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { signOut } from '@/features/api/hooks';
 import { OfflineBanner } from '@/features/common/OfflineBanner';
+import { NotificationCenterBell } from '@/features/common/NotificationCenterBell';
+import { SubscriptionPill } from '@/features/common/SubscriptionPill';
 import { reportError } from '@/lib/errors/bridge';
 import { AppHeader } from '@/ui/app-header';
 import { Icon } from '@/ui/icon';
@@ -31,6 +33,8 @@ export function ParentPage({ title, backHref, children }: Props) {
         }
         right={
           <>
+            <SubscriptionPill />
+            <NotificationCenterBell />
             <ThemeToggle variant="icon" />
             <IconButton label={t('account')} variant="ghost" icon={<Icon name="settings" />} onClick={() => router.push('/parent/account')} />
             <IconButton

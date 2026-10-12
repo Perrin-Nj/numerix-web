@@ -98,14 +98,14 @@ function Gift({ card, onClaim }: Omit<WelcomeGiftProps, 'open'>) {
           <D.Title className="font-display text-3xl font-bold md:text-4xl">{t('title')}</D.Title>
           <D.Description className="text-lg text-muted">{opened ? t('opened') : t('hint')}</D.Description>
 
-          <div className="relative flex h-[26rem] w-64 items-end justify-center [perspective:900px]">
+          <div className="relative flex h-[19rem] w-52 items-end justify-center [perspective:900px]">
             {opened && !reduced && (
               <span aria-hidden className="nx-gift-rays pointer-events-none absolute bottom-6 left-1/2 size-96 -translate-x-1/2" />
             )}
             {opened && (
               <div
                 className={cn(
-                  'absolute bottom-24 left-1/2 w-52 -translate-x-1/2 drop-shadow-xl',
+                  'absolute bottom-20 left-1/2 w-36 -translate-x-1/2 drop-shadow-xl',
                   reduced ? 'nx-gift-fade' : 'nx-gift-card',
                 )}
               >

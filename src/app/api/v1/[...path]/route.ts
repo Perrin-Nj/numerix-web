@@ -31,6 +31,8 @@ async function forward(req: NextRequest, upstream: string, token: string | undef
   if (token) headers.set('authorization', `Bearer ${token}`);
   if (appConfig.useMock) {
     headers.set('x-card-threshold-pct', String(appConfig.cardThresholdPct));
+    const email = req.cookies.get('nx_parent_email')?.value;
+    if (email) headers.set('x-mock-parent-email', decodeURIComponent(email));
     const scenario = req.cookies.get('nx_mock_scenario')?.value;
     if (scenario) headers.set('x-mock-scenario', scenario);
     // The serverless mock keeps its scenario state with the client

@@ -9,7 +9,8 @@ export type NodeState = S['NodeState'];
 export type Outcome = S['Outcome'];
 export type Reward = S['Reward'];
 export type Child = S['Child'];
-export type ChildSettings = S['ChildSettings'];
+/** `kid_can_change_language` is BE-28: absent means allowed. */
+export type ChildSettings = S['ChildSettings'] & { kid_can_change_language?: boolean };
 export type World = S['World'];
 export type Skill = S['Skill'];
 export type Journey = S['Journey'];

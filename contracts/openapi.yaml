@@ -380,6 +380,11 @@ paths:
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
+        '402':
+          description: 'subscription_inactive: unpaid, expired or ended subscription (policy block). Problem carries i18n {fr,en}{title,detail}. account_blocked is a 403.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
         '409':
           description: The child already has an active session
           content:
@@ -828,6 +833,110 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/DailyQuest' }
 
+  # ───────────────────────────── Platform (V4: BE-24, BE-25) ─────────────────────────────
+  /subscription:
+    get:
+      tags: [Parent]
+      operationId: getSubscription
+      summary: The parent's subscription (effective status and whether the family can play)
+      x-roles: [parent]
+      responses:
+        '200':
+          description: Subscription
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SubscriptionView' }
+  /subscription/plans:
+    get:
+      tags: [Parent]
+      operationId: listSubscriptionPlans
+      summary: Plans (CAD cents), bilingual features and payment methods
+      x-roles: [parent]
+      responses:
+        '200':
+          description: Plans
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanCatalog' }
+  /subscription/checkout:
+    post:
+      tags: [Parent]
+      operationId: checkoutSubscription
+      summary: Start a paid plan (BE-24). The real backend returns the processor's hosted page; the mock completes instantly.
+      x-roles: [parent]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan, method]
+              properties:
+                plan: { type: string, enum: [family_monthly, family_yearly] }
+                method: { $ref: '#/components/schemas/PaymentMethod' }
+      responses:
+        '200':
+          description: Subscription after checkout
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SubscriptionView' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /subscription/cancel:
+    post:
+      tags: [Parent]
+      operationId: cancelSubscription
+      summary: Cancel at the end of the paid period (access continues until then)
+      x-roles: [parent]
+      responses:
+        '200':
+          description: Canceled subscription
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SubscriptionView' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /notifications:
+    get:
+      tags: [Parent]
+      operationId: listNotifications
+      summary: In-app notifications of the parent (BE-25)
+      x-roles: [parent]
+      parameters:
+        - { name: audience, in: query, schema: { type: string, enum: [parent, child], default: parent } }
+      responses:
+        '200':
+          description: Notifications, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, unread_count]
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Notification' } }
+                  unread_count: { type: integer }
+  /notifications/{notificationId}/read:
+    post:
+      tags: [Parent]
+      operationId: markNotificationRead
+      summary: Mark a notification as read
+      x-roles: [parent]
+      parameters:
+        - { name: notificationId, in: path, required: true, schema: { type: string } }
+      responses:
+        '204': { description: Marked }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /platform/public:
+    get:
+      tags: [Ops]
+      operationId: getPlatformPublic
+      summary: Public platform settings (unpaid policy, card threshold, trial length)
+      security: []
+      responses:
+        '200':
+          description: Public config
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlatformPublic' }
+
   # ───────────────────────────── Ops ─────────────────────────────
   /health:
     get:
@@ -1075,6 +1184,66 @@ components:
           items: { $ref: '#/components/schemas/WorldId' }
         read_aloud: { type: boolean, description: Narration is spoken (reading levels vary from age 6 to 11) }
         sound: { type: boolean }
+        kid_can_change_language: { type: boolean, default: true, description: 'When false the kid app hides the language switch; the server returns the value with the settings (BE-28)' }
+
+    # ── Platform (V4) ──
+    PaymentMethod: { type: string, enum: [card, interac, paypal, apple_pay, google_pay] }
+    SubscriptionView:
+      type: object
+      required: [status, plan, can_play]
+      properties:
+        status: { type: string, enum: [trial, active, unpaid, expired, canceled], description: Effective status (a trial or paid period that ended reads expired) }
+        plan: { type: string, enum: [free, family_monthly, family_yearly] }
+        method: { $ref: '#/components/schemas/PaymentMethod' }
+        renews_at: { type: string, format: date-time }
+        trial_ends_at: { type: string, format: date-time }
+        marked_by_admin: { type: boolean }
+        can_play: { type: boolean, description: Kids can start chapters (also true for every family when the platform policy is allow) }
+        days_left: { type: [integer, 'null'] }
+    PlanCatalog:
+      type: object
+      required: [currency, plans, methods]
+      properties:
+        currency: { type: string, example: CAD }
+        plans:
+          type: array
+          items:
+            type: object
+            required: [id, price_cad_cents, period, name, features]
+            properties:
+              id: { type: string, enum: [free, family_monthly, family_yearly] }
+              price_cad_cents: { type: integer }
+              period: { type: string, enum: [none, month, year] }
+              name: { type: object, properties: { fr: { type: string }, en: { type: string } } }
+              features: { type: object, properties: { fr: { type: array, items: { type: string } }, en: { type: array, items: { type: string } } } }
+        methods:
+          type: array
+          items:
+            type: object
+            required: [id, label]
+            properties:
+              id: { $ref: '#/components/schemas/PaymentMethod' }
+              label: { type: object, properties: { fr: { type: string }, en: { type: string } } }
+    Notification:
+      type: object
+      required: [id, kind, title, body, created_at, read, audience]
+      properties:
+        id: { type: string }
+        kind: { type: string, enum: [play_reminder, time_limit, subscription_expiring, payment_due, announcement] }
+        title: { type: string }
+        body: { type: string }
+        created_at: { type: string, format: date-time }
+        read: { type: boolean }
+        audience: { type: string, enum: [parent, child] }
+    PlatformPublic:
+      type: object
+      required: [unpaid_policy, card_threshold_pct]
+      properties:
+        unpaid_policy: { type: string, enum: [block, allow] }
+        card_threshold_pct: { type: integer }
+        trial_days: { type: integer }
+        default_locale: { type: string }
+        features: { type: object, additionalProperties: { type: boolean } }
 
     # ── Catalog ──
     World:

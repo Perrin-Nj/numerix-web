@@ -3,6 +3,8 @@
    - Pages: network first, falling back to the offline page.
    - Read-only API data the child may browse offline (worlds, journey, collection, home): network first, cached copy as fallback.
    - Everything that changes state (answers, sessions, auth) is never cached or queued: grading needs the server. */
+importScripts('/push-sw.js'); // push and notificationclick handlers (V4, BE-26)
+
 const VERSION = 'nx-v1';
 const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;

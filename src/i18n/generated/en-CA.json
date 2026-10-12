@@ -82,7 +82,8 @@
         "unknownWorld": "This world does not exist. Go back and pick a world."
       },
       "collection": {
-        "title": "Your story cards"
+        "title": "Your story cards",
+        "retry": "Try again"
       },
       "quest": {
         "title": "Daily quest",
@@ -111,7 +112,7 @@
           "test": "Test the voice",
           "sample": "Hello! I am your voice for the stories. Ready to go?",
           "using": "Chosen voice: {name}",
-          "noVoice": "No voice found on this device.",
+          "noVoice": "No voice found on this device for this language. Ask a grown-up to add a voice in the device settings (Windows: Settings, Time and language, Speech; or open the app in Microsoft Edge, which has natural voices).",
           "tapToHear": "Tap the screen to hear it."
         },
         "account": {
@@ -119,6 +120,11 @@
           "hint": "Switch player, or sign the device out. When a grown-up signs out, everything the device remembered is erased.",
           "switch": "Switch player",
           "signOut": "Sign the device out (grown-up)"
+        },
+        "language": {
+          "title": "Language",
+          "label": "App language",
+          "locked": "A grown-up chose the app language. Ask them if you want to change it."
         }
       },
       "story": {
@@ -147,7 +153,8 @@
           "text": "Your story will be put away. You can start another one whenever you like.",
           "confirm": "Leave the game",
           "stay": "Keep playing"
-        }
+        },
+        "tapToHear": "Tap to hear the story"
       },
       "challenges": {
         "title": "Challenges",
@@ -212,6 +219,8 @@
         "play": "Play",
         "giveConsent": "Give permission",
         "overview": "Progress",
+        "subscription": "Subscription",
+        "manageSubscription": "Manage subscription",
         "pinOn": "4-digit code needed to play",
         "pinOff": "No code"
       },
@@ -304,7 +313,9 @@
           "cancel": "Cancel",
           "confirm": "Delete for good",
           "type": "To confirm, type \"{name}\""
-        }
+        },
+        "kidLanguage": "My child can change the language",
+        "kidLanguageHint": "Your child picks French or English in their menu. Turn off to keep the language you chose."
       },
       "recap": {
         "title": "Story recap",
@@ -357,6 +368,100 @@
         "guide": "Guided tour",
         "guideHint": "Show the welcome tips again for all profiles.",
         "replayGuide": "Replay the tour"
+      },
+      "subscription": {
+        "title": "Manage subscription",
+        "current": {
+          "title": "Your plan",
+          "renews": "Your plan renews on {date}.",
+          "trial": "You are trying Numerix for free. Pick a plan any time to keep playing after the trial.",
+          "unpaid": "A payment is due. Pay now so your children can keep playing.",
+          "expired": "Your plan ended. Pick a plan to start playing again. Progress is kept.",
+          "canceled": "Your plan is canceled. Your children can play until {date}.",
+          "byAdmin": "This status was set by the Numerix team."
+        },
+        "plans": {
+          "title": "Choose a plan",
+          "current": "Your plan",
+          "priceFree": "Free",
+          "perMonth": "per month, CAD",
+          "perYear": "per year, CAD",
+          "priceUnknown": "Price shown at payment",
+          "free": {
+            "name": "Free",
+            "features": [
+              "Try Numerix at no cost",
+              "A small selection of stories"
+            ]
+          },
+          "family_monthly": {
+            "name": "Family, monthly",
+            "features": [
+              "All worlds and stories",
+              "Reports for the grown-up",
+              "Cancel any time"
+            ]
+          },
+          "family_yearly": {
+            "name": "Family, yearly",
+            "features": [
+              "All worlds and stories",
+              "Reports for the grown-up",
+              "One payment for the whole year"
+            ]
+          }
+        },
+        "method": {
+          "title": "How do you want to pay?",
+          "secure": "You never type a card number here. When you continue, payment finishes on the payment provider's secure page.",
+          "mock": "In this test version, payment completes instantly and no money moves.",
+          "card": {
+            "name": "Credit or debit card",
+            "hint": "Visa, Mastercard, Amex"
+          },
+          "interac": {
+            "name": "Interac",
+            "hint": "Pay from your Canadian bank"
+          },
+          "paypal": {
+            "name": "PayPal",
+            "hint": "Use your PayPal account"
+          },
+          "apple_pay": {
+            "name": "Apple Pay",
+            "hint": "On Apple devices"
+          },
+          "google_pay": {
+            "name": "Google Pay",
+            "hint": "On Android and Chrome"
+          }
+        },
+        "actions": {
+          "subscribe": "Subscribe",
+          "change": "Change plan",
+          "cancel": "Cancel subscription",
+          "retry": "Try again",
+          "samePlan": "This is already your plan. Pick another one to change."
+        },
+        "cancelDialog": {
+          "title": "Cancel your subscription?",
+          "text": "Your children keep their progress. You can subscribe again any time.",
+          "textUntil": "Your children keep their progress and can play until {date}. You can subscribe again any time.",
+          "keep": "Keep my plan",
+          "confirm": "Yes, cancel"
+        },
+        "canceledNote": "Your subscription is canceled. You can subscribe again any time.",
+        "success": {
+          "title": "You are all set",
+          "text": "Thank you. Your children can play. You can change or cancel your plan here whenever you like.",
+          "done": "Back to the parent area"
+        },
+        "error": {
+          "title": "We could not load this",
+          "retry": "Try again",
+          "back": "Back",
+          "home": "Home"
+        }
       }
     },
     "pwa": {
@@ -460,7 +565,15 @@
       "title": "The request did not go through",
       "description": "Your connection and our servers both answer, but this request failed. Try again."
     },
-    "retry": "Try again"
+    "retry": "Try again",
+    "subscription_inactive": {
+      "title": "The subscription is not active",
+      "description": "To play, a grown-up needs to turn the subscription on in the parent area. Your progress is safe."
+    },
+    "account_blocked": {
+      "title": "The account is paused",
+      "description": "A grown-up needs to contact the Numerix team. Your progress is safe."
+    }
   },
   "worlds": {
     "nature": "Nature",
@@ -687,6 +800,16 @@
       "days": "{count, plural, one {story day} other {story days}}",
       "fresh": "A new streak is waiting"
     },
+    "subscriptionBadge": {
+      "trial": "{count, plural, =0 {Free trial ends today} one {Free trial, # day left} other {Free trial, # days left}}",
+      "active": "Active",
+      "activeUntil": "Active, renews {date}",
+      "unpaid": "Payment due",
+      "expired": "Expired",
+      "canceled": "Canceled",
+      "canceledUntil": "Canceled, access until {date}",
+      "blocked": "Account paused"
+    },
     "welcomeGift": {
       "title": "A gift is waiting for you",
       "hint": "Tap the gift to open it.",
@@ -852,6 +975,72 @@
         "The story does a pirouette",
         "A wink from chance"
       ]
+    },
+    "appreciation": {
+      "pass": [
+        "Bravo, chapter done!",
+        "Great work, keep it up!",
+        "What a nice win!",
+        "Excellent, you are learning fast!",
+        "Awesome, the card is yours!",
+        "Well done, that was great work!"
+      ],
+      "miss": [
+        "Almost! Come back later and we will try again together.",
+        "Not quite yet, and that is fine. See you for another try!",
+        "We learn by trying. Come back whenever you like!",
+        "Keep going! Next time will be the one."
+      ]
+    }
+  },
+  "lib": {
+    "notify": {
+      "reminders": {
+        "play_reminder": {
+          "title": "A story is waiting",
+          "body": "{name} has not played today. A short story only takes a few minutes."
+        },
+        "time_limit": {
+          "title": "Time limit reached",
+          "body": "{name} played {count} minutes today, the daily limit is {limit}. Play starts again tomorrow."
+        },
+        "subscription_expiring": {
+          "title": "Your plan ends soon",
+          "body": "{count, plural, =0 {Your access ends today.} one {Your access ends in # day.} other {Your access ends in # days.}} Manage your subscription to keep {name} playing."
+        },
+        "payment_due": {
+          "title": "Payment needed",
+          "body": "A payment is due. Pay now so {name} can keep playing."
+        }
+      },
+      "ui": {
+        "bell": {
+          "label": "Notifications",
+          "labelUnread": "Notifications, {count} unread",
+          "title": "Notifications",
+          "empty": "Nothing new. We will tell you here.",
+          "markAll": "Mark all as read",
+          "loadError": "We could not load your notifications.",
+          "retry": "Try again",
+          "new": "New"
+        },
+        "prompt": {
+          "title": "Get reminders on this device?",
+          "text": "We can show a short message when a plan is ending or a payment is needed. We only ask when you tap the button.",
+          "enable": "Turn on reminders",
+          "later": "Not now",
+          "granted": "Reminders are on.",
+          "denied": "Reminders are blocked in your browser settings. You still see them in the bell inside the app.",
+          "unsupported": "This browser cannot show reminders. You still see them in the bell inside the app.",
+          "push": {
+            "unsupported": "Reminders will show while the app is open. This browser cannot send them when it is closed.",
+            "no_key": "Reminders will show while the app is open. Reminders when the app is closed are not set up yet.",
+            "no_endpoint": "Reminders will show while the app is open. Reminders when the app is closed are not available yet on our side.",
+            "failed": "Reminders will show while the app is open. We could not turn on reminders for when the app is closed. Try again later.",
+            "permission": "Reminders will show while the app is open."
+          }
+        }
+      }
     }
   },
   "ui": {
@@ -914,6 +1103,32 @@
       "errorHint": "Check your connection, then try again.",
       "retry": "Try again",
       "end": "You have seen it all."
+    }
+  },
+  "errorScreen": {
+    "home": "Go home",
+    "details": "Technical details",
+    "detailsHint": "For a grown-up. Share this if you contact us.",
+    "code": "Code",
+    "status": "Status",
+    "reference": "Reference",
+    "play": {
+      "generic": "Oops, a little bump",
+      "offline": "The internet is taking a nap",
+      "timeout": "This is taking a while",
+      "notfound": "Oh! We got a bit lost",
+      "permission": "That door is for grown-ups"
+    }
+  },
+  "screenState": {
+    "loading": "Loading",
+    "slow": {
+      "title": "This is taking longer than usual",
+      "description": "Nothing is lost. Wait a little, try again, or go back."
+    },
+    "empty": {
+      "title": "Nothing here yet",
+      "description": "Come back soon, or go home."
     }
   }
 }

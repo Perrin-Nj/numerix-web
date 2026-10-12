@@ -655,6 +655,125 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The parent's subscription (effective status and whether the family can play) */
+        get: operations["getSubscription"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/subscription/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Plans (CAD cents), bilingual features and payment methods */
+        get: operations["listSubscriptionPlans"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/subscription/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start a paid plan (BE-24). The real backend returns the processor's hosted page; the mock completes instantly. */
+        post: operations["checkoutSubscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/subscription/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel at the end of the paid period (access continues until then) */
+        post: operations["cancelSubscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** In-app notifications of the parent (BE-25) */
+        get: operations["listNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/{notificationId}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark a notification as read */
+        post: operations["markNotificationRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Public platform settings (unpaid policy, card threshold, trial length) */
+        get: operations["getPlatformPublic"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -813,6 +932,79 @@ export interface components {
             /** @description Narration is spoken (reading levels vary from age 6 to 11) */
             read_aloud: boolean;
             sound: boolean;
+            /**
+             * @description When false the kid app hides the language switch; the server returns the value with the settings (BE-28)
+             * @default true
+             */
+            kid_can_change_language: boolean;
+        };
+        /** @enum {string} */
+        PaymentMethod: "card" | "interac" | "paypal" | "apple_pay" | "google_pay";
+        SubscriptionView: {
+            /**
+             * @description Effective status (a trial or paid period that ended reads expired)
+             * @enum {string}
+             */
+            status: "trial" | "active" | "unpaid" | "expired" | "canceled";
+            /** @enum {string} */
+            plan: "free" | "family_monthly" | "family_yearly";
+            method?: components["schemas"]["PaymentMethod"];
+            /** Format: date-time */
+            renews_at?: string;
+            /** Format: date-time */
+            trial_ends_at?: string;
+            marked_by_admin?: boolean;
+            /** @description Kids can start chapters (also true for every family when the platform policy is allow) */
+            can_play: boolean;
+            days_left?: number | null;
+        };
+        PlanCatalog: {
+            /** @example CAD */
+            currency: string;
+            plans: {
+                /** @enum {string} */
+                id: "free" | "family_monthly" | "family_yearly";
+                price_cad_cents: number;
+                /** @enum {string} */
+                period: "none" | "month" | "year";
+                name: {
+                    fr?: string;
+                    en?: string;
+                };
+                features: {
+                    fr?: string[];
+                    en?: string[];
+                };
+            }[];
+            methods: {
+                id: components["schemas"]["PaymentMethod"];
+                label: {
+                    fr?: string;
+                    en?: string;
+                };
+            }[];
+        };
+        Notification: {
+            id: string;
+            /** @enum {string} */
+            kind: "play_reminder" | "time_limit" | "subscription_expiring" | "payment_due" | "announcement";
+            title: string;
+            body: string;
+            /** Format: date-time */
+            created_at: string;
+            read: boolean;
+            /** @enum {string} */
+            audience: "parent" | "child";
+        };
+        PlatformPublic: {
+            /** @enum {string} */
+            unpaid_policy: "block" | "allow";
+            card_threshold_pct: number;
+            trial_days?: number;
+            default_locale?: string;
+            features?: {
+                [key: string]: boolean;
+            };
         };
         World: {
             id: components["schemas"]["WorldId"];
@@ -1604,6 +1796,15 @@ export interface operations {
                     "application/json": components["schemas"]["Session"];
                 };
             };
+            /** @description subscription_inactive: unpaid, expired or ended subscription (policy block). Problem carries i18n {fr,en}{title,detail}. account_blocked is a 403. */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
             /** @description No consent on file, or the daily time limit is reached */
             403: {
                 headers: {
@@ -2121,6 +2322,162 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DailyQuest"];
+                };
+            };
+        };
+    };
+    getSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Subscription */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionView"];
+                };
+            };
+        };
+    };
+    listSubscriptionPlans: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plans */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanCatalog"];
+                };
+            };
+        };
+    };
+    checkoutSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    plan: "family_monthly" | "family_yearly";
+                    method: components["schemas"]["PaymentMethod"];
+                };
+            };
+        };
+        responses: {
+            /** @description Subscription after checkout */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionView"];
+                };
+            };
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    cancelSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Canceled subscription */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionView"];
+                };
+            };
+            409: components["responses"]["Conflict"];
+        };
+    };
+    listNotifications: {
+        parameters: {
+            query?: {
+                audience?: "parent" | "child";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notifications, newest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["Notification"][];
+                        unread_count: number;
+                    };
+                };
+            };
+        };
+    };
+    markNotificationRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Marked */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getPlatformPublic: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Public config */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformPublic"];
                 };
             };
         };

@@ -17,7 +17,7 @@ export function useStartChapter(childId: string | null) {
   const t = useTranslations('errors');
   const router = useRouter();
   const start = useStartSession(childId ?? '');
-  const [notice, setNotice] = useState<'consent_missing' | 'daily_limit_reached' | 'session_active' | null>(null);
+  const [notice, setNotice] = useState<'consent_missing' | 'daily_limit_reached' | 'session_active' | 'subscription_inactive' | 'account_blocked' | null>(null);
 
   const begin = useCallback(
     async (world: WorldId, opts?: { skillId?: SkillId | null; kind?: 'chapter' | 'daily_quest' | 'onboarding' }) => {
@@ -26,8 +26,10 @@ export function useStartChapter(childId: string | null) {
         const session = await start.mutateAsync({ world, kind: opts?.kind ?? 'chapter', skill_id: opts?.skillId ?? null });
         router.push(`/play/session/${session.id}`);
       } catch (e) {
-        if (e instanceof ApiError && (e.code === 'consent_missing' || e.code === 'daily_limit_reached' || e.code === 'session_active')) {
-          setNotice(e.code);
+        // codes added by the platform work (BE-24) are not in the generated Problem enum yet
+        const code = e instanceof ApiError ? (e.code as string) : '';
+        if (['consent_missing', 'daily_limit_reached', 'session_active', 'subscription_inactive', 'account_blocked'].includes(code)) {
+          setNotice(code as NonNullable<typeof notice>);
         } else reportError(e);
       }
     },

@@ -1,0 +1,17 @@
+{
+  "errorScreen": {
+    "home": "Retour à l'accueil",
+    "details": "Détails techniques",
+    "detailsHint": "Pour un adulte. À partager si tu nous écris.",
+    "code": "Code",
+    "status": "Statut",
+    "reference": "Référence",
+    "play": {
+      "generic": "Oups, un petit accroc",
+      "offline": "Internet fait une sieste",
+      "timeout": "Ça prend du temps",
+      "notfound": "Oh! On s'est un peu perdus",
+      "permission": "Cette porte est pour les grands"
+    }
+  }
+}

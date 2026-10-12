@@ -70,7 +70,9 @@
         "consentNeeded": "Permission needed",
         "play": "Play",
         "giveConsent": "Give permission",
-        "overview": "Progress"
+        "overview": "Progress",
+        "subscription": "Subscription",
+        "manageSubscription": "Manage subscription"
       },
       "childForm": {
         "title": "New child",
@@ -155,7 +157,9 @@
           "cancel": "Cancel",
           "confirm": "Delete for good",
           "type": "To confirm, type \"{name}\""
-        }
+        },
+        "kidLanguage": "My child can change the language",
+        "kidLanguageHint": "Your child picks French or English in their menu. Turn off to keep the language you chose."
       },
       "recap": {
         "title": "Story recap",
@@ -263,7 +267,8 @@
         "unknownWorld": "This world does not exist. Go back and pick a world."
       },
       "collection": {
-        "title": "Your story cards"
+        "title": "Your story cards",
+        "retry": "Try again"
       },
       "quest": {
         "title": "Daily quest",

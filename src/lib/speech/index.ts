@@ -30,5 +30,5 @@ export function useReadAloud(enabled: boolean, onUnavailable?: () => void) {
     [enabled, sp, onUnavailable],
   );
 
-  return { speak, cancel: sp.cancel };
+  return { speak, cancel: sp.cancel, pending: sp.pending };
 }

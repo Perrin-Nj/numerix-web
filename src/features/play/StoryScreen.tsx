@@ -77,8 +77,8 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const traced = useRef(new Set<string>());
   const reduced = useReducedMotion();
 
-  const { speak, cancel: stopSpeaking } = useReadAloud(
-    Boolean(settings.data?.read_aloud) && appConfig.features.readAloud,
+  const { speak, cancel: stopSpeaking, pending: speechWaiting } = useReadAloud(
+    (settings.data?.read_aloud ?? true) && appConfig.features.readAloud,
     () =>
       notify({
         id: 'no-voice',
@@ -411,6 +411,13 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                   </div>
                 )}
               </>
+            )}
+            {speechWaiting && (
+              <div className="mt-3">
+                <Button variant="secondary" iconLeft={<Icon name="volume" />} onClick={() => s.sceneText && speak(s.sceneText)}>
+                  {t('tapToHear')}
+                </Button>
+              </div>
             )}
             {coach.hint && s.phase !== 'outcome' && (
               <MascotBubble size="sm" pose="think" className="mt-4">

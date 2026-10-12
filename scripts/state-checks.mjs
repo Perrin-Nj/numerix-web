@@ -1,5 +1,6 @@
 // Pure checks of the local game state selectors (node, no browser). One line per check.
 import * as S from '../src/lib/game/selectors.ts';
+import { setCardThresholdPct } from '../src/lib/game/rules.ts';
 
 const DAY = 86_400_000;
 const T0 = new Date('2026-10-13T10:00:00').getTime();
@@ -23,16 +24,25 @@ const card = (id, t = T0) => ({ id, world: 'nature', title: 'A', earnedAt: new D
 // Journey starts honest
 let ev = [];
 let nodes = S.journeyNodes(ev, 'nature', T0, 'fr');
-ok('new child: first node available, the rest locked', nodes[0].state === 'available' && nodes.slice(1).every((n) => n.state === 'locked'));
+ok('new child: two steps ready, the rest locked', nodes[0].state === 'available' && nodes[1].state === 'available' && nodes.slice(2).every((n) => n.state === 'locked'));
 ok('current skill is the first one', S.currentSkill(nodes) === SK[0]);
 
 // A perfect chapter masters the node and unlocks the next, only in that world
 ev = chapter(T0, 's1', 'nature', SK[0], ['correct', 'correct', 'correct']);
 nodes = S.journeyNodes(ev, 'nature', T0 + 60_000, 'fr');
 ok('3 correct answers master the node', nodes[0].state === 'mastered' && nodes[0].level === 1);
-ok('next node unlocks', nodes[1].state === 'available');
+ok('finishing a step opens one more (always two ready ahead)', nodes[1].state === 'available' && nodes[2].state === 'available' && nodes[3].state === 'locked');
 ok('other worlds are untouched', S.journeyNodes(ev, 'espace', T0, 'fr')[0].state === 'available');
 ok('current skill moves on', S.currentSkill(nodes) === SK[1]);
+
+// A chapter completes only at the pass threshold (70 percent): 2 of 3 is not enough, 3 of 3 is
+ev = chapter(T0, 's70', 'nature', SK[0], ['correct', 'correct', 'erreur_typique']);
+nodes = S.journeyNodes(ev, 'nature', T0 + 10_000, 'fr');
+ok('2 of 3 right does not complete the step at 70 percent', nodes[0].state === 'in_progress' && nodes[2].state === 'locked');
+setCardThresholdPct(66);
+nodes = S.journeyNodes(ev, 'nature', T0 + 10_000, 'fr');
+ok('with the threshold at 66 percent 2 of 3 completes it', nodes[0].state === 'mastered' && nodes[2].state === 'available');
+setCardThresholdPct(70);
 
 // Mistakes matter
 ev = chapter(T0, 's2', 'nature', SK[0], ['erreur_typique', 'erreur_aleatoire', 'correct']);

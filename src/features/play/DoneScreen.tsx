@@ -1,7 +1,9 @@
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
+import { usePickLine } from '@/lib/lines';
+import { useSpokenLine } from '@/lib/speech/useSpokenLine';
 import { useRouter } from 'next/navigation';
 import { getSession, keys, useEngagement, useSessionStatus } from '@/features/api/hooks';
 import { useStartChapter } from './useStartChapter';
@@ -29,12 +31,13 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
   const engagement = useEngagement(childId);
   const { begin, dialog } = useStartChapter(childId);
   const rewards = useMemo(() => readRewards(sessionId), [sessionId]);
-  const t = useTranslations('screens.play.done');
+  const pick = usePickLine();
   const noCard = !rewards.some((r) => r.type === 'card_earned');
-  const events = useGameEvents(childId);
-  const answers = events.flatMap((e) => (e.k === 'answer' && e.sid === sessionId ? [e] : []));
-  const right = answers.filter((e) => e.outcome === 'correct').length;
-  const missed = appConfig.stateSource === 'local' && answers.length > 0 && right < answers.length;
+  const [appreciation] = useState(() => pick(noCard ? 'appreciation.miss' : 'appreciation.pass'));
+  const lang = useLocale();
+  // The appreciation is spoken. Only a device with no voice for this language shows it as text.
+  const voice = useSpokenLine(appreciation, { lang });
+  const mute = !voice.supported || (voice.voicesLoaded && !voice.voiceLabel);
 
   if (session.isLoading) {
     return (
@@ -46,9 +49,7 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col items-center justify-center gap-5 px-4 py-10">
-      {noCard && (
-        <MascotBubble pose="think">{missed ? t('missed', { right, total: answers.length, pct: appConfig.cardThresholdPct }) : t('noCard', { pct: appConfig.cardThresholdPct })}</MascotBubble>
-      )}
+      <MascotBubble pose={noCard ? 'sad' : 'happy'}>{mute ? appreciation : ' '}</MascotBubble>
       <ChapterComplete
         title={session.data?.story_title ?? undefined}
         rewards={rewards}

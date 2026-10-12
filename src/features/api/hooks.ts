@@ -1,5 +1,6 @@
 'use client';
 import { clearLocalState } from '@/lib/session/clear';
+import { setCardThresholdPct } from '@/lib/game/rules';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useLocale } from 'next-intl';
@@ -34,6 +35,8 @@ export const keys = {
 };
 
 // ───────── Session status (cookies are httpOnly, so ask the server) ─────────
+setCardThresholdPct(appConfig.cardThresholdPct);
+
 export type SessionStatus = { parent: boolean; child: boolean; childId: string | null };
 
 export function useSessionStatus() {
@@ -129,8 +132,8 @@ export function useChildToken() {
 export function useChildSettings(id: string) {
   return useQuery({
     queryKey: keys.settings(id),
-    enabled: apiOn && Boolean(id),
-    queryFn: () => unwrap(api.GET('/children/{childId}/settings', { params: { path: { childId: id } } })),
+    enabled: Boolean(id),
+    queryFn: (): Promise<ChildSettings> => unwrap(api.GET('/children/{childId}/settings', { params: { path: { childId: id } } })),
   });
 }
 

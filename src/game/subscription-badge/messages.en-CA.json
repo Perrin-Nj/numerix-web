@@ -1,0 +1,14 @@
+{
+  "game": {
+    "subscriptionBadge": {
+      "trial": "{count, plural, =0 {Free trial ends today} one {Free trial, # day left} other {Free trial, # days left}}",
+      "active": "Active",
+      "activeUntil": "Active, renews {date}",
+      "unpaid": "Payment due",
+      "expired": "Expired",
+      "canceled": "Canceled",
+      "canceledUntil": "Canceled, access until {date}",
+      "blocked": "Account paused"
+    }
+  }
+}

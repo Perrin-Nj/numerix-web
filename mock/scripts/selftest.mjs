@@ -335,5 +335,133 @@ expect(`encoded state stays under 3800 bytes (now ${state.length})`, state.lengt
 r = await call('POST', '/v1/children', { display_name: 'Trop', grade: 3 });
 expect('a ninth profile is refused', r.status === 422);
 
+// ── Platform: subscriptions, gates, admin API (platform data lives in the store, not in the cookie)
+const TOKEN = process.env.ADMIN_API_TOKEN ?? 'dev-admin-token';
+const adm = async (method, path, body, token = TOKEN, extra = {}) => {
+  const res = await fetch(`${BASE}/admin/v1${path}`, { method, headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}), ...extra }, body: body ? JSON.stringify(body) : undefined });
+  const text = await res.text();
+  return { status: res.status, headers: res.headers, json: () => JSON.parse(text) };
+};
+const email = `selftest-${Date.now()}@Example.com`;
+const PH = { 'x-mock-parent-email': email.toLowerCase() };
+const sessionAs = (h = PH, lang = 'fr') => call('POST', `/v1/children/${Z}/sessions`, { world: 'nature', kind: 'chapter' }, { ...A(lang), ...h });
+await call('POST', '/v1/auth/register', { email, password: 'Password123!', name: 'Self Test' });
+r = await call('GET', '/v1/subscription', null, PH);
+expect('register creates a trial parent', r.status === 200 && r.json().status === 'trial' && r.json().can_play === true && r.json().days_left >= 13);
+r = await call('GET', '/v1/subscription/plans');
+expect('plans: free 0, monthly 899, yearly 8990 CAD cents, fr and en features', r.json().plans.map((p) => p.price_cad_cents).join() === '0,899,8990' && r.json().plans.every((p) => p.features.fr.length && p.features.en.length) && r.json().methods.length >= 4);
+r = await call('GET', '/v1/platform/public');
+expect('platform public exposes policy and threshold', r.json().unpaid_policy === 'block' && r.json().card_threshold_pct === 70);
+r = await sessionAs();
+expect('trial parent can start a chapter', r.status === 201);
+r = await call('POST', '/v1/subscription/checkout', { plan: 'family_monthly', method: 'interac' }, PH);
+expect('checkout activates the subscription (+30 days)', r.status === 200 && r.json().status === 'active' && r.json().days_left >= 29 && r.json().days_left <= 30);
+r = await call('POST', '/v1/subscription/checkout', { plan: 'free', method: 'card' }, PH);
+expect('checkout refuses the free plan', r.status === 422);
+r = await call('POST', '/v1/subscription/cancel', null, PH);
+expect('cancel keeps access until the end of the period', r.status === 200 && r.json().status === 'canceled' && r.json().can_play === true);
+r = await sessionAs();
+expect('canceled but not ended still plays', r.status === 201);
+
+r = await adm('GET', '/overview', null, null);
+expect('admin refused without token', r.status === 401);
+r = await adm('GET', '/overview', null, 'nope');
+expect('admin refused with a wrong token', r.status === 401);
+r = await adm('GET', '/overview');
+const ov = r.json();
+expect('overview counts parents, kids, MRR and a 30 day series', r.status === 200 && ov.parents_total >= 40 && ov.kids_total >= 70 && ov.signups_30d.length === 30 && ov.mrr_cad_cents > 0 && Object.keys(ov.by_subscription).length === 5);
+r = await adm('GET', '/parents?page=1&page_size=15');
+expect('parents are paged', r.json().items.length === 15 && r.json().total >= 41 && r.json().page_size === 15);
+const pg2 = (await adm('GET', '/parents?page=2&page_size=15')).json();
+expect('page 2 differs from page 1', pg2.items[0].id !== r.json().items[0].id);
+r = await adm('GET', '/parents?q=selftest');
+const me = r.json().items.find((p) => p.email === email.toLowerCase());
+expect('parents search finds the registered parent (email lower-cased)', Boolean(me));
+r = await adm('GET', '/parents?status=blocked');
+expect('parents filter by status', r.json().total >= 4 && r.json().items.every((p) => p.status === 'blocked'));
+r = await adm('GET', '/parents?subscription=unpaid&page_size=100');
+expect('parents filter by subscription', r.json().total >= 4 && r.json().items.every((p) => p.subscription.status === 'unpaid'));
+
+const auditCount = async () => (await adm('GET', '/audit?page_size=1')).json().total;
+let a0 = await auditCount();
+r = await adm('PATCH', `/parents/${me.id}`, { status: 'blocked', blocked_reason: 'selftest' });
+expect('admin blocks a parent', r.status === 200 && r.json().status === 'blocked' && r.json().blocked_reason === 'selftest');
+r = await sessionAs();
+expect('blocked parent: kid session refused 403 account_blocked (fr and en copy)', r.status === 403 && r.json().code === 'account_blocked' && r.json().i18n.en.title && r.json().i18n.fr.detail);
+r = await call('GET', `/v1/children/${Z}/feed?limit=2`, null, PH);
+expect('feed stays readable while blocked', r.status === 200);
+r = await adm('PATCH', `/parents/${me.id}`, { status: 'active' });
+r = await sessionAs();
+expect('unblocked parent plays again', r.status === 201);
+r = await adm('PATCH', `/parents/${me.id}`, { subscription: { status: 'unpaid' } });
+expect('admin marks the parent unpaid', r.json().subscription.status === 'unpaid' && r.json().subscription.can_play === false);
+r = await sessionAs();
+expect('unpaid: 402 subscription_inactive with i18n copy', r.status === 402 && r.json().code === 'subscription_inactive' && r.json().i18n.en.detail.length > 10 && r.json().title === r.json().i18n.fr.title);
+r = await sessionAs(PH, 'en-CA');
+expect('402 title follows Accept-Language', r.json().title === r.json().i18n.en.title);
+r = await adm('PUT', '/config', { unpaid_policy: 'allow' });
+r = await sessionAs();
+expect('policy allow lets an unpaid family play', r.status === 201);
+r = await adm('PUT', '/config', { unpaid_policy: 'nonsense' });
+expect('config validation refuses a bad policy', r.status === 422);
+await adm('PUT', '/config', { unpaid_policy: 'block' });
+r = await adm('PATCH', `/parents/${me.id}`, { subscription: { status: 'paid', plan: 'family_yearly' } });
+expect('admin marks the parent paid (yearly)', r.json().subscription.status === 'active' && r.json().subscription.plan === 'family_yearly' && r.json().subscription.marked_by_admin === true);
+r = await sessionAs();
+expect('paid again: play works', r.status === 201);
+r = await adm('PATCH', `/parents/${me.id}`, { subscription: { extend_days: 10 } });
+expect('extend adds days', r.json().subscription.days_left >= 29);
+expect('audit grew with every mutation', (await auditCount()) >= a0 + 7);
+
+r = await adm('GET', '/children?page_size=100');
+const kidRow = r.json().items[5];
+a0 = await auditCount();
+r = await adm('GET', `/children/${kidRow.id}`);
+expect('child detail has parent and stats', r.status === 200 && r.json().parent && typeof r.json().sessions_total === 'number');
+r = await adm('GET', `/children/${kidRow.id}/activity`);
+expect('child activity lists sessions', r.status === 200 && Array.isArray(r.json().sessions));
+expect('child reads are audited', (await auditCount()) === a0 + 2);
+r = await adm('PATCH', `/children/${kidRow.id}`, { name: 'Renamed', grade: 4, daily_time_limit_minutes: 30, kid_can_change_language: false });
+expect('child patch updates name, grade, limit and language flag', r.json().display_name === 'Renamed' && r.json().grade === 4 && r.json().settings.daily_time_limit_minutes === 30 && r.json().settings.kid_can_change_language === false);
+r = await adm('PATCH', `/children/${kidRow.id}`, { grade: 9 });
+expect('child patch validates grade', r.status === 422);
+
+r = await adm('POST', '/notifications/broadcast', { audience: 'parent', title: { fr: 'Bonjour', en: 'Hello' }, body: 'Nouveauté', filter: { parent_ids: [me.id] } });
+expect('broadcast reaches one targeted parent', r.status === 201 && r.json().recipients === 1);
+r = await call('GET', '/v1/notifications', null, PH);
+const note = r.json().items.find((n) => n.kind === 'announcement');
+expect('parent receives the broadcast in the right language', Boolean(note) && note.title === 'Bonjour' && note.read === false && r.json().unread_count >= 1);
+r = await call('POST', `/v1/notifications/${note.id}/read`, null, PH);
+r = await call('GET', '/v1/notifications', null, PH);
+expect('mark read works', r.json().items.find((n) => n.id === note.id).read === true);
+r = await adm('GET', '/notifications');
+expect('admin lists broadcasts', r.json().items.some((n) => n.broadcast && n.title === 'Bonjour'));
+const planBody = async (price) => ({ plans: (await call('GET', '/v1/subscription/plans')).json().plans.map((p) => (p.id === 'family_monthly' ? { ...p, price_cad_cents: price } : p)) });
+r = await adm('PUT', '/subscriptions/plans', await planBody(999));
+expect('admin edits plan prices, parents see them', r.status === 200 && (await call('GET', '/v1/subscription/plans')).json().plans[1].price_cad_cents === 999);
+await adm('PUT', '/subscriptions/plans', await planBody(899));
+
+// kid_can_change_language round trip through the parent settings route (Zoé is a platform kid too)
+r = await call('GET', `/v1/children/${Z}/settings`);
+expect('settings default kid_can_change_language true', r.json().kid_can_change_language === true);
+await call('PUT', `/v1/children/${Z}/settings`, { ...r.json(), kid_can_change_language: false });
+r = await call('GET', `/v1/children/${Z}/settings`);
+expect('parent turns kid_can_change_language off', r.json().kid_can_change_language === false);
+r = await adm('PATCH', `/children/${Z}`, { kid_can_change_language: true });
+r = await call('GET', `/v1/children/${Z}/settings`);
+expect('admin turns it back on and the kid app sees it', r.json().kid_can_change_language === true);
+
+r = await adm('GET', '/audit?page=1&page_size=100');
+expect('audit entries carry actor, action and target', r.json().items.every((e) => e.actor && e.action && e.target_type && e.at));
+r = await adm('DELETE', `/parents/${me.id}`);
+expect('admin deletes a parent', r.status === 204 && (await adm('GET', `/parents/${me.id}`)).status === 404);
+r = await fetch(`${BASE}/admin/v1/overview`, { method: 'OPTIONS', headers: { origin: 'http://evil.test', 'access-control-request-method': 'GET' } });
+expect('CORS: foreign origin gets no allow header', r.status === 204 && !r.headers.get('access-control-allow-origin'));
+if (process.env.ADMIN_ORIGIN) {
+  r = await fetch(`${BASE}/admin/v1/overview`, { method: 'OPTIONS', headers: { origin: process.env.ADMIN_ORIGIN } });
+  expect('CORS: ADMIN_ORIGIN is allowed', r.headers.get('access-control-allow-origin') === process.env.ADMIN_ORIGIN);
+}
+expect(`cookie still small after platform calls (${state.length})`, state.length < 3800);
+
 console.log(failures.length ? `\n${failures.length} failure(s): ${failures.join('; ')}` : '\nall good');
 process.exit(failures.length ? 1 : 0);

@@ -43,7 +43,7 @@ const empty = (status) => ({ status, headers: {}, chunks: [''], delays: [0] });
 const problem = (status, code, title, detail) =>
   ({ status, headers: { 'content-type': 'application/problem+json' }, chunks: [JSON.stringify({ type: `https://numerix.app/problems/${code.replace(/_/g, '-')}`, title, status, code, detail })], delays: [0] });
 
-const DEFAULT_SETTINGS = { daily_goal_chapters: 1, daily_time_limit_minutes: null, enabled_worlds: WORLD_IDS, read_aloud: true, sound: true };
+const DEFAULT_SETTINGS = { daily_goal_chapters: 1, daily_time_limit_minutes: null, enabled_worlds: WORLD_IDS, read_aloud: true, sound: true, kid_can_change_language: true };
 
 // ───────────── Routing ─────────────
 /** Returns { plan, d } when the request is handled here, or null to let the mappings answer. */

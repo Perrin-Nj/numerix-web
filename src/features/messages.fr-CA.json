@@ -70,7 +70,9 @@
         "consentNeeded": "Autorisation requise",
         "play": "Jouer",
         "giveConsent": "Donner l'autorisation",
-        "overview": "Suivi"
+        "overview": "Suivi",
+        "subscription": "Abonnement",
+        "manageSubscription": "Gérer l'abonnement"
       },
       "childForm": {
         "title": "Nouvel enfant",
@@ -155,7 +157,9 @@
           "cancel": "Annuler",
           "confirm": "Supprimer pour de bon",
           "type": "Pour confirmer, écris « {name} »"
-        }
+        },
+        "kidLanguage": "Mon enfant peut changer la langue",
+        "kidLanguageHint": "L'enfant choisit entre le français et l'anglais dans son menu. Désactive pour garder la langue que tu as choisie."
       },
       "recap": {
         "title": "Résumé de l'histoire",
@@ -263,7 +267,8 @@
         "unknownWorld": "Ce monde n'existe pas. Retourne choisir un monde."
       },
       "collection": {
-        "title": "Tes cartes d'histoire"
+        "title": "Tes cartes d'histoire",
+        "retry": "Réessayer"
       },
       "quest": {
         "title": "Défi du jour",

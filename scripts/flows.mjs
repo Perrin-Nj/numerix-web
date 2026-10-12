@@ -104,6 +104,33 @@ for (const [world, skill] of [['nature', 'ARI-OPE-A06a'], ['espace', 'ARI-OPE-A0
   }
   ok('2 of 3 right: chapter completes without a card', last.json?.session?.status === 'completed' && !last.json.rewards.some((x) => x.type === 'card_earned'), JSON.stringify(last.json?.rewards ?? []).slice(0, 100));
 }
+// Subscription gate, driven by the admin API of the platform (skipped when no admin token is available, e.g. against a locked-down deployment)
+{
+  const ADMIN = process.env.PLATFORM_URL ?? 'http://localhost:8081';
+  const adminToken = process.env.ADMIN_API_TOKEN ?? 'dev-admin-token';
+  const admin = async (method, path, body) => {
+    const res = await fetch(`${ADMIN}/admin/v1${path}`, { method, headers: { authorization: `Bearer ${adminToken}`, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+    return { status: res.status, json: await res.json().catch(() => null) };
+  };
+  jar.set('nx_parent_email', encodeURIComponent('flows@example.com'));
+  const found = BASE.includes('localhost') ? await admin('GET', '/parents?q=flows@example.com') : { status: 0 };
+  const pid = found.json?.items?.[0]?.id;
+  if (pid) {
+    const startAs = async () => api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'cuisine', kind: 'chapter' }, headers: { 'idempotency-key': crypto.randomUUID() } });
+    await admin('PATCH', `/parents/${pid}`, { subscription: { status: 'unpaid' } });
+    r = await startAs();
+    ok('unpaid parent: Play is refused with a clear reason', r.status === 402 && r.json?.code === 'subscription_inactive', r.text.slice(0, 100));
+    await admin('PATCH', `/parents/${pid}`, { subscription: { status: 'paid' } });
+    r = await startAs();
+    ok('paid parent: Play works again', r.status === 201, r.text.slice(0, 100));
+    await admin('PATCH', `/parents/${pid}`, { status: 'blocked', blocked_reason: 'flows test' });
+    r = await startAs();
+    ok('blocked parent: Play is refused', r.status === 403 && r.json?.code === 'account_blocked', r.text.slice(0, 100));
+    await admin('PATCH', `/parents/${pid}`, { status: 'active' });
+    r = await startAs();
+    ok('unblocked parent: Play works again', r.status === 201, r.text.slice(0, 100));
+  }
+}
 ok('two worlds tell different stories', scenes.length === 2 && scenes[0] !== scenes[1] && scenes.every((x) => x.length > 80));
 r = await api('GET', `/children/${nora.id}/collection`, { mode: 'child' });
 ok('collection readable', r.status === 200);

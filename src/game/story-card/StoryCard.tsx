@@ -306,7 +306,7 @@ function StoryCardBase({ card, onOpen, variant = 'tile', source }: StoryCardProp
     mixBlendMode: 'soft-light',
   };
   return (
-    <span className={cn('block w-full [perspective:900px]', reveal ? 'max-w-xs nx-card-enter' : 'nx-card-pop')}>
+    <span className={cn('block w-full [perspective:900px]', reveal ? 'max-w-[10.5rem] nx-card-enter' : 'nx-card-pop')}>
       <span className={cn('block', !reduced && 'nx-card-float')} style={{ animationDelay: `${(art.hue % 7) * -0.5}s` }}>
         <button
           ref={ref}

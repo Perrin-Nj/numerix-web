@@ -3,12 +3,15 @@ import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
-import { useChallenges, useHome, useSessionStatus } from '@/features/api/hooks';
+import { useChallenges, useChildSettings, useHome, useSessionStatus } from '@/features/api/hooks';
 import { useStartChapter } from './useStartChapter';
 import { giftClaimed, welcomeCard } from '@/lib/game/selectors';
 import { nowMs } from '@/lib/game/clock';
 import { useGameEvents, useGameStore } from '@/lib/game/store';
 import { usePickLine } from '@/lib/lines';
+import { useLocalReminders } from '@/lib/notify';
+import { NotificationCenterBell } from '@/features/common/NotificationCenterBell';
+import { playToday } from '@/lib/game/selectors';
 import { useChildName } from '@/lib/game/who';
 import { useSpokenLine } from '@/lib/speech/useSpokenLine';
 import { ContinueCard } from '@/game/continue-card';
@@ -43,11 +46,41 @@ export function HomeFeed() {
   const { begin, dialog } = useStartChapter(childId);
   const [tourDone, setTourDone] = useState(false);
   const kidName = useChildName(childId);
+  const settings = useChildSettings(childId ?? '');
+  const today = playToday(events, nowMs());
+  const reminders = useLocalReminders({
+    childName: kidName ?? '',
+    minutesToday: today.minutes,
+    dailyLimit: settings.data?.daily_time_limit_minutes ?? 0,
+    lastPlayedAt: today.lastPlayedAt,
+  });
   const [greeting, setGreeting] = useState('');
-  // Random line chosen after mount so server and client markup match
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => setGreeting(pick('mascot.welcome', { name: kidName })), [kidName, pick]);
-  useSpokenLine(greeting || null, { lang });
+  const [firstVisit, setFirstVisit] = useState(false);
+  // Chosen after mount (random, and storage is client only). Never the same line twice in a session;
+  // only the first visit of the session is read aloud.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (kidName === undefined) return;
+    let seen: string[] = [];
+    try {
+      seen = JSON.parse(sessionStorage.getItem('nx:greet:seen') ?? '[]') as string[];
+    } catch {
+      seen = [];
+    }
+    let line = pick('mascot.welcome', { name: kidName });
+    for (let i = 0; i < 20 && seen.includes(line); i++) line = pick('mascot.welcome', { name: kidName });
+    if (seen.includes(line)) seen = [];
+    try {
+      sessionStorage.setItem('nx:greet:seen', JSON.stringify([...seen, line]));
+      setFirstVisit(!sessionStorage.getItem('nx:greet:spoken'));
+      sessionStorage.setItem('nx:greet:spoken', '1');
+    } catch {
+      setFirstVisit(true);
+    }
+    setGreeting(line);
+  }, [kidName, pick]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+  useSpokenLine(firstVisit && greeting ? greeting : null, { lang });
   // Data loads on the client only, so reading storage here cannot mismatch the server render
   const tour = Boolean(childId && home.data && !tourDone && !localStorage.getItem(onboardingKey(childId)));
   const local = appConfig.stateSource === 'local';
@@ -68,7 +101,10 @@ export function HomeFeed() {
     <main className="mx-auto w-full max-w-2xl px-4 pb-6 pt-3">
       <header className="mb-4 flex items-center justify-between gap-3">
         <h1 className="font-display text-3xl font-extrabold text-brand">{t('title')}</h1>
-        <ThemeToggle variant="icon" />
+        <div className="flex items-center gap-1">
+          <NotificationCenterBell reminders={reminders} />
+          <ThemeToggle variant="icon" />
+        </div>
       </header>
       {(home.isLoading || status.isLoading) && (
         <div className="flex flex-col gap-4">

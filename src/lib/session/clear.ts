@@ -3,6 +3,11 @@ import type { QueryClient } from '@tanstack/react-query';
 import { useGameStore } from '@/lib/game/store';
 import { DEFAULT_PREFS, usePrefs } from '@/lib/prefs/store';
 
+/** The demo platform finds the parent's subscription by email (the proxy adds a header). A real backend uses the token. */
+export function rememberParentEmail(email: string) {
+  document.cookie = `nx_parent_email=${encodeURIComponent(email.toLowerCase())}; path=/; max-age=31536000; samesite=lax`;
+}
+
 let client: QueryClient | null = null;
 export const registerQueryClient = (qc: QueryClient) => {
   client = qc;
@@ -25,6 +30,7 @@ export function clearLocalState(scope: 'child' | 'all') {
   useGameStore.setState({ queue: [] });
   client?.clear();
   if (scope !== 'all') return;
+  document.cookie = 'nx_parent_email=; path=/; max-age=0';
   useGameStore.setState({ byChild: {} });
   usePrefs.setState({ ...DEFAULT_PREFS });
   try {

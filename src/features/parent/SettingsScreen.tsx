@@ -15,6 +15,7 @@ import { Input } from '@/ui/input';
 import { Panel } from '@/ui/panel';
 import { Select } from '@/ui/select';
 import { Skeleton } from '@/ui/skeleton';
+import { ScreenState } from '@/ui/screen-state';
 import { Switch } from '@/ui/switch';
 
 export function SettingsScreen({ childId }: { childId: string }) {
@@ -62,7 +63,7 @@ export function SettingsScreen({ childId }: { childId: string }) {
 
   return (
     <ParentPage title={t('title')} backHref={`/parent/children/${childId}`}>
-      {!draft && <Skeleton height={240} />}
+      {!draft && <ScreenState isLoading={settings.isLoading} error={settings.error} isEmpty onRetry={() => void settings.refetch()} area="parent" skeleton={<Skeleton height={240} />}>{null}</ScreenState>}
       {draft && (
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
           <Panel title={t('play')}>
@@ -85,6 +86,12 @@ export function SettingsScreen({ childId }: { childId: string }) {
                 onCheckedChange={(v) => setDraft({ ...draft, read_aloud: v })}
                 label={t('readAloud')}
                 description={t('readAloudHint')}
+              />
+              <Switch
+                checked={draft.kid_can_change_language !== false}
+                onCheckedChange={(v) => setDraft({ ...draft, kid_can_change_language: v })}
+                label={t('kidLanguage')}
+                description={t('kidLanguageHint')}
               />
             </div>
           </Panel>

@@ -9,6 +9,7 @@ import { ParentPage } from './ParentPage';
 import { Card, CardBody } from '@/ui/card';
 import { Panel } from '@/ui/panel';
 import { Skeleton } from '@/ui/skeleton';
+import { ScreenState } from '@/ui/screen-state';
 import type { Growth } from '@/lib/api/types';
 
 function Figure({ value }: { value: number }) {
@@ -61,7 +62,7 @@ export function ChildOverview({ childId }: { childId: string }) {
         ))}
       </nav>
 
-      {growth.isLoading ? <Skeleton height={140} /> : growth.data && <GrowthPanel growth={growth.data} />}
+      {growth.isLoading || growth.error ? <ScreenState isLoading={growth.isLoading} error={growth.error} onRetry={() => void growth.refetch()} area="parent" skeleton={<Skeleton height={140} />}>{null}</ScreenState> : growth.data && <GrowthPanel growth={growth.data} />}
 
       {appConfig.stateSource === 'local' && (
         <Panel title={tc('title')}>
@@ -80,7 +81,7 @@ export function ChildOverview({ childId }: { childId: string }) {
       )}
 
       <Panel title={t('stuck.title')}>
-        {progress.isLoading && <Skeleton height={80} />}
+        {(progress.isLoading || progress.error) && <ScreenState isLoading={progress.isLoading} error={progress.error} onRetry={() => void progress.refetch()} area="parent" skeleton={<Skeleton height={80} />}>{null}</ScreenState>}
         {progress.data && progress.data.misconceptions.length === 0 && <p className="text-muted">{t('stuck.none')}</p>}
         {progress.data && progress.data.misconceptions.length > 0 && (
           <ul className="flex flex-col gap-3">
@@ -95,7 +96,7 @@ export function ChildOverview({ childId }: { childId: string }) {
       </Panel>
 
       <Panel title={t('sessions.title')}>
-        {sessions.isLoading && <Skeleton height={80} />}
+        {(sessions.isLoading || sessions.error) && <ScreenState isLoading={sessions.isLoading} error={sessions.error} onRetry={() => void sessions.refetch()} area="parent" skeleton={<Skeleton height={80} />}>{null}</ScreenState>}
         {sessions.data && sessions.data.length === 0 && <p className="text-muted">{t('sessions.none')}</p>}
         {sessions.data && sessions.data.length > 0 && (
           <ul className="flex flex-col gap-3">

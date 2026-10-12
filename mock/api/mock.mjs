@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   const url = path + (original.searchParams.size ? `?${original.searchParams}` : '');
 
   const body = req.method === 'GET' || req.method === 'HEAD' ? '' : await readBody(req);
-  const plan = handle({ method: req.method, url, headers: req.headers, body });
+  const plan = await handle({ method: req.method, url, headers: req.headers, body });
 
   if (plan.fault) {
     req.socket.destroy();

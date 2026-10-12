@@ -8,7 +8,8 @@
           "text": "Your story will be put away. You can start another one whenever you like.",
           "confirm": "Leave the game",
           "stay": "Keep playing"
-        }
+        },
+        "tapToHear": "Tap to hear the story"
       },
       "home": {
         "menu": {
@@ -50,7 +51,7 @@
           "test": "Test the voice",
           "sample": "Hello! I am your voice for the stories. Ready to go?",
           "using": "Chosen voice: {name}",
-          "noVoice": "No voice found on this device.",
+          "noVoice": "No voice found on this device for this language. Ask a grown-up to add a voice in the device settings (Windows: Settings, Time and language, Speech; or open the app in Microsoft Edge, which has natural voices).",
           "tapToHear": "Tap the screen to hear it."
         },
         "account": {
@@ -58,6 +59,11 @@
           "hint": "Switch player, or sign the device out. When a grown-up signs out, everything the device remembered is erased.",
           "switch": "Switch player",
           "signOut": "Sign the device out (grown-up)"
+        },
+        "language": {
+          "title": "Language",
+          "label": "App language",
+          "locked": "A grown-up chose the app language. Ask them if you want to change it."
         }
       },
       "done": {

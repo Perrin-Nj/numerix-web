@@ -1,0 +1,10 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/v1/notifications/[^/]+/read"
+  },
+  "response": {
+    "status": 204
+  }
+}

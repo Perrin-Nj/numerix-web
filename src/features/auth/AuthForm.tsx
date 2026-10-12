@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { rememberParentEmail } from '@/lib/session/clear';
 import { ApiError, isConnectionProblem } from '@/lib/api/client';
 import { useLogin, useRegister } from '@/features/api/hooks';
 import { PARENT_EMAIL_KEY } from '@/features/common/ParentGate';
@@ -49,6 +50,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
       if (mode === 'login') await login.mutateAsync(values);
       else await register.mutateAsync({ ...values, locale });
       localStorage.setItem(PARENT_EMAIL_KEY, values.email);
+      // The demo platform finds the parent's subscription by email (header added by the proxy). A real backend uses the token.
+      rememberParentEmail(values.email);
       router.replace(mode === 'login' ? '/parent' : '/parent/children/new');
     } catch (e) {
       if (e instanceof ApiError && e.status === 409) setFormError(t('errors.emailTaken'));

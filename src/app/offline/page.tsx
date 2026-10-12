@@ -1,15 +1,16 @@
-import { useTranslations } from 'next-intl';
-import { MascotBubble } from '@/game/mascot-bubble';
-
-export const metadata = { title: 'Offline' };
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ApiError } from '@/lib/api/client';
+import { ErrorScreen } from '@/ui/error-screen';
 
 // Served by the service worker when a page cannot be loaded without a connection
+const offline = new ApiError(0, 'device_offline', 'Device offline');
+
 export default function OfflinePage() {
-  const t = useTranslations('errors.offline');
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center gap-6 px-4">
-      <h1 className="font-display text-3xl font-bold">{t('title')}</h1>
-      <MascotBubble pose="rest">{t('description')}</MascotBubble>
-    </main>
-  );
+  const router = useRouter();
+  useEffect(() => {
+    document.title = 'Offline | Numerix';
+  }, []);
+  return <ErrorScreen error={offline} area="play" onRetry={() => (navigator.onLine ? router.push('/play/home') : window.location.reload())} />;
 }

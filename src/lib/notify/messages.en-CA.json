@@ -1,0 +1,52 @@
+{
+  "lib": {
+    "notify": {
+      "reminders": {
+        "play_reminder": {
+          "title": "A story is waiting",
+          "body": "{name} has not played today. A short story only takes a few minutes."
+        },
+        "time_limit": {
+          "title": "Time limit reached",
+          "body": "{name} played {count} minutes today, the daily limit is {limit}. Play starts again tomorrow."
+        },
+        "subscription_expiring": {
+          "title": "Your plan ends soon",
+          "body": "{count, plural, =0 {Your access ends today.} one {Your access ends in # day.} other {Your access ends in # days.}} Manage your subscription to keep {name} playing."
+        },
+        "payment_due": {
+          "title": "Payment needed",
+          "body": "A payment is due. Pay now so {name} can keep playing."
+        }
+      },
+      "ui": {
+        "bell": {
+          "label": "Notifications",
+          "labelUnread": "Notifications, {count} unread",
+          "title": "Notifications",
+          "empty": "Nothing new. We will tell you here.",
+          "markAll": "Mark all as read",
+          "loadError": "We could not load your notifications.",
+          "retry": "Try again",
+          "new": "New"
+        },
+        "prompt": {
+          "title": "Get reminders on this device?",
+          "text": "We can show a short message when a plan is ending or a payment is needed. We only ask when you tap the button.",
+          "enable": "Turn on reminders",
+          "later": "Not now",
+          "granted": "Reminders are on.",
+          "denied": "Reminders are blocked in your browser settings. You still see them in the bell inside the app.",
+          "unsupported": "This browser cannot show reminders. You still see them in the bell inside the app.",
+          "push": {
+            "unsupported": "Reminders will show while the app is open. This browser cannot send them when it is closed.",
+            "no_key": "Reminders will show while the app is open. Reminders when the app is closed are not set up yet.",
+            "no_endpoint": "Reminders will show while the app is open. Reminders when the app is closed are not available yet on our side.",
+            "failed": "Reminders will show while the app is open. We could not turn on reminders for when the app is closed. Try again later.",
+            "permission": "Reminders will show while the app is open."
+          }
+        }
+      }
+    }
+  }
+}

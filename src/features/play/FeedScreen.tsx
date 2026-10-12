@@ -12,6 +12,7 @@ import { FeedCard } from '@/game/feed-card';
 import { Button } from '@/ui/button';
 import { InlineError } from '@/ui/inline-error';
 import { Skeleton } from '@/ui/skeleton';
+import { ScreenState } from '@/ui/screen-state';
 import { SnapFeed } from '@/ui/snap-feed';
 
 type Reaction = { liked: boolean; saved: boolean };
@@ -114,12 +115,16 @@ export function FeedScreen() {
   return (
     <main className="relative mx-auto w-full max-w-2xl px-4 pt-2">
       <h1 className="sr-only">{t('title')}</h1>
-      {loading && <LoadingCard />}
-      {!loading && (feed.isError || status.isError) && (
-        <div className="flex flex-col items-start gap-3 py-6">
-          <InlineError message={t('error')} />
-          <Button onClick={() => (feed.isError ? void feed.refetch() : void status.refetch())}>{t('retry')}</Button>
-        </div>
+      {total === 0 && (
+        <ScreenState
+          isLoading={loading}
+          error={feed.error ?? status.error}
+          onRetry={() => (feed.isError ? void feed.refetch() : void status.refetch())}
+          area="play"
+          skeleton={<LoadingCard />}
+        >
+          {null}
+        </ScreenState>
       )}
       {!loading && feed.data && total === 0 && <p className="py-10 text-center font-display text-xl text-muted">{t('empty')}</p>}
       {total > 0 && (

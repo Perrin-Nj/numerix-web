@@ -5,6 +5,7 @@
 #   bash scripts/test.sh mock       mock backend self test
 #   bash scripts/test.sh flows      HTTP flows through the app
 #   bash scripts/test.sh ui         browser checks (kid door, feed, chapter, theme, exit, map...)
+#   bash scripts/test.sh errors     error screens: 404, API failure, offline, never-answering endpoint
 #   bash scripts/test.sh live       flows + ui against the deployed app (LIVE_URL, default numerix-web-snowy)
 set -u
 cd "$(dirname "$0")/.."
@@ -43,18 +44,26 @@ ensure_app() {
   echo "[app] could not start on :3000"; FAILS=$((FAILS+1))
 }
 
+# Next dev compiles each route on first hit (up to a minute for the heaviest): visit them once before the browser runs
+warm() {
+  for p in / /play /play/home /play/feed /play/worlds /play/challenges /play/collection /play/me /parent /parent/login /parent/register /parent/subscription /does-not-exist; do
+    curl -s -o /dev/null --max-time 120 "$BASE$p"
+  done
+}
+
 case "$MODE" in
   state)  run state node scripts/state-checks.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs ;;
   sounds) run sounds node scripts/check-sounds.mjs; run variants node scripts/check-sound-variants.mjs ;;
   mock)   ensure_mock; run mock node mock/scripts/selftest.mjs "$MOCK_URL" ;;
   flows)  ensure_app; run flows node scripts/flows.mjs "$BASE" ;;
-  ui)     ensure_app; run ui node scripts/ui-checks.mjs "$BASE" ;;
+  ui)     ensure_app; warm; run ui node scripts/ui-checks.mjs "$BASE" ;;
+  errors) ensure_app; warm; run errors node scripts/ui-error-checks.mjs "$BASE" ;;
   live)   LIVE="${LIVE_URL:-https://numerix-web-snowy.vercel.app}"
-          run flows node scripts/flows.mjs "$LIVE"; run ui node scripts/ui-checks.mjs "$LIVE" ;;
+          run flows node scripts/flows.mjs "$LIVE"; run ui node scripts/ui-checks.mjs "$LIVE"; run errors node scripts/ui-error-checks.mjs "$LIVE" ;;
   all)    run state node scripts/state-checks.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs
           run sounds node scripts/check-sounds.mjs; run variants node scripts/check-sound-variants.mjs
           ensure_mock; run mock node mock/scripts/selftest.mjs "$MOCK_URL"
-          ensure_app; run flows node scripts/flows.mjs "$BASE"; run ui node scripts/ui-checks.mjs "$BASE" ;;
+          ensure_app; warm; run flows node scripts/flows.mjs "$BASE"; run ui node scripts/ui-checks.mjs "$BASE"; run errors node scripts/ui-error-checks.mjs "$BASE" ;;
   *)      echo "unknown mode: $MODE"; exit 2 ;;
 esac
 

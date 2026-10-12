@@ -82,7 +82,8 @@
         "unknownWorld": "Ce monde n'existe pas. Retourne choisir un monde."
       },
       "collection": {
-        "title": "Tes cartes d'histoire"
+        "title": "Tes cartes d'histoire",
+        "retry": "Réessayer"
       },
       "quest": {
         "title": "Défi du jour",
@@ -111,7 +112,7 @@
           "test": "Tester la voix",
           "sample": "Bonjour ! Je suis ta voix pour les histoires. On y va ?",
           "using": "Voix choisie : {name}",
-          "noVoice": "Aucune voix trouvée sur cet appareil.",
+          "noVoice": "Aucune voix trouvée sur cet appareil pour cette langue. Demande à un adulte d'ajouter une voix dans les réglages de l'appareil (Windows : Paramètres, Heure et langue, Voix ; ou ouvre l'appli dans Microsoft Edge qui offre des voix naturelles).",
           "tapToHear": "Touche l'écran pour entendre."
         },
         "account": {
@@ -119,6 +120,11 @@
           "hint": "Change de joueur, ou déconnecte l'appareil. Quand un adulte se déconnecte, tout ce que l'appareil retenait est effacé.",
           "switch": "Changer de joueur",
           "signOut": "Déconnecter l'appareil (adulte)"
+        },
+        "language": {
+          "title": "Langue",
+          "label": "Langue de l'appli",
+          "locked": "Un adulte a choisi la langue de l'appli. Demande-lui si tu veux la changer."
         }
       },
       "story": {
@@ -147,7 +153,8 @@
           "text": "Ton histoire sera rangée. Tu pourras en commencer une autre quand tu veux.",
           "confirm": "Quitter la partie",
           "stay": "Continuer à jouer"
-        }
+        },
+        "tapToHear": "Touche pour écouter l'histoire"
       },
       "challenges": {
         "title": "Défis",
@@ -212,6 +219,8 @@
         "play": "Jouer",
         "giveConsent": "Donner l'autorisation",
         "overview": "Suivi",
+        "subscription": "Abonnement",
+        "manageSubscription": "Gérer l'abonnement",
         "pinOn": "Code à 4 chiffres requis pour jouer",
         "pinOff": "Pas de code"
       },
@@ -304,7 +313,9 @@
           "cancel": "Annuler",
           "confirm": "Supprimer pour de bon",
           "type": "Pour confirmer, écris « {name} »"
-        }
+        },
+        "kidLanguage": "Mon enfant peut changer la langue",
+        "kidLanguageHint": "L'enfant choisit entre le français et l'anglais dans son menu. Désactive pour garder la langue que tu as choisie."
       },
       "recap": {
         "title": "Résumé de l'histoire",
@@ -357,6 +368,100 @@
         "guide": "Visite guidée",
         "guideHint": "Revoir les conseils de bienvenue pour tous les profils.",
         "replayGuide": "Revoir la visite"
+      },
+      "subscription": {
+        "title": "Gérer l'abonnement",
+        "current": {
+          "title": "Votre forfait",
+          "renews": "Votre forfait se renouvelle le {date}.",
+          "trial": "Vous essayez Numerix gratuitement. Choisissez un forfait quand vous voulez pour continuer à jouer après l'essai.",
+          "unpaid": "Un paiement est dû. Payez maintenant pour que vos enfants puissent continuer à jouer.",
+          "expired": "Votre forfait est terminé. Choisissez un forfait pour rejouer. Les progrès sont conservés.",
+          "canceled": "Votre forfait est annulé. Vos enfants peuvent jouer jusqu'au {date}.",
+          "byAdmin": "Ce statut a été défini par l'équipe Numerix."
+        },
+        "plans": {
+          "title": "Choisir un forfait",
+          "current": "Votre forfait",
+          "priceFree": "Gratuit",
+          "perMonth": "par mois, CAD",
+          "perYear": "par an, CAD",
+          "priceUnknown": "Prix affiché au paiement",
+          "free": {
+            "name": "Gratuit",
+            "features": [
+              "Essayer Numerix sans frais",
+              "Un petit choix d'histoires"
+            ]
+          },
+          "family_monthly": {
+            "name": "Famille, mensuel",
+            "features": [
+              "Tous les mondes et toutes les histoires",
+              "Des rapports pour le parent",
+              "Annulez quand vous voulez"
+            ]
+          },
+          "family_yearly": {
+            "name": "Famille, annuel",
+            "features": [
+              "Tous les mondes et toutes les histoires",
+              "Des rapports pour le parent",
+              "Un seul paiement pour toute l'année"
+            ]
+          }
+        },
+        "method": {
+          "title": "Comment voulez-vous payer?",
+          "secure": "Vous ne tapez jamais de numéro de carte ici. En continuant, le paiement se termine sur la page sécurisée du fournisseur de paiement.",
+          "mock": "Dans cette version d'essai, le paiement se termine tout de suite et aucun argent n'est prélevé.",
+          "card": {
+            "name": "Carte de crédit ou de débit",
+            "hint": "Visa, Mastercard, Amex"
+          },
+          "interac": {
+            "name": "Interac",
+            "hint": "Payez depuis votre banque canadienne"
+          },
+          "paypal": {
+            "name": "PayPal",
+            "hint": "Utilisez votre compte PayPal"
+          },
+          "apple_pay": {
+            "name": "Apple Pay",
+            "hint": "Sur les appareils Apple"
+          },
+          "google_pay": {
+            "name": "Google Pay",
+            "hint": "Sur Android et Chrome"
+          }
+        },
+        "actions": {
+          "subscribe": "S'abonner",
+          "change": "Changer de forfait",
+          "cancel": "Annuler l'abonnement",
+          "retry": "Réessayer",
+          "samePlan": "C'est déjà votre forfait. Choisissez-en un autre pour changer."
+        },
+        "cancelDialog": {
+          "title": "Annuler votre abonnement?",
+          "text": "Vos enfants gardent leurs progrès. Vous pouvez vous abonner de nouveau quand vous voulez.",
+          "textUntil": "Vos enfants gardent leurs progrès et peuvent jouer jusqu'au {date}. Vous pouvez vous abonner de nouveau quand vous voulez.",
+          "keep": "Garder mon forfait",
+          "confirm": "Oui, annuler"
+        },
+        "canceledNote": "Votre abonnement est annulé. Vous pouvez vous abonner de nouveau quand vous voulez.",
+        "success": {
+          "title": "Tout est prêt",
+          "text": "Merci. Vos enfants peuvent jouer. Vous pouvez changer ou annuler votre forfait ici quand vous voulez.",
+          "done": "Retour à l'espace parent"
+        },
+        "error": {
+          "title": "Nous n'avons pas pu charger cette page",
+          "retry": "Réessayer",
+          "back": "Retour",
+          "home": "Accueil"
+        }
       }
     },
     "pwa": {
@@ -460,7 +565,15 @@
       "title": "La demande n'a pas abouti",
       "description": "Ta connexion et nos serveurs répondent, mais cette demande a échoué. Réessaie."
     },
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "subscription_inactive": {
+      "title": "L'abonnement n'est pas actif",
+      "description": "Pour jouer, un adulte doit activer l'abonnement dans l'espace parent. Ta progression est bien gardée."
+    },
+    "account_blocked": {
+      "title": "Le compte est en pause",
+      "description": "Un adulte doit contacter l'équipe Numerix. Ta progression est bien gardée."
+    }
   },
   "worlds": {
     "nature": "Nature",
@@ -687,6 +800,16 @@
       "days": "{count, plural, one {jour d'histoire} other {jours d'histoire}}",
       "fresh": "Une nouvelle série t'attend"
     },
+    "subscriptionBadge": {
+      "trial": "{count, plural, =0 {L'essai gratuit se termine aujourd'hui} one {Essai gratuit, # jour restant} other {Essai gratuit, # jours restants}}",
+      "active": "Actif",
+      "activeUntil": "Actif, renouvelé le {date}",
+      "unpaid": "Paiement à faire",
+      "expired": "Expiré",
+      "canceled": "Annulé",
+      "canceledUntil": "Annulé, accès jusqu'au {date}",
+      "blocked": "Compte en pause"
+    },
     "welcomeGift": {
       "title": "Un cadeau t'attend",
       "hint": "Touche le cadeau pour l'ouvrir.",
@@ -852,6 +975,72 @@
         "L'histoire fait une pirouette",
         "Un clin d'œil du hasard"
       ]
+    },
+    "appreciation": {
+      "pass": [
+        "Bravo, chapitre réussi !",
+        "Super travail, continue comme ça !",
+        "Quelle belle réussite !",
+        "Excellent, tu progresses vite !",
+        "Génial, la carte est à toi !",
+        "Chapeau, c'était du beau travail !"
+      ],
+      "miss": [
+        "Presque ! Reviens plus tard, on réessaie ensemble.",
+        "Ce n'est pas encore ça, et c'est normal. À bientôt pour un autre essai !",
+        "On apprend en essayant. Reviens quand tu veux !",
+        "Courage ! La prochaine fois sera la bonne."
+      ]
+    }
+  },
+  "lib": {
+    "notify": {
+      "reminders": {
+        "play_reminder": {
+          "title": "Une histoire t'attend",
+          "body": "{name} n'a pas encore joué aujourd'hui. Une courte histoire ne prend que quelques minutes."
+        },
+        "time_limit": {
+          "title": "Temps de jeu atteint",
+          "body": "{name} a joué {count} minutes aujourd'hui, la limite est de {limit}. Le jeu reprend demain."
+        },
+        "subscription_expiring": {
+          "title": "Votre forfait se termine bientôt",
+          "body": "{count, plural, =0 {Votre accès se termine aujourd'hui.} one {Votre accès se termine dans # jour.} other {Votre accès se termine dans # jours.}} Gérez votre abonnement pour que {name} puisse continuer à jouer."
+        },
+        "payment_due": {
+          "title": "Paiement à faire",
+          "body": "Un paiement est dû. Payez maintenant pour que {name} puisse continuer à jouer."
+        }
+      },
+      "ui": {
+        "bell": {
+          "label": "Notifications",
+          "labelUnread": "Notifications, {count} non lues",
+          "title": "Notifications",
+          "empty": "Rien de nouveau. Nous vous le dirons ici.",
+          "markAll": "Tout marquer comme lu",
+          "loadError": "Nous n'avons pas pu charger vos notifications.",
+          "retry": "Réessayer",
+          "new": "Nouveau"
+        },
+        "prompt": {
+          "title": "Recevoir des rappels sur cet appareil?",
+          "text": "Nous pouvons afficher un court message quand un forfait se termine ou qu'un paiement est à faire. Nous demandons seulement quand vous touchez le bouton.",
+          "enable": "Activer les rappels",
+          "later": "Pas maintenant",
+          "granted": "Les rappels sont activés.",
+          "denied": "Les rappels sont bloqués dans les réglages de votre navigateur. Vous les voyez quand même dans la cloche de l'application.",
+          "unsupported": "Ce navigateur ne peut pas afficher de rappels. Vous les voyez quand même dans la cloche de l'application.",
+          "push": {
+            "unsupported": "Les rappels s'afficheront quand l'application est ouverte. Ce navigateur ne peut pas les envoyer quand elle est fermée.",
+            "no_key": "Les rappels s'afficheront quand l'application est ouverte. Les rappels quand elle est fermée ne sont pas encore configurés.",
+            "no_endpoint": "Les rappels s'afficheront quand l'application est ouverte. Les rappels quand elle est fermée ne sont pas encore offerts de notre côté.",
+            "failed": "Les rappels s'afficheront quand l'application est ouverte. Nous n'avons pas pu activer les rappels quand elle est fermée. Réessayez plus tard.",
+            "permission": "Les rappels s'afficheront quand l'application est ouverte."
+          }
+        }
+      }
     }
   },
   "ui": {
@@ -914,6 +1103,32 @@
       "errorHint": "Vérifie ta connexion, puis réessaie.",
       "retry": "Réessayer",
       "end": "Tu as tout vu."
+    }
+  },
+  "errorScreen": {
+    "home": "Retour à l'accueil",
+    "details": "Détails techniques",
+    "detailsHint": "Pour un adulte. À partager si tu nous écris.",
+    "code": "Code",
+    "status": "Statut",
+    "reference": "Référence",
+    "play": {
+      "generic": "Oups, un petit accroc",
+      "offline": "Internet fait une sieste",
+      "timeout": "Ça prend du temps",
+      "notfound": "Oh! On s'est un peu perdus",
+      "permission": "Cette porte est pour les grands"
+    }
+  },
+  "screenState": {
+    "loading": "Chargement",
+    "slow": {
+      "title": "Ça prend plus de temps que d'habitude",
+      "description": "Rien n'est perdu. Attends un peu, réessaie ou reviens en arrière."
+    },
+    "empty": {
+      "title": "Rien ici pour l'instant",
+      "description": "Reviens bientôt, ou retourne à l'accueil."
     }
   }
 }

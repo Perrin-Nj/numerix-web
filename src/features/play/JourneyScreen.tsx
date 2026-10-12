@@ -7,6 +7,7 @@ import { JourneyPath } from '@/game/journey-path';
 import { Icon } from '@/ui/icon';
 import { IconButton } from '@/ui/icon-button';
 import { Skeleton } from '@/ui/skeleton';
+import { ScreenState } from '@/ui/screen-state';
 import { WORLD_IDS, type WorldId } from '@/lib/api/types';
 
 export function JourneyScreen({ world }: { world: string }) {
@@ -29,7 +30,14 @@ export function JourneyScreen({ world }: { world: string }) {
         <h1 className="font-display text-3xl font-bold">{tw(w)}</h1>
       </div>
       {!valid && <p className="text-muted">{t('unknownWorld')}</p>}
-      {journey.isLoading && <Skeleton height={420} />}
+      <ScreenState
+        isLoading={status.isLoading || journey.isLoading}
+        error={status.error ?? journey.error}
+        isEmpty={!journey.data}
+        onRetry={() => void (status.error ? status.refetch() : journey.refetch())}
+        area="play"
+        skeleton={<Skeleton height={420} />}
+      >
       {journey.data && (
         <JourneyPath
           nodes={journey.data.nodes}
@@ -40,6 +48,7 @@ export function JourneyScreen({ world }: { world: string }) {
           onPlay={() => begin(w, { skillId: journey.data?.current_skill_id })}
         />
       )}
+      </ScreenState>
       {dialog}
     </main>
   );

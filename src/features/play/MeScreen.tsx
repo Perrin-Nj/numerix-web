@@ -6,7 +6,10 @@ import { usePrefs } from '@/lib/prefs/store';
 import { useSpeaker } from '@/lib/speech';
 import { useCountUp } from '@/lib/motion';
 import { reportError } from '@/lib/errors/bridge';
-import { signOut, useEngagement, useGrowth, useSessionStatus } from '@/features/api/hooks';
+import { signOut, useChildSettings, useEngagement, useGrowth, useSessionStatus } from '@/features/api/hooks';
+import { useLocale } from 'next-intl';
+import { useChildProfile } from '@/lib/game/who';
+import { Avatar } from '@/ui/avatar';
 import { ParentGate } from '@/features/common/ParentGate';
 import { DailyGoalRing } from '@/game/daily-goal-ring';
 import { StreakBadge } from '@/game/streak-badge';
@@ -40,6 +43,37 @@ function Choice<T extends string | number>({ label, value, options, onChange }: 
         ))}
       </div>
     </div>
+  );
+}
+
+function LanguagePanel({ childId }: { childId: string | null }) {
+  const t = useTranslations('screens.play.me.language');
+  const router = useRouter();
+  const locale = useLocale();
+  const settings = useChildSettings(childId ?? '');
+  // A parent can lock the language; absent means allowed
+  const allowed = settings.data?.kid_can_change_language !== false;
+  const set = (value: string) => {
+    window.speechSynthesis?.cancel();
+    document.cookie = `NEXT_LOCALE=${value}; path=/; max-age=31536000; samesite=lax`;
+    router.refresh();
+  };
+  return (
+    <Panel title={t('title')}>
+      {allowed ? (
+        <Choice
+          label={t('label')}
+          value={locale.startsWith('en') ? 'en-CA' : 'fr-CA'}
+          options={[
+            { value: 'fr-CA', label: 'Français' },
+            { value: 'en-CA', label: 'English' },
+          ]}
+          onChange={set}
+        />
+      ) : (
+        <p className="text-muted">{t('locked')}</p>
+      )}
+    </Panel>
   );
 }
 
@@ -90,13 +124,20 @@ export function MeScreen() {
   const router = useRouter();
   const status = useSessionStatus();
   const childId = status.data?.childId ?? null;
+  const profile = useChildProfile(childId) ?? null;
   const engagement = useEngagement(childId);
   const growth = useGrowth(childId);
   const [gate, setGate] = useState<'parent' | 'logout' | null>(null);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-6">
-      <h1 className="font-display text-4xl font-bold">{t('title')}</h1>
+      <header className="flex items-center gap-4">
+        {profile && <Avatar avatarId={profile.avatar} name={profile.name} size="lg" />}
+        <div>
+          <h1 className="font-display text-4xl font-bold">{profile?.name ?? t('title')}</h1>
+          {profile && <p className="text-muted">{t('title')}</p>}
+        </div>
+      </header>
       {engagement.isLoading && <Skeleton height={140} />}
       {engagement.data && (
         <Panel title={t('today')}>
@@ -112,6 +153,7 @@ export function MeScreen() {
           <GrowthLines g={growth.data} />
         </Panel>
       )}
+      <LanguagePanel childId={childId} />
       <VoicePanel />
       <Panel title={t('account.title')}>
         <div className="flex flex-col gap-3">

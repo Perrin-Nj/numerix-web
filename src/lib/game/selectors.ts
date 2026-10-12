@@ -3,6 +3,7 @@
 import { CHALLENGES, SKILLS, WELCOME_CARD, WORLDS, WORLD_IDS, skillById, type Lang } from './catalog.ts';
 import type { GameEvent } from './events.ts';
 import type { CardView, ChallengeView, WorldId } from './types.ts';
+import { passes, READY_AHEAD } from './rules.ts';
 
 const DAY = 86_400_000;
 const MASTERED = 0.75;
@@ -42,15 +43,27 @@ export function masteryOf(events: GameEvent[], world: WorldId, skill: string, no
   return { m: Math.max(0, m - 0.05 * idle), peak, attempts, correct, last, days };
 }
 
+/** A step is completed once a finished chapter on it reached the pass threshold (70 percent by default). */
+export function completedSkills(events: GameEvent[], world: WorldId): Set<string> {
+  const done = new Set<string>();
+  for (const s of sessionsOf(events)) {
+    if (s.world !== world || s.status !== 'completed') continue;
+    const right = s._answers.filter((a) => a.outcome === 'correct').length;
+    if (passes(right, s._answers.length)) done.add(s._skill);
+  }
+  return done;
+}
+
 export function journeyNodes(events: GameEvent[], world: WorldId, now: number, lang: Lang) {
+  const completed = completedSkills(events, world);
+  // Two steps are always ready beyond the completed ones; finishing a step opens the next
+  const open = completed.size + READY_AHEAD;
   return SKILLS.map((s, i) => {
     const me = masteryOf(events, world, s.id, now);
-    const prev = i === 0 ? 1 : masteryOf(events, world, SKILLS[i - 1].id, now).m;
     let state: 'locked' | 'available' | 'in_progress' | 'mastered' | 'needs_review';
-    if (me.m >= MASTERED) state = 'mastered';
-    else if (me.peak >= MASTERED) state = 'needs_review';
-    else if (me.attempts > 0) state = 'in_progress';
-    else state = i === 0 || prev >= 0.5 ? 'available' : 'locked';
+    if (completed.has(s.id)) state = (now - me.last) / DAY > 7 ? 'needs_review' : 'mastered';
+    else if (i >= open) state = 'locked';
+    else state = me.attempts > 0 ? 'in_progress' : 'available';
     return {
       skill_id: s.id,
       label: s.label[lang],
@@ -70,6 +83,18 @@ export function currentSkill(nodes: ReturnType<typeof journeyNodes>) {
 export function journey(events: GameEvent[], world: WorldId, now: number, lang: Lang) {
   const nodes = journeyNodes(events, world, now, lang);
   return { world, nodes, current_skill_id: currentSkill(nodes) };
+}
+
+/** Minutes played today (from sessions started today) and the last time the child played, for reminders. */
+export function playToday(events: GameEvent[], now: number) {
+  const today = dayKey(now);
+  let minutes = 0;
+  let last = 0;
+  for (const s of sessionsOf(events)) {
+    last = Math.max(last, s._end);
+    if (dayKey(s._start) === today) minutes += Math.max(1, Math.round((s._end - s._start) / 60_000));
+  }
+  return { minutes, lastPlayedAt: last ? iso(last) : null };
 }
 
 // ───────── sessions ─────────

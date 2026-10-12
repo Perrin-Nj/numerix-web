@@ -7,6 +7,32 @@ import { solve } from './lib/solver.mjs';
 const BASE = (process.argv[2] ?? process.env.BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ locale: 'fr-CA', viewport: { width: 420, height: 880 } });
+// A fake speech engine with one French and one English woman voice, so reading aloud can be checked without a sound card
+await ctx.addInitScript(() => {
+  const voices = [
+    { name: 'Microsoft Guy Online (Natural) - French (France)', lang: 'fr-FR', localService: false },
+    { name: 'Microsoft Sylvie Online (Natural) - French (Canada)', lang: 'fr-CA', localService: false },
+    { name: 'Microsoft Sonia Online (Natural) - English (United Kingdom)', lang: 'en-GB', localService: false },
+  ];
+  window.__spoken = [];
+  window.SpeechSynthesisUtterance = class {
+    constructor(text) {
+      this.text = text;
+    }
+  };
+  Object.defineProperty(window, 'speechSynthesis', {
+    value: {
+      getVoices: () => voices,
+      speak: (u) => {
+        window.__spoken.push({ text: u.text, lang: u.lang, voice: u.voice?.name });
+        setTimeout(() => u.onend?.(), 20);
+      },
+      cancel() {},
+      addEventListener() {},
+      removeEventListener() {},
+    },
+  });
+});
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message.slice(0, 160)));
@@ -187,6 +213,19 @@ async function startChapter() {
   await page.waitForURL('**/play/session/**', T);
   return question();
 }
+await check('the story is read aloud by the French woman voice, in French', async () => {
+  await page.waitForFunction(() => window.__spoken.some((x) => x.voice?.includes('Sylvie') && /graine|Combien|Mira|forêt|\d/.test(x.text)), null, { timeout: 25000 });
+  const bad = await page.evaluate(() => window.__spoken.filter((x) => x.lang?.startsWith('en') || x.voice?.includes('Guy')).length);
+  if (bad) throw new Error(`${bad} utterances used a wrong-language or male voice`);
+});
+await check('home greeting changes at every visit of the session', async () => {
+  for (let i = 0; i < 3; i++) {
+    await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(600);
+  }
+  const seen = await page.evaluate(() => JSON.parse(sessionStorage.getItem('nx:greet:seen') ?? '[]'));
+  if (new Set(seen).size < 3) throw new Error(`greetings seen: ${JSON.stringify(seen)}`);
+});
 await check('question comes with a picture of its numbers', async () => {
   await startChapter();
   await page.getByRole('img', { name: /\d/ }).first().waitFor({ timeout: 8000 });

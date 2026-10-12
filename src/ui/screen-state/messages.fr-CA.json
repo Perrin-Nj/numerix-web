@@ -1,0 +1,13 @@
+{
+  "screenState": {
+    "loading": "Chargement",
+    "slow": {
+      "title": "Ça prend plus de temps que d'habitude",
+      "description": "Rien n'est perdu. Attends un peu, réessaie ou reviens en arrière."
+    },
+    "empty": {
+      "title": "Rien ici pour l'instant",
+      "description": "Reviens bientôt, ou retourne à l'accueil."
+    }
+  }
+}

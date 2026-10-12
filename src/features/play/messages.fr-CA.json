@@ -8,7 +8,8 @@
           "text": "Ton histoire sera rangée. Tu pourras en commencer une autre quand tu veux.",
           "confirm": "Quitter la partie",
           "stay": "Continuer à jouer"
-        }
+        },
+        "tapToHear": "Touche pour écouter l'histoire"
       },
       "home": {
         "menu": {
@@ -50,7 +51,7 @@
           "test": "Tester la voix",
           "sample": "Bonjour ! Je suis ta voix pour les histoires. On y va ?",
           "using": "Voix choisie : {name}",
-          "noVoice": "Aucune voix trouvée sur cet appareil.",
+          "noVoice": "Aucune voix trouvée sur cet appareil pour cette langue. Demande à un adulte d'ajouter une voix dans les réglages de l'appareil (Windows : Paramètres, Heure et langue, Voix ; ou ouvre l'appli dans Microsoft Edge qui offre des voix naturelles).",
           "tapToHear": "Touche l'écran pour entendre."
         },
         "account": {
@@ -58,6 +59,11 @@
           "hint": "Change de joueur, ou déconnecte l'appareil. Quand un adulte se déconnecte, tout ce que l'appareil retenait est effacé.",
           "switch": "Changer de joueur",
           "signOut": "Déconnecter l'appareil (adulte)"
+        },
+        "language": {
+          "title": "Langue",
+          "label": "Langue de l'appli",
+          "locked": "Un adulte a choisi la langue de l'appli. Demande-lui si tu veux la changer."
         }
       },
       "done": {

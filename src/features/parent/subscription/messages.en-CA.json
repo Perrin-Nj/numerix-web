@@ -1,0 +1,74 @@
+{
+  "screens": {
+    "parent": {
+      "subscription": {
+        "title": "Manage subscription",
+        "current": {
+          "title": "Your plan",
+          "renews": "Your plan renews on {date}.",
+          "trial": "You are trying Numerix for free. Pick a plan any time to keep playing after the trial.",
+          "unpaid": "A payment is due. Pay now so your children can keep playing.",
+          "expired": "Your plan ended. Pick a plan to start playing again. Progress is kept.",
+          "canceled": "Your plan is canceled. Your children can play until {date}.",
+          "byAdmin": "This status was set by the Numerix team."
+        },
+        "plans": {
+          "title": "Choose a plan",
+          "current": "Your plan",
+          "priceFree": "Free",
+          "perMonth": "per month, CAD",
+          "perYear": "per year, CAD",
+          "priceUnknown": "Price shown at payment",
+          "free": {
+            "name": "Free",
+            "features": ["Try Numerix at no cost", "A small selection of stories"]
+          },
+          "family_monthly": {
+            "name": "Family, monthly",
+            "features": ["All worlds and stories", "Reports for the grown-up", "Cancel any time"]
+          },
+          "family_yearly": {
+            "name": "Family, yearly",
+            "features": ["All worlds and stories", "Reports for the grown-up", "One payment for the whole year"]
+          }
+        },
+        "method": {
+          "title": "How do you want to pay?",
+          "secure": "You never type a card number here. When you continue, payment finishes on the payment provider's secure page.",
+          "mock": "In this test version, payment completes instantly and no money moves.",
+          "card": { "name": "Credit or debit card", "hint": "Visa, Mastercard, Amex" },
+          "interac": { "name": "Interac", "hint": "Pay from your Canadian bank" },
+          "paypal": { "name": "PayPal", "hint": "Use your PayPal account" },
+          "apple_pay": { "name": "Apple Pay", "hint": "On Apple devices" },
+          "google_pay": { "name": "Google Pay", "hint": "On Android and Chrome" }
+        },
+        "actions": {
+          "subscribe": "Subscribe",
+          "change": "Change plan",
+          "cancel": "Cancel subscription",
+          "retry": "Try again",
+          "samePlan": "This is already your plan. Pick another one to change."
+        },
+        "cancelDialog": {
+          "title": "Cancel your subscription?",
+          "text": "Your children keep their progress. You can subscribe again any time.",
+          "textUntil": "Your children keep their progress and can play until {date}. You can subscribe again any time.",
+          "keep": "Keep my plan",
+          "confirm": "Yes, cancel"
+        },
+        "canceledNote": "Your subscription is canceled. You can subscribe again any time.",
+        "success": {
+          "title": "You are all set",
+          "text": "Thank you. Your children can play. You can change or cancel your plan here whenever you like.",
+          "done": "Back to the parent area"
+        },
+        "error": {
+          "title": "We could not load this",
+          "retry": "Try again",
+          "back": "Back",
+          "home": "Home"
+        }
+      }
+    }
+  }
+}

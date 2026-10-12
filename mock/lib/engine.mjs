@@ -11,6 +11,8 @@ import Handlebars from 'handlebars';
 import { JSONPath } from 'jsonpath-plus';
 import mappings from './mappings.mjs';
 import { domain, seed } from './domain.mjs';
+import { adminHandle } from './admin.mjs';
+import { gateSession, onAuth, parentRoutes, storeMode, syncSettings } from './platform.mjs';
 
 const hb = Handlebars.create();
 hb.registerHelper('contains', (value, needle) => typeof value === 'string' && typeof needle === 'string' && value.includes(needle));
@@ -95,17 +97,20 @@ function renderDeep(value, ctx) {
 }
 
 /** req: { method, url, headers (lower-case keys), body } -> a plan the HTTP adapter plays back. */
-export function handle(req) {
+export async function handle(req) {
   const url = new URL(req.url, 'http://mock.local');
   const query = {};
   for (const [k, v] of url.searchParams) (query[k] ??= []).push(v);
   const r = { method: req.method.toUpperCase(), path: url.pathname, query, headers: req.headers, body: req.body ?? '' };
 
-  if (r.path === '/__admin/health') return { status: 200, headers: { 'content-type': 'application/json' }, chunks: [JSON.stringify({ status: 'healthy' })], delays: [0], state: null };
+  if (r.path === '/__admin/health') return { status: 200, headers: { 'content-type': 'application/json' }, chunks: [JSON.stringify({ status: 'healthy', platform_store: storeMode() })], delays: [0], state: null };
   if (r.path === '/__admin/scenarios/reset' && r.method === 'POST') {
     resetMemoryState();
     return { status: 200, headers: {}, chunks: [''], delays: [0], state: memoryState };
   }
+
+  // platform admin API: its own auth and CORS, never touched by scenario injection or the cookie state
+  if (r.path.startsWith('/admin/v1/')) return adminHandle(r);
 
   const headerState = decodeState(req.headers['x-mock-state']);
   const current = headerState && headerState.s && headerState.d ? headerState : memoryState;
@@ -114,11 +119,16 @@ export function handle(req) {
   // 1) injected failures (priority 1 + X-Mock-Scenario) win everywhere, 2) stateful domain, 3) the other mappings
   let hit = ordered.find((m) => (m.priority ?? 5) === 1 && matches(m, r, state));
   if (!hit) {
+    const own = await parentRoutes(r);
+    if (own) return { ...own, state: null };
+    await onAuth(r);
+    const gated = await gateSession(r);
+    if (gated) return { ...gated, state: { s: state, d: current.d } };
     const handled = domain(r, current.d);
     if (handled) {
       const out = { s: state, d: handled.d };
       if (!headerState) memoryState = out;
-      return { ...handled.plan, state: out };
+      return { ...(await syncSettings(r, handled.plan)), state: out };
     }
     hit = ordered.find((m) => matches(m, r, state));
   }

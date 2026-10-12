@@ -4,6 +4,7 @@ import { useWeeklyReport } from '@/features/api/hooks';
 import { ParentPage } from './ParentPage';
 import { Panel } from '@/ui/panel';
 import { Skeleton } from '@/ui/skeleton';
+import { ScreenState } from '@/ui/screen-state';
 
 export function ReportScreen({ childId }: { childId: string }) {
   const t = useTranslations('screens.parent.report');
@@ -13,7 +14,7 @@ export function ReportScreen({ childId }: { childId: string }) {
 
   return (
     <ParentPage title={t('title')} backHref={`/parent/children/${childId}`}>
-      {report.isLoading && <Skeleton height={200} />}
+      <ScreenState isLoading={report.isLoading} error={report.error} isEmpty={!r} onRetry={() => void report.refetch()} area="parent" skeleton={<Skeleton height={200} />}>
       {r && (
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
           <Panel title={t('week', { date: format.dateTime(new Date(r.week_start), { dateStyle: 'long' }) })}>
@@ -43,6 +44,7 @@ export function ReportScreen({ childId }: { childId: string }) {
           </Panel>
         </div>
       )}
+      </ScreenState>
     </ParentPage>
   );
 }

@@ -93,6 +93,14 @@
       "title": "La demande n'a pas abouti",
       "description": "Ta connexion et nos serveurs répondent, mais cette demande a échoué. Réessaie."
     },
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "subscription_inactive": {
+      "title": "L'abonnement n'est pas actif",
+      "description": "Pour jouer, un adulte doit activer l'abonnement dans l'espace parent. Ta progression est bien gardée."
+    },
+    "account_blocked": {
+      "title": "Le compte est en pause",
+      "description": "Un adulte doit contacter l'équipe Numerix. Ta progression est bien gardée."
+    }
   }
 }

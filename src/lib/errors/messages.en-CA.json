@@ -93,6 +93,14 @@
       "title": "The request did not go through",
       "description": "Your connection and our servers both answer, but this request failed. Try again."
     },
-    "retry": "Try again"
+    "retry": "Try again",
+    "subscription_inactive": {
+      "title": "The subscription is not active",
+      "description": "To play, a grown-up needs to turn the subscription on in the parent area. Your progress is safe."
+    },
+    "account_blocked": {
+      "title": "The account is paused",
+      "description": "A grown-up needs to contact the Numerix team. Your progress is safe."
+    }
   }
 }

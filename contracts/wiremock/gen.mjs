@@ -153,6 +153,26 @@ add('auth-login', { priority: 5, request: { method: 'POST', urlPath: `${V}/auth/
 add('auth-refresh', { priority: 5, request: { method: 'POST', urlPath: `${V}/auth/refresh` }, response: ok(200, authBody('parent@example.com')) });
 add('auth-consent', { priority: 5, request: { method: 'POST', urlPath: `${V}/auth/consent` }, response: { status: 204 } });
 
+// ───────────── Platform (V4): subscription, notifications, public policy. The Node mock computes these statefully; these mappings serve the WireMock/Docker case.
+const subscription = { status: 'trial', plan: 'free', trial_ends_at: '2026-10-26T14:00:00Z', can_play: true, days_left: 14 };
+const planDoc = {
+  currency: 'CAD',
+  plans: [
+    { id: 'free', price_cad_cents: 0, period: 'none', name: { fr: 'Gratuit', en: 'Free' }, features: { fr: ['Un profil enfant'], en: ['One child profile'] } },
+    { id: 'family_monthly', price_cad_cents: 899, period: 'month', name: { fr: 'Famille mensuel', en: 'Family monthly' }, features: { fr: ['Chapitres illimités'], en: ['Unlimited chapters'] } },
+    { id: 'family_yearly', price_cad_cents: 8990, period: 'year', name: { fr: 'Famille annuel', en: 'Family yearly' }, features: { fr: ['Deux mois offerts'], en: ['Two months free'] } },
+  ],
+  methods: [['card', 'Carte de crédit', 'Credit card'], ['interac', 'Interac', 'Interac'], ['paypal', 'PayPal', 'PayPal'], ['apple_pay', 'Apple Pay', 'Apple Pay'], ['google_pay', 'Google Pay', 'Google Pay']].map(([id, fr, en]) => ({ id, label: { fr, en } })),
+};
+add('subscription-get', { priority: 5, request: { method: 'GET', urlPath: `${V}/subscription` }, response: ok(200, subscription) });
+add('subscription-plans', { priority: 5, request: { method: 'GET', urlPath: `${V}/subscription/plans` }, response: ok(200, planDoc) });
+add('subscription-checkout', { priority: 5, request: { method: 'POST', urlPath: `${V}/subscription/checkout` }, response: ok(200, { status: 'active', plan: 'family_monthly', method: 'card', renews_at: '2026-11-11T14:00:00Z', can_play: true, days_left: 30 }) });
+add('subscription-cancel', { priority: 5, request: { method: 'POST', urlPath: `${V}/subscription/cancel` }, response: ok(200, { status: 'canceled', plan: 'family_monthly', method: 'card', renews_at: '2026-11-11T14:00:00Z', can_play: true, days_left: 30 }) });
+add('notifications-list', { priority: 5, request: { method: 'GET', urlPath: `${V}/notifications` }, response: ok(200, { items: [{ id: 'nt-1', kind: 'play_reminder', title: t('C’est l’heure d’une petite aventure', 'Time for a little adventure'), body: t('Un chapitre de 10 minutes attend votre enfant.', 'A 10 minute chapter is waiting for your child.'), created_at: NOW, read: false, audience: 'parent' }], unread_count: 1 }, { transformers: ['response-template'] }) });
+add('notification-read', { priority: 5, request: { method: 'POST', urlPathPattern: `${V}/notifications/[^/]+/read` }, response: { status: 204 } });
+add('platform-public', { priority: 5, request: { method: 'GET', urlPath: `${V}/platform/public` }, response: ok(200, { unpaid_policy: 'block', card_threshold_pct: 70, trial_days: 14, default_locale: 'fr-CA', features: { feed: true, challenges: true, push: false, payments: true } }) });
+add('session-start-402', { priority: 2, request: { method: 'POST', urlPathPattern: `${V}/children/[^/]+/sessions`, headers: scenarioHeader('subscription-inactive') }, response: { ...problem(402, 'subscription_inactive', 'A little break for now', 'Your family’s subscription is paused. Ask a grown-up to turn it back on.'), jsonBody: { type: 'https://numerix.app/problems/subscription-inactive', title: 'A little break for now', status: 402, code: 'subscription_inactive', detail: 'Your family’s subscription is paused. Ask a grown-up to turn it back on.', i18n: { fr: { title: 'Petite pause pour l’instant', detail: 'L’abonnement de ta famille est en pause. Demande à un grand de le réactiver et l’aventure repart !' }, en: { title: 'A little break for now', detail: 'Your family’s subscription is paused. Ask a grown-up to turn it back on and the adventure starts again!' } } } } });
+
 // ───────────── Children ─────────────
 add('children-list', { priority: 5, request: { method: 'GET', urlPath: `${V}/children` }, response: ok(200, { items: [zoe, max] }, { transformers: ['response-template'] }) });
 add('children-create', {
@@ -172,7 +192,7 @@ add('child-token-bad-pin', {
 });
 add('child-token-zoe', { priority: 5, request: { method: 'POST', urlPath: `${V}/children/${ZOE}/token` }, response: ok(200, { access_token: 'mock-child-token', expires_in: 3600, child: zoe }) });
 add('child-token-other', { priority: 6, request: { method: 'POST', urlPathPattern: `${V}/children/[^/]+/token` }, response: ok(200, { access_token: 'mock-child-token', expires_in: 3600, child: max }) });
-const settings = { daily_goal_chapters: 1, daily_time_limit_minutes: null, enabled_worlds: worlds.map((w) => w.id), read_aloud: true, sound: true };
+const settings = { daily_goal_chapters: 1, daily_time_limit_minutes: null, enabled_worlds: worlds.map((w) => w.id), read_aloud: true, sound: true, kid_can_change_language: true };
 add('child-settings-get', { priority: 5, request: { method: 'GET', urlPathPattern: `${V}/children/[^/]+/settings` }, response: ok(200, settings) });
 add('child-settings-put', { priority: 5, request: { method: 'PUT', urlPathPattern: `${V}/children/[^/]+/settings` }, response: { status: 200, headers: JSON_H, body: '{{{request.body}}}', transformers: ['response-template'] } });
 add('child-export', { priority: 5, request: { method: 'GET', urlPathPattern: `${V}/children/[^/]+/export` }, response: ok(200, { child: zoe, sessions: [], progress: [] }) });

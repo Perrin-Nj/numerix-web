@@ -1,0 +1,17 @@
+{
+  "errorScreen": {
+    "home": "Go home",
+    "details": "Technical details",
+    "detailsHint": "For a grown-up. Share this if you contact us.",
+    "code": "Code",
+    "status": "Status",
+    "reference": "Reference",
+    "play": {
+      "generic": "Oops, a little bump",
+      "offline": "The internet is taking a nap",
+      "timeout": "This is taking a while",
+      "notfound": "Oh! We got a bit lost",
+      "permission": "That door is for grown-ups"
+    }
+  }
+}

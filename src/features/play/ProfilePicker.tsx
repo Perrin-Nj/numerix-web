@@ -12,6 +12,7 @@ import { Dialog } from '@/ui/dialog';
 import { PinInput } from '@/ui/pin-input';
 import { Reveal } from '@/ui/reveal';
 import { Skeleton } from '@/ui/skeleton';
+import { ScreenState } from '@/ui/screen-state';
 import { rememberChild } from '@/lib/game/who';
 import type { Child } from '@/lib/api/types';
 
@@ -38,7 +39,7 @@ export function ProfilePicker() {
     try {
       await token.mutateAsync({ id: child.id, pin: withPin });
       setApiMode('child');
-      rememberChild(child.id, child.display_name);
+      rememberChild(child.id, child.display_name, child.avatar_id);
       setPinFor(null);
       setEntering(true);
       router.push('/play/home');
@@ -85,11 +86,21 @@ export function ProfilePicker() {
         </MascotBubble>
       </Reveal>
 
-      {children.isLoading && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <Skeleton height={160} />
-          <Skeleton height={160} />
-        </div>
+      {(children.isLoading || children.error) && (
+        <ScreenState
+          isLoading={children.isLoading}
+          error={children.error}
+          onRetry={() => void children.refetch()}
+          area="play"
+          skeleton={
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <Skeleton height={160} />
+              <Skeleton height={160} />
+            </div>
+          }
+        >
+          {null}
+        </ScreenState>
       )}
       {children.data && children.data.length === 0 && <p className="text-lg text-muted">{t('none')}</p>}
       <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3">

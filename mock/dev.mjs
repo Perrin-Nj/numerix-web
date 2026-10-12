@@ -9,7 +9,7 @@ createServer(async (req, res) => {
   const parts = [];
   for await (const c of req) parts.push(c);
   const body = Buffer.concat(parts).toString('utf8');
-  const plan = handle({ method: req.method, url: req.url, headers: req.headers, body });
+  const plan = await handle({ method: req.method, url: req.url, headers: req.headers, body });
   if (plan.fault) return req.socket.destroy();
   res.statusCode = plan.status;
   for (const [k, v] of Object.entries(plan.headers)) res.setHeader(k, v);
