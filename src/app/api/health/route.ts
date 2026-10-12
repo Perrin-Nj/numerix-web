@@ -7,6 +7,7 @@ import { serverEnv } from '@/config/env';
  */
 export async function GET() {
   let backend: 'ok' | 'timeout' | 'unreachable' | 'error' = 'unreachable';
+  let detail = '';
   try {
     const res = await fetch(`${serverEnv().API_URL.replace(/\/$/, '')}/health`, {
       cache: 'no-store',
@@ -15,6 +16,7 @@ export async function GET() {
     backend = res.ok ? 'ok' : 'error';
   } catch (e) {
     backend = e instanceof Error && (e.name === 'TimeoutError' || e.name === 'AbortError') ? 'timeout' : 'unreachable';
+    detail = e instanceof Error ? `${e.name}: ${e.message}${e.cause instanceof Error ? ` (${e.cause.message})` : ''}` : String(e);
   }
-  return NextResponse.json({ app: 'ok', backend }, { headers: { 'cache-control': 'no-store' } });
+  return NextResponse.json({ app: 'ok', backend, ...(detail && { detail }), host: new URL(serverEnv().API_URL).host }, { headers: { 'cache-control': 'no-store' } });
 }

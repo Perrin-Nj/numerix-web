@@ -7,6 +7,7 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const imageHosts = (process.env.IMAGE_HOSTS ?? '').split(',').map((h) => h.trim()).filter(Boolean);
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ['192.168.68.55'],
   images: { remotePatterns: imageHosts.map((hostname) => ({ protocol: 'https' as const, hostname })) },
   // ADR 0002: Cache Components is off. The app is cookie-authenticated and client driven;
   // static generation is used for public pages. Revisit after the playtest.

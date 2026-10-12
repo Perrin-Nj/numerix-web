@@ -23,7 +23,10 @@ The small "Demo data" badge at the bottom left opens the failure simulator.
 ```bash
 node scripts/flows.mjs https://numerix-web-snowy.vercel.app   # 30 checks in a few seconds
 node mock/scripts/selftest.mjs https://numerix-mock.vercel.app # the mock on its own
+node scripts/ui-checks.mjs https://numerix-web-snowy.vercel.app # the screens in a real browser, one line per check
 ```
+
+Both passed on the live deployment on 2026-10-12. The one `403` the browser check reports is the deliberate wrong-PIN test.
 
 ## A. First screen
 

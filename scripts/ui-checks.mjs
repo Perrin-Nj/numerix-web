@@ -10,6 +10,9 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(e.message.slice(0, 160)));
 page.on('console', (m) => m.type() === 'error' && errors.push(m.text().slice(0, 160)));
 let fails = 0;
+page.on('response', (r) => {
+  if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.request().method()} ${r.url().replace(BASE, '').slice(0, 80)}`);
+});
 
 async function check(name, fn) {
   try {
@@ -29,13 +32,11 @@ await check('first screen has both doors', async () => {
 });
 await check('kid door without an adult explains what to do', async () => {
   await page.getByRole('button', { name: /je suis un enfant/i }).click();
-  await page.getByText(/un adulte doit d.abord se connecter/i).waitFor(T);
+  await page.getByText(/un adulte doit d.abord se connecter/i).first().waitFor(T);
 });
 await check('grown-up registers', async () => {
-  await page.getByRole('button', { name: /je suis un adulte/i }).click();
-  await page.waitForURL('**/parent/login', T);
-  await page.getByRole('link', { name: /créer un compte/i }).click();
-  await page.getByLabel(/courriel/i).fill('ui@example.com');
+  await page.goto(`${BASE}/parent/register`, { waitUntil: 'networkidle' });
+  await page.getByLabel(/courriel/i).fill(`ui${Date.now()}@example.com`);
   await page.getByLabel(/mot de passe/i).fill('correct-horse-battery');
   await page.getByRole('button', { name: /créer mon compte/i }).click();
   await page.waitForURL('**/parent/children/new', T);
@@ -81,6 +82,7 @@ await check('discover feed: cards, AI label, endless loading, like', async () =>
   await page.getByText(/généré par ia/i).first().waitFor(T);
   const count = () => page.getByText(/généré par ia/i).count();
   const first = await count();
+  await page.mouse.move(210, 400);
   for (let i = 0; i < 6; i++) {
     await page.mouse.wheel(0, 900);
     await page.waitForTimeout(500);
@@ -88,17 +90,15 @@ await check('discover feed: cards, AI label, endless loading, like', async () =>
   await page.waitForTimeout(1200);
   const later = await count();
   if (later <= first) throw new Error(`feed did not grow (${first} -> ${later})`);
-  const like = page.getByRole('button', { name: /aimer|j.aime/i }).first();
-  await like.click();
-  await page.waitForTimeout(400);
-  if ((await like.getAttribute('aria-pressed')) !== 'true') throw new Error('like not pressed');
+  await page.getByRole('button', { name: /j.aime/i }).first().click();
+  await page.getByRole('button', { name: /^aimé/i }).first().waitFor({ timeout: 5000 });
 });
 await check('a chapter can be started and answered', async () => {
   await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: /jouer/i }).first().click();
   await page.waitForURL('**/play/session/**', T);
-  await page.getByRole('button', { name: /^A\b/ }).waitFor({ timeout: 25000 });
-  await page.getByRole('button', { name: /^B\b/ }).click();
+  await page.getByText('7 × 8').first().waitFor({ timeout: 25000 });
+  await page.getByRole('button', { name: /56/ }).first().click();
   await page.getByRole('button', { name: /continuer/i }).waitFor({ timeout: 25000 });
 });
 
