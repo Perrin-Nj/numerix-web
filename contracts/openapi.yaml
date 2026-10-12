@@ -1,0 +1,1263 @@
+openapi: 3.1.0
+info:
+  title: Numerix API
+  version: 0.1.0
+  summary: Contract between the Next.js app and the Numerix backend.
+  description: |
+    Source of truth for the frontend and the backend. TypeScript types and the
+    mock server are generated from this file; the FastAPI service is checked
+    against it.
+
+    **The one rule (see docs/NUMERIX_CONTEXT.md):** the LLM never does math.
+    The deterministic engine builds the problem and rules on the answer.
+    Consequences for this contract:
+    - A `Beat` never contains the correct answer. It is revealed only in the
+      `AnswerResult` returned after the child answers.
+    - Narration text comes from the LLM and is never an input to grading.
+
+    **Game feel:** Duolingo-like structure outside play (journey map, story-day
+    streak, story cards, daily goal, own-past growth), story-only inside play.
+    There are deliberately no hearts or lives, no XP, no leagues or
+    leaderboards, and no timers. Wrong answers carry no failure flag: the
+    child-facing `outcome` only selects which story beat to show.
+
+    **Roles.** `parent` tokens manage accounts and read reports. `child` tokens
+    (obtained with `POST /children/{childId}/token`) can only play: journey,
+    sessions, collection. Each operation lists its role in `x-roles`.
+servers:
+  - url: http://localhost:8000/v1
+    description: Local development
+tags:
+  - name: Auth
+  - name: Children
+  - name: Catalog
+  - name: Journey
+  - name: Sessions
+  - name: Progress
+  - name: Engagement
+  - name: Parent
+  - name: Ops
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ───────────────────────────── Auth ─────────────────────────────
+  /auth/register:
+    post:
+      tags: [Auth]
+      operationId: registerParent
+      summary: Create a parent account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: loginParent
+      summary: Log a parent in
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Logged in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      operationId: refreshToken
+      summary: Exchange a refresh token for a new access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: { type: string }
+      responses:
+        '200':
+          description: New tokens
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSession' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/consent:
+    post:
+      tags: [Auth]
+      operationId: recordConsent
+      summary: Record the parent's consent to process a child's data
+      x-roles: [parent]
+      description: Required before a child profile can start a session (Quebec Law 25).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConsentRequest' }
+      responses:
+        '204': { description: Consent recorded }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ───────────────────────────── Children ─────────────────────────────
+  /children:
+    get:
+      tags: [Children]
+      operationId: listChildren
+      summary: List the parent's child profiles
+      x-roles: [parent]
+      responses:
+        '200':
+          description: Child profiles
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Child' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Children]
+      operationId: createChild
+      summary: Create a child profile
+      x-roles: [parent]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChildCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Child' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /children/{childId}:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Children]
+      operationId: getChild
+      summary: Get one child profile
+      x-roles: [parent, child]
+      responses:
+        '200':
+          description: The profile
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Child' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Children]
+      operationId: updateChild
+      summary: Update name, avatar or grade
+      x-roles: [parent]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChildUpdate' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Child' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Children]
+      operationId: deleteChild
+      summary: Delete a child profile and all of its data
+      x-roles: [parent]
+      description: Irreversible. Removes sessions, mastery, collection and reports.
+      responses:
+        '204': { description: Deleted }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /children/{childId}/token:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    post:
+      tags: [Children]
+      operationId: createChildToken
+      summary: Switch to a child (play mode)
+      x-roles: [parent]
+      description: Returns a child-scoped token. A PIN is required if the profile has one.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pin: { type: string, pattern: '^[0-9]{4}$' }
+      responses:
+        '200':
+          description: Child token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChildToken' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /children/{childId}/settings:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Parent]
+      operationId: getChildSettings
+      summary: Get a child's play settings
+      x-roles: [parent]
+      responses:
+        '200':
+          description: Settings
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChildSettings' }
+    put:
+      tags: [Parent]
+      operationId: updateChildSettings
+      summary: Replace a child's play settings
+      x-roles: [parent]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChildSettings' }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChildSettings' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /children/{childId}/export:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Parent]
+      operationId: exportChildData
+      summary: Download all data held about a child (Law 25 access request)
+      x-roles: [parent]
+      responses:
+        '200':
+          description: JSON export
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  # ───────────────────────────── Catalog ─────────────────────────────
+  /worlds:
+    get:
+      tags: [Catalog]
+      operationId: listWorlds
+      summary: The eight story worlds
+      x-roles: [parent, child]
+      responses:
+        '200':
+          description: Worlds
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/World' }
+
+  /skills:
+    get:
+      tags: [Catalog]
+      operationId: listSkills
+      summary: Curriculum skills (PDA), filterable
+      x-roles: [parent]
+      parameters:
+        - name: world
+          in: query
+          schema: { $ref: '#/components/schemas/WorldId' }
+        - name: grade
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 4 }
+        - name: implemented
+          in: query
+          description: Only skills that have a generator today (8 of 75)
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Skills
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Skill' }
+
+  # ───────────────────────────── Journey ─────────────────────────────
+  /children/{childId}/journey:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Journey]
+      operationId: getJourney
+      summary: The path of chapters for a child in one world
+      x-roles: [parent, child]
+      description: |
+        Duolingo-style path. Each node is one skill. Node state is derived from
+        mastery and the review schedule; it is not a score.
+      parameters:
+        - name: world
+          in: query
+          required: true
+          schema: { $ref: '#/components/schemas/WorldId' }
+      responses:
+        '200':
+          description: The journey
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Journey' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ───────────────────────────── Sessions ─────────────────────────────
+  /children/{childId}/sessions:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    post:
+      tags: [Sessions]
+      operationId: startSession
+      summary: Start a chapter
+      x-roles: [child]
+      description: |
+        A session is one chapter of the child's story. The planner picks each
+        skill (review, consolidation, new, upkeep) unless `skill_id` is given.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StartSessionRequest' }
+      responses:
+        '201':
+          description: Session created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '403':
+          description: No consent on file, or the daily time limit is reached
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '409':
+          description: The child already has an active session
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+    get:
+      tags: [Sessions]
+      operationId: listSessions
+      summary: Past sessions, newest first
+      x-roles: [parent, child]
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: A page of sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Session' }
+                  next_cursor: { type: [string, 'null'] }
+
+  /sessions/{sessionId}:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    get:
+      tags: [Sessions]
+      operationId: getSession
+      summary: Session state (use it to resume after a reload)
+      x-roles: [parent, child]
+      responses:
+        '200':
+          description: The session
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /sessions/{sessionId}/beats:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    post:
+      tags: [Sessions]
+      operationId: nextBeat
+      summary: Get the next scene and question
+      x-roles: [child]
+      description: |
+        Runs the planner, generates a problem, returns the question at once.
+        The scene text may still be `pending`: subscribe to the narration
+        stream. The answer is never in this response.
+        Calling it again while the previous beat is unanswered returns that
+        same beat.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '201':
+          description: A new beat
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Beat' }
+        '200':
+          description: The still-unanswered current beat
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Beat' }
+        '409':
+          description: Session is paused or completed
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /sessions/{sessionId}/beats/{beatId}/answer:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+      - $ref: '#/components/parameters/BeatId'
+    post:
+      tags: [Sessions]
+      operationId: answerBeat
+      summary: Submit the child's answer
+      x-roles: [child]
+      description: |
+        The engine rules on the answer (`Probleme.evaluer`), mastery is
+        updated, and the outcome is returned with the story consequence.
+        Safe to retry with the same `Idempotency-Key`: the verdict is stored.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AnswerRequest' }
+      responses:
+        '200':
+          description: Verdict and consequence
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnswerResult' }
+        '409':
+          description: This beat was already answered
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /sessions/{sessionId}/beats/{beatId}/narration:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+      - $ref: '#/components/parameters/BeatId'
+    get:
+      tags: [Sessions]
+      operationId: streamNarration
+      summary: Stream the scene or the consequence as it is written
+      x-roles: [child]
+      description: |
+        Server-sent events. Events: `scene` (text delta), `denouement` (text
+        delta), `done`, `fallback` (the model failed; the data holds the canned
+        text to show instead). The stream closes after `done` or `fallback`.
+      parameters:
+        - name: phase
+          in: query
+          required: true
+          schema: { type: string, enum: [scene, denouement] }
+      responses:
+        '200':
+          description: Event stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+
+  /sessions/{sessionId}/pause:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    post:
+      tags: [Sessions]
+      operationId: pauseSession
+      summary: Pause (the child leaves; no penalty, no timer)
+      x-roles: [child]
+      responses:
+        '200':
+          description: Paused
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+
+  /sessions/{sessionId}/resume:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    post:
+      tags: [Sessions]
+      operationId: resumeSession
+      summary: Resume a paused session
+      x-roles: [child]
+      responses:
+        '200':
+          description: Active again; `current_beat` is the open question if any
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+
+  /sessions/{sessionId}/finish:
+    post:
+      tags: [Sessions]
+      operationId: finishSession
+      summary: End the chapter early
+      x-roles: [child]
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Closed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+
+  /sessions/{sessionId}/summary:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    get:
+      tags: [Parent]
+      operationId: getSessionSummary
+      summary: Parent recap of one session
+      x-roles: [parent]
+      description: Skills practised, where the child got stuck (with the misconception), and the story so far.
+      responses:
+        '200':
+          description: Recap
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SessionSummary' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ───────────────────────────── Progress ─────────────────────────────
+  /children/{childId}/progress:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Progress]
+      operationId: getProgress
+      summary: Mastery per skill and active misconceptions
+      x-roles: [parent]
+      responses:
+        '200':
+          description: Progress
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Progress' }
+
+  /children/{childId}/reviews:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Progress]
+      operationId: getReviewCalendar
+      summary: Upcoming spaced reviews
+      x-roles: [parent, child]
+      parameters:
+        - name: days
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 90, default: 30 }
+      responses:
+        '200':
+          description: Reviews, soonest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ReviewDue' }
+
+  /children/{childId}/growth:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Progress]
+      operationId: getGrowth
+      summary: The child compared with their own past (never with other children)
+      x-roles: [parent, child]
+      parameters:
+        - name: window_days
+          in: query
+          schema: { type: integer, enum: [7, 30], default: 7 }
+      responses:
+        '200':
+          description: Growth
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Growth' }
+
+  /reports/weekly:
+    get:
+      tags: [Parent]
+      operationId: getWeeklyReport
+      summary: Weekly report for one child
+      x-roles: [parent]
+      parameters:
+        - name: child_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - name: week_start
+          in: query
+          description: Monday of the week. Defaults to the last full week.
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Report
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WeeklyReport' }
+
+  # ───────────────────────────── Engagement ─────────────────────────────
+  /children/{childId}/engagement:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Engagement]
+      operationId: getEngagement
+      summary: Story-day streak and daily goal
+      x-roles: [parent, child]
+      responses:
+        '200':
+          description: Engagement state
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Engagement' }
+
+  /children/{childId}/collection:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Engagement]
+      operationId: getCollection
+      summary: Story cards earned by finishing chapters
+      x-roles: [parent, child]
+      parameters:
+        - name: world
+          in: query
+          schema: { $ref: '#/components/schemas/WorldId' }
+      responses:
+        '200':
+          description: Cards
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/StoryCard' }
+
+  /children/{childId}/quests/daily:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Engagement]
+      operationId: getDailyQuest
+      summary: Today's review quest, a chapter made of due reviews in a fresh story
+      x-roles: [child]
+      responses:
+        '200':
+          description: Quest
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DailyQuest' }
+
+  # ───────────────────────────── Ops ─────────────────────────────
+  /health:
+    get:
+      tags: [Ops]
+      operationId: health
+      summary: Liveness and readiness
+      security: []
+      responses:
+        '200':
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, enum: [ok, degraded] }
+                  narrator: { type: string, enum: [llm, stub, down] }
+
+  /events:
+    post:
+      tags: [Ops]
+      operationId: sendEvents
+      summary: Batch of privacy-safe UI events (no names, no free text)
+      x-roles: [parent, child]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [events]
+              properties:
+                events:
+                  type: array
+                  maxItems: 100
+                  items:
+                    type: object
+                    required: [name, at]
+                    properties:
+                      name: { type: string, example: world_picker_opened }
+                      at: { type: string, format: date-time }
+                      props:
+                        type: object
+                        additionalProperties:
+                          type: [string, number, boolean]
+      responses:
+        '202': { description: Accepted }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ChildId:
+      name: childId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    BeatId:
+      name: beatId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Client-generated UUID. A retry with the same key returns the first result.
+      schema: { type: string, format: uuid }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Forbidden:
+      description: Wrong role, wrong PIN, or not your child
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: No such resource
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Conflict:
+      description: State conflict
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    ValidationError:
+      description: Invalid request body
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+  schemas:
+    # ── Shared ──
+    Problem:
+      type: object
+      description: RFC 9457 problem details
+      required: [type, title, status]
+      properties:
+        type: { type: string, example: 'https://numerix.app/problems/consent-missing' }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        code:
+          type: string
+          description: Stable machine code the UI switches on
+          example: consent_missing
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
+
+    WorldId:
+      type: string
+      enum: [nature, espace, cuisine, sport, construction, medecine, science, echecs]
+
+    SkillId:
+      type: string
+      description: PDA skill id from the curriculum graph
+      example: ARI-OPE-A07a
+
+    # An answer is a number, free text, or [quotient, remainder] for division with remainder.
+    AnswerValue:
+      oneOf:
+        - type: integer
+        - type: number
+        - type: string
+        - type: array
+          minItems: 2
+          maxItems: 2
+          items: { type: integer }
+      examples: [48, [48, 4]]
+
+    # ── Auth ──
+    RegisterRequest:
+      type: object
+      required: [email, password, locale]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 10 }
+        locale: { type: string, enum: [fr-CA, en-CA], default: fr-CA }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+    AuthSession:
+      type: object
+      required: [access_token, refresh_token, expires_in, parent]
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        expires_in: { type: integer, description: Seconds }
+        parent:
+          type: object
+          required: [id, email, locale]
+          properties:
+            id: { type: string, format: uuid }
+            email: { type: string, format: email }
+            locale: { type: string }
+    ConsentRequest:
+      type: object
+      required: [child_id, version, accepted]
+      properties:
+        child_id: { type: string, format: uuid }
+        version: { type: string, description: Version of the privacy notice shown, example: '2026-10' }
+        accepted: { type: boolean, const: true }
+
+    # ── Children ──
+    Child:
+      type: object
+      required: [id, display_name, grade, avatar_id, has_pin, consent_given]
+      properties:
+        id: { type: string, format: uuid }
+        display_name: { type: string, maxLength: 30, description: First name or nickname only }
+        birth_year: { type: integer }
+        grade: { type: integer, minimum: 1, maximum: 4, description: Quebec primary year covered today }
+        avatar_id: { type: string }
+        has_pin: { type: boolean }
+        consent_given: { type: boolean }
+        favorite_world: { oneOf: [{ $ref: '#/components/schemas/WorldId' }, { type: 'null' }] }
+        created_at: { type: string, format: date-time }
+    ChildCreate:
+      type: object
+      required: [display_name, grade, avatar_id]
+      properties:
+        display_name: { type: string, maxLength: 30 }
+        birth_year: { type: integer }
+        grade: { type: integer, minimum: 1, maximum: 4 }
+        avatar_id: { type: string }
+        pin: { type: string, pattern: '^[0-9]{4}$' }
+    ChildUpdate:
+      type: object
+      properties:
+        display_name: { type: string, maxLength: 30 }
+        grade: { type: integer, minimum: 1, maximum: 4 }
+        avatar_id: { type: string }
+        pin: { type: [string, 'null'], pattern: '^[0-9]{4}$' }
+    ChildToken:
+      type: object
+      required: [access_token, expires_in, child]
+      properties:
+        access_token: { type: string }
+        expires_in: { type: integer }
+        child: { $ref: '#/components/schemas/Child' }
+    ChildSettings:
+      type: object
+      required: [daily_goal_chapters, enabled_worlds, read_aloud, sound]
+      properties:
+        daily_goal_chapters: { type: integer, minimum: 1, maximum: 5, default: 1 }
+        daily_time_limit_minutes: { type: [integer, 'null'], minimum: 5, maximum: 180 }
+        enabled_worlds:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/WorldId' }
+        read_aloud: { type: boolean, description: Narration is spoken (reading levels vary from age 6 to 11) }
+        sound: { type: boolean }
+
+    # ── Catalog ──
+    World:
+      type: object
+      required: [id, name, tagline, image_url, accent_color, skill_count]
+      properties:
+        id: { $ref: '#/components/schemas/WorldId' }
+        name: { type: string, example: Échecs }
+        tagline: { type: string }
+        image_url: { type: string, format: uri }
+        accent_color: { type: string, pattern: '^#[0-9a-fA-F]{6}$' }
+        skill_count: { type: integer }
+    Skill:
+      type: object
+      required: [id, label, ref_pda, section, grade_intro, grade_mastery, cycle, prerequisites, implemented]
+      properties:
+        id: { $ref: '#/components/schemas/SkillId' }
+        label: { type: string }
+        ref_pda: { type: string }
+        section: { type: string }
+        grade_intro: { type: integer }
+        grade_mastery: { type: integer }
+        cycle: { type: integer }
+        prerequisites:
+          type: array
+          items: { $ref: '#/components/schemas/SkillId' }
+        worlds:
+          type: array
+          items: { $ref: '#/components/schemas/WorldId' }
+        implemented: { type: boolean, description: A generator exists for this skill today }
+
+    # ── Journey ──
+    NodeState:
+      type: string
+      enum: [locked, available, in_progress, mastered, needs_review]
+    JourneyNode:
+      type: object
+      required: [skill_id, label, state, position]
+      properties:
+        skill_id: { $ref: '#/components/schemas/SkillId' }
+        label: { type: string, description: Child-friendly title of the chapter }
+        state: { $ref: '#/components/schemas/NodeState' }
+        position:
+          type: object
+          required: [row, col]
+          description: Layout slot on the winding path
+          properties:
+            row: { type: integer }
+            col: { type: integer, minimum: 0, maximum: 4 }
+        level:
+          type: integer
+          minimum: 0
+          maximum: 5
+          description: How many times the child has revisited and kept it (0 = new). Shown as shine on the node, not as a score.
+        next_review_at: { type: [string, 'null'], format: date-time }
+    Journey:
+      type: object
+      required: [world, nodes]
+      properties:
+        world: { $ref: '#/components/schemas/WorldId' }
+        nodes:
+          type: array
+          items: { $ref: '#/components/schemas/JourneyNode' }
+        current_skill_id:
+          oneOf: [{ $ref: '#/components/schemas/SkillId' }, { type: 'null' }]
+          description: The planner's suggestion for the big "play" button
+
+    # ── Sessions ──
+    SessionStatus:
+      type: string
+      enum: [active, paused, completed, abandoned]
+    StartSessionRequest:
+      type: object
+      required: [world, kind]
+      properties:
+        world: { $ref: '#/components/schemas/WorldId' }
+        kind:
+          type: string
+          enum: [chapter, daily_quest]
+        skill_id:
+          description: Optional. Replay a specific node from the journey.
+          oneOf: [{ $ref: '#/components/schemas/SkillId' }, { type: 'null' }]
+    Session:
+      type: object
+      required: [id, child_id, world, kind, status, chapter_length, beats_answered, started_at]
+      properties:
+        id: { type: string, format: uuid }
+        child_id: { type: string, format: uuid }
+        world: { $ref: '#/components/schemas/WorldId' }
+        kind: { type: string, enum: [chapter, daily_quest] }
+        status: { $ref: '#/components/schemas/SessionStatus' }
+        chapter_length:
+          type: integer
+          description: Planned number of beats. Data for the client; the play screen must not show a progress bar.
+        beats_answered: { type: integer }
+        current_beat:
+          oneOf: [{ $ref: '#/components/schemas/Beat' }, { type: 'null' }]
+          description: Open (unanswered) beat, if any
+        story_title: { type: [string, 'null'] }
+        started_at: { type: string, format: date-time }
+        ended_at: { type: [string, 'null'], format: date-time }
+
+    Question:
+      type: object
+      required: [math_text, choices]
+      description: Built by the engine. Never contains the correct answer on its own.
+      properties:
+        math_text: { type: string, example: '340 ÷ 7 = ? (avec reste)' }
+        choices:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items: { $ref: '#/components/schemas/AnswerValue' }
+    NarrationStatus:
+      type: string
+      enum: [pending, streaming, ready, fallback]
+    Narration:
+      type: object
+      required: [status]
+      properties:
+        status: { $ref: '#/components/schemas/NarrationStatus' }
+        text:
+          type: [string, 'null']
+          description: Full text when `ready` or `fallback`; null while pending
+        illustration_url: { type: [string, 'null'], format: uri }
+    Beat:
+      type: object
+      required: [id, session_id, index, skill_id, question, scene]
+      properties:
+        id: { type: string, format: uuid }
+        session_id: { type: string, format: uuid }
+        index: { type: integer, minimum: 0 }
+        skill_id: { $ref: '#/components/schemas/SkillId' }
+        question: { $ref: '#/components/schemas/Question' }
+        scene: { $ref: '#/components/schemas/Narration' }
+        created_at: { type: string, format: date-time }
+
+    AnswerRequest:
+      type: object
+      required: [answer]
+      properties:
+        answer: { $ref: '#/components/schemas/AnswerValue' }
+        response_time_ms:
+          type: integer
+          minimum: 0
+          description: Used by mastery tracking only. Never displayed, never a timer.
+    Outcome:
+      type: string
+      description: |
+        Verdict of the deterministic engine. Selects the story beat. The client
+        must never render it as success/failure chrome (no red X).
+      enum: [correct, erreur_typique, erreur_aleatoire]
+    Reward:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [chapter_complete, card_earned, streak_extended, skill_mastered, daily_goal_met]
+        card: { $ref: '#/components/schemas/StoryCard' }
+        streak_days: { type: integer }
+        skill_id: { $ref: '#/components/schemas/SkillId' }
+    AnswerResult:
+      type: object
+      required: [outcome, correct_answer, denouement, session]
+      properties:
+        outcome: { $ref: '#/components/schemas/Outcome' }
+        correct_answer:
+          $ref: '#/components/schemas/AnswerValue'
+        denouement: { $ref: '#/components/schemas/Narration' }
+        session: { $ref: '#/components/schemas/Session' }
+        rewards:
+          type: array
+          items: { $ref: '#/components/schemas/Reward' }
+
+    SessionSummary:
+      type: object
+      required: [session, duration_seconds, skills]
+      properties:
+        session: { $ref: '#/components/schemas/Session' }
+        duration_seconds: { type: integer }
+        story_recap: { type: string }
+        skills:
+          type: array
+          items:
+            type: object
+            required: [skill_id, label, attempts, correct]
+            properties:
+              skill_id: { $ref: '#/components/schemas/SkillId' }
+              label: { type: string }
+              reason:
+                type: string
+                enum: [revision, consolidation, nouvelle, entretien]
+              attempts: { type: integer }
+              correct: { type: integer }
+        stuck_points:
+          type: array
+          items: { $ref: '#/components/schemas/Misconception' }
+
+    # ── Progress ──
+    Misconception:
+      type: object
+      required: [code, description, skill_ids]
+      properties:
+        code: { type: string, example: reste_ignore }
+        description: { type: string, example: Ignore le reste dans une division }
+        skill_ids:
+          type: array
+          items: { $ref: '#/components/schemas/SkillId' }
+    SkillProgress:
+      type: object
+      required: [skill_id, mastery, state]
+      properties:
+        skill_id: { $ref: '#/components/schemas/SkillId' }
+        mastery: { type: number, minimum: 0, maximum: 1, description: 'Probability that decays with time' }
+        state: { $ref: '#/components/schemas/NodeState' }
+        attempts: { type: integer }
+        last_practiced_at: { type: [string, 'null'], format: date-time }
+        next_review_at: { type: [string, 'null'], format: date-time }
+    Progress:
+      type: object
+      required: [skills, misconceptions]
+      properties:
+        skills:
+          type: array
+          items: { $ref: '#/components/schemas/SkillProgress' }
+        misconceptions:
+          type: array
+          items: { $ref: '#/components/schemas/Misconception' }
+    ReviewDue:
+      type: object
+      required: [skill_id, label, due_at]
+      properties:
+        skill_id: { $ref: '#/components/schemas/SkillId' }
+        label: { type: string }
+        due_at: { type: string, format: date-time }
+    Growth:
+      type: object
+      required: [window_days, current, previous]
+      description: Same child, two periods. No ranking against anyone else.
+      properties:
+        window_days: { type: integer }
+        current: { $ref: '#/components/schemas/GrowthPeriod' }
+        previous: { $ref: '#/components/schemas/GrowthPeriod' }
+    GrowthPeriod:
+      type: object
+      required: [chapters_completed, skills_mastered, minutes_played]
+      properties:
+        chapters_completed: { type: integer }
+        skills_mastered: { type: integer }
+        minutes_played: { type: integer }
+    WeeklyReport:
+      type: object
+      required: [child_id, week_start, sessions, growth]
+      properties:
+        child_id: { type: string, format: uuid }
+        week_start: { type: string, format: date }
+        sessions: { type: integer }
+        days_played: { type: integer }
+        skills_practised:
+          type: array
+          items: { $ref: '#/components/schemas/SkillId' }
+        stuck_points:
+          type: array
+          items: { $ref: '#/components/schemas/Misconception' }
+        growth: { $ref: '#/components/schemas/Growth' }
+
+    # ── Engagement ──
+    Engagement:
+      type: object
+      required: [streak, daily_goal]
+      properties:
+        streak:
+          type: object
+          required: [current_days, longest_days]
+          description: Consecutive days with at least one finished chapter. A missed day resets it, with no punishment screen.
+          properties:
+            current_days: { type: integer }
+            longest_days: { type: integer }
+            last_active_date: { type: [string, 'null'], format: date }
+        daily_goal:
+          type: object
+          required: [target_chapters, done_chapters]
+          properties:
+            target_chapters: { type: integer }
+            done_chapters: { type: integer }
+    StoryCard:
+      type: object
+      required: [id, world, title, image_url, earned_at]
+      properties:
+        id: { type: string, format: uuid }
+        world: { $ref: '#/components/schemas/WorldId' }
+        title: { type: string }
+        image_url: { type: string, format: uri }
+        session_id: { type: string, format: uuid }
+        earned_at: { type: string, format: date-time }
+    DailyQuest:
+      type: object
+      required: [available, completed]
+      properties:
+        available: { type: boolean, description: False when no review is due }
+        completed: { type: boolean }
+        skill_ids:
+          type: array
+          items: { $ref: '#/components/schemas/SkillId' }
