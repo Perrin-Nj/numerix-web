@@ -1,0 +1,74 @@
+{
+  "screens": {
+    "parent": {
+      "subscription": {
+        "title": "Gérer l'abonnement",
+        "current": {
+          "title": "Votre forfait",
+          "renews": "Votre forfait se renouvelle le {date}.",
+          "trial": "Vous essayez Numerix gratuitement. Choisissez un forfait quand vous voulez pour continuer à jouer après l'essai.",
+          "unpaid": "Un paiement est dû. Payez maintenant pour que vos enfants puissent continuer à jouer.",
+          "expired": "Votre forfait est terminé. Choisissez un forfait pour rejouer. Les progrès sont conservés.",
+          "canceled": "Votre forfait est annulé. Vos enfants peuvent jouer jusqu'au {date}.",
+          "byAdmin": "Ce statut a été défini par l'équipe Numerix."
+        },
+        "plans": {
+          "title": "Choisir un forfait",
+          "current": "Votre forfait",
+          "priceFree": "Gratuit",
+          "perMonth": "par mois, CAD",
+          "perYear": "par an, CAD",
+          "priceUnknown": "Prix affiché au paiement",
+          "free": {
+            "name": "Gratuit",
+            "features": ["Essayer Numerix sans frais", "Un petit choix d'histoires"]
+          },
+          "family_monthly": {
+            "name": "Famille, mensuel",
+            "features": ["Tous les mondes et toutes les histoires", "Des rapports pour le parent", "Annulez quand vous voulez"]
+          },
+          "family_yearly": {
+            "name": "Famille, annuel",
+            "features": ["Tous les mondes et toutes les histoires", "Des rapports pour le parent", "Un seul paiement pour toute l'année"]
+          }
+        },
+        "method": {
+          "title": "Comment voulez-vous payer?",
+          "secure": "Vous ne tapez jamais de numéro de carte ici. En continuant, le paiement se termine sur la page sécurisée du fournisseur de paiement.",
+          "mock": "Dans cette version d'essai, le paiement se termine tout de suite et aucun argent n'est prélevé.",
+          "card": { "name": "Carte de crédit ou de débit", "hint": "Visa, Mastercard, Amex" },
+          "interac": { "name": "Interac", "hint": "Payez depuis votre banque canadienne" },
+          "paypal": { "name": "PayPal", "hint": "Utilisez votre compte PayPal" },
+          "apple_pay": { "name": "Apple Pay", "hint": "Sur les appareils Apple" },
+          "google_pay": { "name": "Google Pay", "hint": "Sur Android et Chrome" }
+        },
+        "actions": {
+          "subscribe": "S'abonner",
+          "change": "Changer de forfait",
+          "cancel": "Annuler l'abonnement",
+          "retry": "Réessayer",
+          "samePlan": "C'est déjà votre forfait. Choisissez-en un autre pour changer."
+        },
+        "cancelDialog": {
+          "title": "Annuler votre abonnement?",
+          "text": "Vos enfants gardent leurs progrès. Vous pouvez vous abonner de nouveau quand vous voulez.",
+          "textUntil": "Vos enfants gardent leurs progrès et peuvent jouer jusqu'au {date}. Vous pouvez vous abonner de nouveau quand vous voulez.",
+          "keep": "Garder mon forfait",
+          "confirm": "Oui, annuler"
+        },
+        "canceledNote": "Votre abonnement est annulé. Vous pouvez vous abonner de nouveau quand vous voulez.",
+        "success": {
+          "title": "Tout est prêt",
+          "text": "Merci. Vos enfants peuvent jouer. Vous pouvez changer ou annuler votre forfait ici quand vous voulez.",
+          "done": "Retour à l'espace parent"
+        },
+        "error": {
+          "title": "Nous n'avons pas pu charger cette page",
+          "retry": "Réessayer",
+          "back": "Retour",
+          "home": "Accueil"
+        }
+      }
+    }
+  }
+}

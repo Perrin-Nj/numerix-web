@@ -1,0 +1,89 @@
+{
+  "game": {
+    "outcomeSim": {
+      "skip": "Passer l'animation",
+      "caption": {
+        "construction": {
+          "good": {
+            "0": "Voilà, le pont tient, et les camions passent.",
+            "1": "Bien calculé : la structure est solide et la route est ouverte."
+          },
+          "bad": {
+            "0": "On a vu ce qui peut arriver quand le calcul est trop juste. Tu peux réessayer, tu y es presque.",
+            "1": "Un pont mal calculé peut céder. Bonne nouvelle : on peut le reconstruire ensemble."
+          }
+        },
+        "nature": {
+          "good": {
+            "0": "Voilà, la graine a assez d'eau et de soleil : elle fleurit et les abeilles arrivent.",
+            "1": "Bien compté : le jardin pousse et se remplit de vie."
+          },
+          "bad": {
+            "0": "Quand on manque d'eau, la plante se fane. Une goutte arrive : tu peux réessayer, tu y es presque.",
+            "1": "Un mauvais compte peut assécher le jardin. Pas de souci, on arrose et on recommence."
+          }
+        },
+        "espace": {
+          "good": {
+            "0": "Voilà, la fusée se pose sur la Lune et plante son drapeau.",
+            "1": "Bon calcul : l'atterrissage est tout doux."
+          },
+          "bad": {
+            "0": "Avec un petit écart, la fusée peut passer à côté de sa cible. Tu peux réessayer, tu y es presque.",
+            "1": "Un calcul un peu décalé et le voyage change de route. On corrige le cap ensemble."
+          }
+        },
+        "cuisine": {
+          "good": {
+            "0": "Voilà, le gâteau gonfle et dore à la perfection.",
+            "1": "Bonne mesure : la recette réussit et ça sent bon."
+          },
+          "bad": {
+            "0": "Avec une mauvaise quantité, le gâteau peut retomber. Tu peux réessayer, tu y es presque.",
+            "1": "Une recette mal dosée, ça arrive aux grands chefs. On repart avec une nouvelle fournée."
+          }
+        },
+        "sport": {
+          "good": {
+            "0": "Voilà, le ballon file au fond du filet et la foule saute de joie.",
+            "1": "Bien visé : c'est un but, et tout le monde fête ça."
+          },
+          "bad": {
+            "0": "Un tir mal réglé peut toucher le poteau. Tu peux réessayer, tu y es presque.",
+            "1": "Le ballon a frôlé le but. Les grands joueurs retentent toujours."
+          }
+        },
+        "medecine": {
+          "good": {
+            "0": "Voilà, la bonne dose aide : le cœur est stable et le patient sourit.",
+            "1": "Bon calcul : le patient va mieux, et c'est grâce à toi."
+          },
+          "bad": {
+            "0": "Une dose mal calculée peut déranger le rythme du cœur. L'infirmière rassure, et tu peux réessayer.",
+            "1": "On a vu pourquoi il faut bien compter. On est là pour t'aider, tu y es presque."
+          }
+        },
+        "science": {
+          "good": {
+            "0": "Voilà, le mélange est juste : la fiole brille et fait des bulles.",
+            "1": "Bien dosé : la réaction réussit sous tes yeux."
+          },
+          "bad": {
+            "0": "Avec un mauvais dosage, la réaction s'éteint. Un petit pouf, rien de grave : tu peux réessayer.",
+            "1": "Les chercheurs ratent souvent avant de réussir. On refait l'expérience ensemble."
+          }
+        },
+        "echecs": {
+          "good": {
+            "0": "Voilà, échec et mat : la couronne est pour toi.",
+            "1": "Bien joué : ton plan fonctionne jusqu'au bout."
+          },
+          "bad": {
+            "0": "Une pièce peut rester coincée quand on compte mal. Regarde, le cavalier a un autre chemin.",
+            "1": "On a vu le piège. Il y a toujours une autre route, tu y es presque."
+          }
+        }
+      }
+    }
+  }
+}

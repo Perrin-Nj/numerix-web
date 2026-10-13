@@ -8,3 +8,4 @@
 6. Any backend need goes into `contracts/` (openapi, BACKEND_REQUIREMENTS.md, WireMock mapping, fixture) in the same pull request.
 7. No silent errors, no em dashes or AI-sounding copy in the product.
 8. Token saving: terse replies, `rtk` prefix on shell commands, one read per file.
+9. No AI attribution: never add Co-Authored-By or "Generated with" lines to commits or pull requests.

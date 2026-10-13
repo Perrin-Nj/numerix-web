@@ -1,0 +1,18 @@
+{
+  "screens": {
+    "parent": {
+      "home": {
+        "pinOn": "Code à 4 chiffres requis pour jouer",
+        "pinOff": "Pas de code"
+      },
+      "overview": {
+        "challenges": {
+          "title": "Défis",
+          "available": "pas encore relevé",
+          "active": "en cours",
+          "done": "réussi"
+        }
+      }
+    }
+  }
+}

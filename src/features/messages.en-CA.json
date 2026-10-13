@@ -1,0 +1,315 @@
+{
+  "errors": {
+    "ok": "OK"
+  },
+  "worlds": {
+    "nature": "Nature",
+    "espace": "Space",
+    "cuisine": "Cooking",
+    "sport": "Sport",
+    "construction": "Building",
+    "medecine": "Medicine",
+    "science": "Science",
+    "echecs": "Chess"
+  },
+  "screens": {
+    "welcome": {
+      "tagline": "Adventures where math changes the story.",
+      "mascot": "Hi there! Ready for a new story?",
+      "play": "Play",
+      "parentArea": "Parent area",
+      "grownUp": "I am a grown-up"
+    },
+    "parentGate": {
+      "title": "Grown-ups only",
+      "description": "Enter the account password to leave play mode.",
+      "password": "Password",
+      "cancel": "Cancel",
+      "unlock": "Unlock",
+      "wrong": "That password does not match. Try again.",
+      "network": "No connection. Check your network and try again."
+    },
+    "auth": {
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least 10 characters.",
+      "errors": {
+        "email": "Enter a valid email.",
+        "passwordShort": "The password needs at least 10 characters.",
+        "passwordEmpty": "Enter your password.",
+        "emailTaken": "This email already has an account. Log in instead.",
+        "wrongCredentials": "Wrong email or password. Check and try again.",
+        "network": "No connection. Check your network and try again.",
+        "generic": "We could not continue right now. Try again in a moment."
+      },
+      "login": {
+        "title": "Parent login",
+        "submit": "Log in",
+        "switchPrompt": "No account yet?",
+        "switchAction": "Create an account"
+      },
+      "register": {
+        "title": "Create a parent account",
+        "submit": "Create my account",
+        "switchPrompt": "Already have an account?",
+        "switchAction": "Log in"
+      }
+    },
+    "parent": {
+      "shell": {
+        "back": "Back",
+        "account": "Account and preferences",
+        "signOut": "Sign out"
+      },
+      "home": {
+        "title": "My children",
+        "empty": "Add a profile to start the adventure.",
+        "add": "Add a child",
+        "grade": "Grade {grade}",
+        "consentOk": "Permission given",
+        "consentNeeded": "Permission needed",
+        "play": "Play",
+        "giveConsent": "Give permission",
+        "overview": "Progress",
+        "subscription": "Subscription",
+        "manageSubscription": "Manage subscription"
+      },
+      "childForm": {
+        "title": "New child",
+        "name": "First name or nickname",
+        "nameHint": "No last name. It is only used in the story.",
+        "grade": "School grade",
+        "gradePlaceholder": "Pick a grade",
+        "gradeOption": "Grade {grade}",
+        "avatar": "Pick an avatar",
+        "pinSwitch": "Protect the profile with a code",
+        "pinHint": "A 4-digit code to enter this profile.",
+        "pin": "4-digit code",
+        "submit": "Create profile",
+        "errors": {
+          "name": "Enter a first name or nickname.",
+          "nameLong": "30 characters at most.",
+          "grade": "Pick a grade.",
+          "avatar": "Pick an avatar.",
+          "pin": "The code needs 4 digits."
+        }
+      },
+      "consent": {
+        "title": "Parental permission",
+        "whatTitle": "What Numerix does with the data",
+        "points": {
+          "collect": "We keep the first name, grade and answers to questions so stories can adapt.",
+          "noPhoto": "No photos, no last names, no location.",
+          "noAds": "No ads and no third-party trackers.",
+          "control": "You can export or erase your child's data at any time."
+        },
+        "agree": "I have read this and allow my child to play.",
+        "accept": "Give permission"
+      },
+      "overview": {
+        "title": "Child progress",
+        "links": "Progress pages",
+        "link": {
+          "settings": "Settings",
+          "report": "Weekly report"
+        },
+        "growth": {
+          "title": "Their growth",
+          "explain": "The last {days} days, compared with the {days} days before. Never with other children.",
+          "chapters": "Chapters finished",
+          "skills": "Skills gained",
+          "minutes": "Minutes played",
+          "before": "Before: {value}"
+        },
+        "stuck": {
+          "title": "Where they get stuck",
+          "none": "Nothing in particular for now.",
+          "skills": "{count, plural, one {# skill affected} other {# skills affected}}"
+        },
+        "sessions": {
+          "title": "Latest stories",
+          "none": "No story played yet.",
+          "untitled": "Untitled story"
+        }
+      },
+      "settings": {
+        "title": "Settings",
+        "play": "During play",
+        "goal": "Daily goal",
+        "goalOption": "{count, plural, one {# chapter a day} other {# chapters a day}}",
+        "limit": "Daily time limit",
+        "noLimit": "No limit",
+        "limitOption": "{count} minutes",
+        "sound": "Sounds",
+        "readAloud": "Read aloud",
+        "readAloudHint": "Stories are read aloud if the device has a voice in this language.",
+        "worlds": "Available worlds",
+        "worldsHint": "At least one world must stay on.",
+        "save": "Save",
+        "saved": "Settings saved",
+        "deleted": "Profile deleted",
+        "data": "Data",
+        "export": "Export data",
+        "delete": "Delete profile",
+        "confirm": {
+          "title": "Delete this profile?",
+          "description": "This cannot be undone. Stories, progress and cards will be erased.",
+          "cancel": "Cancel",
+          "confirm": "Delete for good",
+          "type": "To confirm, type \"{name}\""
+        },
+        "kidLanguage": "My child can change the language",
+        "kidLanguageHint": "Your child picks French or English in their menu. Turn off to keep the language you chose."
+      },
+      "recap": {
+        "title": "Story recap",
+        "untitled": "Untitled story",
+        "duration": "Time: about {minutes} min",
+        "skills": "Skills practiced",
+        "reason": {
+          "revision": "Review",
+          "consolidation": "Consolidation",
+          "nouvelle": "New skill",
+          "entretien": "Upkeep"
+        },
+        "score": "{correct} of {attempts}",
+        "stuck": "Things to watch",
+        "stuckNone": "Nothing blocking in this story."
+      },
+      "report": {
+        "title": "Weekly report",
+        "week": "Week of {date}",
+        "sessions": "Stories played",
+        "days": "Days played",
+        "growth": "Growth",
+        "growthLine": "{now} chapters finished, against {before} the week before.",
+        "stuck": "Things to watch",
+        "stuckNone": "Nothing in particular this week."
+      },
+      "account": {
+        "title": "Account and preferences",
+        "language": "Language",
+        "locales": {
+          "fr-CA": "Français (Canada)",
+          "en-CA": "English (Canada)"
+        },
+        "appearance": "Appearance",
+        "theme": "Theme",
+        "themes": {
+          "system": "Same as device",
+          "light": "Light",
+          "dark": "Dark",
+          "hc": "High contrast"
+        },
+        "reducedMotion": "Reduce animations",
+        "reducedMotionHint": "Less movement, no confetti.",
+        "display": "Display mode",
+        "displays": {
+          "auto": "Automatic",
+          "tv": "Television",
+          "kiosk": "Kiosk"
+        },
+        "guide": "Guided tour",
+        "guideHint": "Show the welcome tips again for all profiles.",
+        "replayGuide": "Replay the tour"
+      }
+    },
+    "play": {
+      "nav": {
+        "label": "Main navigation",
+        "home": "Home",
+        "worlds": "Worlds",
+        "discover": "Discover",
+        "cards": "Cards",
+        "me": "Me"
+      },
+      "picker": {
+        "who": "Who is playing today?",
+        "none": "No profile yet. Ask a grown-up to create one.",
+        "pinProtected": "Protected by a code",
+        "parentArea": "Parent area",
+        "signOut": "Sign out",
+        "pinTitle": "{name}'s code",
+        "pinLabel": "4-digit code",
+        "playNow": "Play as {name}"
+      },
+      "home": {
+        "title": "Home",
+        "feedLabel": "Your adventure feed",
+        "worlds": "Pick a world",
+        "recentCards": "Your latest cards",
+        "growth": "This week: {now} chapters. The week before: {before}. You are getting better!",
+        "tour": {
+          "welcomeTitle": "Welcome!",
+          "welcome": "Here, math decides what happens to the hero. Every answer changes the story.",
+          "continueTitle": "Your next adventure",
+          "continue": "Tap this card to continue your story.",
+          "streakTitle": "Your story days",
+          "streak": "Each day you finish a chapter, your flame grows.",
+          "worldsTitle": "Your worlds",
+          "worlds": "Pick the world you love: nature, space, cooking and more."
+        }
+      },
+      "feed": {
+        "title": "Discover",
+        "label": "Discovery feed",
+        "hint": "Scroll to discover",
+        "loadingMore": "More surprises on the way",
+        "empty": "Nothing to discover right now.",
+        "error": "The feed could not load.",
+        "moreError": "Could not load more.",
+        "retry": "Try again"
+      },
+      "worlds": {
+        "title": "Pick your world"
+      },
+      "journey": {
+        "back": "Back to worlds",
+        "unknownWorld": "This world does not exist. Go back and pick a world."
+      },
+      "collection": {
+        "title": "Your story cards",
+        "retry": "Try again"
+      },
+      "quest": {
+        "title": "Daily quest",
+        "intro": "One chapter to find things you already learned, in a brand new story."
+      },
+      "me": {
+        "title": "Me",
+        "today": "Today",
+        "longest": "Your longest run: {days} days.",
+        "growth": "Your growth",
+        "growthLine": "Chapters finished this week: {now} (before: {before}).",
+        "skillsLine": "New skills: {now} (before: {before}).",
+        "grownUps": "Grown-ups area"
+      },
+      "story": {
+        "pause": "Take a break",
+        "illustration": "Story illustration",
+        "showQuestion": "Show the question",
+        "choices": "Answer choices",
+        "continue": "Continue",
+        "pauseTitle": "Need a break?",
+        "pauseText": "Your story is waiting. You can pick up exactly here.",
+        "takeBreak": "Take a break",
+        "keepPlaying": "Keep playing",
+        "noVoice": {
+          "title": "No voice to read aloud",
+          "description": "This device has no voice in this language. The story stays written on screen."
+        },
+        "mascot": {
+          "think": "Hmm, what would you pick?",
+          "cheer": "Nice one!",
+          "curious": "Ooh, an interesting detour!",
+          "amazed": "Wow, nobody saw that coming!"
+        }
+      }
+    },
+    "pwa": {
+      "updateTitle": "An update is ready",
+      "updateText": "Reload to get the latest version.",
+      "updateAction": "Update now"
+    }
+  }
+}

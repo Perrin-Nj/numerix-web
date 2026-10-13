@@ -1,0 +1,1142 @@
+{
+  "screens": {
+    "welcome": {
+      "kidButton": "Je suis un enfant",
+      "kidHint": "Touche ici pour jouer",
+      "adultButton": "Je suis un adulte",
+      "adultHint": "Compte, profils et suivi",
+      "tagline": "Des aventures où les maths changent l'histoire.",
+      "mascot": "Salut ! Prêt pour une nouvelle histoire ?",
+      "play": "Jouer",
+      "parentArea": "Espace parent",
+      "grownUp": "Je suis un adulte"
+    },
+    "play": {
+      "picker": {
+        "needAdultTitle": "Un adulte doit d'abord se connecter",
+        "needAdultText": "Pour jouer, un adulte se connecte une seule fois sur cet appareil et crée ton profil. Ensuite, tu pourras jouer toute seule ou tout seul.",
+        "needAdultAction": "Je suis un adulte",
+        "who": "Qui joue aujourd'hui ?",
+        "none": "Aucun profil pour l'instant. Demande à un adulte d'en créer un.",
+        "pinProtected": "Protégé par un code",
+        "parentArea": "Espace parent",
+        "signOut": "Se déconnecter",
+        "pinTitle": "Code de {name}",
+        "pinLabel": "Code à 4 chiffres",
+        "playNow": "Jouer avec {name}"
+      },
+      "nav": {
+        "label": "Navigation principale",
+        "home": "Accueil",
+        "worlds": "Mondes",
+        "discover": "Découvrir",
+        "cards": "Cartes",
+        "me": "Moi"
+      },
+      "home": {
+        "title": "Accueil",
+        "feedLabel": "Ton fil d'aventures",
+        "worlds": "Choisis un monde",
+        "recentCards": "Tes dernières cartes",
+        "growth": "Cette semaine : {now} chapitres. La semaine d'avant : {before}. Tu avances bien !",
+        "tour": {
+          "welcomeTitle": "Bienvenue !",
+          "welcome": "Ici, les maths décident de ce qui arrive au héros. Chaque réponse change l'histoire.",
+          "continueTitle": "Ta prochaine aventure",
+          "continue": "Touche cette carte pour continuer ton histoire.",
+          "streakTitle": "Tes jours d'histoire",
+          "streak": "Chaque jour où tu finis un chapitre, ta flamme grandit.",
+          "worldsTitle": "Tes mondes",
+          "worlds": "Choisis le monde que tu aimes : nature, espace, cuisine et plus encore."
+        },
+        "menu": {
+          "label": "Menu de jeu",
+          "challenges": "Défis",
+          "challengesHint": "Relève-en un",
+          "discover": "Découvrir",
+          "discoverHint": "Un fil sans fin",
+          "worlds": "Mondes",
+          "worldsHint": "Choisis ton aventure",
+          "cards": "Cartes",
+          "cardsHint": "Ta collection",
+          "progress": "Mes progrès",
+          "progressHint": "Ta série et tes pas",
+          "quest": "Défi du jour",
+          "questHint": "Un chapitre à retrouver"
+        }
+      },
+      "feed": {
+        "title": "Découvrir",
+        "label": "Fil de découvertes",
+        "hint": "Fais défiler pour découvrir",
+        "loadingMore": "Encore des surprises en route",
+        "empty": "Rien à découvrir pour l'instant.",
+        "error": "Le fil n'a pas pu se charger.",
+        "moreError": "Impossible de charger la suite.",
+        "retry": "Réessayer"
+      },
+      "worlds": {
+        "title": "Choisis ton monde"
+      },
+      "journey": {
+        "back": "Retour aux mondes",
+        "unknownWorld": "Ce monde n'existe pas. Retourne choisir un monde."
+      },
+      "collection": {
+        "title": "Tes cartes d'histoire",
+        "retry": "Réessayer"
+      },
+      "quest": {
+        "title": "Défi du jour",
+        "intro": "Un chapitre pour retrouver des choses déjà apprises, dans une nouvelle histoire."
+      },
+      "me": {
+        "title": "Moi",
+        "today": "Aujourd'hui",
+        "longest": "Ton plus long enchaînement : {days} jours.",
+        "growth": "Ta progression",
+        "growthLine": "Chapitres terminés cette semaine : {now} (avant : {before}).",
+        "skillsLine": "Nouvelles compétences : {now} (avant : {before}).",
+        "grownUps": "Espace des adultes",
+        "voice": {
+          "title": "Voix et aide",
+          "voice": "Lire à voix haute",
+          "voiceHint": "Les histoires et les indices se font entendre.",
+          "vibration": "Petite vibration",
+          "vibrationHint": "Une courte vibration quand tu réponds, sur les téléphones qui peuvent.",
+          "hints": "Petits coups de pouce",
+          "hintsHint": "Un indice doux quand tu réfléchis longtemps.",
+          "delay": "Indice après",
+          "delayUnit": "{n} s",
+          "volume": "Volume des indices",
+          "low": "Doux",
+          "medium": "Moyen",
+          "normal": "Normal",
+          "test": "Tester la voix",
+          "sample": "Bonjour ! Je suis ta voix pour les histoires. On y va ?",
+          "using": "Voix choisie : {name}",
+          "noVoice": "Aucune voix trouvée sur cet appareil pour cette langue. Demande à un adulte d'ajouter une voix dans les réglages de l'appareil (Windows : Paramètres, Heure et langue, Voix ; ou ouvre l'appli dans Microsoft Edge qui offre des voix naturelles).",
+          "tapToHear": "Touche l'écran pour entendre."
+        },
+        "account": {
+          "title": "Qui joue ?",
+          "hint": "Change de joueur, ou déconnecte l'appareil. Quand un adulte se déconnecte, tout ce que l'appareil retenait est effacé.",
+          "switch": "Changer de joueur",
+          "signOut": "Déconnecter l'appareil (adulte)"
+        },
+        "language": {
+          "title": "Langue",
+          "label": "Langue de l'appli",
+          "locked": "Un adulte a choisi la langue de l'appli. Demande-lui si tu veux la changer."
+        }
+      },
+      "story": {
+        "pause": "Faire une pause",
+        "illustration": "Illustration de l'histoire",
+        "showQuestion": "Voir la question",
+        "choices": "Choix de réponse",
+        "continue": "Continuer",
+        "pauseTitle": "Une pause ?",
+        "pauseText": "Ton histoire t'attend. Tu pourras reprendre exactement ici.",
+        "takeBreak": "Faire une pause",
+        "keepPlaying": "Continuer à jouer",
+        "noVoice": {
+          "title": "Pas de voix pour lire à voix haute",
+          "description": "Cet appareil n'a pas de voix dans cette langue. L'histoire reste écrite à l'écran."
+        },
+        "mascot": {
+          "think": "Hmm, que choisirais-tu ?",
+          "cheer": "Bravo, bien vu !",
+          "curious": "Oh, un détour intéressant !",
+          "amazed": "Waouh, personne ne l’avait vu venir !"
+        },
+        "exit": {
+          "label": "Quitter la partie",
+          "title": "Quitter cette histoire ?",
+          "text": "Ton histoire sera rangée. Tu pourras en commencer une autre quand tu veux.",
+          "confirm": "Quitter la partie",
+          "stay": "Continuer à jouer"
+        },
+        "tapToHear": "Touche pour écouter l'histoire"
+      },
+      "challenges": {
+        "title": "Défis",
+        "intro": "Choisis un défi, relève-le en jouant, et gagne une carte rien qu'à toi."
+      },
+      "celebrate": {
+        "title": "Défi réussi !"
+      },
+      "done": {
+        "noCard": "Pas de carte cette fois. Il faut au moins {pct} % de bonnes réponses pour la gagner. Rejoue ce chapitre, tu vas y arriver !",
+        "missed": "Tu as trouvé {right} bonne{right, plural, one {} other {s}} réponse{right, plural, one {} other {s}} sur {total}. Ce n'est pas encore ça, et c'est normal : on apprend en essayant. Reviens plus tard, on le refera ensemble. Il faut {pct} % de bonnes réponses pour gagner la carte."
+      }
+    },
+    "parentGate": {
+      "title": "Réservé aux adultes",
+      "description": "Entre le mot de passe du compte pour quitter le mode jeu.",
+      "password": "Mot de passe",
+      "cancel": "Annuler",
+      "unlock": "Déverrouiller",
+      "wrong": "Ce mot de passe ne correspond pas. Essaie encore.",
+      "network": "Pas de connexion. Vérifie ton réseau puis réessaie."
+    },
+    "auth": {
+      "email": "Courriel",
+      "password": "Mot de passe",
+      "passwordHint": "Au moins 10 caractères.",
+      "errors": {
+        "email": "Entre un courriel valide.",
+        "passwordShort": "Le mot de passe doit avoir au moins 10 caractères.",
+        "passwordEmpty": "Entre ton mot de passe.",
+        "emailTaken": "Ce courriel a déjà un compte. Connecte-toi plutôt.",
+        "wrongCredentials": "Courriel ou mot de passe incorrect. Vérifie et réessaie.",
+        "network": "Pas de connexion. Vérifie ton réseau puis réessaie.",
+        "generic": "Impossible de continuer pour le moment. Réessaie dans un instant."
+      },
+      "login": {
+        "title": "Connexion parent",
+        "submit": "Se connecter",
+        "switchPrompt": "Pas encore de compte ?",
+        "switchAction": "Créer un compte"
+      },
+      "register": {
+        "title": "Créer un compte parent",
+        "submit": "Créer mon compte",
+        "switchPrompt": "Déjà un compte ?",
+        "switchAction": "Se connecter"
+      }
+    },
+    "parent": {
+      "shell": {
+        "back": "Retour",
+        "account": "Compte et préférences",
+        "signOut": "Se déconnecter"
+      },
+      "home": {
+        "title": "Mes enfants",
+        "empty": "Ajoute un profil pour commencer l'aventure.",
+        "add": "Ajouter un enfant",
+        "grade": "Année {grade}",
+        "consentOk": "Autorisation donnée",
+        "consentNeeded": "Autorisation requise",
+        "play": "Jouer",
+        "giveConsent": "Donner l'autorisation",
+        "overview": "Suivi",
+        "subscription": "Abonnement",
+        "manageSubscription": "Gérer l'abonnement",
+        "pinOn": "Code à 4 chiffres requis pour jouer",
+        "pinOff": "Pas de code"
+      },
+      "childForm": {
+        "title": "Nouvel enfant",
+        "name": "Prénom ou surnom",
+        "nameHint": "Pas de nom de famille. Il sert seulement dans l'histoire.",
+        "grade": "Année scolaire",
+        "gradePlaceholder": "Choisir une année",
+        "gradeOption": "{grade}e année",
+        "avatar": "Choisis un avatar",
+        "pinSwitch": "Protéger le profil par un code",
+        "pinHint": "Un code à 4 chiffres pour entrer dans ce profil.",
+        "pin": "Code à 4 chiffres",
+        "submit": "Créer le profil",
+        "errors": {
+          "name": "Entre un prénom ou un surnom.",
+          "nameLong": "30 caractères au maximum.",
+          "grade": "Choisis une année.",
+          "avatar": "Choisis un avatar.",
+          "pin": "Le code doit avoir 4 chiffres."
+        }
+      },
+      "consent": {
+        "title": "Autorisation parentale",
+        "whatTitle": "Ce que Numerix fait avec les données",
+        "points": {
+          "collect": "Nous gardons le prénom, l'année scolaire et les réponses aux questions pour adapter les histoires.",
+          "noPhoto": "Aucune photo, aucun nom de famille, aucune position.",
+          "noAds": "Aucune publicité et aucun traceur de tiers.",
+          "control": "Tu peux exporter ou effacer les données de ton enfant à tout moment."
+        },
+        "agree": "J'ai lu et j'autorise mon enfant à jouer.",
+        "accept": "Donner l'autorisation"
+      },
+      "overview": {
+        "title": "Suivi de l'enfant",
+        "links": "Pages du suivi",
+        "link": {
+          "settings": "Réglages",
+          "report": "Rapport de la semaine"
+        },
+        "growth": {
+          "title": "Sa progression",
+          "explain": "Les {days} derniers jours, comparés aux {days} jours d'avant. Jamais avec d'autres enfants.",
+          "chapters": "Chapitres terminés",
+          "skills": "Compétences acquises",
+          "minutes": "Minutes de jeu",
+          "before": "Avant : {value}"
+        },
+        "stuck": {
+          "title": "Là où il ou elle bloque",
+          "none": "Rien de particulier pour le moment.",
+          "skills": "{count, plural, one {# compétence touchée} other {# compétences touchées}}"
+        },
+        "sessions": {
+          "title": "Dernières histoires",
+          "none": "Aucune histoire jouée pour l'instant.",
+          "untitled": "Histoire sans titre"
+        },
+        "challenges": {
+          "title": "Défis",
+          "available": "pas encore relevé",
+          "active": "en cours",
+          "done": "réussi"
+        }
+      },
+      "settings": {
+        "title": "Réglages",
+        "play": "Pendant le jeu",
+        "goal": "Objectif du jour",
+        "goalOption": "{count, plural, one {# chapitre par jour} other {# chapitres par jour}}",
+        "limit": "Limite de temps par jour",
+        "noLimit": "Aucune limite",
+        "limitOption": "{count} minutes",
+        "sound": "Sons",
+        "readAloud": "Lecture à voix haute",
+        "readAloudHint": "Les histoires sont lues à voix haute si l'appareil a une voix dans cette langue.",
+        "worlds": "Mondes disponibles",
+        "worldsHint": "Au moins un monde doit rester actif.",
+        "save": "Enregistrer",
+        "saved": "Réglages enregistrés",
+        "deleted": "Profil supprimé",
+        "data": "Données",
+        "export": "Exporter les données",
+        "delete": "Supprimer le profil",
+        "confirm": {
+          "title": "Supprimer ce profil ?",
+          "description": "Cette action est définitive. Les histoires, la progression et les cartes seront effacées.",
+          "cancel": "Annuler",
+          "confirm": "Supprimer pour de bon",
+          "type": "Pour confirmer, écris « {name} »"
+        },
+        "kidLanguage": "Mon enfant peut changer la langue",
+        "kidLanguageHint": "L'enfant choisit entre le français et l'anglais dans son menu. Désactive pour garder la langue que tu as choisie."
+      },
+      "recap": {
+        "title": "Résumé de l'histoire",
+        "untitled": "Histoire sans titre",
+        "duration": "Durée : environ {minutes} min",
+        "skills": "Compétences travaillées",
+        "reason": {
+          "revision": "Révision",
+          "consolidation": "Consolidation",
+          "nouvelle": "Nouvelle compétence",
+          "entretien": "Entretien"
+        },
+        "score": "{correct} sur {attempts}",
+        "stuck": "Points à surveiller",
+        "stuckNone": "Aucun point bloquant dans cette histoire."
+      },
+      "report": {
+        "title": "Rapport de la semaine",
+        "week": "Semaine du {date}",
+        "sessions": "Histoires jouées",
+        "days": "Jours de jeu",
+        "growth": "Progression",
+        "growthLine": "{now} chapitres terminés, contre {before} la semaine d'avant.",
+        "stuck": "Points à surveiller",
+        "stuckNone": "Rien de particulier cette semaine."
+      },
+      "account": {
+        "title": "Compte et préférences",
+        "language": "Langue",
+        "locales": {
+          "fr-CA": "Français (Canada)",
+          "en-CA": "English (Canada)"
+        },
+        "appearance": "Apparence",
+        "theme": "Thème",
+        "themes": {
+          "system": "Comme l'appareil",
+          "light": "Clair",
+          "dark": "Sombre",
+          "hc": "Contraste élevé"
+        },
+        "reducedMotion": "Réduire les animations",
+        "reducedMotionHint": "Moins de mouvement, pas de confettis.",
+        "display": "Mode d'affichage",
+        "displays": {
+          "auto": "Automatique",
+          "tv": "Télévision",
+          "kiosk": "Borne"
+        },
+        "guide": "Visite guidée",
+        "guideHint": "Revoir les conseils de bienvenue pour tous les profils.",
+        "replayGuide": "Revoir la visite"
+      },
+      "subscription": {
+        "title": "Gérer l'abonnement",
+        "current": {
+          "title": "Votre forfait",
+          "renews": "Votre forfait se renouvelle le {date}.",
+          "trial": "Vous essayez Numerix gratuitement. Choisissez un forfait quand vous voulez pour continuer à jouer après l'essai.",
+          "unpaid": "Un paiement est dû. Payez maintenant pour que vos enfants puissent continuer à jouer.",
+          "expired": "Votre forfait est terminé. Choisissez un forfait pour rejouer. Les progrès sont conservés.",
+          "canceled": "Votre forfait est annulé. Vos enfants peuvent jouer jusqu'au {date}.",
+          "byAdmin": "Ce statut a été défini par l'équipe Numerix."
+        },
+        "plans": {
+          "title": "Choisir un forfait",
+          "current": "Votre forfait",
+          "priceFree": "Gratuit",
+          "perMonth": "par mois, CAD",
+          "perYear": "par an, CAD",
+          "priceUnknown": "Prix affiché au paiement",
+          "free": {
+            "name": "Gratuit",
+            "features": [
+              "Essayer Numerix sans frais",
+              "Un petit choix d'histoires"
+            ]
+          },
+          "family_monthly": {
+            "name": "Famille, mensuel",
+            "features": [
+              "Tous les mondes et toutes les histoires",
+              "Des rapports pour le parent",
+              "Annulez quand vous voulez"
+            ]
+          },
+          "family_yearly": {
+            "name": "Famille, annuel",
+            "features": [
+              "Tous les mondes et toutes les histoires",
+              "Des rapports pour le parent",
+              "Un seul paiement pour toute l'année"
+            ]
+          }
+        },
+        "method": {
+          "title": "Comment voulez-vous payer?",
+          "secure": "Vous ne tapez jamais de numéro de carte ici. En continuant, le paiement se termine sur la page sécurisée du fournisseur de paiement.",
+          "mock": "Dans cette version d'essai, le paiement se termine tout de suite et aucun argent n'est prélevé.",
+          "card": {
+            "name": "Carte de crédit ou de débit",
+            "hint": "Visa, Mastercard, Amex"
+          },
+          "interac": {
+            "name": "Interac",
+            "hint": "Payez depuis votre banque canadienne"
+          },
+          "paypal": {
+            "name": "PayPal",
+            "hint": "Utilisez votre compte PayPal"
+          },
+          "apple_pay": {
+            "name": "Apple Pay",
+            "hint": "Sur les appareils Apple"
+          },
+          "google_pay": {
+            "name": "Google Pay",
+            "hint": "Sur Android et Chrome"
+          }
+        },
+        "actions": {
+          "subscribe": "S'abonner",
+          "change": "Changer de forfait",
+          "cancel": "Annuler l'abonnement",
+          "retry": "Réessayer",
+          "samePlan": "C'est déjà votre forfait. Choisissez-en un autre pour changer."
+        },
+        "cancelDialog": {
+          "title": "Annuler votre abonnement?",
+          "text": "Vos enfants gardent leurs progrès. Vous pouvez vous abonner de nouveau quand vous voulez.",
+          "textUntil": "Vos enfants gardent leurs progrès et peuvent jouer jusqu'au {date}. Vous pouvez vous abonner de nouveau quand vous voulez.",
+          "keep": "Garder mon forfait",
+          "confirm": "Oui, annuler"
+        },
+        "canceledNote": "Votre abonnement est annulé. Vous pouvez vous abonner de nouveau quand vous voulez.",
+        "success": {
+          "title": "Tout est prêt",
+          "text": "Merci. Vos enfants peuvent jouer. Vous pouvez changer ou annuler votre forfait ici quand vous voulez.",
+          "done": "Retour à l'espace parent"
+        },
+        "error": {
+          "title": "Nous n'avons pas pu charger cette page",
+          "retry": "Réessayer",
+          "back": "Retour",
+          "home": "Accueil"
+        }
+      }
+    },
+    "pwa": {
+      "updateTitle": "Une mise à jour est prête",
+      "updateText": "Recharge pour profiter de la dernière version.",
+      "updateAction": "Mettre à jour"
+    }
+  },
+  "errors": {
+    "ok": "D'accord",
+    "unauthorized": {
+      "title": "Ta session est terminée",
+      "description": "Connecte-toi de nouveau pour continuer.",
+      "action": "Se connecter"
+    },
+    "forbidden": {
+      "title": "Accès refusé",
+      "description": "Cet écran est réservé à un adulte."
+    },
+    "consent_missing": {
+      "title": "Un adulte doit d'abord dire oui",
+      "description": "Demande à un parent d'accepter dans l'espace parent."
+    },
+    "daily_limit_reached": {
+      "title": "C'est assez pour aujourd'hui",
+      "description": "À demain pour la suite de l'histoire."
+    },
+    "session_active": {
+      "title": "Un chapitre est déjà en cours",
+      "description": "Reprends-le ou recommence un nouveau chapitre."
+    },
+    "session_paused": {
+      "title": "Le chapitre est en pause",
+      "description": "Reprends-le pour continuer l'histoire."
+    },
+    "session_completed": {
+      "title": "Ce chapitre est terminé",
+      "description": "Retourne à ton chemin pour choisir la suite."
+    },
+    "beat_answered": {
+      "title": "Cette question a déjà reçu une réponse",
+      "description": "On recharge ton histoire."
+    },
+    "invalid_pin": {
+      "title": "Ce code ne correspond pas",
+      "description": "Essaie encore."
+    },
+    "not_found": {
+      "title": "Introuvable",
+      "description": "Cet élément n'existe plus. Retourne à l'accueil."
+    },
+    "validation_failed": {
+      "title": "Vérifie les informations",
+      "description": "Certains champs ne sont pas valides."
+    },
+    "rate_limited": {
+      "title": "Doucement",
+      "description": "Attends un instant, puis réessaie."
+    },
+    "internal_error": {
+      "title": "Un problème est survenu de notre côté",
+      "description": "Réessaie dans un moment. Si ça continue, préviens-nous.",
+      "retry": "Réessayer"
+    },
+    "unknown": {
+      "title": "Quelque chose s'est mal passé",
+      "description": "Réessaie. Si ça continue, préviens-nous.",
+      "retry": "Réessayer"
+    },
+    "sound": {
+      "title": "Le son n'a pas pu démarrer",
+      "description": "Le jeu continue sans son. Vérifie le volume de l'appareil."
+    },
+    "narrationFailed": {
+      "title": "L'histoire n'a pas pu se charger",
+      "description": "Touche Réessayer pour la relancer.",
+      "retry": "Réessayer"
+    },
+    "offline": {
+      "title": "Tu es hors ligne",
+      "description": "Tu peux regarder ton chemin et tes cartes. Pour jouer, reconnecte-toi."
+    },
+    "back": "Retour",
+    "device_offline": {
+      "title": "Ton appareil est hors ligne",
+      "description": "Vérifie ton Wi-Fi ou tes données mobiles, puis réessaie. Le problème vient de ta connexion."
+    },
+    "server_unreachable": {
+      "title": "On n'arrive pas à joindre Numerix",
+      "description": "Ton appareil se dit en ligne, mais Numerix ne répond pas. Si d'autres sites fonctionnent, le problème vient de notre côté. Sinon, vérifie ta connexion."
+    },
+    "backend_unreachable": {
+      "title": "Le problème vient de nous",
+      "description": "Nos serveurs ne répondent pas pour le moment. Ce n'est pas ta connexion. Réessaie dans un instant."
+    },
+    "backend_timeout": {
+      "title": "Nos serveurs sont trop lents",
+      "description": "Ce n'est pas ta connexion. Réessaie dans un instant."
+    },
+    "request_failed": {
+      "title": "La demande n'a pas abouti",
+      "description": "Ta connexion et nos serveurs répondent, mais cette demande a échoué. Réessaie."
+    },
+    "retry": "Réessayer",
+    "subscription_inactive": {
+      "title": "L'abonnement n'est pas actif",
+      "description": "Pour jouer, un adulte doit activer l'abonnement dans l'espace parent. Ta progression est bien gardée."
+    },
+    "account_blocked": {
+      "title": "Le compte est en pause",
+      "description": "Un adulte doit contacter l'équipe Numerix. Ta progression est bien gardée."
+    }
+  },
+  "worlds": {
+    "nature": "Nature",
+    "espace": "Espace",
+    "cuisine": "Cuisine",
+    "sport": "Sport",
+    "construction": "Construction",
+    "medecine": "Médecine",
+    "science": "Science",
+    "echecs": "Échecs"
+  },
+  "game": {
+    "aiBadge": {
+      "label": "Généré par IA"
+    },
+    "challengeCard": {
+      "accept": "Je relève le défi",
+      "claim": "Récupérer ma récompense",
+      "progress": "Ton avancée",
+      "reward": "Récompense : {reward}"
+    },
+    "chapterComplete": {
+      "fallbackTitle": "Chapitre terminé",
+      "congrats": "Quelle histoire ! Tu as fait avancer l'aventure.",
+      "next": "Chapitre suivant",
+      "back": "Retour à mon chemin"
+    },
+    "continueCard": {
+      "region": "Ton histoire",
+      "resume": "Ton chapitre t'attend",
+      "start": "Prochaine aventure",
+      "resumeAction": "Reprendre",
+      "startAction": "Jouer"
+    },
+    "dailyGoalRing": {
+      "label": "Objectif du jour : {done} sur {target}",
+      "met": "Objectif du jour atteint"
+    },
+    "feedCard": {
+      "author": "Raconté par {name}",
+      "puzzleLabel": "Petit défi",
+      "kind": {
+        "story_short": "Mini-histoire",
+        "fun_fact": "Le savais-tu ?",
+        "puzzle": "Petit défi",
+        "challenge": "Défi"
+      }
+    },
+    "journeyNode": {
+      "locked": "Bientôt",
+      "available": "À jouer",
+      "in_progress": "En cours",
+      "mastered": "Réussi",
+      "needs_review": "À revoir"
+    },
+    "journeyPath": {
+      "play": "Jouer"
+    },
+    "narrationText": {
+      "loading": "L'histoire arrive",
+      "slow": "L'histoire prend un moment.",
+      "retry": "Réessayer",
+      "fallback": "Cette partie de l'histoire est racontée en version courte."
+    },
+    "outcomeBeat": {
+      "success": "Bien joué",
+      "detour": "Un détour inattendu",
+      "surprise": "Une surprise dans l'histoire"
+    },
+    "outcomeSheet": {
+      "review": "Revoir la question",
+      "reopen": "Revenir"
+    },
+    "outcomeSim": {
+      "skip": "Passer l'animation",
+      "caption": {
+        "construction": {
+          "good": {
+            "0": "Voilà, le pont tient, et les camions passent.",
+            "1": "Bien calculé : la structure est solide et la route est ouverte."
+          },
+          "bad": {
+            "0": "On a vu ce qui peut arriver quand le calcul est trop juste. Tu peux réessayer, tu y es presque.",
+            "1": "Un pont mal calculé peut céder. Bonne nouvelle : on peut le reconstruire ensemble."
+          }
+        },
+        "nature": {
+          "good": {
+            "0": "Voilà, la graine a assez d'eau et de soleil : elle fleurit et les abeilles arrivent.",
+            "1": "Bien compté : le jardin pousse et se remplit de vie."
+          },
+          "bad": {
+            "0": "Quand on manque d'eau, la plante se fane. Une goutte arrive : tu peux réessayer, tu y es presque.",
+            "1": "Un mauvais compte peut assécher le jardin. Pas de souci, on arrose et on recommence."
+          }
+        },
+        "espace": {
+          "good": {
+            "0": "Voilà, la fusée se pose sur la Lune et plante son drapeau.",
+            "1": "Bon calcul : l'atterrissage est tout doux."
+          },
+          "bad": {
+            "0": "Avec un petit écart, la fusée peut passer à côté de sa cible. Tu peux réessayer, tu y es presque.",
+            "1": "Un calcul un peu décalé et le voyage change de route. On corrige le cap ensemble."
+          }
+        },
+        "cuisine": {
+          "good": {
+            "0": "Voilà, le gâteau gonfle et dore à la perfection.",
+            "1": "Bonne mesure : la recette réussit et ça sent bon."
+          },
+          "bad": {
+            "0": "Avec une mauvaise quantité, le gâteau peut retomber. Tu peux réessayer, tu y es presque.",
+            "1": "Une recette mal dosée, ça arrive aux grands chefs. On repart avec une nouvelle fournée."
+          }
+        },
+        "sport": {
+          "good": {
+            "0": "Voilà, le ballon file au fond du filet et la foule saute de joie.",
+            "1": "Bien visé : c'est un but, et tout le monde fête ça."
+          },
+          "bad": {
+            "0": "Un tir mal réglé peut toucher le poteau. Tu peux réessayer, tu y es presque.",
+            "1": "Le ballon a frôlé le but. Les grands joueurs retentent toujours."
+          }
+        },
+        "medecine": {
+          "good": {
+            "0": "Voilà, la bonne dose aide : le cœur est stable et le patient sourit.",
+            "1": "Bon calcul : le patient va mieux, et c'est grâce à toi."
+          },
+          "bad": {
+            "0": "Une dose mal calculée peut déranger le rythme du cœur. L'infirmière rassure, et tu peux réessayer.",
+            "1": "On a vu pourquoi il faut bien compter. On est là pour t'aider, tu y es presque."
+          }
+        },
+        "science": {
+          "good": {
+            "0": "Voilà, le mélange est juste : la fiole brille et fait des bulles.",
+            "1": "Bien dosé : la réaction réussit sous tes yeux."
+          },
+          "bad": {
+            "0": "Avec un mauvais dosage, la réaction s'éteint. Un petit pouf, rien de grave : tu peux réessayer.",
+            "1": "Les chercheurs ratent souvent avant de réussir. On refait l'expérience ensemble."
+          }
+        },
+        "echecs": {
+          "good": {
+            "0": "Voilà, échec et mat : la couronne est pour toi.",
+            "1": "Bien joué : ton plan fonctionne jusqu'au bout."
+          },
+          "bad": {
+            "0": "Une pièce peut rester coincée quand on compte mal. Regarde, le cavalier a un autre chemin.",
+            "1": "On a vu le piège. Il y a toujours une autre route, tu y es presque."
+          }
+        }
+      }
+    },
+    "questCard": {
+      "title": "Quête du jour",
+      "available": "Quelques vieilles histoires ont besoin de toi.",
+      "unavailable": "Rien à revoir aujourd'hui. Profite de ta journée !",
+      "completed": "Quête terminée. À demain pour la suite !",
+      "play": "C'est parti"
+    },
+    "reactionBar": {
+      "like": "J'aime",
+      "liked": "Aimé",
+      "save": "Garder",
+      "saved": "Gardé"
+    },
+    "rewardBurst": {
+      "continue": "Continuer",
+      "card_earned": {
+        "title": "Nouvelle carte d'histoire",
+        "detail": "Elle rejoint ta collection."
+      },
+      "chapter_complete": {
+        "title": "Chapitre terminé",
+        "detail": "Quelle belle aventure !"
+      },
+      "streak_extended": {
+        "title": "La flamme grandit",
+        "detail": "{count, plural, one {# jour d'histoire de suite} other {# jours d'histoire de suite}}"
+      },
+      "skill_mastered": {
+        "title": "Nouveau pouvoir",
+        "detail": "Tu maîtrises cette étape du chemin."
+      },
+      "daily_goal_met": {
+        "title": "Objectif du jour atteint",
+        "detail": "Bravo, c'est fait pour aujourd'hui."
+      }
+    },
+    "scenePicture": {
+      "item": {
+        "nature": "{n, plural, one {graine} other {graines}}",
+        "espace": "{n, plural, one {étoile} other {étoiles}}",
+        "cuisine": "{n, plural, one {œuf} other {œufs}}",
+        "sport": "{n, plural, one {ballon} other {ballons}}",
+        "construction": "{n, plural, one {brique} other {briques}}",
+        "medecine": "{n, plural, one {pilule} other {pilules}}",
+        "science": "{n, plural, one {cristal} other {cristaux}}",
+        "echecs": "{n, plural, one {pion} other {pions}}"
+      },
+      "alt": {
+        "add": "{a} {ia} et {b} {ib}, à réunir.",
+        "sub": "{total} {it}, dont {removed} qui s'en vont.",
+        "missing": "{known} {ik} et une place vide pour {missing} de plus.",
+        "mul": "{rows} rangées de {cols} {it}.",
+        "div": "{total} {it} partagés dans {bowls} bols, {rem, plural, =0 {sans reste} other {il en reste #}}.",
+        "line": "Une droite de 0 à {max} avec un repère sur {value}."
+      }
+    },
+    "storyCard": {
+      "flip": "{title}. Retourner la carte.",
+      "rarity": {
+        "common": "Histoire",
+        "rare": "Rare",
+        "epic": "Épique"
+      },
+      "banner": {
+        "gift": "Cadeau"
+      },
+      "giftBack": "Un petit cadeau rien que pour toi. Garde-le bien !"
+    },
+    "streakBadge": {
+      "days": "{count, plural, one {jour d'histoire} other {jours d'histoire}}",
+      "fresh": "Une nouvelle série t'attend"
+    },
+    "subscriptionBadge": {
+      "trial": "{count, plural, =0 {L'essai gratuit se termine aujourd'hui} one {Essai gratuit, # jour restant} other {Essai gratuit, # jours restants}}",
+      "active": "Actif",
+      "activeUntil": "Actif, renouvelé le {date}",
+      "unpaid": "Paiement à faire",
+      "expired": "Expiré",
+      "canceled": "Annulé",
+      "canceledUntil": "Annulé, accès jusqu'au {date}",
+      "blocked": "Compte en pause"
+    },
+    "welcomeGift": {
+      "title": "Un cadeau t'attend",
+      "hint": "Touche le cadeau pour l'ouvrir.",
+      "open": "Ouvrir le cadeau",
+      "opened": "Voici ta première carte !",
+      "claim": "La garder dans ma collection",
+      "later": "Plus tard"
+    },
+    "worldTeaser": {
+      "open": "Découvrir ce monde"
+    }
+  },
+  "coach": {
+    "ARI-OPE-A02a": [
+      "Essaie de séparer chaque nombre en dizaines et en unités. Tu ajoutes d'abord les dizaines, puis les unités.",
+      "Commence par le plus grand nombre dans ta tête, puis ajoute l'autre par petits pas.",
+      "Dessine des paquets de dix et des petits points. Qu'est-ce que ça donne quand tu les regroupes ?"
+    ],
+    "ARI-OPE-A03a": [
+      "Pense à un nombre rond tout près. Comment tu pourrais t'en servir pour t'aider ?",
+      "Coupe le calcul en deux petites étapes faciles. Tu peux le dire à voix haute.",
+      "Compte par sauts de dix, puis par sauts de un. Où est-ce que tu te retrouves ?"
+    ],
+    "ARI-OPE-A05": [
+      "Quelque chose manque dans l'égalité. Qu'est-ce que tu sais déjà des deux côtés ?",
+      "Essaie de faire le chemin à l'envers. Quelle opération défait celle que tu vois ?",
+      "Mets un petit nombre dans la case vide pour tester. Est-ce que les deux côtés se ressemblent ?"
+    ],
+    "ARI-OPE-A06a": [
+      "Une multiplication, c'est des groupes pareils. Peux-tu dessiner les groupes ?",
+      "Compte par sauts, comme 2, 4, 6. Combien de sauts te faut-il ?",
+      "Tu connais peut-être une table voisine. Comment elle pourrait t'aider ?"
+    ],
+    "ARI-OPE-A07a": [
+      "Combien de fois le petit nombre entre-t-il dans le grand sans le dépasser ?",
+      "Fais des groupes un à un avec des petits dessins. Qu'est-ce qui reste à la fin ?",
+      "Utilise ta table de multiplication pour t'approcher du grand nombre. Qu'est-ce qui reste ?"
+    ],
+    "ARI-SOP-A03a": [
+      "Imagine que tu partages entre des amis, un objet à la fois. Que se passe-t-il ?",
+      "Dessine les groupes ou les parts. Combien y en a-t-il dans chacun ?",
+      "Qu'est-ce que tu cherches : le nombre de groupes ou la taille d'un groupe ?"
+    ],
+    "ARI-SEN-A01c": [
+      "Lis le nombre en le coupant en tranches, de la droite vers la gauche. Que vaut chaque chiffre ?",
+      "Regarde la place de chaque chiffre : unités, dizaines, centaines, milliers.",
+      "Compare les chiffres un à un en partant de la gauche. Où est la première différence ?"
+    ],
+    "generic": [
+      "Prends ton temps. Qu'est-ce que tu remarques dans l'histoire ?",
+      "Relis la question tout doucement. Quels sont les nombres importants ?",
+      "Essaie de faire un petit dessin de ce qui se passe. Ça aide souvent !"
+    ]
+  },
+  "lines": {
+    "mascot": {
+      "think": [
+        "Hmm, voyons ça ensemble.",
+        "Prends ton temps, je réfléchis avec toi.",
+        "Bonne question, on la tourne dans tous les sens ?",
+        "Chut, ça mijote dans ma tête.",
+        "Et si on essayait de faire des petits groupes ?",
+        "Je plisse les yeux, je crois que j'ai une piste.",
+        "Doucement, rien ne presse ici.",
+        "Dessine-le dans ta tête, ça aide parfois."
+      ],
+      "cheer": [
+        "Tu y es presque, continue !",
+        "Yeah, quel beau coup !",
+        "Ça, c'est bien pensé !",
+        "Bravo, tu as le coup d'œil !",
+        "Hop, un pas de plus dans l'aventure !",
+        "Tu t'amuses bien, ça se voit !",
+        "Super idée, vraiment !",
+        "Youpi, on avance ensemble !"
+      ],
+      "curious": [
+        "Oh, qu'est-ce qui se cache par là ?",
+        "J'ai remarqué un truc bizarre, tu viens voir ?",
+        "Ça sent l'aventure, non ?",
+        "Je me demande ce que tu vas choisir.",
+        "Tiens, un petit chemin inconnu.",
+        "Mes moustaches frétillent, il y a un secret.",
+        "Et si on regardait de plus près ?",
+        "Je suis curieux de voir la suite."
+      ],
+      "amazed": [
+        "Oh là là, quel tour inattendu !",
+        "Tu as vu ça ? Moi, j'en reste bouche bée.",
+        "Incroyable, l'histoire vient de rebondir !",
+        "Wouah, je ne m'y attendais vraiment pas.",
+        "Quelle surprise, mes yeux brillent !",
+        "Ça alors, la page vient de se retourner !",
+        "Hé, c'est magique, non ?",
+        "Mince, l'aventure fait un grand saut !",
+        "Ouh là, voilà du nouveau !",
+        "Même moi, je n'avais rien deviné."
+      ],
+      "encourage": [
+        "Tu peux le faire, je suis là.",
+        "Chaque essai t'apprend quelque chose.",
+        "Respire, et regarde encore une fois.",
+        "Pas de souci, on repart sur un autre sentier.",
+        "Tu es plus fort que tu ne le crois.",
+        "Un petit pas, et puis un autre.",
+        "Ici, on a le droit de chercher.",
+        "Je crois en toi, vraiment."
+      ],
+      "welcome": [
+        "Salut, content de te revoir !",
+        "Bienvenue, l'aventure t'attendait.",
+        "Coucou ! Prêt pour une nouvelle histoire ?",
+        "Te voilà, j'avais gardé ta place.",
+        "Bonjour, explorateur !",
+        "Installe-toi, on a plein de choses à découvrir.",
+        "Ravi que tu sois là.",
+        "Hé {name}, quelle bonne surprise de te voir !",
+        "Salut {name}, content de te revoir !",
+        "{name}, ton aventure t'attendait.",
+        "Te voilà, {name} ! J'avais gardé ta place.",
+        "Bonjour {name}, prêt pour une nouvelle histoire ?"
+      ],
+      "exit": [
+        "Ton histoire t'attend, reviens quand tu veux.",
+        "À bientôt, je garde ta place au chaud.",
+        "Repose-toi bien, la suite sera là demain.",
+        "Belle aventure aujourd'hui, à très vite !",
+        "On se retrouve plus tard, d'accord ?",
+        "Va te dégourdir, l'histoire ne s'enfuit pas.",
+        "Merci d'avoir joué avec moi.",
+        "Fais de beaux rêves de chiffres et d'étoiles."
+      ]
+    },
+    "outcome": {
+      "correct": [
+        "Bien joué",
+        "Joli coup",
+        "En plein dans le mille",
+        "Tu l'as trouvé",
+        "Super réflexion",
+        "Ça roule",
+        "Quel bel élan",
+        "Bravo à toi",
+        "Tout juste",
+        "Belle trouvaille"
+      ],
+      "detour": [
+        "Un détour inattendu",
+        "Un petit chemin de côté",
+        "Tiens, une autre route",
+        "On change de sentier",
+        "Un raccourci tout neuf",
+        "Le chemin tourne",
+        "Une idée de plus",
+        "Et si on bifurquait ?"
+      ],
+      "surprise": [
+        "Une surprise dans l'histoire",
+        "Oh, un coup de vent !",
+        "Voilà un rebondissement",
+        "Quelque chose a bougé",
+        "Ça alors, du neuf !",
+        "Un tourbillon d'idées",
+        "L'histoire fait une pirouette",
+        "Un clin d'œil du hasard"
+      ]
+    },
+    "appreciation": {
+      "pass": [
+        "Bravo, chapitre réussi !",
+        "Super travail, continue comme ça !",
+        "Quelle belle réussite !",
+        "Excellent, tu progresses vite !",
+        "Génial, la carte est à toi !",
+        "Chapeau, c'était du beau travail !"
+      ],
+      "miss": [
+        "Presque ! Reviens plus tard, on réessaie ensemble.",
+        "Ce n'est pas encore ça, et c'est normal. À bientôt pour un autre essai !",
+        "On apprend en essayant. Reviens quand tu veux !",
+        "Courage ! La prochaine fois sera la bonne."
+      ]
+    }
+  },
+  "lib": {
+    "notify": {
+      "reminders": {
+        "play_reminder": {
+          "title": "Une histoire t'attend",
+          "body": "{name} n'a pas encore joué aujourd'hui. Une courte histoire ne prend que quelques minutes."
+        },
+        "time_limit": {
+          "title": "Temps de jeu atteint",
+          "body": "{name} a joué {count} minutes aujourd'hui, la limite est de {limit}. Le jeu reprend demain."
+        },
+        "subscription_expiring": {
+          "title": "Votre forfait se termine bientôt",
+          "body": "{count, plural, =0 {Votre accès se termine aujourd'hui.} one {Votre accès se termine dans # jour.} other {Votre accès se termine dans # jours.}} Gérez votre abonnement pour que {name} puisse continuer à jouer."
+        },
+        "payment_due": {
+          "title": "Paiement à faire",
+          "body": "Un paiement est dû. Payez maintenant pour que {name} puisse continuer à jouer."
+        }
+      },
+      "ui": {
+        "bell": {
+          "label": "Notifications",
+          "labelUnread": "Notifications, {count} non lues",
+          "title": "Notifications",
+          "empty": "Rien de nouveau. Nous vous le dirons ici.",
+          "markAll": "Tout marquer comme lu",
+          "loadError": "Nous n'avons pas pu charger vos notifications.",
+          "retry": "Réessayer",
+          "new": "Nouveau"
+        },
+        "prompt": {
+          "title": "Recevoir des rappels sur cet appareil?",
+          "text": "Nous pouvons afficher un court message quand un forfait se termine ou qu'un paiement est à faire. Nous demandons seulement quand vous touchez le bouton.",
+          "enable": "Activer les rappels",
+          "later": "Pas maintenant",
+          "granted": "Les rappels sont activés.",
+          "denied": "Les rappels sont bloqués dans les réglages de votre navigateur. Vous les voyez quand même dans la cloche de l'application.",
+          "unsupported": "Ce navigateur ne peut pas afficher de rappels. Vous les voyez quand même dans la cloche de l'application.",
+          "push": {
+            "unsupported": "Les rappels s'afficheront quand l'application est ouverte. Ce navigateur ne peut pas les envoyer quand elle est fermée.",
+            "no_key": "Les rappels s'afficheront quand l'application est ouverte. Les rappels quand elle est fermée ne sont pas encore configurés.",
+            "no_endpoint": "Les rappels s'afficheront quand l'application est ouverte. Les rappels quand elle est fermée ne sont pas encore offerts de notre côté.",
+            "failed": "Les rappels s'afficheront quand l'application est ouverte. Nous n'avons pas pu activer les rappels quand elle est fermée. Réessayez plus tard.",
+            "permission": "Les rappels s'afficheront quand l'application est ouverte."
+          }
+        }
+      }
+    }
+  },
+  "ui": {
+    "banner": {
+      "dismiss": "Masquer le message"
+    },
+    "devToolbar": {
+      "badge": "Données de démonstration",
+      "explain": "Ce que tu vois est simulé. Choisis un cas pour voir comment l'app réagit.",
+      "scenario": "Cas à simuler",
+      "options": {
+        "none": "Aucun",
+        "network-error": "Serveur injoignable",
+        "unauthorized": "Session expirée",
+        "rate-limited": "Trop de demandes",
+        "server-error": "Erreur du serveur",
+        "daily-limit": "Limite du jour atteinte",
+        "narration-fallback": "Histoire de secours",
+        "narration-slow": "Histoire lente"
+      }
+    },
+    "dialog": {
+      "close": "Fermer"
+    },
+    "formField": {
+      "required": "obligatoire"
+    },
+    "guidedTour": {
+      "next": "Suivant",
+      "back": "Retour",
+      "skip": "Passer la visite",
+      "done": "C'est parti",
+      "progress": "{current} sur {total}"
+    },
+    "notificationCenter": {
+      "dismiss": "Fermer la notification",
+      "region": "Notifications"
+    },
+    "pinInput": {
+      "backspace": "Effacer le dernier chiffre",
+      "digit": "Chiffre {n} sur {total}"
+    },
+    "sheet": {
+      "close": "Fermer"
+    },
+    "themeToggle": {
+      "group": "Apparence",
+      "change": "Changer l'apparence (actuel : {current})",
+      "system": "Automatique",
+      "light": "Clair",
+      "dark": "Sombre",
+      "hc": "Contraste élevé"
+    },
+    "virtualFeed": {
+      "loading": "Chargement en cours",
+      "loadingMore": "Chargement de la suite",
+      "emptyTitle": "Rien à voir ici pour l'instant",
+      "emptyHint": "Reviens après ta prochaine histoire.",
+      "errorTitle": "Ça n'a pas chargé",
+      "errorHint": "Vérifie ta connexion, puis réessaie.",
+      "retry": "Réessayer",
+      "end": "Tu as tout vu."
+    }
+  },
+  "errorScreen": {
+    "home": "Retour à l'accueil",
+    "details": "Détails techniques",
+    "detailsHint": "Pour un adulte. À partager si tu nous écris.",
+    "code": "Code",
+    "status": "Statut",
+    "reference": "Référence",
+    "play": {
+      "generic": "Oups, un petit accroc",
+      "offline": "Internet fait une sieste",
+      "timeout": "Ça prend du temps",
+      "notfound": "Oh! On s'est un peu perdus",
+      "permission": "Cette porte est pour les grands"
+    }
+  },
+  "screenState": {
+    "loading": "Chargement",
+    "slow": {
+      "title": "Ça prend plus de temps que d'habitude",
+      "description": "Rien n'est perdu. Attends un peu, réessaie ou reviens en arrière."
+    },
+    "empty": {
+      "title": "Rien ici pour l'instant",
+      "description": "Reviens bientôt, ou retourne à l'accueil."
+    }
+  }
+}

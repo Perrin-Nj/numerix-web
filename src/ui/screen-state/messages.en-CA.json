@@ -1,0 +1,13 @@
+{
+  "screenState": {
+    "loading": "Loading",
+    "slow": {
+      "title": "This is taking longer than usual",
+      "description": "Nothing is lost. Wait a little, try again, or go back."
+    },
+    "empty": {
+      "title": "Nothing here yet",
+      "description": "Come back soon, or go home."
+    }
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "lines": {
+    "mascot": {
+      "think": [
+        "Hmm, let's look at this together.",
+        "Take your time, I'm thinking with you.",
+        "Good question, shall we turn it around?",
+        "Shh, something is simmering up here.",
+        "What if we made small groups?",
+        "I'm squinting, I think I have a clue.",
+        "Easy does it, nothing is rushing us.",
+        "Picture it in your head, it sometimes helps."
+      ],
+      "cheer": [
+        "You're almost there, keep going!",
+        "Yes, what a nice move!",
+        "Now that's clever thinking!",
+        "Hooray, you have a sharp eye!",
+        "Hop, one more step on the adventure!",
+        "You're having fun, I can tell!",
+        "Great idea, really!",
+        "Yay, we're getting somewhere together!"
+      ],
+      "curious": [
+        "Ooh, what's hiding over there?",
+        "I spotted something odd, want to see?",
+        "Smells like adventure, doesn't it?",
+        "I wonder what you'll pick.",
+        "Look, a little path I don't know.",
+        "My whiskers are twitching, there's a secret.",
+        "What if we looked closer?",
+        "I'm curious to see what comes next."
+      ],
+      "amazed": [
+        "Oh my, what a twist!",
+        "Did you see that? I'm speechless.",
+        "Wow, the story just bounced!",
+        "Whoa, I really didn't expect that.",
+        "What a surprise, my eyes are sparkling!",
+        "Well I never, the page just turned!",
+        "Hey, that's kind of magic, right?",
+        "Goodness, the adventure took a big leap!",
+        "Ooh, something new!",
+        "Even I didn't see that coming."
+      ],
+      "encourage": [
+        "You can do it, I'm right here.",
+        "Every try teaches you something.",
+        "Breathe, and take another look.",
+        "No worries, we'll take another path.",
+        "You're stronger than you think.",
+        "One small step, then another.",
+        "Around here, exploring is allowed.",
+        "I believe in you, truly."
+      ],
+      "welcome": [
+        "Hi, so good to see you again!",
+        "Welcome, your adventure was waiting.",
+        "Hello! Ready for a new story?",
+        "There you are, I saved your spot.",
+        "Good day, explorer!",
+        "Settle in, there's lots to discover.",
+        "Glad you're here.",
+        "Hey {name}, what a nice surprise to see you!",
+        "Hi {name}, so happy you are back!",
+        "{name}, your adventure was waiting.",
+        "There you are, {name}! I kept your seat.",
+        "Hello {name}, ready for a new story?"
+      ],
+      "exit": [
+        "Your story is waiting, come back any time.",
+        "See you soon, I'll keep your spot warm.",
+        "Rest well, the next part will be here tomorrow.",
+        "What a nice adventure today, see you soon!",
+        "We'll meet again later, okay?",
+        "Go stretch your legs, the story isn't going anywhere.",
+        "Thanks for playing with me.",
+        "Sweet dreams of numbers and stars."
+      ]
+    },
+    "outcome": {
+      "correct": [
+        "Nicely done",
+        "Great move",
+        "Right on target",
+        "You found it",
+        "Smart thinking",
+        "Rolling along",
+        "What a nice spark",
+        "Well done, you",
+        "Spot on",
+        "Lovely find"
+      ],
+      "detour": [
+        "An unexpected detour",
+        "A little path to the side",
+        "Look, another road",
+        "Let's switch trails",
+        "A brand new shortcut",
+        "The road bends",
+        "One more idea",
+        "What if we turned here?"
+      ],
+      "surprise": [
+        "A twist in the story",
+        "Oh, a gust of wind!",
+        "Here comes a turn",
+        "Something moved",
+        "Well, that's new!",
+        "A whirl of ideas",
+        "The story does a pirouette",
+        "A wink from chance"
+      ]
+    },
+    "appreciation": {
+      "pass": [
+        "Bravo, chapter done!",
+        "Great work, keep it up!",
+        "What a nice win!",
+        "Excellent, you are learning fast!",
+        "Awesome, the card is yours!",
+        "Well done, that was great work!"
+      ],
+      "miss": [
+        "Almost! Come back later and we will try again together.",
+        "Not quite yet, and that is fine. See you for another try!",
+        "We learn by trying. Come back whenever you like!",
+        "Keep going! Next time will be the one."
+      ]
+    }
+  }
+}

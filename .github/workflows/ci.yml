@@ -1,0 +1,33 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Contract is valid and types are in sync
+        run: |
+          npx --yes @redocly/cli@1.25.0 lint contracts/openapi.yaml --max-problems 1000 || true
+          pnpm gen:api
+          git diff --exit-code src/lib/api/schema.d.ts
+      - name: WireMock mappings are in sync with their generator
+        run: |
+          node contracts/wiremock/gen.mjs
+          git diff --exit-code contracts/wiremock/mappings
+      - run: pnpm gen:messages
+      - name: Policy checks (Storybook-only, copy, sounds)
+        run: pnpm check:stories && pnpm check:copy && pnpm check:sounds
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm build
+      - run: pnpm exec storybook build -o storybook-static --disable-telemetry

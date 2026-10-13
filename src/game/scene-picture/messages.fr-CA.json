@@ -1,0 +1,24 @@
+{
+  "game": {
+    "scenePicture": {
+      "item": {
+        "nature": "{n, plural, one {graine} other {graines}}",
+        "espace": "{n, plural, one {étoile} other {étoiles}}",
+        "cuisine": "{n, plural, one {œuf} other {œufs}}",
+        "sport": "{n, plural, one {ballon} other {ballons}}",
+        "construction": "{n, plural, one {brique} other {briques}}",
+        "medecine": "{n, plural, one {pilule} other {pilules}}",
+        "science": "{n, plural, one {cristal} other {cristaux}}",
+        "echecs": "{n, plural, one {pion} other {pions}}"
+      },
+      "alt": {
+        "add": "{a} {ia} et {b} {ib}, à réunir.",
+        "sub": "{total} {it}, dont {removed} qui s'en vont.",
+        "missing": "{known} {ik} et une place vide pour {missing} de plus.",
+        "mul": "{rows} rangées de {cols} {it}.",
+        "div": "{total} {it} partagés dans {bowls} bols, {rem, plural, =0 {sans reste} other {il en reste #}}.",
+        "line": "Une droite de 0 à {max} avec un repère sur {value}."
+      }
+    }
+  }
+}

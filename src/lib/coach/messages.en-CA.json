@@ -1,0 +1,44 @@
+{
+  "coach": {
+    "ARI-OPE-A02a": [
+      "Try splitting each number into tens and ones. Add the tens first, then the ones.",
+      "Start with the bigger number in your head, then add the other one in small steps.",
+      "Draw bundles of ten and little dots. What do you get when you put them together?"
+    ],
+    "ARI-OPE-A03a": [
+      "Think of a round number close by. How could it help you?",
+      "Break the problem into two small, easy steps. You can say them out loud.",
+      "Count in jumps of ten, then in jumps of one. Where do you land?"
+    ],
+    "ARI-OPE-A05": [
+      "Something is missing in the equal sign puzzle. What do you already know about both sides?",
+      "Try going backwards. Which operation undoes the one you see?",
+      "Put a small number in the empty box to test it. Do both sides match?"
+    ],
+    "ARI-OPE-A06a": [
+      "Multiplying means equal groups. Can you draw the groups?",
+      "Count in jumps, like 2, 4, 6. How many jumps do you need?",
+      "Maybe you know a table next door. How could it help you?"
+    ],
+    "ARI-OPE-A07a": [
+      "How many times does the small number fit in the big one without going over?",
+      "Make groups one by one with little drawings. What is left at the end?",
+      "Use your times table to get close to the big number. What is left over?"
+    ],
+    "ARI-SOP-A03a": [
+      "Imagine sharing with friends, one thing at a time. What happens?",
+      "Draw the groups or the shares. How many are in each one?",
+      "What are you looking for: the number of groups or the size of one group?"
+    ],
+    "ARI-SEN-A01c": [
+      "Read the number in slices, from right to left. What is each digit worth?",
+      "Look at where each digit sits: ones, tens, hundreds, thousands.",
+      "Compare the digits one by one from the left. Where is the first difference?"
+    ],
+    "generic": [
+      "Take your time. What do you notice in the story?",
+      "Read the question again, nice and slow. Which numbers matter?",
+      "Try a quick drawing of what is happening. It often helps!"
+    ]
+  }
+}

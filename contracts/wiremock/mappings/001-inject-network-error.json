@@ -1,0 +1,14 @@
+{
+  "priority": 1,
+  "request": {
+    "urlPathPattern": "/v1/.*",
+    "headers": {
+      "X-Mock-Scenario": {
+        "equalTo": "network-error"
+      }
+    }
+  },
+  "response": {
+    "fault": "CONNECTION_RESET_BY_PEER"
+  }
+}

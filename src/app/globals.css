@@ -1,0 +1,814 @@
+@import 'tailwindcss';
+@import '../styles/tokens.css';
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-elevated: var(--bg-elevated);
+  --color-sunken: var(--bg-sunken);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-line: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-soft: var(--brand-soft);
+  --color-success: var(--success);
+  --color-info: var(--info);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-focus: var(--focus-ring);
+  --color-beat-success: var(--beat-success);
+  --color-beat-detour: var(--beat-detour);
+  --color-beat-surprise: var(--beat-surprise);
+  --color-world-nature: var(--world-nature);
+  --color-world-espace: var(--world-espace);
+  --color-world-cuisine: var(--world-cuisine);
+  --color-world-sport: var(--world-sport);
+  --color-world-construction: var(--world-construction);
+  --color-world-medecine: var(--world-medecine);
+  --color-world-science: var(--world-science);
+  --color-world-echecs: var(--world-echecs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --font-display: var(--font-display-family), ui-rounded, system-ui, sans-serif;
+  --font-sans: var(--font-body-family), system-ui, sans-serif;
+  --shadow-press: var(--shadow-press);
+  --shadow-1: var(--shadow-1);
+  --shadow-2: var(--shadow-2);
+  --shadow-3: var(--shadow-3);
+}
+
+html,
+body {
+  min-height: 100dvh;
+}
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* Press feedback on touch and pointer; hover only on devices that hover */
+@media (hover: hover) {
+  .lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+}
+.lift {
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+.lift:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+@keyframes nx-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes nx-rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes nx-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+@keyframes nx-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.nx-pop {
+  animation: nx-pop var(--dur-3) var(--ease-spring) both;
+}
+.nx-rise {
+  animation: nx-rise var(--dur-3) var(--ease-out) both;
+}
+.nx-pulse {
+  animation: nx-pulse calc(1600ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-skeleton {
+  background: linear-gradient(90deg, var(--bg-sunken) 25%, var(--bg-elevated) 50%, var(--bg-sunken) 75%);
+  background-size: 200% 100%;
+  animation: nx-shimmer calc(2400ms * var(--motion-scale, 1)) linear infinite;
+}
+@keyframes nx-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes nx-wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-9deg);
+  }
+  75% {
+    transform: rotate(9deg);
+  }
+}
+@keyframes nx-heart {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes nx-shine {
+  from {
+    transform: translateX(-120%) skewX(-20deg);
+  }
+  to {
+    transform: translateX(220%) skewX(-20deg);
+  }
+}
+@keyframes nx-sparkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+.nx-float {
+  animation: nx-float calc(3200ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-wiggle {
+  animation: nx-wiggle calc(700ms * var(--motion-scale, 1)) ease-in-out 2;
+}
+.nx-heart {
+  animation: nx-heart calc(500ms * var(--motion-scale, 1)) var(--ease-spring) both;
+}
+.nx-sparkle {
+  animation: nx-sparkle calc(2200ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+/* Light sweep for primary buttons. The element needs `relative overflow-hidden`. */
+.nx-shine::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.35), transparent);
+  transform: translateX(-120%) skewX(-20deg);
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .nx-shine:hover::after {
+    animation: nx-shine calc(700ms * var(--motion-scale, 1)) ease-out;
+  }
+  .lift.lift-tilt:hover {
+    transform: translateY(-2px) rotate(-0.6deg);
+  }
+}
+.nx-shine:focus-visible::after {
+  animation: nx-shine calc(700ms * var(--motion-scale, 1)) ease-out;
+}
+/* Staggered entrance: set style={{ '--i': index }} on each child. */
+.nx-stagger {
+  animation: nx-rise var(--dur-3) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 80ms * var(--motion-scale, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-pulse,
+  .nx-skeleton,
+  .nx-float,
+  .nx-wiggle,
+  .nx-sparkle,
+  .nx-shine::after,
+  .nx-shine:hover::after,
+  .nx-shine:focus-visible::after {
+    animation: none;
+  }
+}
+
+/* ---- Joy pack: bounce, wobble, twinkle, drift, glow pulse, staggered pop-in, scene motion ---- */
+@keyframes nx-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  40% {
+    transform: translateY(-14px) scale(0.97, 1.04);
+  }
+  60% {
+    transform: translateY(0) scale(1.05, 0.94);
+  }
+}
+@keyframes nx-wobble {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  15% {
+    transform: rotate(-6deg);
+  }
+  35% {
+    transform: rotate(5deg);
+  }
+  55% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+}
+@keyframes nx-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+@keyframes nx-drift {
+  from {
+    transform: translateX(calc(var(--dx, 10px) * -1));
+  }
+  to {
+    transform: translateX(var(--dx, 10px));
+  }
+}
+@keyframes nx-glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--beat-detour) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 22px 6px color-mix(in srgb, var(--beat-detour) 55%, transparent);
+  }
+}
+@keyframes nx-pop-in-stagger {
+  0% {
+    transform: scale(0.6) translateY(8px);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.06) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes nx-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes nx-tilt {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0);
+  }
+  80% {
+    transform: rotate(-7deg);
+  }
+  90% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes nx-rise-up {
+  from {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-46px) scale(1);
+    opacity: 0;
+  }
+}
+@keyframes nx-swirl {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.nx-bounce {
+  animation: nx-bounce calc(1100ms * var(--motion-scale, 1)) ease-in-out 2;
+}
+.nx-wobble {
+  animation: nx-wobble calc(1400ms * var(--motion-scale, 1)) ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+.nx-twinkle {
+  animation: nx-twinkle calc(2400ms * var(--motion-scale, 1)) ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-delay: calc(var(--i, 0) * 370ms * var(--motion-scale, 1));
+}
+.nx-drift {
+  animation: nx-drift calc(var(--drift-s, 24s) * var(--motion-scale, 1)) ease-in-out infinite alternate;
+}
+.nx-glow-pulse {
+  animation: nx-glow-pulse calc(2200ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-pop-in-stagger {
+  animation: nx-pop-in-stagger var(--dur-4) var(--ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 90ms * var(--motion-scale, 1));
+}
+.nx-blink {
+  animation: nx-blink calc(5200ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-tilt {
+  animation: nx-tilt calc(7000ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-rise-up {
+  animation: nx-rise-up calc(2600ms * var(--motion-scale, 1)) ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-delay: calc(var(--i, 0) * 420ms * var(--motion-scale, 1));
+}
+.nx-swirl {
+  animation: nx-swirl calc(4200ms * var(--motion-scale, 1)) linear infinite;
+  transform-origin: 0 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-bounce,
+  .nx-wobble,
+  .nx-twinkle,
+  .nx-drift,
+  .nx-glow-pulse,
+  .nx-pop-in-stagger,
+  .nx-blink,
+  .nx-tilt,
+  .nx-rise-up,
+  .nx-swirl {
+    animation: none;
+  }
+}
+:root[data-motion='reduced'] :is(.nx-bounce, .nx-wobble, .nx-twinkle, .nx-drift, .nx-glow-pulse, .nx-pop-in-stagger, .nx-blink, .nx-tilt, .nx-rise-up, .nx-swirl) {
+  animation: none;
+}
+
+/* ---- Visuals pack: mascot happy and sad, outcome sim. Base style is the end state, so reduced motion shows the result. ---- */
+@keyframes nx-mascot-happy {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-12px) scale(1.06, 0.96);
+  }
+  55% {
+    transform: translateY(0) scale(0.96, 1.04);
+  }
+}
+@keyframes nx-mascot-sad {
+  0%,
+  100% {
+    transform: translateY(2px) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(5px) rotate(3deg);
+  }
+}
+@keyframes nx-sim {
+  from {
+    transform: translate(var(--fx, 0px), var(--fy, 0px)) scale(var(--fs, 1)) scale(1, var(--fsy, 1)) rotate(var(--fr, 0deg));
+    opacity: var(--fo, 1);
+  }
+}
+@keyframes nx-sim-out {
+  0%,
+  99% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes nx-sim-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@keyframes nx-sim-puff {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.3);
+  }
+  30% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-16px) scale(1.5);
+  }
+}
+@keyframes nx-sim-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-3px, 2px);
+  }
+  40% {
+    transform: translate(3px, -2px);
+  }
+  60% {
+    transform: translate(-2px, 1px);
+  }
+  80% {
+    transform: translate(2px, 0);
+  }
+}
+.nx-mascot-happy {
+  animation: nx-mascot-happy calc(900ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-mascot-sad {
+  animation: nx-mascot-sad calc(4200ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-sim {
+  animation: nx-sim calc(var(--d, 600ms) * var(--motion-scale, 1)) var(--e, ease-out) calc(var(--dl, 0ms) * var(--motion-scale, 1)) both;
+  transform-box: fill-box;
+  transform-origin: var(--to, center);
+}
+.nx-sim-out {
+  opacity: 0;
+  animation: nx-sim-out calc(var(--d, 600ms) * var(--motion-scale, 1)) linear calc(var(--dl, 0ms) * var(--motion-scale, 1)) both;
+}
+.nx-sim-draw {
+  stroke-dasharray: 1;
+  animation: nx-sim-draw calc(var(--d, 1200ms) * var(--motion-scale, 1)) linear calc(var(--dl, 0ms) * var(--motion-scale, 1)) both;
+}
+.nx-sim-puff {
+  opacity: 0;
+  animation: nx-sim-puff calc(900ms * var(--motion-scale, 1)) ease-out calc(var(--dl, 0ms) * var(--motion-scale, 1)) both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.nx-sim-shake {
+  animation: nx-sim-shake calc(420ms * var(--motion-scale, 1)) ease-in-out calc(var(--dl, 0ms) * var(--motion-scale, 1)) 1;
+}
+.nx-sim-root[data-skip] :is(.nx-sim, .nx-sim-puff, .nx-sim-shake, .nx-sim-out, .nx-sim-draw) {
+  animation-duration: 1ms;
+  animation-delay: 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-mascot-happy,
+  .nx-mascot-sad,
+  .nx-sim,
+  .nx-sim-puff,
+  .nx-sim-shake,
+  .nx-sim-out,
+  .nx-sim-draw {
+    animation: none;
+  }
+}
+:root[data-motion='reduced'] :is(.nx-mascot-happy, .nx-mascot-sad, .nx-sim, .nx-sim-puff, .nx-sim-shake, .nx-sim-out, .nx-sim-draw) {
+  animation: none;
+}
+
+/* Cards agent: story card sweep, welcome gift sequence, reward burst art. */
+@keyframes nx-card-sweep {
+  from {
+    transform: translateX(-130%) skewX(-20deg);
+  }
+  to {
+    transform: translateX(230%) skewX(-20deg);
+  }
+}
+.nx-card-sweep {
+  overflow: hidden;
+}
+.nx-card-sweep::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent);
+  animation: nx-card-sweep calc(1100ms * var(--motion-scale, 1)) ease-out 250ms both;
+}
+@keyframes nx-gift-invite {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  68% {
+    transform: translateY(-10px) rotate(-5deg);
+  }
+  76% {
+    transform: translateY(0) rotate(5deg);
+  }
+  84% {
+    transform: translateY(-4px) rotate(-3deg);
+  }
+  92% {
+    transform: translateY(0) rotate(0);
+  }
+}
+@keyframes nx-gift-lid {
+  0% {
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(-34px) rotate(-6deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(120px, -220px) rotate(38deg);
+    opacity: 0;
+  }
+}
+@keyframes nx-gift-rays {
+  0% {
+    transform: scale(0.2) rotate(0);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6) rotate(50deg);
+    opacity: 0;
+  }
+}
+@keyframes nx-gift-card {
+  0% {
+    transform: translateY(70px) scale(0.4) rotateY(0);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-40px) scale(1.08) rotateY(540deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotateY(720deg);
+    opacity: 1;
+  }
+}
+@keyframes nx-gift-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.nx-gift-invite {
+  animation: nx-gift-invite calc(2600ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-gift-lid {
+  animation: nx-gift-lid calc(900ms * var(--motion-scale, 1)) cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+.nx-gift-rays {
+  background: repeating-conic-gradient(from 0deg, rgb(255 214 90 / 0.8) 0deg 8deg, transparent 8deg 24deg);
+  mask-image: radial-gradient(circle, #000 15%, transparent 68%);
+  animation: nx-gift-rays calc(1400ms * var(--motion-scale, 1)) ease-out both;
+}
+.nx-gift-card {
+  animation: nx-gift-card calc(1500ms * var(--motion-scale, 1)) cubic-bezier(0.2, 0.8, 0.3, 1) 350ms both;
+}
+.nx-gift-fade {
+  animation: nx-gift-fade calc(500ms * var(--motion-scale, 1)) ease-out both;
+}
+@keyframes nx-rb-flicker {
+  0%,
+  100% {
+    transform: scale(1) rotate(-2deg);
+  }
+  50% {
+    transform: scale(1.08) rotate(2deg);
+  }
+}
+@keyframes nx-rb-ring {
+  from {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+.nx-rb-flicker {
+  animation: nx-rb-flicker calc(900ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-rb-ring {
+  animation: nx-rb-ring calc(1600ms * var(--motion-scale, 1)) ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-card-sweep::after,
+  .nx-gift-invite,
+  .nx-gift-lid,
+  .nx-gift-rays,
+  .nx-gift-card,
+  .nx-rb-flicker,
+  .nx-rb-ring {
+    animation: none;
+  }
+}
+:root[data-motion='reduced'] :is(.nx-gift-invite, .nx-gift-lid, .nx-gift-rays, .nx-gift-card, .nx-rb-flicker, .nx-rb-ring) {
+  animation: none;
+}
+:root[data-motion='reduced'] .nx-card-sweep::after {
+  animation: none;
+}
+@keyframes nx-gift-holo {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+.nx-gift-holo {
+  background: linear-gradient(115deg, #ff7eb3, #ffd86b, #7bffb0, #6ec6ff, #c58bff, #ff7eb3) 0 0 / 200% 100% !important;
+  opacity: 0.45 !important;
+  animation: nx-gift-holo calc(3500ms * var(--motion-scale, 1)) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-gift-holo {
+    animation: none;
+  }
+}
+:root[data-motion='reduced'] .nx-gift-holo {
+  animation: none;
+}
+
+/* Cards agent v2: three card families (postcard, badge, present). */
+@keyframes nx-card-enter {
+  from {
+    transform: translateY(90px) rotateY(180deg) scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-14px) rotateY(20deg) scale(1.05);
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes nx-card-pop {
+  from {
+    transform: scale(0.85) translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes nx-card-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-5px) rotate(0.6deg);
+  }
+}
+@keyframes nx-badge-glow {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+@keyframes nx-card-sweep-loop {
+  0% {
+    transform: translateX(-130%) skewX(-20deg);
+  }
+  28%,
+  100% {
+    transform: translateX(260%) skewX(-20deg);
+  }
+}
+.nx-card-enter {
+  animation: nx-card-enter calc(1100ms * var(--motion-scale, 1)) cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+.nx-card-pop {
+  animation: nx-card-pop calc(450ms * var(--motion-scale, 1)) ease-out both;
+}
+.nx-card-float {
+  animation: nx-card-float calc(4200ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-badge-glow {
+  animation: nx-badge-glow calc(2600ms * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.nx-card-spin {
+  animation: nx-swirl calc(24000ms * var(--motion-scale, 1)) linear infinite;
+}
+.nx-card-sweep::after {
+  animation: nx-card-sweep-loop calc(5200ms * var(--motion-scale, 1)) ease-in-out 600ms infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-card-enter,
+  .nx-card-pop,
+  .nx-card-float,
+  .nx-badge-glow,
+  .nx-card-spin,
+  .nx-card-sweep::after {
+    animation: none;
+  }
+}
+:root[data-motion='reduced'] :is(.nx-card-enter, .nx-card-pop, .nx-card-float, .nx-badge-glow, .nx-card-spin) {
+  animation: none;
+}
+:root[data-motion='reduced'] .nx-card-sweep::after {
+  animation: none;
+}
+
+/* ===== Answer experience (PLAN_V5 section 3) ===== */
+@keyframes nx-react-bounce { 0%,100% { transform: translateY(0) scale(1); } 40% { transform: translateY(-12%) scale(1.08); } }
+@keyframes nx-react-sway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+@keyframes nx-react-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+@keyframes nx-react-wave { 0%,100% { transform: rotate(0); } 25% { transform: rotate(14deg); } 75% { transform: rotate(-10deg); } }
+.nx-react-bounce { animation: nx-react-bounce calc(1100ms * var(--motion-scale, 1)) ease-in-out infinite; }
+.nx-react-sway { animation: nx-react-sway calc(2400ms * var(--motion-scale, 1)) ease-in-out infinite; }
+.nx-react-pulse { animation: nx-react-pulse calc(1300ms * var(--motion-scale, 1)) ease-in-out infinite; }
+.nx-react-wave { animation: nx-react-wave calc(1200ms * var(--motion-scale, 1)) ease-in-out infinite; transform-origin: 70% 70%; }
+
+@keyframes nx-choice-right { 0% { transform: scale(1); } 40% { transform: scale(1.06); box-shadow: 0 0 0 0 rgb(34 197 94 / 0.5); } 100% { transform: scale(1); box-shadow: 0 0 0 14px rgb(34 197 94 / 0); } }
+@keyframes nx-choice-wrong { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.nx-choice-right { animation: nx-choice-right 450ms ease-out both; }
+.nx-choice-wrong { animation: nx-choice-wrong 400ms ease-in-out both; opacity: 0.7; }
+
+@keyframes nx-sparkle-burst { 0% { transform: translate(0,0) scale(0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; } }
+.nx-spark { position: absolute; inset-inline-start: 50%; top: 50%; font-size: 1rem; pointer-events: none; animation: nx-sparkle-burst 700ms ease-out both; }
+
+@keyframes nx-stage-in { from { opacity: 0; } to { opacity: 1; } }
+.nx-stage-in { animation: nx-stage-in 250ms ease-out both; }
+
+@keyframes nx-sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.nx-sheet-up { animation: nx-sheet-up 350ms var(--ease-out, ease-out) both; }
+
+@keyframes nx-dust { 0% { transform: translateY(0); opacity: 0.6; } 100% { transform: translateY(-40px); opacity: 0; } }
+.nx-dust { position: absolute; width: 8px; height: 8px; border-radius: 9999px; background: rgb(180 170 150 / 0.7); pointer-events: none; animation: nx-dust 1400ms ease-out both; }
+
+.nx-hero-glow { transition: box-shadow 400ms ease-out; border-radius: 9999px; box-shadow: 0 0 calc(var(--glow, 0) * 10px) calc(var(--glow, 0) * 3px) rgb(250 204 21 / calc(0.25 + var(--glow, 0) * 0.15)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-react-bounce, .nx-react-sway, .nx-react-pulse, .nx-react-wave, .nx-choice-right, .nx-choice-wrong, .nx-spark, .nx-dust { animation: none; }
+  .nx-sheet-up { animation: nx-stage-in 250ms ease-out both; }
+}
+:root[data-motion='reduced'] :is(.nx-react-bounce, .nx-react-sway, .nx-react-pulse, .nx-react-wave, .nx-choice-right, .nx-choice-wrong, .nx-spark, .nx-dust) { animation: none; }
+:root[data-motion='reduced'] .nx-sheet-up { animation: nx-stage-in 250ms ease-out both; }

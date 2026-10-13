@@ -1,0 +1,26 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v1/children/[^/]+/growth.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "window_days": 7,
+      "current": {
+        "chapters_completed": 4,
+        "skills_mastered": 2,
+        "minutes_played": 48
+      },
+      "previous": {
+        "chapters_completed": 2,
+        "skills_mastered": 1,
+        "minutes_played": 25
+      }
+    }
+  }
+}

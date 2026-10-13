@@ -1,0 +1,93 @@
+/* Token theme for driver.js. Loaded after driver.css; the double class wins on specificity. */
+.driver-popover.nx-tour {
+  box-sizing: border-box;
+  min-width: min(20rem, calc(100vw - 2rem));
+  max-width: min(26rem, calc(100vw - 2rem));
+  padding: 1.25rem;
+  color: var(--fg);
+  background-color: var(--bg-elevated);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+  font-family: var(--font-sans);
+}
+.nx-tour .driver-popover-title {
+  padding-inline-end: 2.5rem;
+  font-family: var(--font-display-family), ui-rounded, system-ui, sans-serif;
+  font-size: 1.25rem;
+  color: var(--fg);
+}
+.nx-tour .driver-popover-description {
+  font-size: 1rem;
+  color: var(--fg-muted);
+}
+.nx-tour .driver-popover-progress-text {
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+}
+.nx-tour .driver-popover-close-btn {
+  inset-block-start: 0.25rem;
+  inset-inline-end: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.5rem;
+  color: var(--fg-muted);
+  border-radius: var(--radius-md);
+}
+.nx-tour .driver-popover-close-btn:hover,
+.nx-tour .driver-popover-close-btn:focus {
+  color: var(--fg);
+  background-color: var(--bg-sunken);
+}
+.nx-tour .driver-popover-footer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  min-height: 3rem;
+  padding: 0 1.25rem;
+  font-family: var(--font-display-family), ui-rounded, system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--fg);
+  background-color: var(--bg-elevated);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.nx-tour .driver-popover-footer-btn:hover {
+  background-color: var(--bg-sunken);
+}
+.nx-tour .driver-popover-next-btn {
+  color: var(--brand-fg);
+  background-color: var(--brand);
+  border-color: var(--brand);
+}
+.nx-tour .driver-popover-next-btn:hover,
+.nx-tour .driver-popover-next-btn:focus {
+  color: var(--brand-fg);
+  background-color: var(--brand);
+}
+.nx-tour .driver-popover-footer-btn:focus-visible,
+.nx-tour .driver-popover-close-btn:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.nx-tour .driver-popover-arrow-side-left {
+  border-left-color: var(--bg-elevated);
+}
+.nx-tour .driver-popover-arrow-side-right {
+  border-right-color: var(--bg-elevated);
+}
+.nx-tour .driver-popover-arrow-side-top {
+  border-top-color: var(--bg-elevated);
+}
+.nx-tour .driver-popover-arrow-side-bottom {
+  border-bottom-color: var(--bg-elevated);
+}
+/* Overlay veil follows the theme */
+.driver-overlay path {
+  fill: var(--bg-sunken) !important;
+}

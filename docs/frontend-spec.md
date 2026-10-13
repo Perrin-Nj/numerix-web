@@ -784,12 +784,11 @@ Each step beyond level 1 needs an ADR with the measured size and the use it unlo
 
 - Team slug `numerix`, project `numerix-web`, repository `github.com/Perrin-Nj/numerix-web`, production branch `main`, a preview deployment per pull request. Domain: the free `*.vercel.app` domain for now.
 - Vercel settings live in the repo, not in the dashboard:
-  - `config/vercel.config.ts` is the source (regions, headers and CSP, redirects, rewrites, function settings).
-  - `scripts/gen-vercel-json.mjs` generates `vercel.json` from it. CI fails if `vercel.json` drifts from the source.
-  - `scripts/vercel-env.mjs` compares `.env.example` with the project's variables (`diff`), and pushes or pulls them (`push`, `pull`) through the Vercel CLI, per environment.
+  - `vercel.ts` (with `@vercel/config`, Vercel's own config-as-code file, run at build time) holds regions, security headers and CSP, and cache rules. Tunable values come from environment variables with safe defaults (`VERCEL_REGIONS`, `IMAGE_HOSTS`, `CONNECT_ORIGINS`).
+  - `config/env/production.env` and `config/env/preview.env` hold the non-secret variable values. `scripts/vercel-env.mjs diff|push <environment>` compares and syncs them with the project through the Vercel CLI. Every variable must be documented in `.env.example`.
 - Preview protection: Vercel protects previews by default. Sharing a preview with playtest families needs a deliberate setting (protection bypass link or turning it off for one project); this is an explicit decision, recorded in the log.
 - The first production deploy runs with `NEXT_PUBLIC_USE_MOCK=true` against a hosted WireMock. WireMock needs a JVM or Docker host, which Vercel does not provide, so the mock is hosted elsewhere (decision pending in plan section 11).
-- Region: choose the function region closest to Quebec that Vercel offers; whether any Canadian region exists is verified from the Vercel docs in P0 and recorded for the Law 25 review.
+- Region: `yul1` (Montreal, Canada) exists on Vercel (docs checked 2026-10-12) and is the default in `vercel.ts`.
 
 ### 22.6 Backend requirements live in the contract folder
 

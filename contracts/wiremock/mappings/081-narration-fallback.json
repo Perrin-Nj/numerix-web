@@ -1,0 +1,22 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v1/sessions/.*/narration.*",
+    "headers": {
+      "X-Mock-Scenario": {
+        "equalTo": "narration-fallback"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/event-stream"
+    },
+    "transformers": [
+      "response-template"
+    ],
+    "body": "event: fallback\ndata: {\"text\":\"{{#if (contains request.headers.[Accept-Language].[0] 'en')}}The hero moves ahead in the story, one step at a time.{{else}}Le héros avance dans l’histoire, un pas à la fois.{{/if}}\"}\n\n"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "game": {
+    "rewardBurst": {
+      "continue": "Continue",
+      "card_earned": { "title": "New story card", "detail": "It joins your collection." },
+      "chapter_complete": { "title": "Chapter complete", "detail": "What a great adventure!" },
+      "streak_extended": { "title": "The flame grows", "detail": "{count, plural, one {# story day in a row} other {# story days in a row}}" },
+      "skill_mastered": { "title": "New power", "detail": "You have mastered this step of the path." },
+      "daily_goal_met": { "title": "Today's goal reached", "detail": "Well done, that's it for today." }
+    }
+  }
+}

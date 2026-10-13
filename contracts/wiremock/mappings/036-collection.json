@@ -1,0 +1,36 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v1/children/[^/]+/collection.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "id": "55555555-5555-4555-8555-555555555551",
+          "world": "echecs",
+          "title": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}The tower tournament{{else}}Le tournoi des tours{{/if}}",
+          "image_url": "",
+          "session_id": "33333333-3333-4333-8333-333333333333",
+          "earned_at": "2026-10-12T14:00:00Z"
+        },
+        {
+          "id": "55555555-5555-4555-8555-555555555552",
+          "world": "nature",
+          "title": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}The secret clearing{{else}}La clairière secrète{{/if}}",
+          "image_url": "",
+          "session_id": "33333333-3333-4333-8333-333333333333",
+          "earned_at": "2026-10-12T14:00:00Z"
+        }
+      ]
+    },
+    "transformers": [
+      "response-template"
+    ]
+  }
+}

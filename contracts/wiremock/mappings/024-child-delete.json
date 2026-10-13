@@ -1,0 +1,10 @@
+{
+  "priority": 6,
+  "request": {
+    "method": "DELETE",
+    "urlPathPattern": "/v1/children/[^/]+"
+  },
+  "response": {
+    "status": 204
+  }
+}

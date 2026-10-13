@@ -1,0 +1,89 @@
+{
+  "game": {
+    "outcomeSim": {
+      "skip": "Skip the animation",
+      "caption": {
+        "construction": {
+          "good": {
+            "0": "There it is, the bridge holds and the trucks roll across.",
+            "1": "Well counted: the structure is strong and the road is open."
+          },
+          "bad": {
+            "0": "We saw what can happen when the numbers are too tight. You can try again, you are close.",
+            "1": "A bridge with a wrong count can give way. Good news: we can rebuild it together."
+          }
+        },
+        "nature": {
+          "good": {
+            "0": "There it is, the seed gets enough water and sun: it blooms and the bees arrive.",
+            "1": "Well counted: the garden grows and fills with life."
+          },
+          "bad": {
+            "0": "Without enough water, a plant wilts. A drop is on its way: you can try again, you are close.",
+            "1": "A wrong count can dry out a garden. No worries, we water it and start again."
+          }
+        },
+        "espace": {
+          "good": {
+            "0": "There it is, the rocket lands on the Moon and plants its flag.",
+            "1": "Good count: the landing is nice and gentle."
+          },
+          "bad": {
+            "0": "With a small slip, a rocket can miss its target. You can try again, you are close.",
+            "1": "A slightly off count changes the route. We fix the course together."
+          }
+        },
+        "cuisine": {
+          "good": {
+            "0": "There it is, the cake rises and turns a perfect gold.",
+            "1": "Good measuring: the recipe works and it smells great."
+          },
+          "bad": {
+            "0": "With the wrong amount, a cake can fall flat. You can try again, you are close.",
+            "1": "A badly measured recipe happens to great chefs too. We start a fresh batch."
+          }
+        },
+        "sport": {
+          "good": {
+            "0": "There it is, the ball flies into the net and the crowd jumps for joy.",
+            "1": "Well aimed: it is a goal, and everyone is celebrating."
+          },
+          "bad": {
+            "0": "A shot that is off can hit the post. You can try again, you are close.",
+            "1": "The ball just brushed the goal. Great players always try again."
+          }
+        },
+        "medecine": {
+          "good": {
+            "0": "There it is, the right dose helps: the heart is steady and the patient smiles.",
+            "1": "Good count: the patient feels better, thanks to you."
+          },
+          "bad": {
+            "0": "A dose that is off can upset the heart rhythm. The nurse reassures, and you can try again.",
+            "1": "We saw why counting well matters. We are here to help, you are close."
+          }
+        },
+        "science": {
+          "good": {
+            "0": "There it is, the mix is right: the flask glows and bubbles.",
+            "1": "Well measured: the reaction works right before your eyes."
+          },
+          "bad": {
+            "0": "With the wrong mix, the reaction fizzles. A tiny pop, nothing serious: you can try again.",
+            "1": "Scientists miss often before they succeed. Let's redo the experiment together."
+          }
+        },
+        "echecs": {
+          "good": {
+            "0": "There it is, checkmate: the crown is yours.",
+            "1": "Well played: your plan works all the way."
+          },
+          "bad": {
+            "0": "A piece can get stuck when we count wrong. Look, the knight has another path.",
+            "1": "We saw the trap. There is always another route, you are close."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,146 @@
+/* Design tokens. Three themes: light (default), dark, high contrast.
+   The theme is chosen by data-theme on <html>; "system" follows the OS. */
+
+:root {
+  --bg: #fff9f0;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #f4ede0;
+  --fg: #1f1b2e;
+  --fg-muted: #5b556b;
+  --border: #e5dccb;
+  --brand: #5b4bdb;
+  --brand-fg: #ffffff;
+  --brand-soft: #ebe8ff;
+  --success: #1f8f5f;
+  --info: #2563eb;
+  --warning: #8a5a00;
+  --danger: #b3261e;
+  --focus-ring: #2d5bff;
+  --beat-success: #2fbf8a;
+  --beat-detour: #f4a62a;
+  --beat-surprise: #5aa9ff;
+  --shadow-press: 0 4px 0 0 color-mix(in srgb, var(--brand) 55%, black);
+  --shadow-1: 0 1px 2px rgb(31 27 46 / 0.08), 0 2px 6px rgb(31 27 46 / 0.06);
+  --shadow-2: 0 4px 14px rgb(31 27 46 / 0.12);
+  --shadow-3: 0 12px 32px rgb(31 27 46 / 0.18);
+
+  --world-nature: #3fa34d;
+  --world-espace: #5b5bd6;
+  --world-cuisine: #f07e2b;
+  --world-sport: #1e88e5;
+  --world-construction: #e0a100;
+  --world-medecine: #14a0a0;
+  --world-science: #8e44ad;
+  --world-echecs: #4a5568;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --motion-scale: 1;
+  --dur-1: calc(120ms * var(--motion-scale));
+  --dur-2: calc(200ms * var(--motion-scale));
+  --dur-3: calc(320ms * var(--motion-scale));
+  --dur-4: calc(600ms * var(--motion-scale));
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --ui-scale: 1;
+}
+
+:root[data-theme='dark'] {
+  --bg: #14111f;
+  --bg-elevated: #1e1a2e;
+  --bg-sunken: #0f0c18;
+  --fg: #f4f1ff;
+  --fg-muted: #b7b0cc;
+  --border: #2e2842;
+  --brand: #9b8cff;
+  --brand-fg: #14111f;
+  --brand-soft: #2a2450;
+  --success: #4cd196;
+  --info: #7aa7ff;
+  --warning: #f2b84b;
+  --danger: #ff8a80;
+  --focus-ring: #8fb0ff;
+  --shadow-press: 0 4px 0 0 color-mix(in srgb, var(--brand) 45%, black);
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-2: 0 4px 14px rgb(0 0 0 / 0.5);
+  --shadow-3: 0 12px 32px rgb(0 0 0 / 0.6);
+}
+
+:root[data-theme='hc'] {
+  --bg: #000000;
+  --bg-elevated: #0a0a0a;
+  --bg-sunken: #000000;
+  --fg: #ffffff;
+  --fg-muted: #ffffff;
+  --border: #ffffff;
+  --brand: #ffe600;
+  --brand-fg: #000000;
+  --brand-soft: #1a1a00;
+  --success: #3dff9b;
+  --info: #66d9ff;
+  --warning: #ffd23d;
+  --danger: #ff6b6b;
+  --focus-ring: #00e5ff;
+  --beat-success: #3dff9b;
+  --beat-detour: #ffd23d;
+  --beat-surprise: #66d9ff;
+  --shadow-press: 0 4px 0 0 #ffffff;
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-3: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    --bg: #14111f;
+    --bg-elevated: #1e1a2e;
+    --bg-sunken: #0f0c18;
+    --fg: #f4f1ff;
+    --fg-muted: #b7b0cc;
+    --border: #2e2842;
+    --brand: #9b8cff;
+    --brand-fg: #14111f;
+    --brand-soft: #2a2450;
+    --success: #4cd196;
+    --info: #7aa7ff;
+    --warning: #f2b84b;
+    --danger: #ff8a80;
+    --focus-ring: #8fb0ff;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root[data-theme='system'] {
+    --border: var(--fg);
+    --fg-muted: var(--fg);
+  }
+}
+
+/* Reduced motion: global switch used by every duration token */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-scale: 0;
+  }
+}
+:root[data-motion='reduced'] {
+  --motion-scale: 0;
+}
+
+/* TV and kiosk scale */
+:root[data-display='tv'],
+:root[data-display='kiosk'] {
+  --ui-scale: 1.5;
+}
+@media (min-width: 1920px) {
+  :root[data-display='auto'] {
+    --ui-scale: 1.5;
+  }
+}
+
+html {
+  font-size: calc(16px * var(--ui-scale));
+}

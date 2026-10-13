@@ -1,0 +1,17 @@
+{
+  "screens": {
+    "welcome": {
+      "kidButton": "I am a kid",
+      "kidHint": "Tap here to play",
+      "adultButton": "I am a grown-up",
+      "adultHint": "Account, profiles and progress"
+    },
+    "play": {
+      "picker": {
+        "needAdultTitle": "A grown-up needs to log in first",
+        "needAdultText": "To play, a grown-up logs in once on this device and creates your profile. After that you can play on your own.",
+        "needAdultAction": "I am a grown-up"
+      }
+    }
+  }
+}

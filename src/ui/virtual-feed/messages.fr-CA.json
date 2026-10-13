@@ -1,0 +1,14 @@
+{
+  "ui": {
+    "virtualFeed": {
+      "loading": "Chargement en cours",
+      "loadingMore": "Chargement de la suite",
+      "emptyTitle": "Rien à voir ici pour l'instant",
+      "emptyHint": "Reviens après ta prochaine histoire.",
+      "errorTitle": "Ça n'a pas chargé",
+      "errorHint": "Vérifie ta connexion, puis réessaie.",
+      "retry": "Réessayer",
+      "end": "Tu as tout vu."
+    }
+  }
+}

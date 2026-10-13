@@ -1,0 +1,29 @@
+{
+  "priority": 5,
+  "scenarioName": "chapter",
+  "requiredScenarioState": "B0",
+  "newScenarioState": "S0",
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/v1/children/[^/]+/sessions"
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "child_id": "11111111-1111-4111-8111-111111111111",
+      "world": "echecs",
+      "kind": "chapter",
+      "status": "active",
+      "chapter_length": 3,
+      "beats_answered": 0,
+      "current_beat": null,
+      "story_title": null,
+      "started_at": "2026-10-12T14:00:00Z",
+      "ended_at": null
+    }
+  }
+}

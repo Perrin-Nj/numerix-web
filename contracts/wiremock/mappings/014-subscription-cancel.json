@@ -1,0 +1,21 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/subscription/cancel"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "status": "canceled",
+      "plan": "family_monthly",
+      "method": "card",
+      "renews_at": "2026-11-11T14:00:00Z",
+      "can_play": true,
+      "days_left": 30
+    }
+  }
+}

@@ -13,3 +13,11 @@ coverage/
 next-env.d.ts
 .DS_Store
 nul
+
+*storybook.log
+
+.vercel
+.env*
+.vercel-env-pull.tmp
+smoke-shots/
+smoke-error-shots/

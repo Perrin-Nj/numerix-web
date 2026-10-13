@@ -1,0 +1,44 @@
+{
+  "coach": {
+    "ARI-OPE-A02a": [
+      "Essaie de séparer chaque nombre en dizaines et en unités. Tu ajoutes d'abord les dizaines, puis les unités.",
+      "Commence par le plus grand nombre dans ta tête, puis ajoute l'autre par petits pas.",
+      "Dessine des paquets de dix et des petits points. Qu'est-ce que ça donne quand tu les regroupes ?"
+    ],
+    "ARI-OPE-A03a": [
+      "Pense à un nombre rond tout près. Comment tu pourrais t'en servir pour t'aider ?",
+      "Coupe le calcul en deux petites étapes faciles. Tu peux le dire à voix haute.",
+      "Compte par sauts de dix, puis par sauts de un. Où est-ce que tu te retrouves ?"
+    ],
+    "ARI-OPE-A05": [
+      "Quelque chose manque dans l'égalité. Qu'est-ce que tu sais déjà des deux côtés ?",
+      "Essaie de faire le chemin à l'envers. Quelle opération défait celle que tu vois ?",
+      "Mets un petit nombre dans la case vide pour tester. Est-ce que les deux côtés se ressemblent ?"
+    ],
+    "ARI-OPE-A06a": [
+      "Une multiplication, c'est des groupes pareils. Peux-tu dessiner les groupes ?",
+      "Compte par sauts, comme 2, 4, 6. Combien de sauts te faut-il ?",
+      "Tu connais peut-être une table voisine. Comment elle pourrait t'aider ?"
+    ],
+    "ARI-OPE-A07a": [
+      "Combien de fois le petit nombre entre-t-il dans le grand sans le dépasser ?",
+      "Fais des groupes un à un avec des petits dessins. Qu'est-ce qui reste à la fin ?",
+      "Utilise ta table de multiplication pour t'approcher du grand nombre. Qu'est-ce qui reste ?"
+    ],
+    "ARI-SOP-A03a": [
+      "Imagine que tu partages entre des amis, un objet à la fois. Que se passe-t-il ?",
+      "Dessine les groupes ou les parts. Combien y en a-t-il dans chacun ?",
+      "Qu'est-ce que tu cherches : le nombre de groupes ou la taille d'un groupe ?"
+    ],
+    "ARI-SEN-A01c": [
+      "Lis le nombre en le coupant en tranches, de la droite vers la gauche. Que vaut chaque chiffre ?",
+      "Regarde la place de chaque chiffre : unités, dizaines, centaines, milliers.",
+      "Compare les chiffres un à un en partant de la gauche. Où est la première différence ?"
+    ],
+    "generic": [
+      "Prends ton temps. Qu'est-ce que tu remarques dans l'histoire ?",
+      "Relis la question tout doucement. Quels sont les nombres importants ?",
+      "Essaie de faire un petit dessin de ce qui se passe. Ça aide souvent !"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/notifications"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "items": [
+        {
+          "id": "nt-1",
+          "kind": "play_reminder",
+          "title": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}Time for a little adventure{{else}}C’est l’heure d’une petite aventure{{/if}}",
+          "body": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}A 10 minute chapter is waiting for your child.{{else}}Un chapitre de 10 minutes attend votre enfant.{{/if}}",
+          "created_at": "2026-10-12T14:00:00Z",
+          "read": false,
+          "audience": "parent"
+        }
+      ],
+      "unread_count": 1
+    },
+    "transformers": [
+      "response-template"
+    ]
+  }
+}

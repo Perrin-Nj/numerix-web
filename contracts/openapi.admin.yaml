@@ -1,0 +1,696 @@
+openapi: 3.1.0
+info:
+  title: Numerix Platform Admin API
+  version: 0.1.0
+  summary: Super-admin API used only by the separate admin app (admin/).
+  description: |
+    Base path `/admin/v1`. Never reachable from the kid and parent app origin.
+
+    **Auth.** Every call carries `Authorization: Bearer <ADMIN_API_TOKEN>` (a long random secret shared with the
+    admin app server, compared in constant time). A missing or wrong token is 401 `unauthorized`. When no token is
+    configured in production the whole API answers 503 `admin_disabled`.
+
+    **CORS.** Only the origins in `ADMIN_ORIGIN` (comma separated) get `Access-Control-Allow-Origin`; the admin app
+    calls server to server, so browsers should never need it. Preflight (OPTIONS) answers 204.
+
+    **Audit (Law 25).** Every mutation and every read of a child record (`child.read`, `child.activity.read`,
+    `children.list`) appends an `AuditEntry` with the actor from header `x-admin-actor` (default `admin`).
+    Audit rows are append-only and kept 12 months at least.
+
+    **Paging.** List endpoints take `page` (from 1) and `page_size` (1 to 100, default 20) and answer
+    `{items, page, page_size, total}`.
+
+    **Errors.** `application/problem+json` with `code`: `unauthorized`, `admin_disabled`, `invalid_json`,
+    `validation_failed`, `not_found`, `internal_error`, `rate_limited`.
+servers:
+  - url: http://localhost:8081/admin/v1
+    description: Numerix mock
+tags:
+  - name: Overview
+  - name: Parents
+  - name: Children
+  - name: Plans
+  - name: Config
+  - name: Notifications
+  - name: Audit
+
+security:
+  - adminBearer: []
+
+paths:
+  /overview:
+    get:
+      tags: [Overview]
+      operationId: adminOverview
+      summary: Dashboard numbers and series
+      description: Definitions of every field are in BACKEND_INTEGRATION.md (analytics series). Computed from stored records, nothing hard-coded.
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: Overview
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Overview' }
+
+  /parents:
+    get:
+      tags: [Parents]
+      operationId: adminListParents
+      summary: Parent accounts, filterable and paged
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [active, blocked] } }
+        - { name: subscription, in: query, description: Effective subscription status, schema: { type: string, enum: [trial, active, unpaid, expired, canceled] } }
+        - { name: plan, in: query, description: 'Plan id. The mock ignores it and the admin app filters the loaded page; the real API must filter.', schema: { type: string, enum: [free, family_monthly, family_yearly] } }
+        - { name: q, in: query, description: Case-insensitive match on name or email, schema: { type: string } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: A page of parents, newest first
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PageEnvelope'
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/Parent' } }
+
+  /parents/{parentId}:
+    parameters:
+      - $ref: '#/components/parameters/ParentId'
+    get:
+      tags: [Parents]
+      operationId: adminGetParent
+      summary: One parent with the list of children
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: The parent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Parent' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Parents]
+      operationId: adminUpdateParent
+      summary: Block, unblock, mark paid or unpaid, extend, rename
+      description: |
+        All fields optional. `status: blocked` records `blocked_at` and `blocked_reason` (default
+        "Blocked by admin", max 200 chars); `status: active` clears the reason. `subscription.status`:
+        `active` or `paid` makes the parent paid (free plan becomes family_monthly, period restarts when not already
+        running), `unpaid` marks unpaid; both set `marked_by_admin`. `extend_days` pushes `trial_ends_at` (trial)
+        or `renews_at` from max(now, current end).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ParentPatch' }
+            examples:
+              block: { value: { status: blocked, blocked_reason: Chargeback signalé par la banque } }
+              paid: { value: { subscription: { status: paid, plan: family_yearly } } }
+              extend: { value: { subscription: { extend_days: 14 } } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: Updated parent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Parent' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      tags: [Parents]
+      operationId: adminDeleteParent
+      summary: Delete a parent and everything that belongs to them
+      description: Cascade (children, sessions, progress, cards, notifications, push subscriptions, consents, payment links). Processor customer is deleted too. Audited as `parent.delete`.
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '204': { description: Deleted }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /children:
+    get:
+      tags: [Children]
+      operationId: adminListChildren
+      summary: Children across all parents
+      description: Audited as `children.list` with the filters in `detail`.
+      parameters:
+        - { name: parent, in: query, description: Parent id, schema: { type: string } }
+        - { name: q, in: query, description: Case-insensitive match on display name, schema: { type: string } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: A page of children, most recently seen first
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PageEnvelope'
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/AdminChild' } }
+
+  /children/{childId}:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Children]
+      operationId: adminGetChild
+      summary: One child with parent and stats
+      description: Audited as `child.read`.
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: The child
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminChild' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Children]
+      operationId: adminUpdateChild
+      summary: Edit name, grade, avatar and settings
+      description: Settings may be sent nested in `settings` or flat for `daily_time_limit_minutes` and `kid_can_change_language`. Audited as `child.update`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChildPatch' }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: Updated child
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminChild' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /children/{childId}/activity:
+    parameters:
+      - $ref: '#/components/parameters/ChildId'
+    get:
+      tags: [Children]
+      operationId: adminChildActivity
+      summary: Last 10 sessions, cards and mastered skills
+      description: Audited as `child.activity.read`.
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: Activity
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Activity' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /subscriptions/plans:
+    get:
+      tags: [Plans]
+      operationId: adminGetPlans
+      summary: Plans and payment methods
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: Catalogue
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanCatalog' }
+    put:
+      tags: [Plans]
+      operationId: adminPutPlans
+      summary: Replace prices, names, features and the list of payment methods
+      description: Must contain exactly free, family_monthly and family_yearly. Parents see the new prices at once. Audited as `plans.update`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PlanCatalog' }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanCatalog' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /config:
+    get:
+      tags: [Config]
+      operationId: adminGetConfig
+      summary: Platform configuration
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: Config
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlatformConfig' }
+    put:
+      tags: [Config]
+      operationId: adminPutConfig
+      summary: Merge changes into the configuration
+      description: Partial body allowed; each key is validated against its limits. Audited as `config.update`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PlatformConfig' }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: The full configuration after the change
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlatformConfig' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /notifications:
+    get:
+      tags: [Notifications]
+      operationId: adminListNotifications
+      summary: Sent notifications, broadcasts grouped into one row
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: A page of notification rows, newest first
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PageEnvelope'
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/BroadcastRow' } }
+
+  /notifications/broadcast:
+    post:
+      tags: [Notifications]
+      operationId: adminBroadcast
+      summary: Send an announcement to a filtered set of parents
+      description: |
+        `title` and `body` are a string or `{fr, en}`; each parent receives their own locale. `filter` keys are
+        optional and each takes one value or a list: `subscription` (effective status), `status`, `locale`, `plan`,
+        `parent_ids`. Audited as `notification.broadcast`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BroadcastRequest' }
+            example:
+              audience: parent
+              title: { fr: Nouveau monde, en: New world }
+              body: { fr: Le monde Espace est ouvert., en: The Space world is open. }
+              filter: { subscription: [active, trial] }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [broadcast_id, recipients]
+                properties:
+                  broadcast_id: { type: string }
+                  recipients: { type: integer }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /audit:
+    get:
+      tags: [Audit]
+      operationId: adminAudit
+      summary: Audit log, newest first
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: A page of entries
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PageEnvelope'
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/AuditEntry' } }
+
+components:
+  securitySchemes:
+    adminBearer:
+      type: http
+      scheme: bearer
+      description: ADMIN_API_TOKEN
+
+  parameters:
+    ParentId: { name: parentId, in: path, required: true, schema: { type: string } }
+    ChildId: { name: childId, in: path, required: true, schema: { type: string } }
+    Page: { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+    PageSize: { name: page_size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+
+  responses:
+    Unauthorized:
+      description: Missing or wrong admin token (code unauthorized)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Forbidden:
+      description: Origin not allowed, or admin API disabled (code admin_disabled, 503 in that case)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: No such record (code not_found)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    ValidationError:
+      description: Invalid body (code validation_failed, detail names the field)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    RateLimited:
+      description: Too many requests (code rate_limited)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    ServerError:
+      description: Store or internal failure (code internal_error)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+  schemas:
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        code: { type: string }
+    PageEnvelope:
+      type: object
+      required: [items, page, page_size, total]
+      properties:
+        items: { type: array, items: {} }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+    Subscription:
+      type: object
+      required: [status, plan]
+      properties:
+        status: { type: string, enum: [trial, active, unpaid, expired, canceled] }
+        plan: { type: string, enum: [free, family_monthly, family_yearly] }
+        method: { type: string, enum: [card, interac, paypal, apple_pay, google_pay] }
+        renews_at: { type: string, format: date-time }
+        trial_ends_at: { type: string, format: date-time }
+        marked_by_admin: { type: boolean }
+        can_play: { type: boolean }
+        days_left: { type: [integer, 'null'] }
+    Parent:
+      type: object
+      required: [id, email, name, created_at, locale, status, subscription, children_count]
+      properties:
+        id: { type: string }
+        email: { type: string, format: email }
+        name: { type: string, maxLength: 80 }
+        created_at: { type: string, format: date-time }
+        locale: { type: string, example: fr-CA }
+        status: { type: string, enum: [active, blocked] }
+        blocked_reason: { type: string }
+        blocked_at: { type: string, format: date-time }
+        subscription: { $ref: '#/components/schemas/Subscription' }
+        children_count: { type: integer }
+        children:
+          type: array
+          description: Only on the single-parent read
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              display_name: { type: string }
+              grade: { type: integer }
+              last_seen_at: { type: string, format: date-time }
+      example:
+        id: '99999999-9999-4999-8999-999999999999'
+        email: parent@example.com
+        name: Camille Demo
+        created_at: '2026-09-12T14:00:00Z'
+        locale: fr-CA
+        status: active
+        subscription: { status: trial, plan: free, trial_ends_at: '2026-10-26T14:00:00Z', can_play: true, days_left: 14 }
+        children_count: 2
+    ParentPatch:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        locale: { type: string, pattern: '^[a-z]{2}-[A-Z]{2}$' }
+        status: { type: string, enum: [active, blocked] }
+        blocked_reason: { type: string, maxLength: 200 }
+        subscription:
+          type: object
+          properties:
+            status: { type: string, enum: [active, paid, unpaid] }
+            plan: { type: string, enum: [free, family_monthly, family_yearly] }
+            extend_days: { type: integer, minimum: 1, maximum: 3650 }
+    ChildSettings:
+      type: object
+      properties:
+        daily_goal_chapters: { type: integer, minimum: 1, maximum: 5 }
+        daily_time_limit_minutes: { type: [integer, 'null'], minimum: 5, maximum: 180 }
+        enabled_worlds: { type: array, minItems: 1, items: { type: string } }
+        read_aloud: { type: boolean }
+        sound: { type: boolean }
+        kid_can_change_language: { type: boolean }
+    AdminChild:
+      type: object
+      required: [id, parent_id, display_name, grade, minutes_today, sessions_total, cards_total, skills_mastered, settings]
+      properties:
+        id: { type: string }
+        parent_id: { type: string }
+        parent_name: { type: [string, 'null'], description: On the list }
+        parent:
+          description: On the single-child read
+          oneOf:
+            - { type: object, properties: { id: { type: string }, name: { type: string }, email: { type: string } } }
+            - { type: 'null' }
+        display_name: { type: string, maxLength: 30 }
+        grade: { type: integer, minimum: 1, maximum: 6 }
+        avatar_id: { type: string }
+        created_at: { type: string, format: date-time }
+        last_seen_at: { type: string, format: date-time }
+        minutes_today: { type: integer }
+        sessions_total: { type: integer }
+        cards_total: { type: integer }
+        skills_mastered: { type: integer }
+        settings: { $ref: '#/components/schemas/ChildSettings' }
+    ChildPatch:
+      type: object
+      properties:
+        display_name: { type: string, minLength: 1, maxLength: 30 }
+        name: { type: string, description: Alias of display_name }
+        grade: { type: integer, minimum: 1, maximum: 6 }
+        avatar_id: { type: string }
+        daily_time_limit_minutes: { type: [integer, 'null'], minimum: 5, maximum: 180 }
+        kid_can_change_language: { type: boolean }
+        settings: { $ref: '#/components/schemas/ChildSettings' }
+    Activity:
+      type: object
+      properties:
+        child_id: { type: string }
+        sessions:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              world: { type: string }
+              skill_id: { type: string }
+              skill_name: { type: string }
+              started_at: { type: string, format: date-time }
+              status: { type: string }
+              correct: { type: integer }
+              total: { type: integer }
+              card_awarded: { type: boolean }
+        cards:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              world: { type: string }
+              name: { type: string }
+              earned_at: { type: string, format: date-time }
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              skill_id: { type: string }
+              name: { type: string }
+              mastery_pct: { type: integer, minimum: 0, maximum: 100 }
+    PlanCatalog:
+      type: object
+      required: [plans, methods]
+      properties:
+        currency: { type: string, example: CAD }
+        plans:
+          type: array
+          items:
+            type: object
+            required: [id, price_cad_cents, period, name, features]
+            properties:
+              id: { type: string, enum: [free, family_monthly, family_yearly] }
+              price_cad_cents: { type: integer, minimum: 0, maximum: 1000000 }
+              period: { type: string, enum: [none, month, year] }
+              name: { type: object, properties: { fr: { type: string }, en: { type: string } } }
+              features: { type: object, properties: { fr: { type: array, items: { type: string } }, en: { type: array, items: { type: string } } } }
+        methods:
+          type: array
+          items:
+            type: object
+            required: [id, label]
+            properties:
+              id: { type: string, enum: [card, interac, paypal, apple_pay, google_pay] }
+              label: { type: object, properties: { fr: { type: string }, en: { type: string } } }
+    PlatformConfig:
+      type: object
+      properties:
+        card_threshold_pct: { type: number, minimum: 0, maximum: 100, default: 70 }
+        unpaid_policy: { type: string, enum: [block, allow], default: block }
+        trial_days: { type: integer, minimum: 0, maximum: 365, default: 14 }
+        daily_time_limit_minutes_default: { type: [integer, 'null'], minimum: 5, maximum: 180, default: 60 }
+        reminder_hour_local: { type: integer, minimum: 0, maximum: 23, default: 17 }
+        expiring_warning_days: { type: integer, minimum: 0, maximum: 60, default: 7 }
+        default_locale: { type: string, pattern: '^[a-z]{2}-[A-Z]{2}$', default: fr-CA }
+        features: { type: object, additionalProperties: { type: boolean }, example: { feed: true, challenges: true, push: false, payments: true } }
+    BroadcastRequest:
+      type: object
+      required: [title, body]
+      properties:
+        audience: { type: string, enum: [parent, child], default: parent }
+        title: { oneOf: [{ type: string }, { type: object, properties: { fr: { type: string }, en: { type: string } } }] }
+        body: { oneOf: [{ type: string }, { type: object, properties: { fr: { type: string }, en: { type: string } } }] }
+        filter:
+          type: object
+          properties:
+            subscription: {}
+            status: {}
+            locale: {}
+            plan: {}
+            parent_ids: {}
+    BroadcastRow:
+      type: object
+      properties:
+        id: { type: string }
+        kind: { type: string }
+        title: { type: string }
+        body: { type: string }
+        created_at: { type: string, format: date-time }
+        audience: { type: string, enum: [parent, child] }
+        recipients: { type: integer }
+        broadcast: { type: boolean }
+        parent_id: { type: [string, 'null'] }
+    AuditEntry:
+      type: object
+      required: [id, at, actor, action, target_type, target_id]
+      properties:
+        id: { type: string }
+        at: { type: string, format: date-time }
+        actor: { type: string }
+        action: { type: string, example: parent.block }
+        target_type: { type: string, enum: [parent, child, config, plans, notification] }
+        target_id: { type: string }
+        detail: { type: string, maxLength: 300 }
+    Overview:
+      type: object
+      description: Every series is defined in BACKEND_INTEGRATION.md (analytics series definitions).
+      properties:
+        parents_total: { type: integer }
+        by_subscription: { type: object, additionalProperties: { type: integer } }
+        blocked: { type: integer }
+        kids_total: { type: integer }
+        active_today: { type: integer }
+        mrr_cad_cents: { type: integer }
+        currency: { type: string }
+        signups_30d_total: { type: integer }
+        signups_by_day_30: { type: array, items: { type: object, properties: { date: { type: string, format: date }, count: { type: integer } } } }
+        signups_by_month_12: { type: array, items: { type: object, properties: { month: { type: string, example: 2026-10 }, count: { type: integer } } } }
+        active_kids_by_day_30: { type: array, items: { $ref: '#/components/schemas/DayValue' } }
+        minutes_by_day_30: { type: array, items: { $ref: '#/components/schemas/DayValue' } }
+        sessions_by_day_30: { type: array, items: { $ref: '#/components/schemas/DayValue' } }
+        activity_by_day_90: { type: array, items: { type: object, properties: { date: { type: string }, active_kids: { type: integer }, minutes: { type: integer }, sessions: { type: integer } } } }
+        subscription_mix: { type: array, items: { type: object, properties: { status: { type: string }, count: { type: integer } } } }
+        plan_mix: { type: array, items: { type: object, properties: { plan: { type: string }, count: { type: integer }, mrr_cad_cents: { type: integer } } } }
+        mrr_by_month_12: { type: array, items: { type: object, properties: { month: { type: string }, mrr_cad_cents: { type: integer } } } }
+        kids_by_grade: { type: array, items: { type: object, properties: { grade: { type: integer }, count: { type: integer } } } }
+        retention: { type: object, properties: { pct: { type: number }, eligible: { type: integer }, active: { type: integer } } }
+        churn_30d: { type: integer }
+        arpu_cad_cents: { type: integer }
+        top_worlds: { type: array, items: { type: object, properties: { world: { type: string }, sessions_30d: { type: integer } } } }
+        trend_30: { type: array, items: { type: object, properties: { date: { type: string }, parents: { type: integer }, kids: { type: integer }, paid: { type: integer }, mrr_cad_cents: { type: integer }, arpu_cad_cents: { type: integer }, churn_30d: { type: integer }, retention_pct: { type: number } } } }
+    DayValue:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        value: { type: integer }

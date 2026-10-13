@@ -1,0 +1,12 @@
+{
+  "game": {
+    "rewardBurst": {
+      "continue": "Continuer",
+      "card_earned": { "title": "Nouvelle carte d'histoire", "detail": "Elle rejoint ta collection." },
+      "chapter_complete": { "title": "Chapitre terminé", "detail": "Quelle belle aventure !" },
+      "streak_extended": { "title": "La flamme grandit", "detail": "{count, plural, one {# jour d'histoire de suite} other {# jours d'histoire de suite}}" },
+      "skill_mastered": { "title": "Nouveau pouvoir", "detail": "Tu maîtrises cette étape du chemin." },
+      "daily_goal_met": { "title": "Objectif du jour atteint", "detail": "Bravo, c'est fait pour aujourd'hui." }
+    }
+  }
+}

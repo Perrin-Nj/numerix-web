@@ -1,0 +1,106 @@
+{
+  "errors": {
+    "unauthorized": {
+      "title": "Your session ended",
+      "description": "Log in again to continue.",
+      "action": "Log in"
+    },
+    "forbidden": {
+      "title": "Access denied",
+      "description": "This screen is for a grown-up."
+    },
+    "consent_missing": {
+      "title": "A grown-up needs to say yes first",
+      "description": "Ask a parent to accept in the parent area."
+    },
+    "daily_limit_reached": {
+      "title": "That's enough for today",
+      "description": "See you tomorrow for the next part of the story."
+    },
+    "session_active": {
+      "title": "A chapter is already in progress",
+      "description": "Resume it or start a new chapter."
+    },
+    "session_paused": {
+      "title": "The chapter is paused",
+      "description": "Resume it to continue the story."
+    },
+    "session_completed": {
+      "title": "This chapter is finished",
+      "description": "Go back to your path to choose what comes next."
+    },
+    "beat_answered": {
+      "title": "This question was already answered",
+      "description": "We are reloading your story."
+    },
+    "invalid_pin": {
+      "title": "That code does not match",
+      "description": "Try again."
+    },
+    "not_found": {
+      "title": "Not found",
+      "description": "This item no longer exists. Go back home."
+    },
+    "validation_failed": {
+      "title": "Check the details",
+      "description": "Some fields are not valid."
+    },
+    "rate_limited": {
+      "title": "Easy does it",
+      "description": "Wait a moment, then try again."
+    },
+    "internal_error": {
+      "title": "Something went wrong on our side",
+      "description": "Try again in a moment. If it keeps happening, let us know.",
+      "retry": "Try again"
+    },
+    "unknown": {
+      "title": "Something went wrong",
+      "description": "Try again. If it keeps happening, let us know.",
+      "retry": "Try again"
+    },
+    "sound": {
+      "title": "Sound could not start",
+      "description": "The game goes on without sound. Check the device volume."
+    },
+    "narrationFailed": {
+      "title": "The story could not load",
+      "description": "Tap Try again to start it over.",
+      "retry": "Try again"
+    },
+    "offline": {
+      "title": "You are offline",
+      "description": "You can look at your path and your cards. To play, reconnect."
+    },
+    "back": "Back",
+    "device_offline": {
+      "title": "Your device is offline",
+      "description": "Check your Wi-Fi or mobile data, then try again. The problem is your connection."
+    },
+    "server_unreachable": {
+      "title": "We cannot reach Numerix",
+      "description": "Your device says it is online, but Numerix does not answer. If other sites work, the problem is on our side. If not, check your connection."
+    },
+    "backend_unreachable": {
+      "title": "This one is on us",
+      "description": "Our servers are not answering right now. It is not your connection. Try again in a moment."
+    },
+    "backend_timeout": {
+      "title": "Our servers are too slow",
+      "description": "It is not your connection. Try again in a moment."
+    },
+    "request_failed": {
+      "title": "The request did not go through",
+      "description": "Your connection and our servers both answer, but this request failed. Try again."
+    },
+    "retry": "Try again",
+    "subscription_inactive": {
+      "title": "The subscription is not active",
+      "description": "To play, a grown-up needs to turn the subscription on in the parent area. Your progress is safe."
+    },
+    "account_blocked": {
+      "title": "The account is paused",
+      "description": "A grown-up needs to contact the Numerix team. Your progress is safe."
+    }
+  }
+}

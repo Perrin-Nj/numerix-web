@@ -1,0 +1,29 @@
+{
+  "priority": 5,
+  "scenarioName": "chapter",
+  "requiredScenarioState": "B0",
+  "request": {
+    "method": "GET",
+    "urlPath": "/v1/sessions/33333333-3333-4333-8333-333333333333/beats/44444444-4444-4444-8444-444444444440/narration",
+    "queryParameters": {
+      "phase": {
+        "equalTo": "scene"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache"
+    },
+    "body": "event: scene\ndata: {\"delta\":\"{{#if (contains request.headers.[Accept-Language].[0] 'en')}}On \"}\n\nevent: scene\ndata: {\"delta\":\"the giant chessboard, your \"}\n\nevent: scene\ndata: {\"delta\":\"rook must move eight \"}\n\nevent: scene\ndata: {\"delta\":\"squares, seven times in \"}\n\nevent: scene\ndata: {\"delta\":\"a row. How many \"}\n\nevent: scene\ndata: {\"delta\":\"squares will it travel?{{else}}Sur \"}\n\nevent: scene\ndata: {\"delta\":\"l’échiquier géant, ta tour \"}\n\nevent: scene\ndata: {\"delta\":\"doit avancer de huit \"}\n\nevent: scene\ndata: {\"delta\":\"cases, sept fois de \"}\n\nevent: scene\ndata: {\"delta\":\"suite. Combien de cases \"}\n\nevent: scene\ndata: {\"delta\":\"parcourra-t-elle ?{{/if}}\"}\n\nevent: done\ndata: {}\n\n",
+    "transformers": [
+      "response-template"
+    ],
+    "chunkedDribbleDelay": {
+      "numberOfChunks": 8,
+      "totalDuration": 1400
+    }
+  }
+}

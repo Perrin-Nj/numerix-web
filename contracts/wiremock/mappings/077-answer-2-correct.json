@@ -1,0 +1,76 @@
+{
+  "priority": 2,
+  "scenarioName": "chapter",
+  "requiredScenarioState": "B2",
+  "newScenarioState": "A2c",
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/sessions/33333333-3333-4333-8333-333333333333/beats/44444444-4444-4444-8444-444444444442/answer",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.answer[0] == 48 && @.answer[1] == 4)]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "outcome": "correct",
+      "correct_answer": [
+        48,
+        4
+      ],
+      "denouement": {
+        "status": "pending",
+        "text": null,
+        "illustration_url": null
+      },
+      "session": {
+        "id": "33333333-3333-4333-8333-333333333333",
+        "child_id": "11111111-1111-4111-8111-111111111111",
+        "world": "echecs",
+        "kind": "chapter",
+        "status": "completed",
+        "chapter_length": 3,
+        "beats_answered": 3,
+        "current_beat": null,
+        "story_title": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}The tower tournament{{else}}Le tournoi des tours{{/if}}",
+        "started_at": "2026-10-12T14:00:00Z",
+        "ended_at": "2026-10-12T14:00:00Z"
+      },
+      "rewards": [
+        {
+          "type": "chapter_complete"
+        },
+        {
+          "type": "card_earned",
+          "card": {
+            "id": "55555555-5555-4555-8555-555555555551",
+            "world": "echecs",
+            "title": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}The tower tournament{{else}}Le tournoi des tours{{/if}}",
+            "image_url": "",
+            "session_id": "33333333-3333-4333-8333-333333333333",
+            "earned_at": "2026-10-12T14:00:00Z"
+          }
+        },
+        {
+          "type": "streak_extended",
+          "streak_days": 4
+        },
+        {
+          "type": "skill_mastered",
+          "skill_id": "ARI-OPE-A06a"
+        },
+        {
+          "type": "daily_goal_met"
+        }
+      ]
+    },
+    "transformers": [
+      "response-template"
+    ]
+  }
+}

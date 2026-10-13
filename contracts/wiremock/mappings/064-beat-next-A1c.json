@@ -1,0 +1,52 @@
+{
+  "priority": 5,
+  "scenarioName": "chapter",
+  "requiredScenarioState": "A1c",
+  "newScenarioState": "B2",
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/sessions/33333333-3333-4333-8333-333333333333/beats"
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "44444444-4444-4444-8444-444444444442",
+      "session_id": "33333333-3333-4333-8333-333333333333",
+      "index": 2,
+      "skill_id": "ARI-OPE-A07a",
+      "question": {
+        "math_text": "{{#if (contains request.headers.[Accept-Language].[0] 'en')}}340 ÷ 7 = ? (with remainder){{else}}340 ÷ 7 = ? (avec reste){{/if}}",
+        "choices": [
+          [
+            49,
+            4
+          ],
+          [
+            47,
+            11
+          ],
+          [
+            48,
+            0
+          ],
+          [
+            48,
+            4
+          ]
+        ]
+      },
+      "scene": {
+        "status": "pending",
+        "text": null,
+        "illustration_url": null
+      },
+      "created_at": "2026-10-12T14:00:00Z"
+    },
+    "transformers": [
+      "response-template"
+    ]
+  }
+}

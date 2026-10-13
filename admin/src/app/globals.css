@@ -1,0 +1,111 @@
+@import 'tailwindcss';
+
+:root {
+  --bg: #fff9f0;
+  --elevated: #ffffff;
+  --sunken: #f4ede0;
+  --fg: #1f1b2e;
+  --muted: #5b556b;
+  --line: #e5dccb;
+  --brand: #5b4bdb;
+  --brand-fg: #ffffff;
+  --brand-soft: #ebe8ff;
+  --success: #1f8f5f;
+  --success-soft: #e3f5ec;
+  --warning: #8a5a00;
+  --warning-soft: #fdf1d6;
+  --danger: #b3261e;
+  --danger-soft: #fde8e6;
+  --info: #2563eb;
+  --info-soft: #e5edff;
+  --focus: #2d5bff;
+  --c1: #5b4bdb;
+  --c2: #e8731a;
+  --c3: #1f8f5f;
+  --c4: #2563eb;
+  --c5: #8e44ad;
+  --c6: #0f8a8a;
+}
+:root[data-theme='dark'] {
+  --bg: #14111f;
+  --elevated: #1e1a2e;
+  --sunken: #0f0c18;
+  --fg: #f4f1ff;
+  --muted: #b7b0cc;
+  --line: #2e2842;
+  --brand: #9b8cff;
+  --brand-fg: #14111f;
+  --brand-soft: #2a2450;
+  --success: #4cd196;
+  --success-soft: #12301f;
+  --warning: #f2b84b;
+  --warning-soft: #33280d;
+  --danger: #ff8a80;
+  --danger-soft: #3a1815;
+  --info: #7aa7ff;
+  --info-soft: #172544;
+  --focus: #8fb0ff;
+  --c1: #9b8cff;
+  --c2: #f59a4a;
+  --c3: #4cd196;
+  --c4: #7aa7ff;
+  --c5: #c58bf0;
+  --c6: #4fd1d1;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-elevated: var(--elevated);
+  --color-sunken: var(--sunken);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-soft: var(--brand-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --font-display: var(--font-display-family), ui-rounded, system-ui, sans-serif;
+  --font-sans: var(--font-body-family), system-ui, sans-serif;
+}
+
+html,
+body {
+  min-height: 100dvh;
+}
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+dialog::backdrop {
+  background: rgb(15 12 24 / 0.55);
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--sunken) 25%, var(--line) 50%, var(--sunken) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

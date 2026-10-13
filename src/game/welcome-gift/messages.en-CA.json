@@ -1,0 +1,12 @@
+{
+ "game": {
+  "welcomeGift": {
+   "title": "A gift is waiting for you",
+   "hint": "Tap the gift to open it.",
+   "open": "Open the gift",
+   "opened": "Here is your first card!",
+   "claim": "Keep it in my collection",
+   "later": "Later"
+  }
+ }
+}
