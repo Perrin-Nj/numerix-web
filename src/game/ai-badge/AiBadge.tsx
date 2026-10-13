@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 import { Icon } from '@/ui/icon';
 
 export type AiBadgeProps = { className?: string };

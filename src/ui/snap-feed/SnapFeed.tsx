@@ -1,7 +1,7 @@
 'use client';
 import { Children, isValidElement, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
-import { cn } from '@/lib/cn';
-import { useReducedMotion } from '@/lib/motion';
+import { cn } from '@/shared/cn';
+import { useReducedMotion } from '@/platform/motion';
 
 export type SnapFeedProps = {
   ariaLabel: string;

@@ -31,6 +31,8 @@ const csp = [
   "form-action 'self'",
 ].join('; ');
 
+const header = (key: string, value: string) => ({ key, value });
+
 export const config: VercelConfig = {
   framework: 'nextjs',
   regions,
@@ -38,24 +40,24 @@ export const config: VercelConfig = {
     {
       source: '/(.*)',
       headers: [
-        { key: 'Content-Security-Policy', value: csp },
-        { key: 'X-Content-Type-Options', value: 'nosniff' },
-        { key: 'X-Frame-Options', value: 'DENY' },
-        { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-        { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()' },
+        header('Content-Security-Policy', csp),
+        header('X-Content-Type-Options', 'nosniff'),
+        header('X-Frame-Options', 'DENY'),
+        header('Referrer-Policy', 'strict-origin-when-cross-origin'),
+        header('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()'),
       ],
     },
     {
       // The service worker must always be revalidated so updates reach users
       source: '/sw.js',
       headers: [
-        { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
-        { key: 'Service-Worker-Allowed', value: '/' },
+        header('Cache-Control', 'no-cache, no-store, must-revalidate'),
+        header('Service-Worker-Allowed', '/'),
       ],
     },
     {
       source: '/(sounds|icons)/(.*)',
-      headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      headers: [header('Cache-Control', 'public, max-age=31536000, immutable')],
     },
   ],
 };

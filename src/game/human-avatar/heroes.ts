@@ -1,4 +1,4 @@
-import type { WorldId } from '@/lib/api/types';
+import type { WorldId } from '@/data/api/types';
 
 /** First hero of each world in mock/lib/kit.mjs. The beat does not carry the hero name yet. */
 export const HERO_BY_WORLD: Record<WorldId, string> = {

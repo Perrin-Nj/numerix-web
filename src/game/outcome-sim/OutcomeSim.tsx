@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import { useSound, type SoundName } from '@/lib/audio';
-import type { WorldId } from '@/lib/api/types';
+import { cn } from '@/shared/cn';
+import { useSound, type SoundName } from '@/platform/audio';
+import type { WorldId } from '@/data/api/types';
 import { SCENES } from './sims';
 
 export const SIM_MS = 3000;

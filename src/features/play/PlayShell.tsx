@@ -3,11 +3,11 @@ import { useEffect, type ReactNode } from 'react';
 import { useLocale } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useAudioSettings } from '@/lib/audio';
-import { useChildSettings, useSessionStatus } from '@/features/api/hooks';
+import { useAudioSettings } from '@/platform/audio';
+import { useChildSettings, useSessionStatus } from '@/data/hooks';
 import { OfflineBanner } from '@/features/common/OfflineBanner';
-import { useGameStore } from '@/lib/game/store';
-import { toStoryCard } from '@/lib/game/selectors';
+import { useGameStore } from '@/data/local/store';
+import { toStoryCard } from '@/domain/game/selectors';
 import { RewardBurst } from '@/game/reward-burst';
 import { BottomNav } from '@/ui/bottom-nav';
 

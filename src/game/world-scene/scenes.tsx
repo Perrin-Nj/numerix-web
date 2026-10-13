@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { WorldId } from '@/lib/api/types';
+import type { WorldId } from '@/data/api/types';
 
 /** Palette derived from the world token on the svg root (see WorldScene). */
 export const C = {

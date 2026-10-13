@@ -1,8 +1,8 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
-import { useTheme, type ThemeChoice } from '@/lib/theme';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
+import { useTheme, type ThemeChoice } from '@/platform/theme';
 import { IconButton } from '@/ui/icon-button';
 import { Icon, type IconName } from '@/ui/icon';
 

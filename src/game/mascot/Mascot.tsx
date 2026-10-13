@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, type ReactNode } from 'react';
 import { appConfig, type MascotKind } from '@/config/app';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 import { Reaction } from '@/game/reaction';
 
 export type MascotPose = 'greet' | 'cheer' | 'think' | 'rest' | 'curious' | 'amazed' | 'happy' | 'sad';

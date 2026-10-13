@@ -2,17 +2,17 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useChildren } from '@/features/api/hooks';
+import { useChildren } from '@/data/hooks';
 import { ParentPage } from './ParentPage';
 import { PlayAsButton } from './PlayAsButton';
 import { SubscriptionPill } from '@/features/common/SubscriptionPill';
 import { MascotBubble } from '@/game/mascot-bubble';
-import { Avatar } from '@/ui/avatar';
+import { Avatar } from '@/game/avatar';
 import { Button } from '@/ui/button';
 import { Card, CardBody, CardFooter } from '@/ui/card';
 import { Icon } from '@/ui/icon';
 import { Skeleton } from '@/ui/skeleton';
-import { ScreenState } from '@/ui/screen-state';
+import { ScreenState } from '@/game/screen-state';
 
 export function ParentHome() {
   const t = useTranslations('screens.parent.home');

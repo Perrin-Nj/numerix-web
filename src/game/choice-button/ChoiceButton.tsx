@@ -1,10 +1,10 @@
 'use client';
 import { memo, useEffect, type CSSProperties } from 'react';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
-import { useFormatAnswer } from '@/lib/format';
-import { useReducedMotion } from '@/lib/motion';
-import type { AnswerValue } from '@/lib/api/types';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
+import { useFormatAnswer } from '@/platform/format';
+import { useReducedMotion } from '@/platform/motion';
+import type { AnswerValue } from '@/data/api/types';
 import { Icon } from '@/ui/icon';
 
 export type ChoiceState = 'idle' | 'selected' | 'locked' | 'success' | 'miss';

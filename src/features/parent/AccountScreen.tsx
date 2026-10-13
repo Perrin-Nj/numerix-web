@@ -2,7 +2,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
-import { useTheme, type DisplayMode, type ThemeChoice } from '@/lib/theme';
+import { useTheme, type DisplayMode, type ThemeChoice } from '@/platform/theme';
 import { ParentPage } from './ParentPage';
 import { Button } from '@/ui/button';
 import { Panel } from '@/ui/panel';

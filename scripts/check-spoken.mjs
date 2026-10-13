@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { spokenText } from '../src/lib/speech/spoken.ts';
+import { spokenText } from '../src/platform/speech/spoken.ts';
 assert.equal(spokenText('Mira se demande : 65 + 39 = ?', 'fr-CA'), 'Mira se demande : 65 plus 39 égale combien');
 assert.equal(spokenText('28 + 19 = ?', 'en-CA'), '28 plus 19 equals how many');
 assert.equal(spokenText('7 × 8 = ?', 'fr-CA'), '7 fois 8 égale combien');

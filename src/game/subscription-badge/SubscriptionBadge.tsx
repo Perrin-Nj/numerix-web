@@ -1,8 +1,8 @@
 'use client';
 import { useFormatter, useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 import { Icon, type IconName } from '@/ui/icon';
-import type { SubscriptionStatus } from '@/lib/api/platform-types';
+import type { SubscriptionStatus } from '@/data/api/platform-types';
 
 export type SubscriptionBadgeStatus = SubscriptionStatus | 'blocked';
 

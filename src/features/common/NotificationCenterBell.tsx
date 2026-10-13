@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Bell } from 'lucide-react';
-import { cn } from '@/lib/cn';
-import { useNotifications } from '@/lib/notify';
-import type { AppNotification } from '@/lib/api/platform-types';
+import { cn } from '@/shared/cn';
+import { useNotifications } from '@/features/notify';
+import type { AppNotification } from '@/data/api/platform-types';
 import { Button } from '@/ui/button';
 import { IconButton } from '@/ui/icon-button';
 import { InlineError } from '@/ui/inline-error';

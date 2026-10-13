@@ -1,14 +1,14 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useJourney, useSessionStatus, useWorlds } from '@/features/api/hooks';
+import { useJourney, useSessionStatus, useWorlds } from '@/data/hooks';
 import { useStartChapter } from './useStartChapter';
 import { JourneyPath } from '@/game/journey-path';
 import { Icon } from '@/ui/icon';
 import { IconButton } from '@/ui/icon-button';
 import { Skeleton } from '@/ui/skeleton';
-import { ScreenState } from '@/ui/screen-state';
-import { WORLD_IDS, type WorldId } from '@/lib/api/types';
+import { ScreenState } from '@/game/screen-state';
+import { WORLD_IDS, type WorldId } from '@/data/api/types';
 
 export function JourneyScreen({ world }: { world: string }) {
   const t = useTranslations('screens.play.journey');

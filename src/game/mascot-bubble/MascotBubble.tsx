@@ -2,8 +2,8 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { appConfig } from '@/config/app';
 import { Mascot, type MascotConfig, type MascotPose, type MascotSize } from '@/game/mascot';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
 
 export type MascotBubbleProps = {
   pose?: MascotPose;

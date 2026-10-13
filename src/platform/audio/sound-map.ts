@@ -1,0 +1,72 @@
+import type { SoundName } from './types';
+
+/** Config: sound name to variant base files under /sounds (webm first, mp3 fallback). One is picked per play. Swap files here only. */
+export const SOUND_FILES: Record<SoundName, readonly string[]> = {
+  tap: ['/sounds/tap'],
+  beat_success: ['/sounds/beat_success', '/sounds/beat_success_2', '/sounds/beat_success_3', '/sounds/beat_success_4'],
+  beat_detour: ['/sounds/beat_detour', '/sounds/beat_detour_2', '/sounds/beat_detour_3', '/sounds/beat_detour_4'],
+  beat_surprise: ['/sounds/beat_surprise', '/sounds/beat_surprise_2', '/sounds/beat_surprise_3', '/sounds/beat_surprise_4', '/sounds/beat_surprise_5'],
+  chapter_complete: ['/sounds/chapter_complete'],
+  card_earned: ['/sounds/card_earned'],
+  streak_up: ['/sounds/streak_up'],
+  notice_warning: ['/sounds/notice_warning'],
+  notice_error: ['/sounds/notice_error'],
+  open: ['/sounds/open'],
+  close: ['/sounds/close'],
+  toggle: ['/sounds/toggle'],
+  select: ['/sounds/select'],
+  switch: ['/sounds/switch'],
+  scroll: ['/sounds/scroll'],
+  pluck: ['/sounds/pluck'],
+  drop: ['/sounds/drop'],
+  back: ['/sounds/back'],
+  confirm: ['/sounds/confirm'],
+  question: ['/sounds/question'],
+  glass: ['/sounds/glass'],
+  tick: ['/sounds/tick'],
+  minimize: ['/sounds/minimize'],
+  maximize: ['/sounds/maximize'],
+  collapse: ['/sounds/collapse'],
+  rumble: ['/sounds/rumble'],
+  splash: ['/sounds/splash'],
+  sparkle: ['/sounds/sparkle'],
+  whoosh: ['/sounds/whoosh'],
+  gift_open: ['/sounds/gift_open'],
+};
+
+/**
+ * Playback volume per sound, from 0 to 1. Short interface sounds sit near 0.4 and reward sounds are louder, so a
+ * tap never drowns a celebration.
+ */
+export const SOUND_VOLUME: Record<SoundName, number> = {
+  tap: 0.4,
+  beat_success: 0.7,
+  beat_detour: 0.6,
+  beat_surprise: 0.6,
+  chapter_complete: 0.8,
+  card_earned: 0.7,
+  streak_up: 0.6,
+  notice_warning: 0.5,
+  notice_error: 0.5,
+  open: 0.4,
+  close: 0.35,
+  toggle: 0.4,
+  select: 0.45,
+  switch: 0.35,
+  scroll: 0, // the feed no longer plays it
+  pluck: 0.6,
+  drop: 0.55,
+  back: 0.35,
+  confirm: 0.5,
+  question: 0.4,
+  glass: 0.5,
+  tick: 0.2,
+  minimize: 0.3,
+  maximize: 0.3,
+  collapse: 0.45,
+  rumble: 0.4,
+  splash: 0.5,
+  sparkle: 0.5,
+  whoosh: 0.4,
+  gift_open: 0.6,
+};

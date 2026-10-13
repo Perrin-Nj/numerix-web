@@ -1,7 +1,7 @@
 'use client';
 import { useId } from 'react';
 import { Switch as S } from 'radix-ui';
-import { useSound } from '@/lib/audio';
+import { useSound } from '@/platform/audio';
 
 export type SwitchProps = {
   checked: boolean;

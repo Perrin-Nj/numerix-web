@@ -19,7 +19,7 @@ jobs:
         run: |
           npx --yes @redocly/cli@1.25.0 lint contracts/openapi.yaml --max-problems 1000 || true
           pnpm gen:api
-          git diff --exit-code src/lib/api/schema.d.ts
+          git diff --exit-code src/data/api/schema.d.ts
       - name: WireMock mappings are in sync with their generator
         run: |
           node contracts/wiremock/gen.mjs

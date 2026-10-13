@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 import { WorldScene } from '@/game/world-scene';
-import type { WorldId } from '@/lib/api/types';
+import type { WorldId } from '@/data/api/types';
 
 export const WORLD_EMOJI: Record<WorldId, string> = {
   nature: '🌿',

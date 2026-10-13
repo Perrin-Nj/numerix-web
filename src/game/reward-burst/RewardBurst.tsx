@@ -1,10 +1,10 @@
 'use client';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import { useSound, type SoundName } from '@/lib/audio';
-import { useReducedMotion } from '@/lib/motion';
-import type { Reward } from '@/lib/api/types';
+import { cn } from '@/shared/cn';
+import { useSound, type SoundName } from '@/platform/audio';
+import { useReducedMotion } from '@/platform/motion';
+import type { Reward } from '@/data/api/types';
 import { StoryCard, familyOf, sourceOf, type Family } from '@/game/story-card';
 import { DailyGoalRing } from '@/game/daily-goal-ring';
 import { Button } from '@/ui/button';

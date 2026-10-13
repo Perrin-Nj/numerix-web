@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import { Slot } from 'radix-ui';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 
 const card = cva('block rounded-lg text-fg', {
   variants: {

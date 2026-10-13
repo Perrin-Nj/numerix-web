@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { nextHint } from '../src/lib/coach/nextHint.ts';
+import { nextHint } from '../src/platform/coach/nextHint.ts';
 
 const pool = ['a', 'b', 'c'];
 const shown = [];
@@ -17,7 +17,7 @@ assert.equal(nextHint(['x'], ['x']), 'x', 'single hint repeats');
 // every skill has 3 hints per locale, plus generic
 const skills = ['ARI-OPE-A02a', 'ARI-OPE-A03a', 'ARI-OPE-A05', 'ARI-OPE-A06a', 'ARI-SOP-A03a', 'ARI-OPE-A07a', 'ARI-SEN-A01c', 'generic'];
 for (const loc of ['fr-CA', 'en-CA']) {
-  const { coach } = JSON.parse(readFileSync(new URL(`../src/lib/coach/messages.${loc}.json`, import.meta.url), 'utf8'));
+  const { coach } = JSON.parse(readFileSync(new URL(`../src/platform/coach/messages.${loc}.json`, import.meta.url), 'utf8'));
   for (const s of skills) assert.ok(Array.isArray(coach[s]) && coach[s].length === 3, `${loc} ${s} needs 3 hints`);
 }
 console.log('Coach check passed');

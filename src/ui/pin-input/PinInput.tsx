@@ -1,8 +1,8 @@
 'use client';
 import { useId } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 import { InlineError } from '@/ui/inline-error';

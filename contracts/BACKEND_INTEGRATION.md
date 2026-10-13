@@ -8,7 +8,7 @@ Last checked against the code on 2026-10-13. Run `bash scripts/test.sh contract`
 
 | File | What it is |
 |------|-----------|
-| `contracts/openapi.yaml` | Kid and parent API, base path `/v1`. Machine readable. Types in `src/lib/api/schema.d.ts` are generated from it with `pnpm gen:api`. |
+| `contracts/openapi.yaml` | Kid and parent API, base path `/v1`. Machine readable. Types in `src/data/api/schema.d.ts` are generated from it with `pnpm gen:api`. |
 | `contracts/openapi.admin.yaml` | Platform admin API, base path `/admin/v1`. Used only by the admin app. |
 | `contracts/BACKEND_REQUIREMENTS.md` | Every backend item (BE and CR), with owner, priority, acceptance test and a link into this guide. |
 | `contracts/wiremock/` | WireMock mappings that serve the same behaviour as the node mock. |
@@ -578,7 +578,7 @@ Every error is `application/problem+json` (RFC 9457):
   "code": "subscription_inactive", "detail": "Your family's subscription is paused.",
   "i18n": { "fr": { "title": "Petite pause pour l’instant", "detail": "..." }, "en": { "title": "A little break for now", "detail": "..." } } }
 ```
-`type` is `https://numerix.app/problems/<code with dashes>`. `title` and `detail` are in the request language (`Accept-Language`) and written for a child or a parent, never a stack trace. `errors[]` (`{field, message}`) is added to `validation_failed`. `retry_after_seconds` is added to `rate_limited`. The frontend switches on **`code`** and falls back to the status (401 `unauthorized`, 404 `not_found`, 429 `rate_limited`, 5xx `internal_error`, else `unknown`). The text shown to the user comes from the app's own translated messages (`src/lib/errors/messages.*.json`, key `errors.<code>`), not from `title`; `i18n` is a safety net for codes the app does not know yet.
+`type` is `https://numerix.app/problems/<code with dashes>`. `title` and `detail` are in the request language (`Accept-Language`) and written for a child or a parent, never a stack trace. `errors[]` (`{field, message}`) is added to `validation_failed`. `retry_after_seconds` is added to `rate_limited`. The frontend switches on **`code`** and falls back to the status (401 `unauthorized`, 404 `not_found`, 429 `rate_limited`, 5xx `internal_error`, else `unknown`). The text shown to the user comes from the app's own translated messages (`src/platform/errors/messages.*.json`, key `errors.<code>`), not from `title`; `i18n` is a safety net for codes the app does not know yet.
 
 | Code | HTTP | Return it when | Frontend behaviour | i18n key (fr-CA / en-CA) |
 |------|------|----------------|--------------------|-------------------------|
@@ -751,7 +751,7 @@ The original request said unpaid parents' kids "can play" and paid parents' kids
 
 Title and body are stored in the parent's locale (`fr-CA` or `en-CA`). Text of the four automatic kinds (fr / en) is in `mock/lib/platform.mjs` `NOTE_COPY`. The list endpoint creates the automatic ones lazily in the mock; the real backend should create them with a scheduled job and keep only the latest 1500.
 
-The web app also computes **local reminders** on the device from the same rules (`src/lib/notify/reminders.ts`) and merges them with server items by `created_at`. They have different ids (`play_reminder:<local day>`), so if the server also creates `play_reminder` or `time_limit` the parent can see both (M12). Until the app dedupes: create `play_reminder` and `time_limit` on the server **only** for parents who have a push subscription, and let the in-app list show the local ones.
+The web app also computes **local reminders** on the device from the same rules (`src/features/notify/reminders.ts`) and merges them with server items by `created_at`. They have different ids (`play_reminder:<local day>`), so if the server also creates `play_reminder` or `time_limit` the parent can see both (M12). Until the app dedupes: create `play_reminder` and `time_limit` on the server **only** for parents who have a push subscription, and let the in-app list show the local ones.
 
 ### 9.2 Web push (BE-26)
 
@@ -984,7 +984,7 @@ All day boundaries use the **child's time zone** (`Child.timezone`).
 | `puzzle_pro` | `puzzles_correct` | 3 | echecs | Pro des casse-têtes / Puzzle pro | Une carte mystère |
 | `daily_hello` | `days_played` | 2 | medecine | Retour de flamme / Welcome back | Une carte soleil |
 
-  Metrics: `chapters_done` completed chapters; `correct_streak` longest run of `correct` answers in a row; `worlds_played` distinct worlds with a started session; `likes` distinct feed items currently liked (an unlike removes one); `puzzles_correct` feed puzzles answered `correct`; `days_played` distinct days with a completed chapter. Full texts (descriptions and card titles in both languages) are in `src/lib/game/catalog.ts`, constant `CHALLENGES`; the backend stores the same strings.
+  Metrics: `chapters_done` completed chapters; `correct_streak` longest run of `correct` answers in a row; `worlds_played` distinct worlds with a started session; `likes` distinct feed items currently liked (an unlike removes one); `puzzles_correct` feed puzzles answered `correct`; `days_played` distinct days with a completed chapter. Full texts (descriptions and card titles in both languages) are in `src/domain/game/catalog.ts`, constant `CHALLENGES`; the backend stores the same strings.
 - **Gift:** one welcome gift per child, a card (`welcome`, world nature, "Le cadeau de bienvenue" / "The welcome gift"); `gift_available` is true until `POST .../gift/claim` succeeds.
 - **Tour:** the first-run guided tour sets `onboarding_completed` (the local event `tour`).
 
@@ -992,9 +992,9 @@ All day boundaries use the **child's time zone** (`Child.timezone`).
 
 `NEXT_PUBLIC_STATE_SOURCE` is `local` (default) or `api`. The `USE_MOCK` switch is orthogonal (section 28).
 
-In **local** mode everything a child does is appended to an on-device event log (`nx:game:v1` in `localStorage`, per child id, last 2000 events) and every screen derives its numbers from that log with pure functions (`src/lib/game/selectors.ts`). No names are stored there. In **api** mode the server owns all of it and the screens call the endpoints below. Sessions, beats and answers go to the server in both modes (grading always needs the server).
+In **local** mode everything a child does is appended to an on-device event log (`nx:game:v1` in `localStorage`, per child id, last 2000 events) and every screen derives its numbers from that log with pure functions (`src/domain/game/selectors.ts`). No names are stored there. In **api** mode the server owns all of it and the screens call the endpoints below. Sessions, beats and answers go to the server in both modes (grading always needs the server).
 
-| Event (`src/lib/game/events.ts`) | Local effect | Server owns it through |
+| Event (`src/domain/game/events.ts`) | Local effect | Server owns it through |
 |----------------------------------|--------------|------------------------|
 | `start` | session begins, mode `chapter`, `daily_quest`, `challenge` or `onboarding` | `POST /children/{childId}/sessions` (the `challenge` mode does not exist server side: a challenge is accepted with `accept`, and plays are normal chapters) |
 | `answer` | outcome appended with beat index | `POST /sessions/{sessionId}/beats/{beatId}/answer` |
@@ -1303,8 +1303,8 @@ Places where the current frontend or the mock differs from the contract above. T
 
 | ID | Where | Mismatch | Impact | Owner | Item |
 |----|-------|----------|--------|-------|------|
-| M1 | `src/features/api/platform-hooks.ts` `usePlans`, `ManageSubscription` `PlanCard` | The app expects an array or `{items}` and a field `price_cad` in dollars. The API (and mock) answer `{currency, plans[], methods[]}` with `price_cad_cents`. `items()` returns `undefined`, so the plans query fails and no price shows. | Subscription screen broken against the mock and any backend that follows the contract | frontend | BE-24 |
-| M2 | `src/lib/api/platform-types.ts` | Hand-written `Plan`, `Subscription`, `CheckoutResult`, `PlatformPublic`, `ServerNotification` duplicate generated types and differ (M1). | Drift | frontend | BE-49 |
+| M1 | `src/data/hooks/platform.ts` `usePlans`, `ManageSubscription` `PlanCard` | The app expects an array or `{items}` and a field `price_cad` in dollars. The API (and mock) answer `{currency, plans[], methods[]}` with `price_cad_cents`. `items()` returns `undefined`, so the plans query fails and no price shows. | Subscription screen broken against the mock and any backend that follows the contract | frontend | BE-24 |
+| M2 | `src/data/api/platform-types.ts` | Hand-written `Plan`, `Subscription`, `CheckoutResult`, `PlatformPublic`, `ServerNotification` duplicate generated types and differ (M1). | Drift | frontend | BE-49 |
 | M3 | `src/app/api/v1/[...path]/route.ts`, `messages.*.json` | No `Origin` check yet (S1) and no message key for `forbidden_origin`. | CSRF defence relies on SameSite only | frontend | BE-30 |
 | M4 | `ErrorBridge.tsx`, `ui/error-screen/classify.ts`, `StoryScreen.tsx` `KNOWN`, `client.ts` `ErrorCode` | `subscription_inactive`, `account_blocked`, `forbidden_origin`, `beat_not_answered` are not in the known sets, so any screen other than the Play dialog shows them as `unknown`. | Generic text for a precise problem | frontend | BE-03 |
 | M5 | `signOut()` in `hooks.ts` | Sign out clears cookies only and never calls the backend. | Refresh token stays valid until it expires | frontend + backend | BE-31 |

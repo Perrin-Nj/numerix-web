@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ApiError, api, isConnectionProblem, unwrap } from '@/lib/api/client';
+import { ApiError, api, isConnectionProblem, unwrap } from '@/data/api/client';
 import { Button } from '@/ui/button';
 import { Dialog } from '@/ui/dialog';
 import { FormField } from '@/ui/form-field';

@@ -2,8 +2,8 @@
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Dialog as D } from 'radix-ui';
-import { cn } from '@/lib/cn';
-import { useOpenCloseSound } from '@/lib/audio';
+import { cn } from '@/shared/cn';
+import { useOpenCloseSound } from '@/platform/audio';
 import { Icon } from '@/ui/icon';
 import { IconButton } from '@/ui/icon-button';
 

@@ -1,7 +1,7 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import { cva } from 'class-variance-authority';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 import { Icon, type IconName } from '@/ui/icon';
 import { Button } from '@/ui/button';
 import { IconButton } from '@/ui/icon-button';

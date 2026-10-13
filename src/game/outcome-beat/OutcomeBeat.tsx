@@ -1,10 +1,10 @@
 'use client';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
-import { usePickLine } from '@/lib/lines';
-import type { Outcome } from '@/lib/api/types';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
+import { usePickLine } from '@/platform/lines';
+import type { Outcome } from '@/data/api/types';
 import { Icon, type IconName } from '@/ui/icon';
 
 export type OutcomeBeatProps = {

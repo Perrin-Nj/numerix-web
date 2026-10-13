@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { WorldScene, type WorldSceneVariant } from './WorldScene';
-import { WORLD_IDS } from '@/lib/api/types';
+import { WORLD_IDS } from '@/data/api/types';
 
 const meta = {
   title: 'game/WorldScene',

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { WorldTile } from './WorldTile';
-import { WORLD_IDS, type World } from '@/lib/api/types';
+import { WORLD_IDS, type World } from '@/data/api/types';
 
 const NAMES = ['Nature', 'Espace', 'Cuisine', 'Sport', 'Construction', 'Médecine', 'Science', 'Échecs'];
 const world = (i: number): World => ({

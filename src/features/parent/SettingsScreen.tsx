@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { exportChild, useChildren, useChildSettings, useDeleteChild, useUpdateSettings } from '@/features/api/hooks';
+import { exportChild, useChildren, useChildSettings, useDeleteChild, useUpdateSettings } from '@/data/hooks';
 import { ParentPage } from './ParentPage';
 import { useNotify } from '@/ui/notification-center';
-import { reportError } from '@/lib/errors/bridge';
-import { WORLD_IDS, type ChildSettings, type WorldId } from '@/lib/api/types';
+import { reportError } from '@/platform/errors/bridge';
+import { WORLD_IDS, type ChildSettings, type WorldId } from '@/data/api/types';
 import { Button } from '@/ui/button';
 import { Dialog } from '@/ui/dialog';
 import { FormField } from '@/ui/form-field';
@@ -15,7 +15,7 @@ import { Input } from '@/ui/input';
 import { Panel } from '@/ui/panel';
 import { Select } from '@/ui/select';
 import { Skeleton } from '@/ui/skeleton';
-import { ScreenState } from '@/ui/screen-state';
+import { ScreenState } from '@/game/screen-state';
 import { Switch } from '@/ui/switch';
 
 export function SettingsScreen({ childId }: { childId: string }) {

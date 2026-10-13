@@ -4,13 +4,13 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
-import { ApiError, classifyConnectionFailure, newIdempotencyKey } from '@/lib/api/client';
-import { streamNarration } from '@/lib/api/narration';
-import { reportError } from '@/lib/errors/bridge';
-import { initialStoryState, storyReducer } from '@/lib/session/machine';
-import { useReadAloud } from '@/lib/speech';
-import { useGameStore } from '@/lib/game/store';
-import { usePickLine } from '@/lib/lines';
+import { ApiError, classifyConnectionFailure, newIdempotencyKey } from '@/data/api/client';
+import { streamNarration } from '@/data/api/narration';
+import { reportError } from '@/platform/errors/bridge';
+import { initialStoryState, storyReducer } from './story-machine';
+import { useReadAloud } from '@/platform/speech';
+import { useGameStore } from '@/data/local/store';
+import { usePickLine } from '@/platform/lines';
 import {
   finishSession,
   getSession,
@@ -20,18 +20,18 @@ import {
   sendAnswer,
   useChildSettings,
   useSessionStatus,
-} from '@/features/api/hooks';
+} from '@/data/hooks';
 import { MascotBubble } from '@/game/mascot-bubble';
-import { useReducedMotion } from '@/lib/motion';
+import { useReducedMotion } from '@/platform/motion';
 import { ChoiceButton } from '@/game/choice-button';
 import { IllustrationFrame } from '@/game/illustration-frame';
 import { OutcomeSim } from '@/game/outcome-sim';
 import { ScenePicture } from '@/game/scene-picture';
-import { useCoach } from '@/lib/coach/useCoach';
+import { useCoach } from '@/platform/coach/useCoach';
 import { NarrationText } from '@/game/narration-text';
 import { OutcomeBeat, OutcomeSheet } from '@/game/outcome-beat';
 import { HERO_BY_WORLD } from '@/game/human-avatar';
-import { getPrefs } from '@/lib/prefs/store';
+import { getPrefs } from '@/platform/prefs/store';
 import { RewardBurst } from '@/game/reward-burst';
 import { StoryPanel } from '@/game/story-panel';
 import { Button } from '@/ui/button';
@@ -40,7 +40,7 @@ import { Icon } from '@/ui/icon';
 import { IconButton } from '@/ui/icon-button';
 import { InlineError } from '@/ui/inline-error';
 import { useNotify } from '@/ui/notification-center';
-import type { AnswerValue, WorldId } from '@/lib/api/types';
+import type { AnswerValue, WorldId } from '@/data/api/types';
 
 const KNOWN = new Set([
   'device_offline',

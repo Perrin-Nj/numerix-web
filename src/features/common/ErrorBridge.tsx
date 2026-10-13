@@ -2,8 +2,8 @@
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { ApiError } from '@/lib/api/client';
-import { registerReporter, reportError } from '@/lib/errors/bridge';
+import { ApiError } from '@/data/api/client';
+import { registerReporter, reportError } from '@/platform/errors/bridge';
 import { useNotify } from '@/ui/notification-center';
 
 const KNOWN = new Set([

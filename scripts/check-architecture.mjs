@@ -23,8 +23,7 @@ const ALLOWED = {
 const EXCEPTIONS = [
   { from: 'game', to: 'data/api/types', why: 'domain widgets are typed with the API entities' },
   { from: 'game', to: 'data/api/platform-types', why: 'subscription badge status type' },
-  { from: 'ui', to: 'data/api/types', why: 'primitives typed with API entities (avatar, error screen)' },
-  { from: 'ui', to: 'data/api/client', why: 'error screen classifies ApiError (read only)' },
+  { from: 'game', to: 'data/api/client', why: 'error screen classifies ApiError (read only)' },
   { from: 'platform', to: 'data/api/types', why: 'speech and notify are typed with API entities' },
   { from: 'platform', to: 'data/api/platform-types', why: 'reminders are typed with the subscription entity' },
 ];
@@ -52,6 +51,7 @@ const say = (msg) => {
 };
 let files = 0;
 for (const file of walk(SRC)) {
+  if (file.endsWith('.stories.tsx')) continue; // stories may compose any layer
   files++;
   const from = layerOf(file);
   if (!(from in ALLOWED)) {

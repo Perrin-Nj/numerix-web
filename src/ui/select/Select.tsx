@@ -1,7 +1,7 @@
 'use client';
 import { useId } from 'react';
 import { Select as S } from 'radix-ui';
-import { useSound } from '@/lib/audio';
+import { useSound } from '@/platform/audio';
 import { Icon } from '@/ui/icon';
 
 export type SelectOption = { value: string; label: string };

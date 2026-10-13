@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
-import { useSubscription } from '@/features/api/platform-hooks';
+import { useSubscription } from '@/data/hooks/platform';
 import { SubscriptionBadge, type SubscriptionBadgeProps } from '@/game/subscription-badge';
-import { daysUntil } from '@/lib/notify';
+import { daysUntil } from '@/features/notify';
 
 /** The parent's subscription status as a badge. With `href` it links to the manage screen. */
 export function SubscriptionPill({ variant = 'menu', href = '/parent/subscription' }: { variant?: SubscriptionBadgeProps['variant']; href?: string | null }) {

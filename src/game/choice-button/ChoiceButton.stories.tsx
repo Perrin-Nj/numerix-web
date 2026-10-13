@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { ChoiceButton } from './ChoiceButton';
-import type { AnswerValue } from '@/lib/api/types';
+import type { AnswerValue } from '@/data/api/types';
 
 const meta = {
   title: 'game/ChoiceButton',

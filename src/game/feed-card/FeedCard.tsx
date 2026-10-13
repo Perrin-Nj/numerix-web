@@ -1,7 +1,7 @@
 'use client';
 import { memo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import type { AnswerValue, FeedItem, Outcome } from '@/lib/api/types';
+import type { AnswerValue, FeedItem, Outcome } from '@/data/api/types';
 import { AiBadge } from '@/game/ai-badge';
 import { ChoiceButton, type ChoiceState } from '@/game/choice-button';
 import { IllustrationFrame } from '@/game/illustration-frame';

@@ -1,7 +1,7 @@
 'use client';
 import type { ReactNode } from 'react';
 import { Tabs as T } from 'radix-ui';
-import { useSound } from '@/lib/audio';
+import { useSound } from '@/platform/audio';
 
 export type TabItem = { value: string; label: string; content: ReactNode };
 export type TabsProps = { items: TabItem[]; defaultValue?: string; ariaLabel?: string };

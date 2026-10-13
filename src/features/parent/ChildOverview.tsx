@@ -1,16 +1,16 @@
 'use client';
 import Link from 'next/link';
 import { useFormatter, useTranslations } from 'next-intl';
-import { useCountUp } from '@/lib/motion';
-import { useChallenges, useGrowth, useProgress, useSessionList } from '@/features/api/hooks';
+import { useCountUp } from '@/platform/motion';
+import { useChallenges, useGrowth, useProgress, useSessionList } from '@/data/hooks';
 import { appConfig } from '@/config/app';
 import { Progress } from '@/ui/progress';
 import { ParentPage } from './ParentPage';
 import { Card, CardBody } from '@/ui/card';
 import { Panel } from '@/ui/panel';
 import { Skeleton } from '@/ui/skeleton';
-import { ScreenState } from '@/ui/screen-state';
-import type { Growth } from '@/lib/api/types';
+import { ScreenState } from '@/game/screen-state';
+import type { Growth } from '@/data/api/types';
 
 function Figure({ value }: { value: number }) {
   return <>{useCountUp(value)}</>;

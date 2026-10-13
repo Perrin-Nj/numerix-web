@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
 import { Icon, type IconName } from '@/ui/icon';
 
 export type BottomNavItem = { href: string; label: string; icon: IconName; active: boolean };

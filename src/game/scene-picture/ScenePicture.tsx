@@ -1,8 +1,8 @@
 'use client';
 import { useId, useMemo, type CSSProperties, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import type { WorldId } from '@/lib/api/types';
+import { cn } from '@/shared/cn';
+import type { WorldId } from '@/data/api/types';
 import { HumanAvatar } from '@/game/human-avatar';
 import { layoutFor, type Group, type Layout } from './layout';
 

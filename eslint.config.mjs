@@ -15,7 +15,7 @@ const eslintConfig = defineConfig([
     "storybook-static/**",
     ".vercel/**",
     "next-env.d.ts",
-    "src/lib/api/schema.d.ts",
+    "src/data/api/schema.d.ts",
     "src/i18n/generated/**",
     "mock/**",
     "admin/**",

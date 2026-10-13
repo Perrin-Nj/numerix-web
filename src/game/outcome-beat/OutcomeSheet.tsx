@@ -1,6 +1,6 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 import { HumanAvatar } from '@/game/human-avatar';
 import { Reaction } from '@/game/reaction';
 import { Button } from '@/ui/button';

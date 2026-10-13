@@ -1,8 +1,8 @@
 'use client';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
 import { Icon, type IconName } from '@/ui/icon';
 import { Button } from '@/ui/button';
 import { IconButton } from '@/ui/icon-button';

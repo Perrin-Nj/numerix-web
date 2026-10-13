@@ -24,7 +24,7 @@ Status: written 2026-10-13 after the owner's second review. Sections: request, p
 
 ### 2.1 Data and state (D, H, L)
 
-- **Local game store** (Zustand, persisted per device) holds an append-only **event log per child**: session started, beat answered, session finished or exited, chapter rewards, feed reaction, feed puzzle, challenge accepted, welcome gift claimed. Pure functions in `src/lib/game/` (no React, no aliases) derive everything from the log: mastery per world and skill, journey node states, streak, daily goal, growth, collection, session list and summaries, weekly report, stuck points, challenge progress. The same functions run in node, so shell tests can check them.
+- **Local game store** (Zustand, persisted per device) holds an append-only **event log per child**: session started, beat answered, session finished or exited, chapter rewards, feed reaction, feed puzzle, challenge accepted, welcome gift claimed. Pure functions in `src/domain/game/` (no React, no aliases) derive everything from the log: mastery per world and skill, journey node states, streak, daily goal, growth, collection, session list and summaries, weekly report, stuck points, challenge progress. The same functions run in node, so shell tests can check them.
 - **State source switch** `NEXT_PUBLIC_STATE_SOURCE=local|api`. In `local`, the data hooks read the store reactively. In `api`, the same hooks call the server (today's behavior). Screens do not change.
 - **Content stays on the mock server** (problems, narration, feed, children). The mock becomes world-aware: a chapter is built from the chosen world and skill, with different numbers on every play and a story kit per world (hero, place, tone, success, detour, surprise lines).
 - **Challenges** are a client catalog (bilingual): accept one, progress counts only from acceptance, completion grants a card and a celebration, and the parent report lists them. Contract gap recorded in `BACKEND_REQUIREMENTS.md` (BE-20) so the server can take over.
@@ -62,10 +62,10 @@ Status: written 2026-10-13 after the owner's second review. Sections: request, p
 
 | Package | Owner files | Output |
 |---|---|---|
-| State core and wiring | `src/lib/game/**`, `src/features/api/hooks.ts`, screens under `src/features/**`, `scripts/*.sh`, `docs/*` | store, selectors, hooks switch, challenges screen, home menu, exit button, event recording |
+| State core and wiring | `src/domain/game/**`, `src/data/hooks.ts`, screens under `src/features/**`, `scripts/*.sh`, `docs/*` | store, selectors, hooks switch, challenges screen, home menu, exit button, event recording |
 | Mock content | `mock/**` | world-aware chapters, skill generators, story kits, human feed |
 | Visuals and lines | new folders in `src/game/**` and `src/ui/**`, `src/app/globals.css` | `world-scene`, `theme-toggle`, `menu-tile`, `challenge-card`, `welcome-gift`, line pools, richer animations |
-| Sounds | `src/lib/audio/**`, `public/sounds/**`, `scripts/check-sounds.mjs` | variant pools, low voices |
+| Sounds | `src/platform/audio/**`, `public/sounds/**`, `scripts/check-sounds.mjs` | variant pools, low voices |
 
 ## 5. Test plan
 

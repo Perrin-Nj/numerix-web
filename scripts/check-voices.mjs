@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { pickVoice } from '../src/lib/speech/voices.ts';
+import { pickVoice } from '../src/platform/speech/voices.ts';
 
 const v = (name, lang, localService) => ({ name, lang, localService });
 const list = [

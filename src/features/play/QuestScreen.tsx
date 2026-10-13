@@ -1,11 +1,11 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { useDailyQuest, useHome, useSessionStatus } from '@/features/api/hooks';
+import { useDailyQuest, useHome, useSessionStatus } from '@/data/hooks';
 import { useStartChapter } from './useStartChapter';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { QuestCard } from '@/game/quest-card';
 import { Skeleton } from '@/ui/skeleton';
-import { ScreenState } from '@/ui/screen-state';
+import { ScreenState } from '@/game/screen-state';
 
 export function QuestScreen() {
   const t = useTranslations('screens.play.quest');

@@ -2,11 +2,11 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
-import { ApiError } from '@/lib/api/client';
-import { cn } from '@/lib/cn';
-import { daysUntil } from '@/lib/notify/reminders';
-import type { PaymentMethod, Plan, PlanId, Subscription } from '@/lib/api/platform-types';
-import { useCancelSubscription, useCheckout, usePlans, useSubscription } from '@/features/api/platform-hooks';
+import { ApiError } from '@/data/api/client';
+import { cn } from '@/shared/cn';
+import { daysUntil } from '@/features/notify/reminders';
+import type { PaymentMethod, Plan, PlanId, Subscription } from '@/data/api/platform-types';
+import { useCancelSubscription, useCheckout, usePlans, useSubscription } from '@/data/hooks/platform';
 import { ParentPage } from '@/features/parent/ParentPage';
 import { SubscriptionBadge } from '@/game/subscription-badge';
 import { MascotBubble } from '@/game/mascot-bubble';

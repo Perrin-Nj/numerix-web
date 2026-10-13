@@ -2,11 +2,11 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Dialog as D } from 'radix-ui';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
-import { usePickLine } from '@/lib/lines';
-import { useReducedMotion } from '@/lib/motion';
-import type { CardView } from '@/lib/game/types';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
+import { usePickLine } from '@/platform/lines';
+import { useReducedMotion } from '@/platform/motion';
+import type { CardView } from '@/domain/game/types';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { StoryCard } from '@/game/story-card';
 import { Button } from '@/ui/button';

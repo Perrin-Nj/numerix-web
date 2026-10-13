@@ -3,11 +3,11 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { appConfig } from '@/config/app';
-import { AudioProvider } from '@/lib/audio';
-import { reportError } from '@/lib/errors/bridge';
-import { ThemeProvider, type DisplayMode, type ThemeChoice } from '@/lib/theme';
+import { AudioProvider } from '@/platform/audio';
+import { reportError } from '@/platform/errors/bridge';
+import { ThemeProvider, type DisplayMode, type ThemeChoice } from '@/platform/theme';
 import { ErrorBridge } from '@/features/common/ErrorBridge';
-import { registerQueryClient } from '@/lib/session/clear';
+import { registerQueryClient } from '@/data/session/clear';
 import { PwaManager } from '@/features/common/PwaManager';
 import { NotificationCenter, useNotify } from '@/ui/notification-center';
 

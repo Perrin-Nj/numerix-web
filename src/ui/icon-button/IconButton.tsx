@@ -1,8 +1,8 @@
 'use client';
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/cn';
-import { useSound, type SoundName } from '@/lib/audio';
+import { cn } from '@/shared/cn';
+import { useSound, type SoundName } from '@/platform/audio';
 import { Tooltip } from '@/ui/tooltip';
 
 const iconButton = cva(

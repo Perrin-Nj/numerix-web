@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { defaultRangeExtractor, useVirtualizer, type Range } from '@tanstack/react-virtual';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 import { Skeleton } from '@/ui/skeleton';

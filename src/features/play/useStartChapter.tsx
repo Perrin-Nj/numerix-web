@@ -2,10 +2,10 @@
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { ApiError } from '@/lib/api/client';
-import { reportError } from '@/lib/errors/bridge';
-import type { SkillId, WorldId } from '@/lib/api/types';
-import { useStartSession } from '@/features/api/hooks';
+import { ApiError } from '@/data/api/client';
+import { reportError } from '@/platform/errors/bridge';
+import type { SkillId, WorldId } from '@/data/api/types';
+import { useStartSession } from '@/data/hooks';
 import { Button } from '@/ui/button';
 import { Dialog } from '@/ui/dialog';
 

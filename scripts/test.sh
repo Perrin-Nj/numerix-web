@@ -2,6 +2,7 @@
 # One entry point for every automated check. One line per check, nothing else.
 #   bash scripts/test.sh            all local checks (state, sounds, mock, flows, ui)
 #   bash scripts/test.sh state      pure game-state selectors (node, instant)
+#   bash scripts/test.sh arch       layer arrows and documentation coverage
 #   bash scripts/test.sh mock       mock backend self test
 #   bash scripts/test.sh flows      HTTP flows through the app
 #   bash scripts/test.sh ui         browser checks (kid door, feed, chapter, theme, exit, map...)
@@ -56,6 +57,7 @@ warm() {
 case "$MODE" in
   state)  run state node scripts/state-checks.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs ;;
   contract) run contract node scripts/api-inventory.mjs ;;
+  arch)   run architecture node scripts/check-architecture.mjs; run docs node scripts/check-docs.mjs ;;
   sounds) run sounds node scripts/check-sounds.mjs; run variants node scripts/check-sound-variants.mjs ;;
   mock)   ensure_mock; run mock node mock/scripts/selftest.mjs "$MOCK_URL" ;;
   flows)  ensure_app; run flows node scripts/flows.mjs "$BASE" ;;

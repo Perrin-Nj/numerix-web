@@ -271,7 +271,7 @@ await check('idle for a while: the coach gives a hint that never states the answ
   await page.getByRole('button', { name: /jouer|continuer|reprendre/i }).first().click();
   await page.waitForURL('**/play/session/**', T);
   await question();
-  const hints = Object.values(JSON.parse(readFileSync(new URL('../src/lib/coach/messages.fr-CA.json', import.meta.url), 'utf8')).coach).flat();
+  const hints = Object.values(JSON.parse(readFileSync(new URL('../src/platform/coach/messages.fr-CA.json', import.meta.url), 'utf8')).coach).flat();
   await page.waitForFunction((hs) => hs.some((h) => document.body.innerText.includes(h)), hints, { timeout: 15000 });
   await page.evaluate(() => localStorage.removeItem('nx:prefs:v1'));
 });
