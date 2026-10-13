@@ -2,15 +2,15 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { ApiError, setApiMode } from '@/lib/api/client';
-import { reportError } from '@/lib/errors/bridge';
-import { rememberChild } from '@/lib/game/who';
-import { useChildToken } from '@/features/api/hooks';
+import { ApiError, setApiMode } from '@/data/api/client';
+import { reportError } from '@/platform/errors/bridge';
+import { rememberChild } from '@/data/local/who';
+import { useChildToken } from '@/data/hooks';
 import { Button } from '@/ui/button';
 import { Dialog } from '@/ui/dialog';
 import { Icon } from '@/ui/icon';
 import { PinInput } from '@/ui/pin-input';
-import type { Child } from '@/lib/api/types';
+import type { Child } from '@/data/api/types';
 
 /** Starts play as this child straight away. A PIN is asked only when the profile has one. */
 export function PlayAsButton({ child }: { child: Pick<Child, 'id' | 'display_name' | 'avatar_id' | 'has_pin'> }) {

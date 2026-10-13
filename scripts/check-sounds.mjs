@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const dir = fileURLToPath(new URL('../public/sounds', import.meta.url));
-const map = readFileSync(new URL('../src/lib/audio/sound-map.ts', import.meta.url), 'utf8');
+const map = readFileSync(new URL('../src/platform/audio/sound-map.ts', import.meta.url), 'utf8');
 const block = map.slice(map.indexOf('SOUND_FILES'), map.indexOf('SOUND_VOLUME'));
 const names = [...block.matchAll(/'\/sounds\/(\w+)'/g)].map((m) => m[1]); // every variant base file
 const license = readFileSync(join(dir, 'LICENSES.md'), 'utf8');

@@ -1,8 +1,8 @@
 'use client';
 import { useState, useSyncExternalStore } from 'react';
 import { useTranslations } from 'next-intl';
-import { PushError, getPermission, requestPermission, subscribeToPush, type Permission } from '@/lib/notify';
-import { reportError } from '@/lib/errors/bridge';
+import { PushError, getPermission, requestPermission, subscribeToPush, type Permission } from '@/features/notify';
+import { reportError } from '@/platform/errors/bridge';
 import { Banner } from '@/ui/banner';
 
 const DISMISS_KEY = 'nx:notify-prompt-dismissed';

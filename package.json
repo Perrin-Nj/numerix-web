@@ -9,7 +9,7 @@
     "lint": "eslint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "gen:api": "openapi-typescript contracts/openapi.yaml -o src/lib/api/schema.d.ts",
+    "gen:api": "openapi-typescript contracts/openapi.yaml -o src/data/api/schema.d.ts",
     "gen:messages": "node scripts/build-messages.mjs",
     "predev": "pnpm gen:messages",
     "prebuild": "pnpm gen:messages",

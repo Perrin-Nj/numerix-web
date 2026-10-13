@@ -1,8 +1,8 @@
 'use client';
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/cn';
-import { useSound, type SoundName } from '@/lib/audio';
+import { cn } from '@/shared/cn';
+import { useSound, type SoundName } from '@/platform/audio';
 
 const button = cva(
   'lift relative inline-flex select-none items-center justify-center gap-2 rounded-md font-display font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50',

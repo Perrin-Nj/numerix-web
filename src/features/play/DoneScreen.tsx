@@ -2,17 +2,15 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocale } from 'next-intl';
-import { usePickLine } from '@/lib/lines';
-import { useSpokenLine } from '@/lib/speech/useSpokenLine';
+import { usePickLine } from '@/platform/lines';
+import { useSpokenLine } from '@/platform/speech/useSpokenLine';
 import { useRouter } from 'next/navigation';
-import { getSession, keys, useEngagement, useSessionStatus } from '@/features/api/hooks';
+import { getSession, keys, useEngagement, useSessionStatus } from '@/data/hooks';
 import { useStartChapter } from './useStartChapter';
-import { appConfig } from '@/config/app';
 import { ChapterComplete } from '@/game/chapter-complete';
 import { MascotBubble } from '@/game/mascot-bubble';
-import { useGameEvents } from '@/lib/game/store';
 import { Skeleton } from '@/ui/skeleton';
-import type { Reward } from '@/lib/api/types';
+import type { Reward } from '@/data/api/types';
 
 function readRewards(sessionId: string): Reward[] {
   try {

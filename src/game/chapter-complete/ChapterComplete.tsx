@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import type { Reward } from '@/lib/api/types';
+import type { Reward } from '@/data/api/types';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { RewardBurst } from '@/game/reward-burst';
 import { StreakBadge } from '@/game/streak-badge';

@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import 'driver.js/dist/driver.css';
 import './GuidedTour.css';
-import { useReducedMotion } from '@/lib/motion';
-import { useSound } from '@/lib/audio';
+import { useReducedMotion } from '@/platform/motion';
+import { useSound } from '@/platform/audio';
 
 export type GuidedTourStep = {
   /** CSS selector of the element to highlight. Without it the popover is centered. */

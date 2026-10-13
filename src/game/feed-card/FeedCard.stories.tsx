@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import type { FeedItem } from '@/lib/api/types';
+import type { FeedItem } from '@/data/api/types';
 import { FeedCard, type FeedAnswerResult } from './FeedCard';
 
 const answerWith = (outcome: FeedAnswerResult['outcome'], message: string) =>

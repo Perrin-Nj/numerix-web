@@ -1,6 +1,6 @@
 import { createAvatar } from '@dicebear/core';
 import * as openPeeps from '@dicebear/open-peeps';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 
 export type HumanMood = 'neutral' | 'happy' | 'sad' | 'thinking';
 export type HumanAvatarProps = {

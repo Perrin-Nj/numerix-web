@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 import { Icon } from '@/ui/icon';
 
 export type DailyGoalRingProps = { done: number; target: number; className?: string };

@@ -1,6 +1,6 @@
 import { useId, type HTMLAttributes } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 
 const panel = cva('rounded-lg border text-fg', {
   variants: {

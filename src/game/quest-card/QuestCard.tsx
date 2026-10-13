@@ -1,7 +1,7 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import type { DailyQuest } from '@/lib/api/types';
+import { cn } from '@/shared/cn';
+import type { DailyQuest } from '@/data/api/types';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 

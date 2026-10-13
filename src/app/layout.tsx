@@ -5,7 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
 import { Providers } from './providers';
-import type { DisplayMode, ThemeChoice } from '@/lib/theme';
+import type { DisplayMode, ThemeChoice } from '@/platform/theme';
 
 const display = Baloo_2({ subsets: ['latin'], variable: '--font-display-family', display: 'swap' });
 const body = Atkinson_Hyperlegible_Next({ subsets: ['latin'], variable: '--font-body-family', display: 'swap' });

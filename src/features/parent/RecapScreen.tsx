@@ -1,10 +1,10 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { useSessionSummary } from '@/features/api/hooks';
+import { useSessionSummary } from '@/data/hooks';
 import { ParentPage } from './ParentPage';
 import { Panel } from '@/ui/panel';
 import { Skeleton } from '@/ui/skeleton';
-import { ScreenState } from '@/ui/screen-state';
+import { ScreenState } from '@/game/screen-state';
 
 export function RecapScreen({ childId, sessionId }: { childId: string; sessionId: string }) {
   const t = useTranslations('screens.parent.recap');

@@ -147,9 +147,9 @@ for (const [label, ops, set] of [['kid', kidOps, called.kid], ['admin', adminOps
 if (!adminOps.size) say('FAIL', `${adminFile} is missing or has no operations`);
 
 // ---- check 3: the guide names what the code uses ----
-const clientTs = read('src/lib/api/client.ts');
+const clientTs = read('src/data/api/client.ts');
 const errorCodes = new Set([...(/export type ErrorCode =([\s\S]*?);/.exec(clientTs)?.[1] ?? '').matchAll(/'([a-z_]+)'/g)].map((m) => m[1]));
-const messages = JSON.parse(read('src/lib/errors/messages.fr-CA.json')).errors;
+const messages = JSON.parse(read('src/platform/errors/messages.fr-CA.json')).errors;
 for (const [k, v] of Object.entries(messages)) if (v && typeof v === 'object' && 'title' in v) errorCodes.add(k);
 // codes the backend or the proxy produces (mock and admin included)
 for (const extra of ['subscription_inactive', 'account_blocked', 'forbidden_origin', 'beat_not_answered', 'not_cancelable', 'conflict', 'invalid_json', 'admin_disabled', 'email_taken', 'invalid_credentials', 'too_many_attempts'])
@@ -157,7 +157,7 @@ for (const extra of ['subscription_inactive', 'account_blocked', 'forbidden_orig
 errorCodes.delete('sound'); errorCodes.delete('narrationFailed'); errorCodes.delete('offline'); errorCodes.delete('back'); errorCodes.delete('retry');
 for (const code of errorCodes) say(guideHas(`\`${code}\``) ? 'ok' : 'FAIL', `error code ${code} in the guide`);
 
-const events = [...read('src/lib/game/events.ts').matchAll(/k: '([a-z]+)'/g)].map((m) => m[1]);
+const events = [...read('src/domain/game/events.ts').matchAll(/k: '([a-z]+)'/g)].map((m) => m[1]);
 for (const k of new Set(events)) say(guideHas(`\`${k}\``) ? 'ok' : 'FAIL', `game event ${k} mapped in the guide`);
 
 for (const cookie of ['nx_parent', 'nx_refresh', 'nx_child', 'nx_child_id', 'nx_admin', 'NEXT_LOCALE', 'nx_parent_email', 'nx_mock_state', 'nx_mock_scenario'])
@@ -169,7 +169,7 @@ for (const f of ['admin/src/lib/env.ts']) for (const m of read(f).matchAll(/\b(A
 for (const n of ['UPSTASH_REDIS_REST_URL', 'ADMIN_ORIGIN', 'IMAGE_HOSTS', 'CONNECT_ORIGINS', 'VERCEL_REGIONS']) envNames.add(n);
 for (const n of envNames) say(guideHas(n) ? 'ok' : 'FAIL', `env var ${n} in the guide`);
 
-const rules = read('src/lib/game/rules.ts');
+const rules = read('src/domain/game/rules.ts');
 void rules;
 for (const header of ['accept-language', 'idempotency-key', 'x-card-threshold-pct', 'x-nx-mode', 'last-event-id', 'x-mock-parent-email'])
   say(guide.toLowerCase().includes(header) ? 'ok' : 'FAIL', `header ${header} in the guide`);

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { JourneyNode } from './JourneyNode';
-import type { JourneyNode as Data, NodeState } from '@/lib/api/types';
+import type { JourneyNode as Data, NodeState } from '@/data/api/types';
 
 const node = (state: NodeState, level = 0): Data => ({
   skill_id: 'ARI-OPE-A07a',

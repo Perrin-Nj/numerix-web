@@ -2,19 +2,19 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { ApiError, setApiMode } from '@/lib/api/client';
-import { reportError } from '@/lib/errors/bridge';
-import { useChildren, useChildToken, useSessionStatus, signOut } from '@/features/api/hooks';
+import { ApiError, setApiMode } from '@/data/api/client';
+import { reportError } from '@/platform/errors/bridge';
+import { useChildren, useChildToken, useSessionStatus, signOut } from '@/data/hooks';
 import { MascotBubble } from '@/game/mascot-bubble';
-import { Avatar } from '@/ui/avatar';
+import { Avatar } from '@/game/avatar';
 import { Button } from '@/ui/button';
 import { Dialog } from '@/ui/dialog';
 import { PinInput } from '@/ui/pin-input';
 import { Reveal } from '@/ui/reveal';
 import { Skeleton } from '@/ui/skeleton';
-import { ScreenState } from '@/ui/screen-state';
-import { rememberChild } from '@/lib/game/who';
-import type { Child } from '@/lib/api/types';
+import { ScreenState } from '@/game/screen-state';
+import { rememberChild } from '@/data/local/who';
+import type { Child } from '@/data/api/types';
 
 export function ProfilePicker() {
   const t = useTranslations('screens.play.picker');

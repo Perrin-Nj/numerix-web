@@ -1,6 +1,6 @@
 // Node 22 (type stripping): pure reminder rules, no browser. Run: node scripts/check-reminders.mjs
 import assert from 'node:assert/strict';
-import { computeReminders, daysUntil, sameLocalDay } from '../src/lib/notify/reminders.ts';
+import { computeReminders, daysUntil, sameLocalDay } from '../src/features/notify/reminders.ts';
 
 const at = (h, d = 12) => new Date(2026, 9, d, h, 0, 0); // local time, so the checks do not depend on the machine zone
 const iso = (d) => new Date(2026, 9, d, 12, 0, 0).toISOString();

@@ -1,6 +1,6 @@
 // Pure checks of the local game state selectors (node, no browser). One line per check.
-import * as S from '../src/lib/game/selectors.ts';
-import { setCardThresholdPct } from '../src/lib/game/rules.ts';
+import * as S from '../src/domain/game/selectors.ts';
+import { setCardThresholdPct } from '../src/domain/game/rules.ts';
 
 const DAY = 86_400_000;
 const T0 = new Date('2026-10-13T10:00:00').getTime();

@@ -1,7 +1,7 @@
 'use client';
 import { memo } from 'react';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
 import { Icon, type IconName } from '@/ui/icon';
 
 export type MenuTileTone = 'brand' | 'success' | 'warning' | 'info' | 'world';

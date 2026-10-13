@@ -1,10 +1,10 @@
 'use client';
 import { useFormatter, useTranslations } from 'next-intl';
-import { useWeeklyReport } from '@/features/api/hooks';
+import { useWeeklyReport } from '@/data/hooks';
 import { ParentPage } from './ParentPage';
 import { Panel } from '@/ui/panel';
 import { Skeleton } from '@/ui/skeleton';
-import { ScreenState } from '@/ui/screen-state';
+import { ScreenState } from '@/game/screen-state';
 
 export function ReportScreen({ childId }: { childId: string }) {
   const t = useTranslations('screens.parent.report');

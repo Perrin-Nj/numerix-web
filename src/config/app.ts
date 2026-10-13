@@ -2,6 +2,11 @@ import { publicEnv } from './env';
 
 export type MascotKind = 'emoji' | 'image' | 'lottie' | 'rive';
 
+/**
+ * Typed, read-only app settings built from the validated public environment: environment, mock mode, state
+ * source (local or api), card threshold, locales, mascot, feature flags and sound default. Import this, never
+ * process.env.
+ */
 export const appConfig = {
   env: publicEnv.NEXT_PUBLIC_APP_ENV,
   useMock: publicEnv.NEXT_PUBLIC_USE_MOCK,

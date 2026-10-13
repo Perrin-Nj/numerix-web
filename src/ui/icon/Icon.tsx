@@ -39,7 +39,7 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 
 const REGISTRY = {
   lock: Lock,

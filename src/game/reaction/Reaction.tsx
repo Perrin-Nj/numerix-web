@@ -1,6 +1,6 @@
 'use client';
-import { cn } from '@/lib/cn';
-import { useReducedMotion } from '@/lib/motion';
+import { cn } from '@/shared/cn';
+import { useReducedMotion } from '@/platform/motion';
 
 export const REACTIONS = {
   happy: { cp: '😀', anim: 'nx-react-bounce' },

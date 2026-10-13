@@ -1,8 +1,8 @@
 'use client';
 import { memo, type CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import type { ChallengeView } from '@/lib/game/types';
+import { cn } from '@/shared/cn';
+import type { ChallengeView } from '@/domain/game/types';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 import { Progress } from '@/ui/progress';

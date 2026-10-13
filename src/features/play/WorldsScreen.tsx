@@ -1,11 +1,11 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useWorlds } from '@/features/api/hooks';
+import { useWorlds } from '@/data/hooks';
 import { WorldTile } from '@/game/world-tile';
 import { Reveal } from '@/ui/reveal';
 import { Skeleton } from '@/ui/skeleton';
-import { ScreenState } from '@/ui/screen-state';
+import { ScreenState } from '@/game/screen-state';
 
 export function WorldsScreen() {
   const t = useTranslations('screens.play.worlds');

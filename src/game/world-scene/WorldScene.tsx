@@ -1,6 +1,6 @@
 import { useId, type CSSProperties } from 'react';
-import { cn } from '@/lib/cn';
-import type { WorldId } from '@/lib/api/types';
+import { cn } from '@/shared/cn';
+import type { WorldId } from '@/data/api/types';
 import { buildArt, C } from './scenes';
 
 export type WorldSceneVariant = 'tile' | 'banner' | 'hero';

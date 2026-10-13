@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/cn';
+import { cn } from '@/shared/cn';
 
 const container = cva(
   'mx-auto w-full px-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6 lg:px-8',

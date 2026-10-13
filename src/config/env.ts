@@ -58,6 +58,10 @@ const publicParsed = publicSchema.safeParse({
   NEXT_PUBLIC_ANALYTICS_ENABLED: process.env.NEXT_PUBLIC_ANALYTICS_ENABLED,
 });
 if (!publicParsed.success) fail('public', publicParsed.error);
+/**
+ * Validated NEXT_PUBLIC_* values with defaults. Parsing throws at startup on a bad value. Only config/app.ts
+ * should use it directly.
+ */
 export const publicEnv = publicParsed.data;
 
 /** Server-only. Never import from a client component. */

@@ -6,7 +6,7 @@ import { NarrationText } from '@/game/narration-text';
 import { ChoiceButton } from '@/game/choice-button';
 import { OutcomeBeat } from '@/game/outcome-beat';
 import { Button } from '@/ui/button';
-import type { AnswerValue } from '@/lib/api/types';
+import type { AnswerValue } from '@/data/api/types';
 
 const VALUES: AnswerValue[] = [12, 14, 16, 18];
 const TEXT =

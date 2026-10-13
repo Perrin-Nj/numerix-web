@@ -1,8 +1,8 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ApiError } from '@/lib/api/client';
-import { ErrorScreen } from '@/ui/error-screen';
+import { ApiError } from '@/data/api/client';
+import { ErrorScreen } from '@/game/error-screen';
 
 // Served by the service worker when a page cannot be loaded without a connection
 const offline = new ApiError(0, 'device_offline', 'Device offline');

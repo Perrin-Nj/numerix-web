@@ -1,9 +1,9 @@
 'use client';
 import { memo } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
-import type { World } from '@/lib/api/types';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
+import type { World } from '@/data/api/types';
 import { WORLD_BG } from '@/game/illustration-frame';
 import { WorldScene } from '@/game/world-scene';
 import { Icon } from '@/ui/icon';

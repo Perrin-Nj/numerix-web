@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { useReducedMotion } from '@/lib/motion';
-import type { JourneyNode as JourneyNodeData, SkillId, WorldId } from '@/lib/api/types';
+import { useReducedMotion } from '@/platform/motion';
+import type { JourneyNode as JourneyNodeData, SkillId, WorldId } from '@/data/api/types';
 import { JourneyNode } from '@/game/journey-node';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';

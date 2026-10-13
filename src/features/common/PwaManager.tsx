@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { reportError } from '@/lib/errors/bridge';
+import { reportError } from '@/platform/errors/bridge';
 import { Banner } from '@/ui/banner';
 
 /**

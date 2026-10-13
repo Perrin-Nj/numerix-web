@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { WorldId } from '@/lib/api/types';
+import type { WorldId } from '@/data/api/types';
 
 // Every animated part uses the nx-sim classes: the base style is the END state, so reduced motion
 // and tap-to-skip both land on the finished picture. Offsets below describe where the part STARTS.

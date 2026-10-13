@@ -1,9 +1,9 @@
 'use client';
 import { memo, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import { useReducedMotion } from '@/lib/motion';
-import type { StoryCard as StoryCardData } from '@/lib/api/types';
+import { cn } from '@/shared/cn';
+import { useReducedMotion } from '@/platform/motion';
+import type { StoryCard as StoryCardData } from '@/data/api/types';
 import { IllustrationFrame } from '@/game/illustration-frame';
 import { artFor, sourceOf, type Art } from './art';
 import { BadgeArt, PostcardArt, PresentArt, metalGradient } from './CardArt';

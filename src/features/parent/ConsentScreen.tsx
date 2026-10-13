@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useConsent } from '@/features/api/hooks';
+import { useConsent } from '@/data/hooks';
 import { ParentPage } from './ParentPage';
 import { Button } from '@/ui/button';
 import { Panel } from '@/ui/panel';

@@ -1,7 +1,7 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useSessionStatus } from '@/features/api/hooks';
+import { useSessionStatus } from '@/data/hooks';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';

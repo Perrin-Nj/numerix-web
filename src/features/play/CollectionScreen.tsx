@@ -1,11 +1,11 @@
 'use client';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { useCollection, useSessionStatus } from '@/features/api/hooks';
+import { useCollection, useSessionStatus } from '@/data/hooks';
 import { StoryCard } from '@/game/story-card';
 import { Button } from '@/ui/button';
 import { Skeleton } from '@/ui/skeleton';
-import type { StoryCard as StoryCardData } from '@/lib/api/types';
+import type { StoryCard as StoryCardData } from '@/data/api/types';
 
 /** Cards in a plain grid grouped by world. The page scrolls, there is no scroller inside the page. */
 export function CollectionScreen() {

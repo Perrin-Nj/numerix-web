@@ -588,6 +588,56 @@
     "science": "Science",
     "echecs": "Échecs"
   },
+  "lib": {
+    "notify": {
+      "reminders": {
+        "play_reminder": {
+          "title": "Une histoire t'attend",
+          "body": "{name} n'a pas encore joué aujourd'hui. Une courte histoire ne prend que quelques minutes."
+        },
+        "time_limit": {
+          "title": "Temps de jeu atteint",
+          "body": "{name} a joué {count} minutes aujourd'hui, la limite est de {limit}. Le jeu reprend demain."
+        },
+        "subscription_expiring": {
+          "title": "Votre forfait se termine bientôt",
+          "body": "{count, plural, =0 {Votre accès se termine aujourd'hui.} one {Votre accès se termine dans # jour.} other {Votre accès se termine dans # jours.}} Gérez votre abonnement pour que {name} puisse continuer à jouer."
+        },
+        "payment_due": {
+          "title": "Paiement à faire",
+          "body": "Un paiement est dû. Payez maintenant pour que {name} puisse continuer à jouer."
+        }
+      },
+      "ui": {
+        "bell": {
+          "label": "Notifications",
+          "labelUnread": "Notifications, {count} non lues",
+          "title": "Notifications",
+          "empty": "Rien de nouveau. Nous vous le dirons ici.",
+          "markAll": "Tout marquer comme lu",
+          "loadError": "Nous n'avons pas pu charger vos notifications.",
+          "retry": "Réessayer",
+          "new": "Nouveau"
+        },
+        "prompt": {
+          "title": "Recevoir des rappels sur cet appareil?",
+          "text": "Nous pouvons afficher un court message quand un forfait se termine ou qu'un paiement est à faire. Nous demandons seulement quand vous touchez le bouton.",
+          "enable": "Activer les rappels",
+          "later": "Pas maintenant",
+          "granted": "Les rappels sont activés.",
+          "denied": "Les rappels sont bloqués dans les réglages de votre navigateur. Vous les voyez quand même dans la cloche de l'application.",
+          "unsupported": "Ce navigateur ne peut pas afficher de rappels. Vous les voyez quand même dans la cloche de l'application.",
+          "push": {
+            "unsupported": "Les rappels s'afficheront quand l'application est ouverte. Ce navigateur ne peut pas les envoyer quand elle est fermée.",
+            "no_key": "Les rappels s'afficheront quand l'application est ouverte. Les rappels quand elle est fermée ne sont pas encore configurés.",
+            "no_endpoint": "Les rappels s'afficheront quand l'application est ouverte. Les rappels quand elle est fermée ne sont pas encore offerts de notre côté.",
+            "failed": "Les rappels s'afficheront quand l'application est ouverte. Nous n'avons pas pu activer les rappels quand elle est fermée. Réessayez plus tard.",
+            "permission": "Les rappels s'afficheront quand l'application est ouverte."
+          }
+        }
+      }
+    }
+  },
   "game": {
     "aiBadge": {
       "label": "Généré par IA"
@@ -829,6 +879,32 @@
       "open": "Découvrir ce monde"
     }
   },
+  "errorScreen": {
+    "home": "Retour à l'accueil",
+    "details": "Détails techniques",
+    "detailsHint": "Pour un adulte. À partager si tu nous écris.",
+    "code": "Code",
+    "status": "Statut",
+    "reference": "Référence",
+    "play": {
+      "generic": "Oups, un petit accroc",
+      "offline": "Internet fait une sieste",
+      "timeout": "Ça prend du temps",
+      "notfound": "Oh! On s'est un peu perdus",
+      "permission": "Cette porte est pour les grands"
+    }
+  },
+  "screenState": {
+    "loading": "Chargement",
+    "slow": {
+      "title": "Ça prend plus de temps que d'habitude",
+      "description": "Rien n'est perdu. Attends un peu, réessaie ou reviens en arrière."
+    },
+    "empty": {
+      "title": "Rien ici pour l'instant",
+      "description": "Reviens bientôt, ou retourne à l'accueil."
+    }
+  },
   "coach": {
     "ARI-OPE-A02a": [
       "Essaie de séparer chaque nombre en dizaines et en unités. Tu ajoutes d'abord les dizaines, puis les unités.",
@@ -1001,56 +1077,6 @@
       ]
     }
   },
-  "lib": {
-    "notify": {
-      "reminders": {
-        "play_reminder": {
-          "title": "Une histoire t'attend",
-          "body": "{name} n'a pas encore joué aujourd'hui. Une courte histoire ne prend que quelques minutes."
-        },
-        "time_limit": {
-          "title": "Temps de jeu atteint",
-          "body": "{name} a joué {count} minutes aujourd'hui, la limite est de {limit}. Le jeu reprend demain."
-        },
-        "subscription_expiring": {
-          "title": "Votre forfait se termine bientôt",
-          "body": "{count, plural, =0 {Votre accès se termine aujourd'hui.} one {Votre accès se termine dans # jour.} other {Votre accès se termine dans # jours.}} Gérez votre abonnement pour que {name} puisse continuer à jouer."
-        },
-        "payment_due": {
-          "title": "Paiement à faire",
-          "body": "Un paiement est dû. Payez maintenant pour que {name} puisse continuer à jouer."
-        }
-      },
-      "ui": {
-        "bell": {
-          "label": "Notifications",
-          "labelUnread": "Notifications, {count} non lues",
-          "title": "Notifications",
-          "empty": "Rien de nouveau. Nous vous le dirons ici.",
-          "markAll": "Tout marquer comme lu",
-          "loadError": "Nous n'avons pas pu charger vos notifications.",
-          "retry": "Réessayer",
-          "new": "Nouveau"
-        },
-        "prompt": {
-          "title": "Recevoir des rappels sur cet appareil?",
-          "text": "Nous pouvons afficher un court message quand un forfait se termine ou qu'un paiement est à faire. Nous demandons seulement quand vous touchez le bouton.",
-          "enable": "Activer les rappels",
-          "later": "Pas maintenant",
-          "granted": "Les rappels sont activés.",
-          "denied": "Les rappels sont bloqués dans les réglages de votre navigateur. Vous les voyez quand même dans la cloche de l'application.",
-          "unsupported": "Ce navigateur ne peut pas afficher de rappels. Vous les voyez quand même dans la cloche de l'application.",
-          "push": {
-            "unsupported": "Les rappels s'afficheront quand l'application est ouverte. Ce navigateur ne peut pas les envoyer quand elle est fermée.",
-            "no_key": "Les rappels s'afficheront quand l'application est ouverte. Les rappels quand elle est fermée ne sont pas encore configurés.",
-            "no_endpoint": "Les rappels s'afficheront quand l'application est ouverte. Les rappels quand elle est fermée ne sont pas encore offerts de notre côté.",
-            "failed": "Les rappels s'afficheront quand l'application est ouverte. Nous n'avons pas pu activer les rappels quand elle est fermée. Réessayez plus tard.",
-            "permission": "Les rappels s'afficheront quand l'application est ouverte."
-          }
-        }
-      }
-    }
-  },
   "ui": {
     "banner": {
       "dismiss": "Masquer le message"
@@ -1111,32 +1137,6 @@
       "errorHint": "Vérifie ta connexion, puis réessaie.",
       "retry": "Réessayer",
       "end": "Tu as tout vu."
-    }
-  },
-  "errorScreen": {
-    "home": "Retour à l'accueil",
-    "details": "Détails techniques",
-    "detailsHint": "Pour un adulte. À partager si tu nous écris.",
-    "code": "Code",
-    "status": "Statut",
-    "reference": "Référence",
-    "play": {
-      "generic": "Oups, un petit accroc",
-      "offline": "Internet fait une sieste",
-      "timeout": "Ça prend du temps",
-      "notfound": "Oh! On s'est un peu perdus",
-      "permission": "Cette porte est pour les grands"
-    }
-  },
-  "screenState": {
-    "loading": "Chargement",
-    "slow": {
-      "title": "Ça prend plus de temps que d'habitude",
-      "description": "Rien n'est perdu. Attends un peu, réessaie ou reviens en arrière."
-    },
-    "empty": {
-      "title": "Rien ici pour l'instant",
-      "description": "Reviens bientôt, ou retourne à l'accueil."
     }
   }
 }

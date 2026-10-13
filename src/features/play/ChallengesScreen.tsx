@@ -1,7 +1,7 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { useChallenges, useSessionStatus } from '@/features/api/hooks';
-import { useGameStore } from '@/lib/game/store';
+import { useChallenges, useSessionStatus } from '@/data/hooks';
+import { useGameStore } from '@/data/local/store';
 import { ChallengeCard } from '@/game/challenge-card';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { Reveal } from '@/ui/reveal';

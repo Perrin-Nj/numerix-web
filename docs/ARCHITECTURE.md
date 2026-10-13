@@ -6,7 +6,7 @@ Numerix web is a Next.js app with a layered structure. Dependencies point inward
 
 ```
 app/        routes, layouts, route handlers (thin: compose a feature, nothing else)
-features/   screens and flows for the kid app and the parent area
+features/   screens and flows for the kid app and the parent area (also notifications: reminders, bell, push)
 game/       kid-app widgets (story panel, cards, journey, rewards ...)
 ui/         design-system primitives (button, dialog, input ... no app knowledge)
 data/       how the app talks to the world: HTTP client, gateway, query hooks, local event store
@@ -30,7 +30,7 @@ Arrows (a layer may import the layers on its row, never the reverse):
 | platform | domain, shared, config |
 | shared | nothing |
 
-Documented exceptions (types only, listed in `check-architecture.mjs`): `game`, `ui` and `platform` may import `data/api/types` and `data/api/platform-types` (entities typed from the contract), and `ui` may read `data/api/client` to classify an `ApiError` in the error screen.
+Documented exceptions (types only, listed in `check-architecture.mjs`): `game` and `platform` may import `data/api/types` and `data/api/platform-types` (entities typed from the contract), and `game` may read `data/api/client` to classify an `ApiError` in the error screen. `ui` imports none of `data`.
 
 Rules that follow from the arrows:
 

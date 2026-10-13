@@ -4,8 +4,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import '../src/app/globals.css';
 import frCA from '../src/i18n/generated/fr-CA.json';
 import enCA from '../src/i18n/generated/en-CA.json';
-import { AudioProvider, NullAudioPlayer } from '../src/lib/audio';
-import { ThemeProvider } from '../src/lib/theme';
+import { AudioProvider, NullAudioPlayer } from '../src/platform/audio';
+import { ThemeProvider } from '../src/platform/theme';
 
 const messages = { 'fr-CA': frCA, 'en-CA': enCA } as const;
 const player = new NullAudioPlayer();

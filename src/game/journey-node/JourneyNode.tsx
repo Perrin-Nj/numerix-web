@@ -1,9 +1,9 @@
 'use client';
 import { memo } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/cn';
-import { useSound } from '@/lib/audio';
-import type { JourneyNode as JourneyNodeData } from '@/lib/api/types';
+import { cn } from '@/shared/cn';
+import { useSound } from '@/platform/audio';
+import type { JourneyNode as JourneyNodeData } from '@/data/api/types';
 import { Icon, type IconName } from '@/ui/icon';
 
 export type JourneyNodeProps = {

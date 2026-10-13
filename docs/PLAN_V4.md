@@ -40,7 +40,7 @@ Shared storage: a `PlatformStore` interface in `mock/lib/platform.mjs`. Implemen
 |-------|------|----------|
 | platform | `mock/**` | PlatformStore, seed (about 40 parents, 70 kids, varied statuses), admin API, parent subscription and notification routes, 402 gate on session start, selftest |
 | admin | `admin/**` (new Next app, own package.json, own Vercel project) | login, overview, parents, parent detail, kids, kid detail, plans, config, notifications, audit; zustand store; shell test script |
-| parent-app | `src/features/parent/subscription/**`, `src/features/play/Subscription*`, `src/lib/notify/**`, `public/sw` push handler, `src/lib/api` types | manage subscription screen, badge, paywall message, notification center, reminders |
+| parent-app | `src/features/parent/subscription/**`, `src/features/play/Subscription*`, `src/features/notify/**`, `public/sw` push handler, `src/data/api` types | manage subscription screen, badge, paywall message, notification center, reminders |
 | lead | `StoryScreen`, `HomeFeed`, `MeScreen` language switch, `useStartChapter`, hooks wiring, docs, tests, deploy | integration |
 
 ## Criticism of this plan

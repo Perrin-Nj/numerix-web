@@ -1,8 +1,8 @@
 // Prints variant count per sound and fails on too few variants or a repeated consecutive pick.
 import { readFileSync } from 'node:fs';
-import { pickVariant } from '../src/lib/audio/pick.ts';
+import { pickVariant } from '../src/platform/audio/pick.ts';
 
-const src = readFileSync(new URL('../src/lib/audio/sound-map.ts', import.meta.url), 'utf8');
+const src = readFileSync(new URL('../src/platform/audio/sound-map.ts', import.meta.url), 'utf8');
 const block = src.slice(src.indexOf('SOUND_FILES'), src.indexOf('SOUND_VOLUME'));
 const files = Object.fromEntries([...block.matchAll(/^\s+(\w+): \[([^\]]*)\]/gm)].map((m) => [m[1], m[2].match(/'[^']+'/g) ?? []]));
 const min = { beat_success: 3, beat_detour: 3, beat_surprise: 4 };
