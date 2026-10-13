@@ -665,32 +665,34 @@ components:
     Overview:
       type: object
       description: Every series is defined in BACKEND_INTEGRATION.md (analytics series definitions).
+      required: [parents_total, by_subscription, blocked, kids_total, active_today, mrr_cad_cents, currency, signups_30d_total, signups_by_day_30, signups_by_month_12, active_kids_by_day_30, minutes_by_day_30, sessions_by_day_30, activity_by_day_90, subscription_mix, plan_mix, mrr_by_month_12, kids_by_grade, retention, churn_30d, arpu_cad_cents, top_worlds, trend_30]
       properties:
         parents_total: { type: integer }
-        by_subscription: { type: object, additionalProperties: { type: integer } }
+        by_subscription: { type: object, required: [trial, active, unpaid, expired, canceled], properties: { trial: { type: integer }, active: { type: integer }, unpaid: { type: integer }, expired: { type: integer }, canceled: { type: integer } }, additionalProperties: { type: integer } }
         blocked: { type: integer }
         kids_total: { type: integer }
         active_today: { type: integer }
         mrr_cad_cents: { type: integer }
         currency: { type: string }
         signups_30d_total: { type: integer }
-        signups_by_day_30: { type: array, items: { type: object, properties: { date: { type: string, format: date }, count: { type: integer } } } }
-        signups_by_month_12: { type: array, items: { type: object, properties: { month: { type: string, example: 2026-10 }, count: { type: integer } } } }
-        active_kids_by_day_30: { type: array, items: { $ref: '#/components/schemas/DayValue' } }
-        minutes_by_day_30: { type: array, items: { $ref: '#/components/schemas/DayValue' } }
-        sessions_by_day_30: { type: array, items: { $ref: '#/components/schemas/DayValue' } }
-        activity_by_day_90: { type: array, items: { type: object, properties: { date: { type: string }, active_kids: { type: integer }, minutes: { type: integer }, sessions: { type: integer } } } }
-        subscription_mix: { type: array, items: { type: object, properties: { status: { type: string }, count: { type: integer } } } }
-        plan_mix: { type: array, items: { type: object, properties: { plan: { type: string }, count: { type: integer }, mrr_cad_cents: { type: integer } } } }
-        mrr_by_month_12: { type: array, items: { type: object, properties: { month: { type: string }, mrr_cad_cents: { type: integer } } } }
-        kids_by_grade: { type: array, items: { type: object, properties: { grade: { type: integer }, count: { type: integer } } } }
-        retention: { type: object, properties: { pct: { type: number }, eligible: { type: integer }, active: { type: integer } } }
+        signups_by_day_30: { type: array, minItems: 30, maxItems: 30, items: { type: object, required: [date, count], properties: { date: { type: string, format: date }, count: { type: integer } } } }
+        signups_by_month_12: { type: array, minItems: 12, maxItems: 12, items: { type: object, required: [month, count], properties: { month: { type: string, example: 2026-10 }, count: { type: integer } } } }
+        active_kids_by_day_30: { type: array, minItems: 30, maxItems: 30, items: { $ref: '#/components/schemas/DayValue' } }
+        minutes_by_day_30: { type: array, minItems: 30, maxItems: 30, items: { $ref: '#/components/schemas/DayValue' } }
+        sessions_by_day_30: { type: array, minItems: 30, maxItems: 30, items: { $ref: '#/components/schemas/DayValue' } }
+        activity_by_day_90: { type: array, minItems: 90, maxItems: 90, items: { type: object, required: [date, active_kids, minutes, sessions], properties: { date: { type: string, format: date }, active_kids: { type: integer }, minutes: { type: integer }, sessions: { type: integer } } } }
+        subscription_mix: { type: array, minItems: 5, maxItems: 5, items: { type: object, required: [status, count], properties: { status: { type: string, enum: [trial, active, unpaid, expired, canceled] }, count: { type: integer } } } }
+        plan_mix: { type: array, minItems: 3, maxItems: 3, items: { type: object, required: [plan, count, mrr_cad_cents], properties: { plan: { type: string, enum: [free, family_monthly, family_yearly] }, count: { type: integer }, mrr_cad_cents: { type: integer } } } }
+        mrr_by_month_12: { type: array, minItems: 12, maxItems: 12, items: { type: object, required: [month, mrr_cad_cents], properties: { month: { type: string }, mrr_cad_cents: { type: integer } } } }
+        kids_by_grade: { type: array, minItems: 6, maxItems: 6, items: { type: object, required: [grade, count], properties: { grade: { type: integer }, count: { type: integer } } } }
+        retention: { type: object, required: [pct, eligible, active], properties: { pct: { type: number }, eligible: { type: integer }, active: { type: integer } } }
         churn_30d: { type: integer }
         arpu_cad_cents: { type: integer }
-        top_worlds: { type: array, items: { type: object, properties: { world: { type: string }, sessions_30d: { type: integer } } } }
-        trend_30: { type: array, items: { type: object, properties: { date: { type: string }, parents: { type: integer }, kids: { type: integer }, paid: { type: integer }, mrr_cad_cents: { type: integer }, arpu_cad_cents: { type: integer }, churn_30d: { type: integer }, retention_pct: { type: number } } } }
+        top_worlds: { type: array, minItems: 8, maxItems: 8, items: { type: object, required: [world, sessions_30d], properties: { world: { type: string }, sessions_30d: { type: integer } } } }
+        trend_30: { type: array, minItems: 31, maxItems: 31, items: { type: object, required: [date, parents, kids, paid, mrr_cad_cents, arpu_cad_cents, churn_30d, retention_pct], properties: { date: { type: string, format: date }, parents: { type: integer }, kids: { type: integer }, paid: { type: integer }, mrr_cad_cents: { type: integer }, arpu_cad_cents: { type: integer }, churn_30d: { type: integer }, retention_pct: { type: number } } } }
     DayValue:
       type: object
+      required: [date, value]
       properties:
         date: { type: string, format: date }
         value: { type: integer }

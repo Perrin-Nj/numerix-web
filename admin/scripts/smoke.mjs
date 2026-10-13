@@ -38,7 +38,25 @@ try {
   check('overview returns data', o.status === 200 && typeof o.data?.parents_total === 'number' && Array.isArray(o.data?.signups_by_day_30), o.status);
   const ov = o.data;
   const sum = (a, k) => a.reduce((x, y) => x + y[k], 0);
-  check('overview series present (day, month, activity, mix, worlds)', o.status === 200 && ov.signups_by_day_30?.length === 30 && ov.signups_by_month_12?.length === 12 && ov.active_kids_by_day_30?.length === 30 && ov.activity_by_day_90?.length === 90 && ov.top_worlds?.length > 0 && ov.trend_30?.length === 31);
+  check(
+    'overview contract includes every dashboard series',
+    o.status === 200 &&
+      ov.signups_by_day_30?.length === 30 &&
+      ov.signups_by_month_12?.length === 12 &&
+      ov.active_kids_by_day_30?.length === 30 &&
+      ov.minutes_by_day_30?.length === 30 &&
+      ov.sessions_by_day_30?.length === 30 &&
+      ov.activity_by_day_90?.length === 90 &&
+      ov.subscription_mix?.length === 5 &&
+      ov.plan_mix?.length === 3 &&
+      ov.mrr_by_month_12?.length === 12 &&
+      ov.kids_by_grade?.length === 6 &&
+      ov.top_worlds?.length === 8 &&
+      ov.trend_30?.length === 31 &&
+      ov.trend_30[0] &&
+      typeof ov.trend_30[0].parents === 'number' &&
+      typeof ov.trend_30[30].parents === 'number',
+  );
   check('overview consistency: mixes and grades add up', sum(ov.subscription_mix, 'count') === ov.parents_total && sum(ov.kids_by_grade, 'count') === ov.kids_total && sum(ov.plan_mix, 'mrr_cad_cents') === ov.mrr_cad_cents);
   check('overview consistency: last points match tiles', ov.active_kids_by_day_30[29].value === ov.active_today && ov.mrr_by_month_12[11].mrr_cad_cents === ov.mrr_cad_cents);
   const pl = await call('parents?page_size=5');

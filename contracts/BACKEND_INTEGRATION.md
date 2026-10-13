@@ -784,7 +784,7 @@ Base path `/admin/v1`, described in `contracts/openapi.admin.yaml`. Used only by
 Paged lists answer `{items, page, page_size, total}`.
 
 #### `GET /admin/v1/overview`
-Caller: admin dashboard. Response: the `Overview` object, every field defined in 10.4.
+Caller: admin dashboard. Response: the complete `Overview` object; every field in 10.4 is required. All time series have their stated fixed number of points, including `trend_30` with 31 snapshots (30 days ago through today). Do not omit a series when it has no activity; return zero-valued points. The dashboard reads the first and last `trend_30` entries.
 
 #### `GET /admin/v1/parents`
 Caller: admin parents list. Query: `status` (`active|blocked`), `subscription` (effective status), `plan` (the mock ignores it, the real API must filter), `q` (name or email, case-insensitive), `page`, `page_size`. Newest first.
