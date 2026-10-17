@@ -418,7 +418,6 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
 
       <StoryPanel
         choicesHidden={sheetVisible}
-        choicesClassName={appConfig.useMock ? 'pb-14' : undefined}
         illustration={
           <IllustrationFrame
             world={world}
@@ -534,7 +533,6 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
           continueLabel={t('continue')}
           canContinue={denReady}
           onContinue={onContinue}
-          className={appConfig.useMock ? 'pb-14' : undefined}
           collapsed={collapsedFor === beatId}
           onCollapsedChange={(c) => setCollapsedFor(c ? (beatId ?? null) : null)}
         />

@@ -1,10 +1,9 @@
 # Test flows
 
-Everything below runs on the live demo or locally. The demo uses a mock backend, so you can try everything freely.
+Everything below runs on the live demo or locally. Run it against a local Go API (`pnpm dev`); the demo account is created by `scripts/seed-dev.mjs`.
 
 - App (live): https://numerix-web-snowy.vercel.app
-- Mock backend (live): https://numerix-mock.vercel.app (try `/v1/health`)
-- Local: `pnpm mock` (backend on :8081), `pnpm dev` (app on :3000)
+- Local: `pnpm dev` (Go API on :8081, app on :3000)
 
 ## Demo data you can rely on
 
@@ -22,7 +21,6 @@ The small "Demo data" badge at the bottom left opens the failure simulator.
 
 ```bash
 node scripts/flows.mjs https://numerix-web-snowy.vercel.app   # 30 checks in a few seconds
-node mock/scripts/selftest.mjs https://numerix-mock.vercel.app # the mock on its own
 node scripts/ui-checks.mjs https://numerix-web-snowy.vercel.app # the screens in a real browser, one line per check
 ```
 
@@ -117,4 +115,4 @@ The messages name the real cause:
 9. **Different voices.** Outcomes use several sounds each. "Une surprise" is a low voice and changes from play to play. The feed makes no sound while scrolling.
 10. **Everything stays.** Close the tab and come back: progress, cards, challenges and likes are still there on the same device (on-device state, `NEXT_PUBLIC_STATE_SOURCE=local`).
 
-Shell tests: `bash scripts/test.sh` (all), or `bash scripts/test.sh state|mock|flows|ui|live`.
+Shell tests: `bash scripts/test.sh` (all), or `bash scripts/test.sh state|flows|ui|errors|mobile|live`.

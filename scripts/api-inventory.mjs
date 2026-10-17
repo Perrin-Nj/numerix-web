@@ -151,7 +151,7 @@ const clientTs = read('src/data/api/client.ts');
 const errorCodes = new Set([...(/export type ErrorCode =([\s\S]*?);/.exec(clientTs)?.[1] ?? '').matchAll(/'([a-z_]+)'/g)].map((m) => m[1]));
 const messages = JSON.parse(read('src/platform/errors/messages.fr-CA.json')).errors;
 for (const [k, v] of Object.entries(messages)) if (v && typeof v === 'object' && 'title' in v) errorCodes.add(k);
-// codes the backend or the proxy produces (mock and admin included)
+// codes the backend or the proxy produces (admin included)
 for (const extra of ['subscription_inactive', 'account_blocked', 'forbidden_origin', 'beat_not_answered', 'not_cancelable', 'conflict', 'invalid_json', 'admin_disabled', 'email_taken', 'invalid_credentials', 'too_many_attempts'])
   errorCodes.add(extra);
 errorCodes.delete('sound'); errorCodes.delete('narrationFailed'); errorCodes.delete('offline'); errorCodes.delete('back'); errorCodes.delete('retry');
@@ -160,7 +160,7 @@ for (const code of errorCodes) say(guideHas(`\`${code}\``) ? 'ok' : 'FAIL', `err
 const events = [...read('src/domain/game/events.ts').matchAll(/k: '([a-z]+)'/g)].map((m) => m[1]);
 for (const k of new Set(events)) say(guideHas(`\`${k}\``) ? 'ok' : 'FAIL', `game event ${k} mapped in the guide`);
 
-for (const cookie of ['nx_parent', 'nx_refresh', 'nx_child', 'nx_child_id', 'nx_admin', 'NEXT_LOCALE', 'nx_parent_email', 'nx_mock_state', 'nx_mock_scenario'])
+for (const cookie of ['nx_parent', 'nx_refresh', 'nx_child', 'nx_child_id', 'nx_admin', 'NEXT_LOCALE'])
   say(guideHas(cookie) ? 'ok' : 'FAIL', `cookie ${cookie} in the guide`);
 
 const envFile = read('src/config/env.ts');
@@ -171,7 +171,7 @@ for (const n of envNames) say(guideHas(n) ? 'ok' : 'FAIL', `env var ${n} in the 
 
 const rules = read('src/domain/game/rules.ts');
 void rules;
-for (const header of ['accept-language', 'idempotency-key', 'x-card-threshold-pct', 'x-nx-mode', 'last-event-id', 'x-mock-parent-email'])
+for (const header of ['accept-language', 'idempotency-key', 'x-nx-mode', 'last-event-id'])
   say(guide.toLowerCase().includes(header) ? 'ok' : 'FAIL', `header ${header} in the guide`);
 
 // ---- check 4: BACKEND_REQUIREMENTS rows carry owner, priority and test ----

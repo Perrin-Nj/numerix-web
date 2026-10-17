@@ -5,25 +5,24 @@ Next.js PWA for Numerix: children play math through stories, parents follow prog
 - Product prompt (guiding document): `docs/PRODUCT_PROMPT.md`
 - Specification: `docs/frontend-spec.md`; component contract: `docs/component-api.md`
 - Implementation plan: `IMPLEMENTATION_PLAN.md`; evidence log: `PHASE_LOG.md`; decisions: `adr/`
-- API contract, backend requirements and mock: `contracts/`
+- API contract and backend requirements: `contracts/` (the backend itself is `../numerix-api`, Go)
 
 ## Run it locally
 
 ```bash
 pnpm install
-pnpm dev         # starts the mock backend (:8081) and the app (:3000) together; copy .env.example to .env.local first
+pnpm dev         # starts the Go API (:8081, built on first run, demo account seeded) and the app (:3000); copy .env.example to .env.local first
 pnpm storybook   # component library on :6006
 ```
 
-`pnpm dev` reuses a mock that is already running. `pnpm mock` starts only the mock; `pnpm mock:wiremock` runs the pure WireMock engine in Docker (static contract only).
+`pnpm dev` reuses a Go API that is already running on :8081 and otherwise builds and starts `../numerix-api/bin/api.exe` on `data/dev.db`. Demo parent: `demo@numerix.dev` / `correct-horse-battery`, child PINs `1234` and `4321` (created through the real endpoints by `scripts/seed-dev.mjs`, development only).
 
-Progress state: `NEXT_PUBLIC_STATE_SOURCE=local` (default) derives the world map, streak, cards, challenges and reports from an on-device event log; `api` makes the server own them (BE-21). The log lives in the browser's localStorage, keyed by child.
+Progress state: `NEXT_PUBLIC_STATE_SOURCE=api` (default) lets the server own the world map, streak, cards and reports (BE-21); `local` derives them from an on-device event log in localStorage.
 
 Automated checks, one line each (`bash scripts/test.sh` runs them all):
 
 ```bash
 bash scripts/test.sh state    # pure game-state selectors, instant
-bash scripts/test.sh mock     # mock backend self test
 bash scripts/test.sh flows    # HTTP flows through the app
 bash scripts/test.sh ui       # browser checks (needs Playwright browsers installed)
 bash scripts/test.sh live     # flows and ui against the deployed app
@@ -42,8 +41,8 @@ Everything environment dependent goes through `src/config` (zod validated, docum
 
 ## Backend work
 
-Every backend need goes into `contracts/` in the same pull request: `openapi.yaml`, `BACKEND_REQUIREMENTS.md`, the WireMock generator `wiremock/gen.mjs` (then `node contracts/wiremock/gen.mjs`), and `pnpm gen:api`.
+Every backend need goes into `contracts/` in the same pull request: `openapi.yaml`, `BACKEND_REQUIREMENTS.md`, the Go handler in `../numerix-api` (then `scripts/gen.sh` there), and `pnpm gen:api`.
 
 ## Deploy
 
-Vercel team `numerix`, project `numerix-web`. `vercel deploy --prod` publishes to the free `*.vercel.app` domain. WireMock cannot run on Vercel: host the container from `contracts/wiremock/Dockerfile` (see `render.yaml`) and set `API_URL` in `config/env/*.env`.
+Vercel team `numerix`, project `numerix-web`. `vercel deploy --prod` publishes to the free `*.vercel.app` domain. Host the Go API separately (container) and set `API_URL` in `config/env/*.env`.

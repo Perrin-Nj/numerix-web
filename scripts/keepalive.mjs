@@ -1,8 +1,8 @@
 // Pings the deployed projects so the first real request is never a cold start.
-// Usage: node scripts/keepalive.mjs [url ...]   (defaults to the app health route and the mock health route)
+// Usage: node scripts/keepalive.mjs [url ...]   (defaults to the app health route)
 const urls = process.argv.slice(2).length
   ? process.argv.slice(2)
-  : ['https://numerix-web-snowy.vercel.app/api/health', 'https://numerix-mock.vercel.app/__admin/health'];
+  : ['https://numerix-web-snowy.vercel.app/api/health'];
 
 let down = 0;
 for (const url of urls) {

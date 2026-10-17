@@ -1,14 +1,13 @@
 # Deploy
 
-Three Vercel projects in the team `numerix`. GitHub is linked: a push to `main` deploys the web app and the admin app by itself. The mock is not auto-deployed (its folder is not the Git root of a project), so deploy it by hand with the CLI when `mock/` changes.
+Two Vercel projects in the team `numerix`. GitHub is linked: a push to `main` deploys the web app and the admin app by itself. The Go API (`../numerix-api`) is hosted separately as a container; its deployment is outside this document.
 
 | Project | Folder | Live URL | What it is |
 |---|---|---|---|
 | `numerix-web` | repo root | https://numerix-web-snowy.vercel.app | The Next.js kid and parent app |
 | `numerix-admin` | `admin/` | https://numerix-admin.vercel.app | The super-admin app (separate server, own login) |
-| `numerix-mock` | `mock/` | https://numerix-mock.vercel.app | The platform and mock backend (contract mappings, subscriptions, admin API) |
 
-Deploy order when several change: **mock, then admin, then web** (the admin and the web app both call the mock).
+Deploy order when several change: **Go API, then admin, then web** (the admin and the web app both call the Go API).
 
 ## One-time setup
 
@@ -29,27 +28,13 @@ Run from the repo root `Services/frontend`. Every command is safe to rerun.
 pnpm install
 pnpm typecheck && pnpm lint && pnpm check:stories && pnpm check:copy
 node scripts/check-architecture.mjs && node scripts/check-docs.mjs
-bash scripts/test.sh            # state, contract, mock, flows, ui, errors, mobile (starts the servers it needs)
+bash scripts/test.sh            # state, contract, flows, ui, errors, mobile (starts the servers it needs)
 (cd admin && npm install && npm test)
 ```
 
-### 1. Mock (platform API)
+### 1. Go API
 
-```bash
-cd mock
-npm run sync                                    # regenerate and bundle the mappings
-npx vercel deploy --prod --yes
-node scripts/selftest.mjs https://numerix-mock.vercel.app     # must print "all good"
-cd ..
-```
-
-Production env vars on this project (set once, `npx vercel env add NAME production` inside `mock/`):
-
-| Var | Value |
-|-----|-------|
-| `ADMIN_API_TOKEN` | long random string, same as the admin project's. Without it the admin API refuses everything. |
-| `ADMIN_ORIGIN` | `https://numerix-admin.vercel.app` (CORS for the admin app) |
-| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | optional. Adds the Upstash Redis integration so admin changes survive cold starts and reach the kid app live. Without them platform data is in memory and resets. |
+Build and host `../numerix-api` (`go build ./cmd/api`, see its docs). Production needs `APP_ENV=production`, `JWT_SECRET`, `ADMIN_API_TOKEN` (16+ random chars, the same value as the admin project's) and `DB_PATH`. Never run `scripts/seed-dev.mjs` against it.
 
 ### 2. Admin app
 
@@ -65,8 +50,8 @@ Use the global `vercel` (`npx vercel` can fail with ECOMPROMISED). Production en
 |-----|-------|
 | `ADMIN_PASSWORD` | the super-admin password (8+ chars, long and random) |
 | `ADMIN_SESSION_SECRET` | 32+ random chars: `openssl rand -hex 32` |
-| `PLATFORM_API_URL` | `https://numerix-mock.vercel.app` |
-| `ADMIN_API_TOKEN` | same value as on the mock project |
+| `PLATFORM_API_URL` | the Go API base URL, no `/v1` |
+| `ADMIN_API_TOKEN` | same value as on the Go API |
 
 Rotate the password: `printf '%s' 'new-password' | npx vercel env add ADMIN_PASSWORD production --force`, then redeploy.
 
@@ -87,7 +72,7 @@ Three UI switches are off by default and only hide UI (the server gate stays): `
 ```bash
 bash scripts/test.sh live        # flows, ui and error checks against numerix-web-snowy.vercel.app
 curl -s https://numerix-web-snowy.vercel.app/api/health
-curl -s https://numerix-mock.vercel.app/__admin/health
+curl -s https://<go-api-host>/v1/health
 curl -s -o /dev/null -w "%{http_code}\n" https://numerix-admin.vercel.app/login          # 200
 curl -s -o /dev/null -w "%{http_code}\n" https://numerix-mock.vercel.app/admin/v1/overview   # 401 without the token
 ```
@@ -111,6 +96,3 @@ In GitHub: Settings, Applications, Vercel, Configure, add the repository. Then i
 
 `.github/workflows/keepalive.yml` (also `node scripts/keepalive.mjs`) pings the projects every 5 minutes so the first request is never slow. It starts running once the PR is merged to `main`.
 
-## Alternative host for the mock
-
-`render.yaml` plus `contracts/wiremock/Dockerfile` run the pure contract mock (no subscriptions or admin API) on Render. Not used in production.

@@ -94,7 +94,7 @@ await check('give consent', async () => {
 await check('new child is visible with PIN and permission status', async () => {
   await page.getByText(childName).first().waitFor(T);
   await page.getByText(/code à 4 chiffres requis/i).first().waitFor(T);
-  await page.getByText(/autorisation donnée/i).nth(1).waitFor(T);
+  await page.getByText(/autorisation donnée/i).first().waitFor(T);
 });
 await check('kid door lists the profiles and the new PIN works', async () => {
   await page.goto(`${BASE}/play`, { waitUntil: 'networkidle' });

@@ -3,13 +3,12 @@ import { publicEnv } from './env';
 export type MascotKind = 'emoji' | 'image' | 'lottie' | 'rive';
 
 /**
- * Typed, read-only app settings built from the validated public environment: environment, mock mode, state
+ * Typed, read-only app settings built from the validated public environment: environment, state
  * source (local or api), card threshold, locales, mascot, feature flags and sound default. Import this, never
  * process.env.
  */
 export const appConfig = {
   env: publicEnv.NEXT_PUBLIC_APP_ENV,
-  useMock: publicEnv.NEXT_PUBLIC_USE_MOCK,
   /** local: progress is derived from the on-device event log. api: the server owns it (BE-21). */
   stateSource: publicEnv.NEXT_PUBLIC_STATE_SOURCE,
   /** Share of right answers needed to win a card. Until the admin dashboard exists (BE-22) it comes from here. */
@@ -31,8 +30,6 @@ export const appConfig = {
     subscriptionUi: publicEnv.NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI,
     /** The one-time welcome gift on the kid home. Other gifts and cards are unaffected. */
     welcomeGift: publicEnv.NEXT_PUBLIC_FEATURE_WELCOME_GIFT,
-    /** The demo-data badge and failure-scenario tools. Off once a real backend is wired. */
-    demoBadge: publicEnv.NEXT_PUBLIC_SHOW_DEMO_BADGE,
   },
   defaults: {
     sound: publicEnv.NEXT_PUBLIC_SOUND_DEFAULT,

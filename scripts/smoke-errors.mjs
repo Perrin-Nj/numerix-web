@@ -1,6 +1,7 @@
 // Manual walk of the failure scenarios: every one must show a visible message with a way forward.
-// Usage: node scripts/smoke-errors.mjs [outDir]   (dev server on :3000, WireMock on :8080)
+// Usage: node scripts/smoke-errors.mjs [outDir]   (dev server on :3000, Go API on :8081)
 import { chromium } from 'playwright';
+import { scenario } from './lib/scenario.mjs';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -15,10 +16,7 @@ const pageErrors = [];
 page.on('pageerror', (e) => pageErrors.push(e.message.slice(0, 200)));
 let results = [];
 
-async function scenario(value) {
-  await ctx.clearCookies({ name: 'nx_mock_scenario' });
-  if (value) await ctx.addCookies([{ name: 'nx_mock_scenario', value, url: BASE }]);
-}
+const setScenario = (value) => scenario(ctx, value);
 async function check(name, fn) {
   try {
     await fn();
@@ -30,7 +28,7 @@ async function check(name, fn) {
 }
 async function login() {
   await page.goto(`${BASE}/parent/login`, { waitUntil: 'networkidle' });
-  await page.getByLabel(/courriel/i).fill('parent@example.com');
+  await page.getByLabel(/courriel/i).fill('demo@numerix.dev');
   await page.getByLabel(/mot de passe/i).fill('correct-horse-battery');
   await page.getByRole('button', { name: /se connecter/i }).click();
   await page.waitForURL('**/parent');
@@ -49,7 +47,7 @@ async function enterChild() {
 
 await check('wrong password shows an inline message', async () => {
   await page.goto(`${BASE}/parent/login`, { waitUntil: 'networkidle' });
-  await page.getByLabel(/courriel/i).fill('parent@example.com');
+  await page.getByLabel(/courriel/i).fill('demo@numerix.dev');
   await page.getByLabel(/mot de passe/i).fill('wrong-password');
   await page.getByRole('button', { name: /se connecter/i }).click();
   await page.getByText(/incorrect/i).waitFor({ timeout: 8000 });
@@ -59,7 +57,7 @@ await check('wrong password shows an inline message', async () => {
 await login();
 
 await check('backend down is announced as our problem, with a retry', async () => {
-  await scenario('network-error');
+  await setScenario('network-error');
   await page.goto(`${BASE}/parent`, { waitUntil: 'networkidle' });
   await page.getByText(/le problème vient de nous/i).first().waitFor({ timeout: 10000 });
   await page.getByText(/ce n.est pas ta connexion/i).first().waitFor({ timeout: 3000 });
@@ -68,44 +66,27 @@ await check('backend down is announced as our problem, with a retry', async () =
 });
 
 await check('server error is announced', async () => {
-  await scenario('server-error');
+  await setScenario('server-error');
   await page.goto(`${BASE}/parent`, { waitUntil: 'networkidle' });
   await page.getByText(/problème est survenu/i).first().waitFor({ timeout: 10000 });
   await page.screenshot({ path: join(OUT, 'server-error.png') });
 });
 
 await check('rate limit is announced', async () => {
-  await scenario('rate-limited');
+  await setScenario('rate-limited');
   await page.goto(`${BASE}/parent`, { waitUntil: 'networkidle' });
   await page.getByText(/doucement/i).first().waitFor({ timeout: 10000 });
 });
 
-await scenario(null);
+await setScenario(null);
 await enterChild();
 
 await check('daily limit explains itself', async () => {
-  await scenario('daily-limit');
+  await setScenario('daily-limit');
   await page.getByRole('button', { name: /jouer/i }).first().click();
   await page.getByRole('dialog').getByText(/assez pour aujourd/i).waitFor({ timeout: 10000 });
   await page.screenshot({ path: join(OUT, 'daily-limit.png') });
   await page.getByRole('button', { name: /d.accord/i }).click();
-});
-
-await check('fallback narration is announced', async () => {
-  await scenario('narration-fallback');
-  await page.getByRole('button', { name: /jouer/i }).first().click();
-  await page.waitForURL('**/play/session/**');
-  await page.getByText(/version courte/i).first().waitFor({ timeout: 15000 });
-  await page.screenshot({ path: join(OUT, 'narration-fallback.png') });
-});
-
-await check('slow narration offers the question and a retry', async () => {
-  await scenario('narration-slow');
-  await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
-  await page.getByRole('button', { name: /jouer/i }).first().click();
-  await page.waitForURL('**/play/session/**');
-  await page.getByText(/un instant|quelques instants|prend/i).first().waitFor({ timeout: 15000 });
-  await page.screenshot({ path: join(OUT, 'narration-slow.png') });
 });
 
 // Which side is down? Three situations on a fresh login form, each must name its own cause.
@@ -114,7 +95,7 @@ async function loginAttempt(setup) {
   const p = await c.newPage();
   await p.goto(`${BASE}/parent/login`, { waitUntil: 'networkidle' });
   await setup(c, p);
-  await p.getByLabel(/courriel/i).fill('parent@example.com');
+  await p.getByLabel(/courriel/i).fill('demo@numerix.dev');
   await p.getByLabel(/mot de passe/i).fill('correct-horse-battery');
   await p.getByRole('button', { name: /se connecter/i }).click();
   return { c, p };
@@ -134,7 +115,7 @@ await check('app unreachable while online: says it cannot tell', async () => {
   await c.close();
 });
 await check('backend down: says it is on us and not the connection', async () => {
-  const { c, p } = await loginAttempt(async (ctx2) => ctx2.addCookies([{ name: 'nx_mock_scenario', value: 'network-error', url: BASE }]));
+  const { c, p } = await loginAttempt(async (ctx2) => scenario(ctx2, 'network-error'));
   await p.getByText(/le problème vient de nous/i).first().waitFor({ timeout: 10000 });
   await p.getByText(/ce n.est pas ta connexion/i).first().waitFor({ timeout: 3000 });
   await p.screenshot({ path: join(OUT, 'cause-backend-down.png') });

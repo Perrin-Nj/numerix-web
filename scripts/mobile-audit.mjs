@@ -1,19 +1,19 @@
 // Phone layout audit, one line per finding, no screenshots unless SHOTS=dir is set.
-// Usage: node scripts/mobile-audit.mjs [baseUrl]   (WIDTH=360 HEIGHT=740 to change the viewport)
+// Usage: node scripts/mobile-audit.mjs [baseUrl]   (app on :3000 with the Go API; WIDTH=360 HEIGHT=740 to change the viewport)
 import { chromium } from 'playwright';
 
 const BASE = (process.argv[2] ?? process.env.BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 const W = Number(process.env.WIDTH ?? 360);
 const H = Number(process.env.HEIGHT ?? 740);
-const ZOE = '11111111-1111-4111-8111-111111111111';
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ locale: 'fr-CA', viewport: { width: W, height: H }, hasTouch: true, isMobile: true });
 const api = (m, p, b) => ctx.request.fetch(`${BASE}/api/v1${p}`, { method: m, headers: { 'content-type': 'application/json' }, data: b });
 await api('POST', '/auth/register', { email: `m${Date.now()}@example.com`, password: 'correct-horse-battery', locale: 'fr-CA' });
-await api('POST', '/auth/consent', { child_id: ZOE, accepted: true });
+const ZOE = (await (await api('POST', '/children', { display_name: 'Zoé', grade: 2, avatar_id: 'fox', pin: '1234' })).json()).id;
+await api('POST', '/auth/consent', { child_id: ZOE, version: '2026-10', accepted: true });
 await api('POST', `/children/${ZOE}/token`, { pin: '1234' });
 const page = await ctx.newPage();
-await page.addInitScript(() => localStorage.setItem(`nx:onboarding:${'11111111-1111-4111-8111-111111111111'}`, 'done'));
+await page.addInitScript((id) => localStorage.setItem(`nx:onboarding:${id}`, 'done'), ZOE);
 let bad = 0;
 const say = (ok, msg) => {
   console.log(`${ok ? 'ok  ' : 'FAIL'} ${msg}`);

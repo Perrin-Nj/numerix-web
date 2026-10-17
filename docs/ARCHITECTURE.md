@@ -47,7 +47,7 @@ Kid answers a question:
 
 ```
 ChoiceButton (game) --onSelect--> StoryScreen (features)
-  StoryScreen --answerBeat()--> data/hooks/sessions --HTTP--> /api/v1 proxy --> backend (or mock)
+  StoryScreen --answerBeat()--> data/hooks/sessions --HTTP--> /api/v1 proxy --> Go API
   backend --Answer{outcome, rewards, session.score}--> StoryScreen
   StoryScreen --append(event)--> data/local/store (zustand, persisted, keyed by child)
   screens read derived state:  domain/game/selectors(events)  ->  data/hooks/progress  ->  Home, Journey, Cards, Me, Report

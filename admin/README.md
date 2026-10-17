@@ -8,11 +8,11 @@ Standalone Next.js 16 app (own `package.json`, own `node_modules`) for the super
 cd admin
 npm install
 cp .env.example .env.local   # fill the four values
-node ../mock/dev.mjs 8083    # platform API (separate terminal)
+(cd ../../numerix-api && ./bin/api.exe)    # Go API on :8081 (separate terminal)
 npm run dev                  # http://localhost:3100
 ```
 
-Local mock values: `PLATFORM_API_URL=http://localhost:8083`, `ADMIN_API_TOKEN=dev-admin-token`.
+Local values: `PLATFORM_API_URL=http://localhost:8081`, `ADMIN_API_TOKEN=dev-admin-token`.
 
 ## Env vars (server only, none are exposed to the browser)
 
@@ -27,7 +27,7 @@ Local mock values: `PLATFORM_API_URL=http://localhost:8083`, `ADMIN_API_TOKEN=de
 
 ```bash
 npm run typecheck && npm run lint
-npm test                                  # typecheck, lint, build, start app, run smoke (starts ../mock if needed)
+npm test                                  # typecheck, lint, build, start app, run smoke (starts the Go API if needed)
 ADMIN_URL=http://localhost:3100 ADMIN_PASSWORD=... node scripts/smoke.mjs   # smoke only, one line per check
 ```
 

@@ -12,11 +12,10 @@ const list = z
   .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean));
 
 const publicSchema = z.object({
-  NEXT_PUBLIC_USE_MOCK: bool(true),
   NEXT_PUBLIC_APP_ENV: z.enum(['development', 'preview', 'production']).default('development'),
   NEXT_PUBLIC_DEFAULT_LOCALE: z.string().default('fr-CA'),
   NEXT_PUBLIC_LOCALES: list,
-  NEXT_PUBLIC_STATE_SOURCE: z.enum(['local', 'api']).default('local'),
+  NEXT_PUBLIC_STATE_SOURCE: z.enum(['local', 'api']).default('api'),
   NEXT_PUBLIC_CARD_THRESHOLD_PCT: z.coerce.number().int().min(0).max(100).default(70),
   NEXT_PUBLIC_MASCOT_ENABLED: bool(true),
   NEXT_PUBLIC_MASCOT_KIND: z.enum(['emoji', 'image', 'lottie', 'rive']).default('emoji'),
@@ -28,7 +27,6 @@ const publicSchema = z.object({
   NEXT_PUBLIC_FEATURE_READ_ALOUD: bool(true),
   NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI: bool(false),
   NEXT_PUBLIC_FEATURE_WELCOME_GIFT: bool(false),
-  NEXT_PUBLIC_SHOW_DEMO_BADGE: bool(false),
   NEXT_PUBLIC_SOUND_DEFAULT: bool(true),
   NEXT_PUBLIC_ANALYTICS_ENABLED: bool(true),
 });
@@ -43,7 +41,6 @@ function fail(scope: string, error: z.ZodError): never {
 }
 
 const publicParsed = publicSchema.safeParse({
-  NEXT_PUBLIC_USE_MOCK: process.env.NEXT_PUBLIC_USE_MOCK,
   NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
   NEXT_PUBLIC_DEFAULT_LOCALE: process.env.NEXT_PUBLIC_DEFAULT_LOCALE,
   NEXT_PUBLIC_LOCALES: process.env.NEXT_PUBLIC_LOCALES,
@@ -59,7 +56,6 @@ const publicParsed = publicSchema.safeParse({
   NEXT_PUBLIC_FEATURE_READ_ALOUD: process.env.NEXT_PUBLIC_FEATURE_READ_ALOUD,
   NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI: process.env.NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI,
   NEXT_PUBLIC_FEATURE_WELCOME_GIFT: process.env.NEXT_PUBLIC_FEATURE_WELCOME_GIFT,
-  NEXT_PUBLIC_SHOW_DEMO_BADGE: process.env.NEXT_PUBLIC_SHOW_DEMO_BADGE,
   NEXT_PUBLIC_SOUND_DEFAULT: process.env.NEXT_PUBLIC_SOUND_DEFAULT,
   NEXT_PUBLIC_ANALYTICS_ENABLED: process.env.NEXT_PUBLIC_ANALYTICS_ENABLED,
 });
