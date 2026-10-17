@@ -1,6 +1,5 @@
 'use client';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
 import { useTheme, type DisplayMode, type ThemeChoice } from '@/platform/theme';
 import { ParentPage } from './ParentPage';
@@ -12,12 +11,12 @@ import { Switch } from '@/ui/switch';
 export function AccountScreen() {
   const t = useTranslations('screens.parent.account');
   const locale = useLocale();
-  const router = useRouter();
   const { theme, setTheme, reducedMotion, setReducedMotion, display, setDisplay } = useTheme();
 
   function changeLocale(value: string) {
     document.cookie = `NEXT_LOCALE=${value}; path=/; max-age=31536000; samesite=lax`;
-    router.refresh();
+    // a full reload also updates <html lang> and every cached server render, which router.refresh() can miss
+    window.location.reload();
   }
 
   return (
