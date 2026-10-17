@@ -1,6 +1,6 @@
 # Deploy
 
-Three Vercel projects in the team `numerix`. GitHub is not connected to Vercel (steps below), so deploys are manual with the CLI.
+Three Vercel projects in the team `numerix`. GitHub is linked: a push to `main` deploys the web app and the admin app by itself. The mock is not auto-deployed (its folder is not the Git root of a project), so deploy it by hand with the CLI when `mock/` changes.
 
 | Project | Folder | Live URL | What it is |
 |---|---|---|---|
@@ -53,13 +53,13 @@ Production env vars on this project (set once, `npx vercel env add NAME producti
 
 ### 2. Admin app
 
+Pushed to `main`, it deploys by itself. For a manual deploy, run from the repo root (not from `admin/`: the project's Root Directory is already `admin`, so deploying from inside it fails with "Specified Root Directory 'admin' does not exist"):
+
 ```bash
-cd admin
-npx vercel deploy --prod --yes
-cd ..
+VERCEL_PROJECT_ID=prj_VJl4ApawwzIYaXhRJnVIrr9C6MUt VERCEL_ORG_ID=team_T5J20u7m9gfOfoKOpBYdYG3q vercel deploy --prod --yes
 ```
 
-Production env vars on `numerix-admin` (set once, inside `admin/`):
+Use the global `vercel` (`npx vercel` can fail with ECOMPROMISED). Production env vars on `numerix-admin` (set once, inside `admin/`):
 
 | Var | Value |
 |-----|-------|
@@ -77,6 +77,8 @@ pnpm vercel:env diff production      # compare config/env/production.env with Ve
 pnpm vercel:env push production      # push non-secret variables if they differ
 npx vercel deploy --prod --yes
 ```
+
+Three UI switches are off by default and only hide UI (the server gate stays): `NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI` (trial badge, subscription card), `NEXT_PUBLIC_FEATURE_WELCOME_GIFT` (first-visit gift only), `NEXT_PUBLIC_SHOW_DEMO_BADGE` (demo data badge). Set one to `true` in `config/env/production.env`, push the env, redeploy.
 
 `vercel.ts` holds the Vercel settings (region `yul1`, security headers, cache rules). Variables live in `config/env/<environment>.env`, each documented in `.env.example`. After relinking or recreating the project, run `pnpm vercel:env push production|preview|development` again (variables vanish with the project).
 
@@ -101,9 +103,9 @@ npx vercel promote <deployment-url>         # or: npx vercel rollback
 
 Run it inside the folder of the project to roll back.
 
-## Connect GitHub to Vercel (optional, gives deploys on push)
+## Connect GitHub to Vercel (done for web and admin; only needed again for a new project)
 
-The Vercel GitHub app currently has no access to `Perrin-Nj/numerix-web`. In GitHub: Settings, Applications, Vercel, Configure, add the repository. Then in Vercel for each project: Settings, Git, Connect Git Repository. Set the root directory to `.` (web), `admin` (admin) and `mock` (mock).
+In GitHub: Settings, Applications, Vercel, Configure, add the repository. Then in Vercel for each project: Settings, Git, Connect Git Repository. Set the root directory to `.` (web), `admin` (admin) and `mock` (mock).
 
 ## Keep-alive
 
