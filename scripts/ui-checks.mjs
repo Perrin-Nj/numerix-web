@@ -227,12 +227,15 @@ await check('the story is read aloud by the French woman voice, in French', asyn
   if (bad) throw new Error(`${bad} utterances used a wrong-language or male voice`);
 });
 await check('home greeting changes at every visit of the session', async () => {
+  await page.mouse.click(5, 5); // speech waits for a first gesture; the gift click used to provide it
+  const shown = [];
   for (let i = 0; i < 3; i++) {
     await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(600);
+    // the last line stored is the one on screen (the pool of lines can cycle in a long session, so compare neighbours)
+    shown.push(await page.evaluate(() => JSON.parse(sessionStorage.getItem('nx:greet:seen') ?? '[]').at(-1)));
   }
-  const seen = await page.evaluate(() => JSON.parse(sessionStorage.getItem('nx:greet:seen') ?? '[]'));
-  if (new Set(seen).size < 3) throw new Error(`greetings seen: ${JSON.stringify(seen)}`);
+  if (shown.some((g, i) => i > 0 && g === shown[i - 1])) throw new Error(`same greeting twice in a row: ${JSON.stringify(shown)}`);
 });
 await check('question comes with a picture of its numbers', async () => {
   await startChapter();
