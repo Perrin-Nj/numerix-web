@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const scope = req.nextUrl.searchParams.get('scope') === 'child' ? 'child' : 'all';
   const res = new NextResponse(null, { status: 204 });
-  const names = scope === 'child' ? ['nx_child', 'nx_child_id'] : ['nx_parent', 'nx_refresh', 'nx_child', 'nx_child_id', 'nx_mock_state', 'nx_mock_scenario'];
+  const names = scope === 'child' ? ['nx_child', 'nx_child_id'] : ['nx_parent', 'nx_refresh', 'nx_child', 'nx_child_id', 'nx_device'];
   for (const n of names) res.cookies.set(n, '', { path: '/', maxAge: 0 });
   return res;
 }

@@ -3,6 +3,7 @@
 import { solve, wrong } from './lib/solver.mjs';
 const BASE = (process.argv[2] ?? process.env.BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 const jar = new Map();
+const FLOW_EMAIL = `flows${Date.now()}@example.com`;
 let fails = 0;
 
 async function call(method, path, { body, mode = 'parent', headers = {} } = {}) {
@@ -46,10 +47,18 @@ r = await call('GET', '/parent', { headers: { accept: 'text/html' } });
 ok('/parent asks an anonymous visitor to log in', r.status === 307 || r.status === 302 || r.status === 308);
 
 // ── Parent: account, child with PIN, consent
-r = await api('POST', '/auth/register', { body: { email: 'flows@example.com', password: 'correct-horse-battery', locale: 'fr-CA' } });
-ok('register', r.status === 201 && jar.has('nx_parent') && !r.text.includes('mock-parent-token'), r.text.slice(0, 80));
+r = await api('POST', '/auth/register', { body: { email: FLOW_EMAIL, password: 'correct-horse-battery', locale: 'fr-CA' } });
+ok('register', r.status === 201 && jar.has('nx_parent') && !r.text.includes('access_token'), r.text.slice(0, 80));
+// Known device: the backend's nx_device cookie survives the proxy, and alone it reopens the app without signing in
+const device = jar.get('nx_device');
+ok('device cookie is kept after register', Boolean(device));
+jar.clear();
+jar.set('nx_device', device ?? '');
+r = await api('POST', '/auth/device');
+ok('known device reopens without signing in, token hidden', r.status === 200 && jar.has('nx_parent') && !r.text.includes('access_token'), r.text.slice(0, 80));
+ok('device cookie is rotated', Boolean(jar.get('nx_device')) && jar.get('nx_device') !== device);
 r = await api('GET', '/children');
-ok('seed children are listed', r.status === 200 && r.json.items.length >= 2);
+ok('a new account starts without children', r.status === 200 && r.json.items.length === 0);
 const before = r.json.items.length;
 r = await api('POST', '/children', { body: { display_name: 'Nora', grade: 3, avatar_id: 'owl', pin: '4321' } });
 ok('create child', r.status === 201 && r.json.display_name === 'Nora' && r.json.has_pin === true);
@@ -58,15 +67,14 @@ r = await api('GET', '/children');
 ok('new child appears on the parent list', r.json.items.length === before + 1 && r.json.items.some((c) => c.id === nora.id));
 ok('new child starts without consent', r.json.items.find((c) => c.id === nora.id).consent_given === false);
 
+r = await api('POST', `/children/${nora.id}/token`, { body: { pin: '4321' } });
+ok('token refused without consent', r.status === 403 && r.json?.code === 'consent_missing' && !jar.has('nx_child'), r.text.slice(0, 80));
+r = await api('POST', '/auth/consent', { body: { child_id: nora.id, version: '2026-10', accepted: true } });
+ok('parent gives consent', r.status === 204, r.text.slice(0, 80));
 r = await api('POST', `/children/${nora.id}/token`, { body: { pin: '1234' } });
 ok('wrong PIN refused', r.status === 403 && r.json.code === 'invalid_pin');
 r = await api('POST', `/children/${nora.id}/token`, { body: { pin: '4321' } });
-ok('own PIN accepted, child cookie set, token hidden', r.status === 200 && jar.has('nx_child') && !r.text.includes('mock-child-token'));
-
-r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'nature', kind: 'chapter' }, headers: { 'idempotency-key': crypto.randomUUID() } });
-ok('chapter refused without consent', r.status === 403 && r.json?.code === 'consent_missing', r.text.slice(0, 80));
-r = await api('POST', '/auth/consent', { body: { child_id: nora.id, accepted: true } });
-ok('parent gives consent', r.status === 204, r.text.slice(0, 80));
+ok('own PIN accepted, child cookie set, token hidden', r.status === 200 && jar.has('nx_child') && !r.text.includes('access_token'));
 
 // Two chapters in two worlds: each is its own story, every answer is solved from the question itself
 const scenes = [];
@@ -112,8 +120,7 @@ for (const [world, skill] of [['nature', 'ARI-OPE-A06a'], ['espace', 'ARI-OPE-A0
     const res = await fetch(`${ADMIN}/admin/v1${path}`, { method, headers: { authorization: `Bearer ${adminToken}`, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
     return { status: res.status, json: await res.json().catch(() => null) };
   };
-  jar.set('nx_parent_email', encodeURIComponent('flows@example.com'));
-  const found = BASE.includes('localhost') ? await admin('GET', '/parents?q=flows@example.com') : { status: 0 };
+  const found = BASE.includes('localhost') ? await admin('GET', `/parents?q=${FLOW_EMAIL}`) : { status: 0 };
   const pid = found.json?.items?.[0]?.id;
   if (pid) {
     const startAs = async () => api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'cuisine', kind: 'chapter' }, headers: { 'idempotency-key': crypto.randomUUID() } });

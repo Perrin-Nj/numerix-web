@@ -93,6 +93,12 @@ export function SettingsScreen({ childId }: { childId: string }) {
                 label={t('kidLanguage')}
                 description={t('kidLanguageHint')}
               />
+              <Switch
+                checked={draft.remember_on_device === true}
+                onCheckedChange={(v) => setDraft({ ...draft, remember_on_device: v })}
+                label={t('rememberOnDevice')}
+                description={t('rememberOnDeviceHint')}
+              />
             </div>
           </Panel>
 

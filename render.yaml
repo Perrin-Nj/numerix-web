@@ -1,9 +1,0 @@
-# Render blueprint for the hosted mock: connect the repository on render.com and apply this file.
-services:
-  - type: web
-    name: numerix-mock
-    runtime: docker
-    dockerfilePath: ./contracts/wiremock/Dockerfile
-    dockerContext: ./contracts/wiremock
-    plan: free
-    healthCheckPath: /__admin/health

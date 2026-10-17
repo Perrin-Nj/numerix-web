@@ -204,6 +204,10 @@
         "submit": "Create my account",
         "switchPrompt": "Already have an account?",
         "switchAction": "Log in"
+      },
+      "passkey": {
+        "signIn": "Sign in with a passkey",
+        "error": "The passkey did not work. Try your password instead."
       }
     },
     "parent": {
@@ -318,7 +322,9 @@
           "type": "To confirm, type \"{name}\""
         },
         "kidLanguage": "My child can change the language",
-        "kidLanguageHint": "Your child picks French or English in their menu. Turn off to keep the language you chose."
+        "kidLanguageHint": "Your child picks French or English in their menu. Turn off to keep the language you chose.",
+        "rememberOnDevice": "Remember this profile on this device",
+        "rememberOnDeviceHint": "On this device, the child starts without the PIN. Off by default."
       },
       "recap": {
         "title": "Story recap",

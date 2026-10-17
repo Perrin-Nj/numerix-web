@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, unwrap } from '@/data/api/client';
 import type { components } from '@/data/api/schema';
-import { apiOn } from './keys';
+import { apiOn, keys } from './keys';
 
 export type KnownDevice = components['schemas']['Device'];
 export type PasskeyInfo = components['schemas']['Passkey'];
@@ -22,7 +22,7 @@ export function passkeysSupported(): boolean {
   );
 }
 
-/** Query for GET /account/devices. Off unless the server owns state (the mock backend has no such route). */
+/** Query for GET /account/devices. Off unless the server owns state. */
 export function useDevices() {
   return useQuery({
     queryKey: deviceKeys.devices,
@@ -86,5 +86,57 @@ export function useAddPasskey() {
     },
     meta: { handled: true },
     onSuccess: () => qc.invalidateQueries({ queryKey: deviceKeys.passkeys }),
+  });
+}
+
+/**
+ * Opens the app on a known device (POST /auth/device, BE-64). The proxy turns the answer into the session
+ * cookies. Resolves to false when this browser is not known (401), which is the normal case, not an error.
+ */
+export function useDeviceLogin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<boolean> => {
+      const { response } = await api.POST('/auth/device');
+      return response.ok;
+    },
+    meta: { handled: true },
+    onSuccess: (opened) => {
+      if (opened) qc.invalidateQueries({ queryKey: keys.session });
+    },
+  });
+}
+
+/**
+ * Signs in with a passkey: begin on the server, ask the browser, finish on the server (the proxy sets the
+ * session cookies). Resolves to false when the parent cancels the browser prompt.
+ */
+export function usePasskeyLogin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<boolean> => {
+      const begin = await unwrap(api.POST('/auth/passkeys/login/begin'));
+      const options = (begin.options as { publicKey: PublicKeyCredentialRequestOptionsJSON }).publicKey;
+      let credential: PublicKeyCredential | null;
+      try {
+        credential = (await navigator.credentials.get({
+          publicKey: PublicKeyCredential.parseRequestOptionsFromJSON(options),
+        })) as PublicKeyCredential | null;
+      } catch (e) {
+        if (e instanceof DOMException && (e.name === 'NotAllowedError' || e.name === 'AbortError')) return false; // cancelled
+        throw e;
+      }
+      if (!credential) return false;
+      await unwrap(
+        api.POST('/auth/passkeys/login/finish', {
+          body: { session_id: begin.session_id, credential: credential.toJSON() as Record<string, unknown> },
+        }),
+      );
+      return true;
+    },
+    meta: { handled: true },
+    onSuccess: (done) => {
+      if (done) qc.invalidateQueries({ queryKey: keys.session });
+    },
   });
 }

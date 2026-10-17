@@ -204,6 +204,10 @@
         "submit": "Créer mon compte",
         "switchPrompt": "Déjà un compte ?",
         "switchAction": "Se connecter"
+      },
+      "passkey": {
+        "signIn": "Se connecter avec une clé d'accès",
+        "error": "La clé d'accès n'a pas fonctionné. Essaie avec ton mot de passe."
       }
     },
     "parent": {
@@ -318,7 +322,9 @@
           "type": "Pour confirmer, écris « {name} »"
         },
         "kidLanguage": "Mon enfant peut changer la langue",
-        "kidLanguageHint": "L'enfant choisit entre le français et l'anglais dans son menu. Désactive pour garder la langue que tu as choisie."
+        "kidLanguageHint": "L'enfant choisit entre le français et l'anglais dans son menu. Désactive pour garder la langue que tu as choisie.",
+        "rememberOnDevice": "Se souvenir de ce profil sur cet appareil",
+        "rememberOnDeviceHint": "Sur cet appareil, l'enfant démarre sans code. Désactivé par défaut."
       },
       "recap": {
         "title": "Résumé de l'histoire",

@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { serverEnv } from '@/config/env';
-import { appConfig } from '@/config/app';
 
 /**
- * Same-origin proxy to the backend (WireMock locally, FastAPI later).
+ * Same-origin proxy to the backend (the Go API).
  * - Tokens live in httpOnly cookies; the browser never reads them.
  * - Auth responses set the cookies and have their tokens stripped from the body.
  * - A 401 on a parent call triggers one silent refresh and retry.
  */
 
-const MOCK_STATE_COOKIE = 'nx_mock_state';
 const COOKIE = { parent: 'nx_parent', refresh: 'nx_refresh', child: 'nx_child', childId: 'nx_child_id' } as const;
+/** The backend's long-lived known-device cookie (BE-64). Only the backend reads it; the proxy just carries it. */
+const DEVICE_COOKIE = 'nx_device';
 const secure = process.env.NODE_ENV === 'production';
 
 type Ctx = { params: Promise<{ path: string[] }> };
@@ -29,16 +29,8 @@ async function forward(req: NextRequest, upstream: string, token: string | undef
   const locale = req.cookies.get('NEXT_LOCALE')?.value ?? req.headers.get('accept-language');
   if (locale) headers.set('accept-language', locale);
   if (token) headers.set('authorization', `Bearer ${token}`);
-  if (appConfig.useMock) {
-    headers.set('x-card-threshold-pct', String(appConfig.cardThresholdPct));
-    const email = req.cookies.get('nx_parent_email')?.value;
-    if (email) headers.set('x-mock-parent-email', decodeURIComponent(email));
-    const scenario = req.cookies.get('nx_mock_scenario')?.value;
-    if (scenario) headers.set('x-mock-scenario', scenario);
-    // The serverless mock keeps its scenario state with the client
-    const mockState = req.cookies.get(MOCK_STATE_COOKIE)?.value;
-    if (mockState) headers.set('x-mock-state', mockState);
-  }
+  const device = req.cookies.get(DEVICE_COOKIE)?.value;
+  if (device) headers.set('cookie', `${DEVICE_COOKIE}=${device}`);
   const hasBody = !['GET', 'HEAD'].includes(req.method);
   return fetch(upstream, {
     method: req.method,
@@ -50,15 +42,14 @@ async function forward(req: NextRequest, upstream: string, token: string | undef
   });
 }
 
-function problem(status: number, code: string, title: string, detail: string) {
-  return NextResponse.json({ type: 'about:blank', title, status, code, detail }, { status, headers: { 'content-type': 'application/problem+json' } });
+/** Hands the backend's rotated (or cleared) nx_device Set-Cookie to the browser unchanged, so HttpOnly and Max-Age survive. */
+function carryDevice(out: NextResponse, upstream: Response) {
+  for (const sc of upstream.headers.getSetCookie()) if (sc.startsWith(`${DEVICE_COOKIE}=`)) out.headers.append('set-cookie', sc);
+  return out;
 }
 
-/** Carry the mock's scenario state back to the browser (mock mode only). */
-function keepMockState(out: NextResponse, upstream: Response) {
-  const state = upstream.headers.get('x-mock-state');
-  if (appConfig.useMock && state) out.cookies.set(MOCK_STATE_COOKIE, state, { path: '/', sameSite: 'lax', maxAge: 60 * 60 * 24 });
-  return out;
+function problem(status: number, code: string, title: string, detail: string) {
+  return NextResponse.json({ type: 'about:blank', title, status, code, detail }, { status, headers: { 'content-type': 'application/problem+json' } });
 }
 
 /** CSRF defence on top of SameSite=Lax: a browser request that changes data must come from this app's own origin. */
@@ -86,7 +77,7 @@ async function handle(req: NextRequest, ctx: Ctx) {
   const upstream = `${base}/${joined}${req.nextUrl.search}`;
   const mode = req.headers.get('x-nx-mode') === 'child' ? 'child' : 'parent';
   const jar = req.cookies;
-  const isAuth = /^auth\/(login|register|refresh)$/.test(joined);
+  const isAuth = /^auth\/(login|register|refresh|device|passkeys\/login\/finish)$/.test(joined);
   const isChildToken = /^children\/[^/]+\/token$/.test(joined);
 
   let token = isAuth ? undefined : mode === 'child' ? jar.get(COOKIE.child)?.value : jar.get(COOKIE.parent)?.value;
@@ -135,7 +126,7 @@ async function handle(req: NextRequest, ctx: Ctx) {
   if (contentType.includes('text/event-stream')) {
     outHeaders.set('cache-control', 'no-cache, no-transform');
     outHeaders.set('x-accel-buffering', 'no');
-    return keepMockState(new NextResponse(res.body, { status: res.status, headers: outHeaders }), res);
+    return new NextResponse(res.body, { status: res.status, headers: outHeaders });
   }
 
   // Auth endpoints: move tokens into httpOnly cookies and strip them from the body
@@ -155,7 +146,7 @@ async function handle(req: NextRequest, ctx: Ctx) {
       out.cookies.set(COOKIE.child, access, cookieOpts(expires));
       if (childId) out.cookies.set(COOKIE.childId, childId, cookieOpts(expires, false));
     }
-    return keepMockState(out, res);
+    return carryDevice(out, res);
   }
 
   const out = new NextResponse(res.status === 204 || res.status === 202 ? null : res.body, { status: res.status, headers: outHeaders });
@@ -163,7 +154,7 @@ async function handle(req: NextRequest, ctx: Ctx) {
     out.cookies.set(COOKIE.parent, refreshed.access, cookieOpts(refreshed.expires));
     out.cookies.set(COOKIE.refresh, refreshed.refresh, cookieOpts(60 * 60 * 24 * 30));
   }
-  return keepMockState(out, res);
+  return carryDevice(out, res);
 }
 
 export const GET = handle;

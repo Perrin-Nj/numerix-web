@@ -1,14 +1,15 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { rememberParentEmail } from '@/data/session/clear';
 import { ApiError, isConnectionProblem } from '@/data/api/client';
 import { useLogin, useRegister } from '@/data/hooks';
+import { passkeysSupported, useDeviceLogin, usePasskeyLogin } from '@/data/hooks/devices';
+import { PasskeyLoginButton } from './PasskeyLoginButton';
 import { PARENT_EMAIL_KEY } from '@/features/common/ParentGate';
 import { Button } from '@/ui/button';
 import { FormField } from '@/ui/form-field';
@@ -26,6 +27,28 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const login = useLogin();
   const register = useRegister();
   const [formError, setFormError] = useState<string | null>(null);
+  const deviceLogin = useDeviceLogin();
+  const passkeyLogin = usePasskeyLogin();
+  const [passkeyFailed, setPasskeyFailed] = useState(false);
+  const [canPasskey, setCanPasskey] = useState(false);
+  const deviceTried = useRef(false);
+
+  // A known device opens without signing in: one try when the login screen shows, a miss is silent
+  useEffect(() => {
+    setCanPasskey(passkeysSupported());
+    if (mode !== 'login' || deviceTried.current) return;
+    deviceTried.current = true;
+    deviceLogin.mutateAsync().then((opened) => opened && router.replace('/parent'), () => {});
+  }, [mode, deviceLogin, router]);
+
+  async function onPasskey() {
+    setPasskeyFailed(false);
+    try {
+      if (await passkeyLogin.mutateAsync()) router.replace('/parent');
+    } catch {
+      setPasskeyFailed(true);
+    }
+  }
 
   const schema = useMemo(
     () =>
@@ -50,8 +73,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
       if (mode === 'login') await login.mutateAsync(values);
       else await register.mutateAsync({ ...values, locale });
       localStorage.setItem(PARENT_EMAIL_KEY, values.email);
-      // The demo platform finds the parent's subscription by email (header added by the proxy). A real backend uses the token.
-      rememberParentEmail(values.email);
       router.replace(mode === 'login' ? '/parent' : '/parent/children/new');
     } catch (e) {
       if (e instanceof ApiError && e.status === 409) setFormError(t('errors.emailTaken'));
@@ -97,6 +118,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
             {t(`${mode}.submit`)}
           </Button>
         </form>
+        {mode === 'login' && canPasskey && (
+          <div className="mt-4 border-t border-line pt-4">
+            <PasskeyLoginButton busy={passkeyLogin.isPending} error={passkeyFailed} onClick={() => void onPasskey()} />
+          </div>
+        )}
       </Panel>
       <p className="text-center text-muted">
         {t(`${mode}.switchPrompt`)}{' '}
