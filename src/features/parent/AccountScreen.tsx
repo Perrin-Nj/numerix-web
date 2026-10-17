@@ -2,6 +2,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { appConfig } from '@/config/app';
 import { useTheme, type DisplayMode, type ThemeChoice } from '@/platform/theme';
+import { AccountSecurity } from './AccountSecurity';
 import { ParentPage } from './ParentPage';
 import { Button } from '@/ui/button';
 import { Panel } from '@/ui/panel';
@@ -51,6 +52,7 @@ export function AccountScreen() {
             )}
           </div>
         </Panel>
+        <AccountSecurity />
         <Panel title={t('guide')}>
           <p className="mb-3 text-muted">{t('guideHint')}</p>
           <Button

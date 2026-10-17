@@ -934,6 +934,180 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/device": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Open the app on a known device without signing in
+         * @description Reads the `nx_device` cookie (HttpOnly, Secure outside development, SameSite=Lax, Path=/, 180 days),
+         *     rotates it (the answer carries a fresh `Set-Cookie`) and returns the same body as `/auth/refresh`.
+         *     The cookie is set after register, login and passkey login. A missing, expired, revoked or reused
+         *     cookie answers 401 and clears the cookie. No request body.
+         */
+        post: operations["deviceLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/account/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Known devices of the parent
+         * @description Active devices only (not revoked, not expired). `current` marks the device that sent the cookie.
+         */
+        get: operations["listDevices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/account/devices/{deviceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Forget a device (its cookie stops working) */
+        delete: operations["revokeDevice"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/passkeys/register/begin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start adding a passkey (WebAuthn creation options)
+         * @description Returns the `options` for `navigator.credentials.create` and a `session_id` valid 5 minutes. 503 `passkeys_unavailable` when the server has no WEBAUTHN_RP_ID.
+         */
+        post: operations["beginPasskeyRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/passkeys/register/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish adding a passkey
+         * @description Send the JSON of the credential returned by the browser (`PublicKeyCredential.toJSON()`). Errors use code `passkey_invalid` (422) or `passkey_session_expired` (410).
+         */
+        post: operations["finishPasskeyRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/passkeys/login/begin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a passkey sign in (discoverable credential, no username)
+         * @description Returns the `options` for `navigator.credentials.get` and a `session_id` valid 5 minutes.
+         */
+        post: operations["beginPasskeyLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/passkeys/login/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish a passkey sign in
+         * @description Same answer as `/auth/login`, plus the `nx_device` cookie. Refused signatures, unknown credentials and a sign counter that goes backwards all answer 401.
+         */
+        post: operations["finishPasskeyLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/account/passkeys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Passkeys of the parent */
+        get: operations["listPasskeys"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/account/passkeys/{passkeyId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a passkey */
+        delete: operations["deletePasskey"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -1031,7 +1205,8 @@ export interface components {
              *     unauthorized, forbidden, forbidden_origin, not_found, validation_failed, rate_limited, internal_error,
              *     consent_missing, daily_limit_reached, session_active, session_paused, session_completed,
              *     beat_answered, beat_not_answered, invalid_pin, subscription_inactive, account_blocked,
-             *     not_cancelable, conflict, email_taken.
+             *     not_cancelable, conflict, email_taken, passkey_invalid, passkey_session_expired,
+             *     passkey_exists, passkey_limit, passkeys_unavailable.
              * @example consent_missing
              */
             code?: string;
@@ -1205,10 +1380,68 @@ export interface components {
             read_aloud: boolean;
             sound: boolean;
             /**
+             * @description When true, a valid nx_device cookie lets this child start without the PIN on that device (BE-64)
+             * @default false
+             */
+            remember_on_device: boolean;
+            /**
              * @description When false the kid app hides the language switch; the server returns the value with the settings (BE-28)
              * @default true
              */
             kid_can_change_language: boolean;
+        };
+        Device: {
+            /** Format: uuid */
+            id: string;
+            /** @description Browser and system, for example "Chrome on Windows" */
+            label: string;
+            /** @description Browser family only (Chrome, Safari, Firefox, Edge, Other); never the full user agent */
+            user_agent_family: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            last_used_at: string;
+            /** @description This request carries this device's cookie */
+            current: boolean;
+        };
+        DeviceList: {
+            items: components["schemas"]["Device"][];
+        };
+        Passkey: {
+            /** Format: uuid */
+            id: string;
+            nickname: string;
+            /** @description Authenticator model id (hex */
+            aaguid?: string;
+            transports: string[];
+            /** @description Synced passkey (can be backed up) */
+            backup_eligible: boolean;
+            /** @description Currently backed up */
+            backup_state: boolean;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            last_used_at?: string | null;
+        };
+        PasskeyList: {
+            items: components["schemas"]["Passkey"][];
+        };
+        PasskeyCeremony: {
+            /** @description Send it back to the matching finish call; valid 5 minutes */
+            session_id: string;
+            /** @description WebAuthn options (publicKey) as JSON, to pass to navigator.credentials */
+            options: {
+                [key: string]: unknown;
+            };
+        };
+        PasskeyFinishRequest: {
+            session_id: string;
+            /** @description Registration only */
+            nickname?: string;
+            /** @description JSON of the PublicKeyCredential from the browser */
+            credential: {
+                [key: string]: unknown;
+            };
         };
         /** @enum {string} */
         PaymentMethod: "card" | "interac" | "paypal" | "apple_pay" | "google_pay";
@@ -1874,6 +2107,24 @@ export interface components {
         };
         /** @description Unexpected failure (code internal_error). Never leak stack traces or model output. */
         ServerError: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["Problem"];
+            };
+        };
+        /** @description The passkey ceremony expired (code passkey_session_expired); start again */
+        Gone: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["Problem"];
+            };
+        };
+        /** @description Feature not configured on this server (code passkeys_unavailable) */
+        Unavailable: {
             headers: {
                 [name: string]: unknown;
             };
@@ -3650,6 +3901,237 @@ export interface operations {
                 };
                 content?: never;
             };
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    deviceLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description New tokens (and a rotated `nx_device` cookie) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthSession"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    listDevices: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The devices */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceList"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    revokeDevice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deviceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    beginPasskeyRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Creation options */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasskeyCeremony"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    finishPasskeyRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyFinishRequest"];
+            };
+        };
+        responses: {
+            /** @description Passkey stored */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Passkey"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
+            410: components["responses"]["Gone"];
+            422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    beginPasskeyLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Request options */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasskeyCeremony"];
+                };
+            };
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    finishPasskeyLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasskeyFinishRequest"];
+            };
+        };
+        responses: {
+            /** @description Signed in */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthSession"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            410: components["responses"]["Gone"];
+            422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    listPasskeys: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The passkeys */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasskeyList"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    deletePasskey: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                passkeyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
             500: components["responses"]["ServerError"];
         };

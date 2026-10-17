@@ -11,9 +11,8 @@ Last checked against the code on 2026-10-13. Run `bash scripts/test.sh contract`
 | `contracts/openapi.yaml` | Kid and parent API, base path `/v1`. Machine readable. Types in `src/data/api/schema.d.ts` are generated from it with `pnpm gen:api`. |
 | `contracts/openapi.admin.yaml` | Platform admin API, base path `/admin/v1`. Used only by the admin app. |
 | `contracts/BACKEND_REQUIREMENTS.md` | Every backend item (BE and CR), with owner, priority, acceptance test and a link into this guide. |
-| `contracts/wiremock/` | WireMock mappings that serve the same behaviour as the node mock. |
-| `mock/` | The node mock. It is the executable reference of behaviour: when a sentence here is unclear, read `mock/lib/session.mjs`, `domain.mjs`, `platform.mjs`, `admin.mjs`, `analytics.mjs`, `feed.mjs`. |
-| `scripts/flows.mjs`, `mock/scripts/selftest.mjs` | The tests the backend must pass (section 27). |
+| `../numerix-api/` | The Go backend. It is the executable reference of behaviour: when a sentence here is unclear, read its handlers and tests. |
+| `scripts/flows.mjs` | The tests the backend must pass (section 27). |
 
 Words: **must** is a requirement for launch, **should** is expected unless you explain why not, **may** is optional. Priorities in `BACKEND_REQUIREMENTS.md`: P0 blocks launch, P1 soon after, P2 later.
 
@@ -70,10 +69,8 @@ All cookies below are set by the web app, never by the backend. `Secure` is on w
 | `NEXT_LOCALE` | `fr-CA` or `en-CA` | no | Lax | `/` | 1 year | `src/proxy.ts` on first visit (from Accept-Language), and the language switches | Forwarded to the backend as `Accept-Language` |
 | `nx_theme`, `nx_motion`, `nx_display` | theme, motion, display mode | no | Lax | `/` | 1 year | theme provider | Server rendering without flash. Not sent to the backend. |
 | `nx_admin` | signed admin session (HMAC) | yes | **Strict** | `/` | 8 hours | admin app login | Admin app only. Not part of the kid system. |
-| `nx_parent_email` | parent email | no | Lax | `/` | 1 year | web app, **only when `NEXT_PUBLIC_USE_MOCK=true`** | Lets the mock find the demo parent. A real backend uses the token, so this cookie must not exist in production. |
-| `nx_mock_state`, `nx_mock_scenario` | mock state, failure scenario | no | Lax | `/` | 1 day / session | proxy and the demo tools, **mock only** | Not used with a real backend. |
 
-Sign out (`DELETE /api/session?scope=all`) clears `nx_parent`, `nx_refresh`, `nx_child`, `nx_child_id`, `nx_mock_state`, `nx_mock_scenario`. `scope=child` clears only `nx_child` and `nx_child_id`. The web app does not call the backend on sign out today, so the backend must expire refresh tokens by itself (see section 29, item M5, and `POST /auth/logout`).
+Sign out (`DELETE /api/session?scope=all`) clears `nx_parent`, `nx_refresh`, `nx_child`, `nx_child_id`. `scope=child` clears only `nx_child` and `nx_child_id`. The web app does not call the backend on sign out today, so the backend must expire refresh tokens by itself (see section 29, item M5, and `POST /auth/logout`).
 
 ### 2.3 What the proxy does and what it expects back
 
@@ -149,6 +146,17 @@ The backend must therefore return exactly the `AuthSession` and `ChildToken` sha
 | Platform public, health, ready | public | public |
 
 The `x-roles` field of every operation in `openapi.yaml` is the source of truth. A wrong role answers `403 forbidden`. A resource of another family answers `404 not_found`.
+
+### 2.9 Device sessions and passkeys
+
+BE-64, BE-65, BE-66. Cookies and passkeys are added next to the tokens above; nothing about the bearer tokens changes.
+
+- **Device cookie `nx_device`.** Random 256 bits, only its SHA-256 is stored. `HttpOnly; SameSite=Lax; Path=/; Max-Age=15552000` (180 days), plus `Secure` in every environment except development. Set by register, login and passkey login (the cookie of a known device is rotated, a new device is created otherwise). Rotated on every `POST /auth/device`; an old value answers 401 and is cleared. The Next.js proxy must forward `Cookie` and `Set-Cookie` for `/auth/*`.
+- **`POST /auth/device`** (public, no body): response 200 is the same body as `/auth/refresh`; 401 `unauthorized` for a missing, expired, revoked or reused cookie.
+- **Kid on a known device.** `ChildSettings.remember_on_device` (default `false`). When `true` and the request to `POST /children/{childId}/token` carries a valid cookie of the same parent, the PIN is not asked. Consent and the daily limit still apply. Otherwise the PIN rules of section 2.5 stay.
+- **`GET /account/devices`**: `{ "items": [{ "id", "label", "user_agent_family", "created_at", "last_used_at", "current" }] }`. **`DELETE /account/devices/{deviceId}`**: 204, 404 for a device that is not yours. Logout revokes the current device.
+- **Passkeys.** `POST /auth/passkeys/register/begin` (parent token) returns `{ "session_id", "options" }`; give `options` to `navigator.credentials.create` (the library sends `{ "publicKey": ... }`), then send `{ "session_id", "nickname", "credential" }` to `register/finish` (201 `Passkey`, 409 `passkey_exists`, 410 `passkey_session_expired`, 422 `passkey_invalid`). Login is the same with `navigator.credentials.get` and no username; `login/finish` answers like `/auth/login` and sets the device cookie; any verification failure is 401. A sign counter that does not go up is treated as a cloned key (401). `GET /account/passkeys`, `DELETE /account/passkeys/{passkeyId}` (204 or 404).
+- **Config.** `WEBAUTHN_RP_ID` (site domain, no scheme or port), `WEBAUTHN_ORIGINS` (comma separated browser origins, scheme and port included), `WEBAUTHN_RP_NAME`. Defaults outside production: `localhost`, `http://localhost:3000`, `Numerix`. In production unset means passkeys are off (503 `passkeys_unavailable`).
 
 ## 3. Endpoint catalogue
 
@@ -990,7 +998,7 @@ All day boundaries use the **child's time zone** (`Child.timezone`).
 
 ## 15. Local state vs API state
 
-`NEXT_PUBLIC_STATE_SOURCE` is `local` (default) or `api`. The `USE_MOCK` switch is orthogonal (section 28).
+`NEXT_PUBLIC_STATE_SOURCE` is `api` (default) or `local`.
 
 In **local** mode everything a child does is appended to an on-device event log (`nx:game:v1` in `localStorage`, per child id, last 2000 events) and every screen derives its numbers from that log with pure functions (`src/domain/game/selectors.ts`). No names are stored there. In **api** mode the server owns all of it and the screens call the endpoints below. Sessions, beats and answers go to the server in both modes (grading always needs the server).
 
@@ -1069,8 +1077,6 @@ Sent by the **browser** to the web app, and what reaches the **backend**:
 | `Accept` | web app | yes | `text/event-stream` for narration. |
 | `Last-Event-ID` | the browser, if the client sets it | yes | SSE resume; the current client does not set it. |
 | `x-nx-mode` | web app on every call (`parent` or `child`) | **no** | Tells the proxy which cookie to turn into a bearer. |
-| `x-card-threshold-pct` | proxy, **mock mode only**, from `NEXT_PUBLIC_CARD_THRESHOLD_PCT` | mock only | 0 to 100. The real backend uses the config; it may ignore the header. |
-| `x-mock-parent-email`, `x-mock-scenario`, `x-mock-state` | proxy, mock mode only | mock only | Demo identity, failure injection (BE-15), state. The real backend ignores them and must not honour them in production. |
 | `x-admin-actor` | admin app (optional) | admin API | Audit actor. |
 | `Authorization: Bearer <ADMIN_API_TOKEN>` | admin app | admin API | Section 10.1. |
 
@@ -1083,7 +1089,6 @@ Responses: the proxy returns only `content-type` and `cache-control` to the brow
 | `GET /health` | web app `/api/health` (error classifier), synthetic monitor | 200 `{status, narrator, version}` in under 100 ms, no database call. Non-2xx or no answer in 3 s means "backend unreachable" to the user. `narrator` shows `llm`, `stub` (canned text only) or `down`. `status: degraded` when the narrator is not `llm`. |
 | `GET /ready` | load balancer / orchestrator | 200 when the database, cache, engine and narrator client are usable; 503 with the failing check names otherwise. |
 | `GET /api/health` (web app) | browser classifier | `{app:"ok", backend:"ok"\|"timeout"\|"unreachable"\|"error", host}`. |
-| `GET /__admin/health` (mock only) | tests | `{status:"healthy", platform_store}`. |
 
 The web app only distinguishes ok, timeout, error and unreachable. A slow `/health` (over 3 s) is shown to users as "our servers are too slow".
 
@@ -1186,18 +1191,17 @@ Payloads: home 20 KB or less gzip, journey 10 KB or less, list pages 50 KB or le
 
 | Environment | Web | Backend | Notes |
 |-------------|-----|---------|-------|
-| Local | `pnpm dev` on :3000 | `pnpm mock` on :8081 (or WireMock via `pnpm mock:wiremock`) | admin on :3100 against the mock |
-| Preview | Vercel preview per branch | mock (serverless) or staging backend | `NEXT_PUBLIC_APP_ENV=preview` |
-| Production | Vercel, region `yul1` | the real backend | `NEXT_PUBLIC_USE_MOCK=false` |
+| Local | `pnpm dev` on :3000 | Go API on :8081 (`pnpm dev` starts it) | admin on :3100 against the Go API |
+| Preview | Vercel preview per branch | staging Go API | `NEXT_PUBLIC_APP_ENV=preview` |
+| Production | Vercel, region `yul1` | the production Go API | `NEXT_PUBLIC_APP_ENV=production` |
 
 **Web app (`src/config/env.ts`)**
 
 | Variable | Scope | Default | Meaning |
 |----------|-------|---------|---------|
 | `API_URL` | server | `http://localhost:8081/v1` | Backend base URL including `/v1`. |
-| `NEXT_PUBLIC_USE_MOCK` | public | `true` | `false` removes demo tools and the mock headers. **Must be false in production.** |
 | `NEXT_PUBLIC_APP_ENV` | public | `development` | `development`, `preview`, `production`. |
-| `NEXT_PUBLIC_STATE_SOURCE` | public | `local` | `local` or `api` (section 15). |
+| `NEXT_PUBLIC_STATE_SOURCE` | public | `api` | `local` or `api` (section 15). |
 | `NEXT_PUBLIC_CARD_THRESHOLD_PCT` | public | 70 | 0 to 100. Used by the local game rules and sent to the mock. The real backend uses `PlatformConfig.card_threshold_pct`. |
 | `NEXT_PUBLIC_DEFAULT_LOCALE`, `NEXT_PUBLIC_LOCALES` | public | `fr-CA`, `fr-CA,en-CA` | Locales offered. |
 | `NEXT_PUBLIC_FEATURE_FEED`, `NEXT_PUBLIC_FEATURE_KIOSK`, `NEXT_PUBLIC_FEATURE_TV`, `NEXT_PUBLIC_FEATURE_READ_ALOUD` | public | true | Feature switches in the UI. |
@@ -1217,15 +1221,12 @@ Payloads: home 20 KB or less gzip, journey 10 KB or less, list pages 50 KB or le
 
 ## 26. Seed and fixtures
 
-**Demo identities (mock and staging):** any email with any password logs in, except the password `wrong-password`, which is always refused. A newly registered parent starts with two demo profiles: Zoé (`11111111-1111-4111-8111-111111111111`, grade 3, avatar `fox`, PIN `1234`, consent given, favorite world `echecs`) and Max (`22222222-2222-4222-8222-222222222222`, grade 1, avatar `bear`, no PIN, no consent). `scripts/flows.mjs` relies on this (check "seed children are listed"), so staging must offer it behind `SEED_DEMO_CHILDREN=true` (BE-43); production must not.
 
 **Demo platform data:** the demo parent `parent@example.com` (id `99999999-9999-4999-8999-999999999999`, name Camille Demo, locale fr-CA, trial of 14 days) owns Zoé and Max. The platform seed adds 39 more parents (8 trial, 18 active, 5 unpaid, 4 expired, 5 canceled; parents at positions 5, 11, 23, 31 blocked), 68 more children, 90 days of per-day activity and subscription history, 12 audit rows, and notifications for every third parent.
 
 **Defaults to seed:** the platform config (section 11), the plan catalogue (section 3.8), the 8 worlds with hooks, the challenge catalogue (section 14), the skill catalogue.
 
-**Fixed demo ids used by the WireMock mappings:** session `33333333-3333-4333-8333-333333333333`; beats `44444444-4444-4444-8444-444444444440`, `...441`, `...442`; cards `55555555-5555-4555-8555-555555555551` and `...552`.
 
-**Fixtures:** `contracts/wiremock/mappings/*.json` (101 mappings generated by `contracts/wiremock/gen.mjs`; `cd mock && npm run sync` regenerates `mock/lib/mappings.mjs`). Failure scenarios via header `X-Mock-Scenario` (mock only, BE-15): `network-error`, `unauthorized`, `rate-limited`, `server-error`, `daily-limit`, `subscription-inactive`, `narration-fallback`, `narration-slow`. The real backend ignores the header.
 
 ## 27. Acceptance checklist
 
@@ -1278,20 +1279,18 @@ The backend passes when every item below passes. "flows" is `node scripts/flows.
 
 Two independent switches in the web app:
 
-| `NEXT_PUBLIC_USE_MOCK` | `NEXT_PUBLIC_STATE_SOURCE` | Meaning |
-|-----------------------|----------------------------|---------|
-| `true` | `local` | Demo. Mock backend, progress on the device. Default. |
-| `true` | `api` | Mock backend that remembers state in its cookie; tests the api screens. |
-| `false` | `local` | Real backend for accounts, children, sessions, billing; progress screens still derived on the device. Hybrid, used during rollout. |
-| `false` | `api` | Target. The server owns everything. |
+| `NEXT_PUBLIC_STATE_SOURCE` | Meaning |
+|----------------------------|---------|
+| `api` | Default. The server owns everything. |
+| `local` | Progress screens derived from the on-device log; accounts, children, sessions and billing still use the Go API. |
 
 Steps:
-1. Backend staging is up; `GET /health` is `ok`; `API_URL` of a preview deployment points to it with `NEXT_PUBLIC_USE_MOCK=false`. Check the demo badge is gone and no `x-mock-*` header is sent.
+1. Backend staging is up; `GET /health` is `ok`; `API_URL` of a preview deployment points to it . Check no `x-mock-*` header is sent.
 2. Run `bash scripts/test.sh contract`: all lines `ok`.
 3. Run `node scripts/flows.mjs <preview url>` with `SEED_DEMO_CHILDREN=true` on staging; every line `ok`. The subscription gate block of the script runs only against `localhost`; test it with the backend's own tests (AC-22).
 4. Run the UI and error checks against the preview: `bash scripts/test.sh ui` and `bash scripts/test.sh errors` with `BASE_URL` set.
 5. Verify the P0 items of `BACKEND_REQUIREMENTS.md`.
-6. Set production `NEXT_PUBLIC_USE_MOCK=false`. Confirm cookie `nx_parent_email` is not set and secrets are in the store.
+6. Confirm secrets are in the store.
 7. Turn on `NEXT_PUBLIC_STATE_SOURCE=api` on a preview first: play a chapter and check the eleven reads of section 15 change with the plays (AC-34). Challenges, gift and tour stay local until BE-20 is built. Keep `local` as the rollback; the device log is untouched.
 8. Admin: set `PLATFORM_API_URL` to the real platform, `ADMIN_ORIGIN` on the platform to the admin app origin, rotate `ADMIN_API_TOKEN` and `ADMIN_PASSWORD`.
 9. Payments: processor live keys, webhook endpoint and secret, a test card run, tax settings, then `features.payments` true.

@@ -12,6 +12,31 @@
           "active": "in progress",
           "done": "done"
         }
+      },
+      "account": {
+        "security": {
+          "title": "Security and devices",
+          "devices": {
+            "title": "Known devices",
+            "hint": "These devices open Numerix without a password. Forget the ones you no longer use.",
+            "empty": "No saved device.",
+            "current": "This device",
+            "lastUsed": "Last used: {date}",
+            "forget": "Forget",
+            "forgetLabel": "Forget device {name}"
+          },
+          "passkeys": {
+            "title": "Passkey",
+            "hint": "Sign in with your fingerprint, face or device code, no password.",
+            "empty": "No passkey yet.",
+            "added": "Added on {date}",
+            "add": "Add a passkey",
+            "remove": "Remove",
+            "removeLabel": "Remove passkey {name}",
+            "unsupported": "This device does not support passkeys.",
+            "error": "Could not add the passkey. Try again."
+          }
+        }
       }
     }
   }

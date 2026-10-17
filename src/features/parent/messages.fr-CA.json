@@ -12,6 +12,31 @@
           "active": "en cours",
           "done": "réussi"
         }
+      },
+      "account": {
+        "security": {
+          "title": "Sécurité et appareils",
+          "devices": {
+            "title": "Appareils connus",
+            "hint": "Ces appareils ouvrent Numerix sans mot de passe. Oubliez ceux que vous n'utilisez plus.",
+            "empty": "Aucun appareil enregistré.",
+            "current": "Cet appareil",
+            "lastUsed": "Dernière visite : {date}",
+            "forget": "Oublier",
+            "forgetLabel": "Oublier l'appareil {name}"
+          },
+          "passkeys": {
+            "title": "Clé d'accès",
+            "hint": "Connectez-vous avec votre empreinte, votre visage ou le code de votre appareil, sans mot de passe.",
+            "empty": "Aucune clé d'accès.",
+            "added": "Ajoutée le {date}",
+            "add": "Ajouter une clé d'accès",
+            "remove": "Retirer",
+            "removeLabel": "Retirer la clé d'accès {name}",
+            "unsupported": "Cet appareil ne gère pas les clés d'accès.",
+            "error": "Impossible d'ajouter la clé d'accès. Réessayez."
+          }
+        }
       }
     }
   }

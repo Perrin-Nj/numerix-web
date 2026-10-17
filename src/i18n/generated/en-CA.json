@@ -370,7 +370,30 @@
         },
         "guide": "Guided tour",
         "guideHint": "Show the welcome tips again for all profiles.",
-        "replayGuide": "Replay the tour"
+        "replayGuide": "Replay the tour",
+        "security": {
+          "title": "Security and devices",
+          "devices": {
+            "title": "Known devices",
+            "hint": "These devices open Numerix without a password. Forget the ones you no longer use.",
+            "empty": "No saved device.",
+            "current": "This device",
+            "lastUsed": "Last used: {date}",
+            "forget": "Forget",
+            "forgetLabel": "Forget device {name}"
+          },
+          "passkeys": {
+            "title": "Passkey",
+            "hint": "Sign in with your fingerprint, face or device code, no password.",
+            "empty": "No passkey yet.",
+            "added": "Added on {date}",
+            "add": "Add a passkey",
+            "remove": "Remove",
+            "removeLabel": "Remove passkey {name}",
+            "unsupported": "This device does not support passkeys.",
+            "error": "Could not add the passkey. Try again."
+          }
+        }
       },
       "subscription": {
         "title": "Manage subscription",
@@ -1084,21 +1107,6 @@
   "ui": {
     "banner": {
       "dismiss": "Hide message"
-    },
-    "devToolbar": {
-      "badge": "Demo data",
-      "explain": "What you see is simulated. Pick a case to see how the app reacts.",
-      "scenario": "Case to simulate",
-      "options": {
-        "none": "None",
-        "network-error": "Backend unreachable",
-        "unauthorized": "Session expired",
-        "rate-limited": "Too many requests",
-        "server-error": "Server error",
-        "daily-limit": "Daily limit reached",
-        "narration-fallback": "Fallback story",
-        "narration-slow": "Slow story"
-      }
     },
     "dialog": {
       "close": "Close"

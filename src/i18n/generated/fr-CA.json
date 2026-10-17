@@ -370,7 +370,30 @@
         },
         "guide": "Visite guidée",
         "guideHint": "Revoir les conseils de bienvenue pour tous les profils.",
-        "replayGuide": "Revoir la visite"
+        "replayGuide": "Revoir la visite",
+        "security": {
+          "title": "Sécurité et appareils",
+          "devices": {
+            "title": "Appareils connus",
+            "hint": "Ces appareils ouvrent Numerix sans mot de passe. Oubliez ceux que vous n'utilisez plus.",
+            "empty": "Aucun appareil enregistré.",
+            "current": "Cet appareil",
+            "lastUsed": "Dernière visite : {date}",
+            "forget": "Oublier",
+            "forgetLabel": "Oublier l'appareil {name}"
+          },
+          "passkeys": {
+            "title": "Clé d'accès",
+            "hint": "Connectez-vous avec votre empreinte, votre visage ou le code de votre appareil, sans mot de passe.",
+            "empty": "Aucune clé d'accès.",
+            "added": "Ajoutée le {date}",
+            "add": "Ajouter une clé d'accès",
+            "remove": "Retirer",
+            "removeLabel": "Retirer la clé d'accès {name}",
+            "unsupported": "Cet appareil ne gère pas les clés d'accès.",
+            "error": "Impossible d'ajouter la clé d'accès. Réessayez."
+          }
+        }
       },
       "subscription": {
         "title": "Gérer l'abonnement",
@@ -1084,21 +1107,6 @@
   "ui": {
     "banner": {
       "dismiss": "Masquer le message"
-    },
-    "devToolbar": {
-      "badge": "Données de démonstration",
-      "explain": "Ce que tu vois est simulé. Choisis un cas pour voir comment l'app réagit.",
-      "scenario": "Cas à simuler",
-      "options": {
-        "none": "Aucun",
-        "network-error": "Serveur injoignable",
-        "unauthorized": "Session expirée",
-        "rate-limited": "Trop de demandes",
-        "server-error": "Erreur du serveur",
-        "daily-limit": "Limite du jour atteinte",
-        "narration-fallback": "Histoire de secours",
-        "narration-slow": "Histoire lente"
-      }
     },
     "dialog": {
       "close": "Fermer"
