@@ -258,7 +258,7 @@ export function Delta({ now, before, goodWhenDown = false, suffix = '' }: { now:
   const good = goodWhenDown ? diff < 0 : diff > 0;
   const txt = pct === null ? `${diff > 0 ? '+' : ''}${Math.round(diff * 10) / 10}${suffix}` : `${diff > 0 ? '+' : ''}${Math.round(pct * 10) / 10} %`;
   return (
-    <span className={cx('inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-semibold', good ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger')}>
+    <span className={cx('inline-flex w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold', good ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger')}>
       <span aria-hidden>{diff > 0 ? '▲' : '▼'}</span>
       {txt}
       <span className="sr-only">{diff > 0 ? t('ov.up') : t('ov.down')}</span>

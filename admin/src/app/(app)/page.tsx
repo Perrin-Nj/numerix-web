@@ -25,8 +25,8 @@ function Tile({ label, value, series, now, before, goodWhenDown, suffix, color }
   return (
     <div className="flex min-w-0 flex-col rounded-2xl border border-line bg-elevated p-4 transition-colors hover:border-muted/40">
       <div className="min-h-10 text-sm leading-5 text-muted">{label}</div>
-      <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-        <span className="min-w-0 break-words font-display text-xl font-bold leading-tight sm:text-2xl">{value}</span>
+      <div className="mt-2 flex min-w-0 flex-col items-start gap-1.5">
+        <span className="whitespace-nowrap font-display text-2xl font-bold leading-tight">{value}</span>
         <Delta now={now} before={before} goodWhenDown={goodWhenDown} suffix={suffix} />
       </div>
       <div className="mt-auto pt-3">
@@ -175,7 +175,7 @@ export default function OverviewPage() {
         q={q}
         skeleton={
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 2xl:grid-cols-7">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-3">
               {Array.from({ length: 7 }, (_, i) => (
                 <Skeleton key={i} className="h-40" />
               ))}
@@ -191,7 +191,7 @@ export default function OverviewPage() {
           const pct = (n: number) => `${Math.round(n * 10) / 10} %`;
           return (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 2xl:grid-cols-7">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-3">
                 <Tile label={t('ov.parents')} value={String(o.parents_total)} series={tr.map((x) => x.parents)} now={last.parents} before={first.parents} />
                 <Tile label={t('ov.kids')} value={String(o.kids_total)} series={tr.map((x) => x.kids)} now={last.kids} before={first.kids} />
                 <Tile label={t('ov.paid')} value={String(o.by_subscription.active)} series={tr.map((x) => x.paid)} now={last.paid} before={first.paid} color={PALETTE[2]} />
