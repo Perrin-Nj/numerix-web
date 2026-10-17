@@ -685,6 +685,10 @@
     "journeyPath": {
       "play": "Play"
     },
+    "methodVisual": {
+      "replay": "Watch again",
+      "step": "Step {n} of {total}"
+    },
     "narrationText": {
       "loading": "The story is on its way",
       "slow": "The story is taking a moment.",

@@ -27,6 +27,12 @@ export const appConfig = {
     kiosk: publicEnv.NEXT_PUBLIC_FEATURE_KIOSK,
     tv: publicEnv.NEXT_PUBLIC_FEATURE_TV,
     readAloud: publicEnv.NEXT_PUBLIC_FEATURE_READ_ALOUD,
+    /** Trial and subscription badge, pill and links for parents. Off until billing exists. */
+    subscriptionUi: publicEnv.NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI,
+    /** The one-time welcome gift on the kid home. Other gifts and cards are unaffected. */
+    welcomeGift: publicEnv.NEXT_PUBLIC_FEATURE_WELCOME_GIFT,
+    /** The demo-data badge and failure-scenario tools. Off once a real backend is wired. */
+    demoBadge: publicEnv.NEXT_PUBLIC_SHOW_DEMO_BADGE,
   },
   defaults: {
     sound: publicEnv.NEXT_PUBLIC_SOUND_DEFAULT,

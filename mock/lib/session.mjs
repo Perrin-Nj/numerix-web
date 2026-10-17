@@ -2,6 +2,7 @@
 // play, and everything is recomputed from the compact state d.sess = {id, c, w, k, seed, n, a, len, st, ti, kd?}
 // (n beats served, a outcome codes c/t/r). Beats never carry the answer.
 import { KIT } from './kit.mjs';
+import { visualFor } from './visual.mjs';
 
 const NOW = '2026-10-12T14:00:00Z';
 const LEN = 3;
@@ -69,14 +70,17 @@ export function problemFor(skillId, seed, i) {
   const small = [1, -1, 2, -2, 10, -10, 5, -5, 3, -3];
   switch (skillId) {
     case 'ARI-OPE-A02a': {
-      const ua = int(5, 9), ub = int(Math.max(10 - ua, 1), 9);
-      const a = 10 * int(1 + i, 4 + 2 * i) + ua, b = 10 * int(1, 3 + i) + ub;
+      // The shape changes on every beat (2+2 digits, 3+2 digits, 2+1 digits): a wrong answer never replays the same kind of sum.
+      const shape = i % 3, ua = int(5, 9), ub = int(Math.max(10 - ua, 1), 9);
+      const a = shape === 1 ? 100 * int(1, 5) + 10 * int(1, 8) + ua : 10 * int(1 + i, 4 + 2 * i) + ua;
+      const b = shape === 2 ? ub : 10 * int(1, 3 + i) + ub;
       const c = a + b, t = c - 10;
       return { m: [`${a} + ${b} = ?`, `${a} + ${b} = ?`], v: { a, b }, correct: c, typical: t, choices: numChoices(r, c, t, small) };
     }
     case 'ARI-OPE-A03a': {
-      const ta = int(4 + i, 9), tb = int(1, ta - 2), ua = int(0, 7), ub = int(ua + 1, 9);
-      const a = 10 * ta + ua, b = 10 * tb + ub, c = a - b, t = 10 * (ta - tb) + (ub - ua);
+      // Shapes rotate per beat: 2-2 digits, 3-2 digits, 2-1 digits. Typical slip: smaller digit minus larger in the ones.
+      const shape = i % 3, ta = int(4 + i, 9), tb = shape === 2 ? 0 : int(1, ta - 2), ua = int(0, 7), ub = int(ua + 1, 9);
+      const a = (shape === 1 ? 100 * int(1, 4) : 0) + 10 * ta + ua, b = 10 * tb + ub, c = a - b, t = a - ua - 10 * tb + (ub - ua);
       return { m: [`${a} − ${b} = ?`, `${a} − ${b} = ?`], v: { a, b }, correct: c, typical: t, choices: numChoices(r, c, t, small) };
     }
     case 'ARI-OPE-A05': {
@@ -127,10 +131,10 @@ export function sceneText(s, i, en) {
 }
 
 export function denouementText(s, i, outcome, en) {
-  const kit = KIT[s.w], L = en ? 1 : 0, sk = skillOf(s.k);
+  const kit = KIT[s.w], L = en ? 1 : 0;
   const line = (bank, salt) => fill(pick(bank, s, i, salt)[L], s, en);
   if (outcome === 'correct') return line(kit.ok, 21);
-  if (outcome === 'erreur_typique') return `${line(kit.dt, 22)} ${sk[6 + L]}`;
+  if (outcome === 'erreur_typique') return line(kit.dt, 22); // the how-to picture (method_visual) now carries the lesson
   return line(kit.su, 23);
 }
 
@@ -243,7 +247,7 @@ export function sessionRoutes(req, d, X) {
         ? [{ type: 'chapter_complete' }, ...(score.card_awarded ? [{ type: 'card_earned', card: { id: uuid(s.seed, 900), world: s.w, title: titleOf(s, en), image_url: '', session_id: s.id, earned_at: NOW } }] : []),
           ...(ns.a === 'ccc' ? [{ type: 'skill_mastered', skill_id: s.k }] : [])]
         : [];
-      return save(ns, json(200, { outcome, correct_answer: p.correct, denouement: { status: 'pending', text: null, illustration_url: null }, session: sessionOut(ns, en, false, score), rewards }));
+      return save(ns, json(200, { outcome, correct_answer: p.correct, denouement: { status: 'pending', text: null, illustration_url: null }, session: sessionOut(ns, en, false, score), rewards, ...(visualFor(s.k, p.v, en) ? { method_visual: visualFor(s.k, p.v, en) } : {}) }));
     }
   }
   return null;

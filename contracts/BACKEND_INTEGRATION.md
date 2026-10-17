@@ -1201,6 +1201,7 @@ Payloads: home 20 KB or less gzip, journey 10 KB or less, list pages 50 KB or le
 | `NEXT_PUBLIC_CARD_THRESHOLD_PCT` | public | 70 | 0 to 100. Used by the local game rules and sent to the mock. The real backend uses `PlatformConfig.card_threshold_pct`. |
 | `NEXT_PUBLIC_DEFAULT_LOCALE`, `NEXT_PUBLIC_LOCALES` | public | `fr-CA`, `fr-CA,en-CA` | Locales offered. |
 | `NEXT_PUBLIC_FEATURE_FEED`, `NEXT_PUBLIC_FEATURE_KIOSK`, `NEXT_PUBLIC_FEATURE_TV`, `NEXT_PUBLIC_FEATURE_READ_ALOUD` | public | true | Feature switches in the UI. |
+| `NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI`, `NEXT_PUBLIC_FEATURE_WELCOME_GIFT`, `NEXT_PUBLIC_SHOW_DEMO_BADGE` | public | false | Hide-by-default UI switches: the trial and subscription badge, card and links; the first-visit welcome gift (other gifts stay); the demo-data badge. They hide UI only, the server still enforces the subscription gate (BE-62, BE-63). |
 | `NEXT_PUBLIC_SOUND_DEFAULT`, `NEXT_PUBLIC_ANALYTICS_ENABLED` | public | true | Defaults. No analytics sender is wired. |
 | `NEXT_PUBLIC_MASCOT_ENABLED`, `NEXT_PUBLIC_MASCOT_KIND`, `NEXT_PUBLIC_MASCOT_EMOJI`, `NEXT_PUBLIC_MASCOT_SRC` | public | true, `emoji`, 🦊, empty | Mascot. |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | public | not in the schema yet | Needed for web push (M7). |
@@ -1423,3 +1424,12 @@ Added by pass 3:
 3. Content rules: forbidden fields list, admin-entered text held to the em dash rule, language never inferred from IP.
 4. Onboarding replay through the existing `PATCH` field.
 5. Statement that cached endpoints must be safe to store on the device.
+
+## 25. Questions, how-to pictures and reuse (Go backend)
+
+Full design: [`docs/BACKEND_GO.md`](../docs/BACKEND_GO.md). The rules the backend must keep:
+
+- The engine alone makes questions, choices, grading and the typical-mistake code. The LLM only writes the scene (without the answer) and the ending (with the verdict), and every text is leak-checked (BE-56, BE-60).
+- Each generated question is stored once and reused for other children. One child never gets the same question twice, and after a wrong answer the next beat differs in numbers and shape (BE-57, BE-58).
+- `AnswerResult.method_visual` carries a declarative picture (`MethodVisual`: `kind`, integer `params`, `steps`, `alt`, `cache_key`) for right and wrong answers, in the request language. New kinds are additive and unknown kinds are skipped by the client (BE-59, BE-61).
+- The web app hides the subscription UI, the welcome gift and the demo badge unless the matching `NEXT_PUBLIC_*` switch is on. While billing is off the platform `unpaid_policy` is `allow` (BE-62). The welcome card is granted once (BE-63).

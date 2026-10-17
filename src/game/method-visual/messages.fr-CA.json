@@ -1,0 +1,8 @@
+{
+  "game": {
+    "methodVisual": {
+      "replay": "Revoir",
+      "step": "Étape {n} sur {total}"
+    }
+  }
+}

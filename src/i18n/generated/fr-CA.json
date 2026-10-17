@@ -685,6 +685,10 @@
     "journeyPath": {
       "play": "Jouer"
     },
+    "methodVisual": {
+      "replay": "Revoir",
+      "step": "Étape {n} sur {total}"
+    },
     "narrationText": {
       "loading": "L'histoire arrive",
       "slow": "L'histoire prend un moment.",

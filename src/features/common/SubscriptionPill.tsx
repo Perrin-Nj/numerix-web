@@ -3,11 +3,12 @@ import Link from 'next/link';
 import { useSubscription } from '@/data/hooks/platform';
 import { SubscriptionBadge, type SubscriptionBadgeProps } from '@/game/subscription-badge';
 import { daysUntil } from '@/features/notify';
+import { appConfig } from '@/config/app';
 
 /** The parent's subscription status as a badge. With `href` it links to the manage screen. */
 export function SubscriptionPill({ variant = 'menu', href = '/parent/subscription' }: { variant?: SubscriptionBadgeProps['variant']; href?: string | null }) {
-  const sub = useSubscription();
-  if (!sub.data) return null;
+  const sub = useSubscription(appConfig.features.subscriptionUi);
+  if (!appConfig.features.subscriptionUi || !sub.data) return null;
   const s = sub.data;
   const badge = (
     <SubscriptionBadge

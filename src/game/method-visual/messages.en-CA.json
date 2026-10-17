@@ -1,0 +1,8 @@
+{
+  "game": {
+    "methodVisual": {
+      "replay": "Watch again",
+      "step": "Step {n} of {total}"
+    }
+  }
+}

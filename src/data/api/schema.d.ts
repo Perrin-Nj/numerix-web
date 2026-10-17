@@ -1582,7 +1582,27 @@ export interface components {
          *           "type": "skill_mastered",
          *           "skill_id": "ARI-OPE-A06a"
          *         }
-         *       ]
+         *       ],
+         *       "method_visual": {
+         *         "kind": "equal_groups",
+         *         "params": {
+         *           "groups": 6,
+         *           "size": 7
+         *         },
+         *         "steps": [
+         *           {
+         *             "caption": "6 groupes."
+         *           },
+         *           {
+         *             "caption": "7 dans chaque groupe."
+         *           },
+         *           {
+         *             "caption": "6 groupes de 7 font 42."
+         *           }
+         *         ],
+         *         "alt": "6 groupes de 7 points font 42.",
+         *         "cache_key": "equal_groups:6,7:fr"
+         *       }
          *     }
          */
         AnswerResult: {
@@ -1591,6 +1611,53 @@ export interface components {
             denouement: components["schemas"]["Narration"];
             session: components["schemas"]["Session"];
             rewards?: components["schemas"]["Reward"][];
+            /**
+             * @description How to solve this question, as data for an animated picture (no pixels). Sent for right and wrong answers
+             *     alike, in the language of the request. Absent when no picture exists for the skill. The server builds it
+             *     once per (kind, params, language) and reuses it for every child.
+             */
+            method_visual?: components["schemas"]["MethodVisual"];
+        };
+        /**
+         * @example {
+         *       "kind": "add_carry",
+         *       "params": {
+         *         "a": 36,
+         *         "b": 19
+         *       },
+         *       "steps": [
+         *         {
+         *           "caption": "On met les unités ensemble : 6 et 9 font 15."
+         *         },
+         *         {
+         *           "caption": "Dix unités font une dizaine. On la déplace à gauche."
+         *         },
+         *         {
+         *           "caption": "Il reste 5 unités et 5 dizaines : 55."
+         *         }
+         *       ],
+         *       "alt": "Des blocs montrent 36 plus 19. Dix unités deviennent une dizaine, le total est 55.",
+         *       "cache_key": "add_carry:36,19:fr"
+         *     }
+         */
+        MethodVisual: {
+            /**
+             * @description add_carry and sub_borrow take params {a, b} (place-value blocks, regroup ten ones into one ten, or break a ten).
+             *     equal_groups takes {groups, size} (multiplication). equal_share takes {total, parts} (division, with remainder).
+             * @enum {string}
+             */
+            kind: "add_carry" | "sub_borrow" | "equal_groups" | "equal_share";
+            params: {
+                [key: string]: number;
+            };
+            /** @description One short caption per animation step, in order. The client shows and speaks one at a time. */
+            steps: {
+                caption: string;
+            }[];
+            /** @description One sentence describing the whole picture, for screen readers. */
+            alt: string;
+            /** @description Stable key for (kind, params, language). Equal keys mean an equal visual, so the client may cache it. */
+            cache_key: string;
         };
         SessionSummary: {
             session: components["schemas"]["Session"];

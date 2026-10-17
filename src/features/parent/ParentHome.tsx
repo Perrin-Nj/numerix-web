@@ -13,6 +13,7 @@ import { Card, CardBody, CardFooter } from '@/ui/card';
 import { Icon } from '@/ui/icon';
 import { Skeleton } from '@/ui/skeleton';
 import { ScreenState } from '@/game/screen-state';
+import { appConfig } from '@/config/app';
 
 export function ParentHome() {
   const t = useTranslations('screens.parent.home');
@@ -21,6 +22,7 @@ export function ParentHome() {
 
   return (
     <ParentPage title={t('title')}>
+      {appConfig.features.subscriptionUi && (
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-line bg-elevated p-4">
         <div className="flex flex-col gap-1">
           <span className="font-display text-lg font-semibold">{t('subscription')}</span>
@@ -30,6 +32,7 @@ export function ParentHome() {
           {t('manageSubscription')}
         </Button>
       </div>
+      )}
       <ScreenState
         isLoading={children.isLoading}
         error={children.error}

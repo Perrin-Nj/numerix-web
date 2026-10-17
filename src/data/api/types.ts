@@ -20,6 +20,7 @@ export type Beat = S['Beat'];
 export type Question = S['Question'];
 export type Narration = S['Narration'];
 export type AnswerResult = S['AnswerResult'];
+export type MethodVisual = S['MethodVisual'];
 export type SessionSummary = S['SessionSummary'];
 export type Progress = S['Progress'];
 export type Misconception = S['Misconception'];

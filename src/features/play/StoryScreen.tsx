@@ -26,6 +26,7 @@ import { useReducedMotion } from '@/platform/motion';
 import { ChoiceButton } from '@/game/choice-button';
 import { IllustrationFrame } from '@/game/illustration-frame';
 import { OutcomeSim } from '@/game/outcome-sim';
+import { MethodVisual } from '@/game/method-visual';
 import { ScenePicture } from '@/game/scene-picture';
 import { useCoach } from '@/platform/coach/useCoach';
 import { NarrationText } from '@/game/narration-text';
@@ -381,6 +382,8 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const denReady = s.denouementStatus === 'ready' || s.denouementStatus === 'fallback';
   const outcomeStage = s.phase === 'outcome' && !!s.outcome;
   const sheetVisible = outcomeStage && step >= 2;
+  // After the short story consequence, the stage shows how to solve it: the same picture for right and wrong answers
+  const showHow = outcomeStage && step >= 2 && Boolean(s.methodVisual);
   // A fresh line for each moment, never the same one twice in a row
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const mascotLine = useMemo(() => pick(`mascot.${linePool}`), [linePool, s.beat?.id, s.outcome]);
@@ -421,9 +424,11 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
             world={world}
             mood={mood}
             alt={t('illustration')}
-            stageKey={s.beat && outcomeStage ? `sim-${s.beat.id}` : `scene-${s.beat?.id ?? ''}`}
+            stageKey={s.beat && outcomeStage ? (showHow ? `how-${s.beat.id}` : `sim-${s.beat.id}`) : `scene-${s.beat?.id ?? ''}`}
             stage={
-              s.beat && outcomeStage ? (
+              s.beat && outcomeStage && showHow && s.methodVisual ? (
+                <MethodVisual visual={s.methodVisual} />
+              ) : s.beat && outcomeStage ? (
                 <div className="relative flex size-full items-center justify-center">
                   <OutcomeSim world={world} good={s.outcome === 'correct'} showCaption={step >= 1} onDone={skipAhead} />
                   {s.outcome !== 'correct' && !reduced && step >= 1 && <Dust />}

@@ -9,12 +9,12 @@ function readScenario() {
   return /(?:^|; )nx_mock_scenario=([^;]*)/.exec(document.cookie)?.[1] ?? 'none';
 }
 
-/** Demo-data badge and failure scenarios. Rendered only while the app runs against the mock. */
+/** Demo-data badge and failure scenarios. Rendered only against the mock and when NEXT_PUBLIC_SHOW_DEMO_BADGE is on. */
 export function MockTools() {
   const [scenario, setScenario] = useState(readScenario);
   const pathname = usePathname();
   const hasNav = /^\/play\/(home|worlds|journey|collection|quest|me)/.test(pathname);
-  if (!appConfig.useMock) return null;
+  if (!appConfig.useMock || !appConfig.features.demoBadge) return null;
   return (
     <DevToolbar
       placement={hasNav ? 'above-nav' : 'bottom'}

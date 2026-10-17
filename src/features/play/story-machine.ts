@@ -1,4 +1,4 @@
-import type { AnswerResult, AnswerValue, Beat, Outcome, Reward, Session } from '@/data/api/types';
+import type { AnswerResult, AnswerValue, Beat, MethodVisual, Outcome, Reward, Session } from '@/data/api/types';
 
 /**
  * The story screen state machine (spec 7.5). Pure reducer so every transition is explicit.
@@ -29,6 +29,8 @@ export type StoryState = {
   correctAnswer: AnswerValue | null;
   denouementText: string;
   denouementStatus: NarrationStatus;
+  /** How-to picture for the last answer (right or wrong), when the backend sent one. */
+  methodVisual: MethodVisual | null;
   rewards: Reward[];
   rewardIndex: number;
   /** Set when the last answer could not be sent; the same key is reused on retry. */
@@ -48,6 +50,7 @@ export const initialStoryState: StoryState = {
   correctAnswer: null,
   denouementText: '',
   denouementStatus: 'pending',
+  methodVisual: null,
   rewards: [],
   rewardIndex: 0,
   pendingAnswer: null,
@@ -93,6 +96,7 @@ export function storyReducer(s: StoryState, a: StoryAction): StoryState {
         correctAnswer: null,
         denouementText: '',
         denouementStatus: 'pending',
+        methodVisual: null,
         rewards: [],
         rewardIndex: 0,
         pendingAnswer: null,
@@ -124,6 +128,7 @@ export function storyReducer(s: StoryState, a: StoryAction): StoryState {
         correctAnswer: a.result.correct_answer,
         denouementText: a.result.denouement.text ?? '',
         denouementStatus: a.result.denouement.status === 'ready' ? 'ready' : a.result.denouement.status === 'fallback' ? 'fallback' : 'pending',
+        methodVisual: a.result.method_visual ?? null,
         rewards: a.result.rewards ?? [],
         rewardIndex: 0,
         pendingAnswer: null,

@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { AppNotification, Subscription } from '@/data/api/platform-types';
+import { appConfig } from '@/config/app';
 import { computeReminders } from './reminders';
 
 export type LocalRemindersInput = {
@@ -23,7 +24,9 @@ export function useLocalReminders(input: LocalRemindersInput): AppNotification[]
     return () => clearInterval(id);
   }, []);
 
-  const { childName, minutesToday, dailyLimit, subscription, lastPlayedAt, reminderHour, expiringWarningDays } = input;
+  const { childName, minutesToday, dailyLimit, subscription: sub, lastPlayedAt, reminderHour, expiringWarningDays } = input;
+  // With the subscription UI off, trial and payment notices stay quiet too
+  const subscription = appConfig.features.subscriptionUi ? sub : undefined;
   const hour = now.getHours();
   const date = now.getDate();
   return useMemo(

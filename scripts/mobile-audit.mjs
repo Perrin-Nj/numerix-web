@@ -56,6 +56,7 @@ await page.getByRole('button', { name: /plus tard/i }).click({ timeout: 4000 }).
 await page.getByRole('button', { name: /jouer|continuer|reprendre/i }).first().click().catch(() => {});
 await page.waitForURL('**/play/session/**', { timeout: 60000 }).catch(() => {});
 await page.waitForFunction(() => [...document.querySelectorAll('button')].some((b) => /^D\s/.test(b.innerText)), null, { timeout: 40000 }).catch(() => {});
+await page.waitForTimeout(900); // toasts and choices scale in; measure at full size
 const m = await measure();
 say(m.overflowX <= 1, `story: no sideways scroll${m.overflowX > 1 ? ` (+${m.overflowX}px)` : ''}`);
 say(m.small.length === 0, `story: touch targets >= 44px${m.small.length ? ` (${[...new Set(m.small)].slice(0, 4).join(' | ')})` : ''}`);

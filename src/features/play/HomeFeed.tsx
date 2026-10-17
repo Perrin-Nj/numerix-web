@@ -85,7 +85,7 @@ export function HomeFeed() {
   const tour = Boolean(childId && home.data && !tourDone && !localStorage.getItem(onboardingKey(childId)));
   const local = appConfig.stateSource === 'local';
   const [giftLater, setGiftLater] = useState(false);
-  const giftOpen = local && !giftLater && Boolean(childId && home.data && !tour && !giftClaimed(events));
+  const giftOpen = appConfig.features.welcomeGift && local && !giftLater && Boolean(childId && home.data && !tour && !giftClaimed(events));
 
   function endTour() {
     setTourDone(true);

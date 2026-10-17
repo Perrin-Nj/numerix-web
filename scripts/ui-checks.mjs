@@ -52,6 +52,8 @@ async function check(name, fn) {
   }
 }
 const T = { timeout: 15000 };
+// The welcome gift is behind NEXT_PUBLIC_FEATURE_WELCOME_GIFT (off by default); test.sh turns it on for the dev server.
+const GIFT = process.env.NX_GIFT !== '0';
 
 await check('first screen has both doors', async () => {
   await page.goto(BASE, { waitUntil: 'networkidle' });
@@ -116,6 +118,7 @@ await check('close the tour', async () => {
   await close.first().click();
 });
 await check('welcome gift opens once and adds a card', async () => {
+  if (!GIFT) return;
   await page.getByRole('button', { name: /ouvrir le cadeau/i }).click(T);
   await page.getByRole('button', { name: /la garder dans ma collection/i }).click(T);
   await page.getByRole('button', { name: /la garder dans ma collection/i }).waitFor({ state: 'detached', timeout: 5000 });
@@ -241,14 +244,16 @@ await check('wrong answer: sad mascot and a risk simulation, then encouragement'
   const buttons = await page.evaluate(() => [...document.querySelectorAll('button')].map((b) => b.innerText).filter((t) => /^[ABCD]\n/.test(t)));
   const wrongLabel = buttons.map((t) => t.split('\n')[1]).find((v) => v !== String(Array.isArray(right) ? right[0] : right));
   await page.getByRole('button', { name: new RegExp(`(^|\\D)${wrongLabel}(\\D|$)`) }).first().click();
-  await page.locator('[data-reaction="sad"]').first().waitFor({ timeout: 25000 });
-  await page.getByRole('button', { name: /passer l.animation/i }).first().waitFor({ timeout: 8000 });
+  // the story consequence plays first; the sheet (with the reaction) and the how-to picture follow it
+  await page.getByRole('button', { name: /passer l.animation/i }).first().waitFor({ timeout: 25000 });
+  await page.locator('[data-reaction="sad"]').first().waitFor({ timeout: 8000 });
 });
 await check('right answer: happy mascot and a success simulation', async () => {
   await page.getByRole('button', { name: /continuer/i }).first().click({ timeout: 25000 });
   await answerCorrectly();
-  await page.locator('[data-reaction="happy"]').first().waitFor({ timeout: 25000 });
-  await page.getByRole('button', { name: /passer l.animation/i }).first().waitFor({ timeout: 8000 });
+  // the story consequence plays first; the sheet (with the reaction) and the how-to picture follow it
+  await page.getByRole('button', { name: /passer l.animation/i }).first().waitFor({ timeout: 25000 });
+  await page.locator('[data-reaction="happy"]').first().waitFor({ timeout: 8000 });
 });
 await check('outcome: one stage image, sheet within 1.5 s, Continue inside a 360x740 screen', async () => {
   await page.setViewportSize({ width: 360, height: 740 });
@@ -269,6 +274,15 @@ await check('outcome: one stage image, sheet within 1.5 s, Continue inside a 360
   } finally {
     await page.setViewportSize({ width: 420, height: 880 });
   }
+});
+await check('how-to picture: the stage explains the method with a caption and a text alternative', async () => {
+  const pic = page.locator('[data-stage] [role="img"]');
+  await pic.waitFor({ timeout: 8000 });
+  const label = await pic.getAttribute('aria-label');
+  if (!label || label.length < 20) throw new Error(`picture has no useful alt: ${label}`);
+  const cap = (await page.locator('[data-stage] p[aria-live]').first().innerText()).trim();
+  if (cap.length < 5) throw new Error('no caption under the picture');
+  if (/quand les unit.s d.passent/i.test(await page.evaluate(() => document.body.innerText))) throw new Error('the written carry hint is still shown');
 });
 await check('idle for a while: the coach gives a hint that never states the answer', async () => {
   await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
@@ -293,10 +307,12 @@ await check('map keeps progress: the played world shows a finished node', async 
   if (!/(réussi|terminé|maîtrisé)/i.test(txt)) throw new Error(`no finished node: ${txt.slice(0, 300)}`);
 });
 await check('cards: the welcome gift card is in the collection', async () => {
+  if (!GIFT) return;
   await page.goto(`${BASE}/play/collection`, { waitUntil: 'networkidle' });
   await page.getByText(/cadeau de bienvenue/i).first().waitFor({ timeout: 8000 });
 });
 await check('state survives a reload (cards still there)', async () => {
+  if (!GIFT) return;
   await page.reload({ waitUntil: 'networkidle' });
   await page.getByText(/cadeau de bienvenue/i).first().waitFor({ timeout: 8000 });
 });
