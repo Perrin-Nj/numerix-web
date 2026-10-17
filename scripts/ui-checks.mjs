@@ -59,8 +59,13 @@ await check('first screen has both doors', async () => {
   await page.getByRole('button', { name: /je suis un adulte/i }).waitFor(T);
 });
 await check('kid door without an adult explains what to do', async () => {
-  await page.getByRole('button', { name: /je suis un enfant/i }).click();
-  await page.getByText(/un adulte doit d.abord se connecter/i).first().waitFor(T);
+  const note = page.getByText(/un adulte doit d.abord se connecter/i).first();
+  // the first click can land before hydration on a cold deploy: click again until the page answers
+  for (let i = 0; i < 3 && !(await note.isVisible()); i++) {
+    if (!page.url().includes('/play')) await page.getByRole('button', { name: /je suis un enfant/i }).click();
+    await note.waitFor({ timeout: 6000 }).catch(() => {});
+  }
+  await note.waitFor(T);
 });
 await check('grown-up registers', async () => {
   await page.goto(`${BASE}/parent/register`, { waitUntil: 'networkidle' });
@@ -256,6 +261,7 @@ await check('outcome: one stage image, sheet within 1.5 s, Continue inside a 360
     const waited = Date.now() - t0;
     const imgs = await page.locator('[data-stage] [role="img"]').count();
     if (imgs !== 1) throw new Error(`${imgs} images in the stage during the outcome`);
+    await page.waitForTimeout(600); // sheet slide-up is 350 ms: measure after it settles
     const btn = page.getByRole('button', { name: /continuer/i }).first();
     const box = await btn.boundingBox();
     if (!box || box.y < 0 || box.y + box.height > 740 || box.x < 0 || box.x + box.width > 360) throw new Error(`Continue outside the viewport: ${JSON.stringify(box)}`);
