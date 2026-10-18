@@ -8,11 +8,13 @@ export type PasskeyLoginButtonProps = {
   busy?: boolean;
   /** The last attempt failed (not a cancel). */
   error?: boolean;
+  /** The browser prompt was closed without choosing. Calm hint, not an error. */
+  cancelled?: boolean;
   onClick: () => void;
 };
 
 /** "Sign in with a passkey" under the login form. The container hides it when the browser has no passkey support. */
-export function PasskeyLoginButton({ busy, error, onClick }: PasskeyLoginButtonProps) {
+export function PasskeyLoginButton({ busy, error, cancelled, onClick }: PasskeyLoginButtonProps) {
   const t = useTranslations('screens.auth.passkey');
   return (
     <div className="flex flex-col gap-2">
@@ -20,6 +22,7 @@ export function PasskeyLoginButton({ busy, error, onClick }: PasskeyLoginButtonP
         {t('signIn')}
       </Button>
       {error && <InlineError message={t('error')} />}
+      {cancelled && !error && <p role="status" className="text-sm text-muted">{t('cancelled')}</p>}
     </div>
   );
 }

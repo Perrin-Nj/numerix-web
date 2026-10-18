@@ -1,4 +1,5 @@
 'use client';
+import { useSyncExternalStore } from 'react';
 import { passkeysSupported, useAddPasskey, useDeletePasskey, useDevices, usePasskeys, useRevokeDevice } from '@/data/hooks';
 import { SecurityPanel } from './SecurityPanel';
 
@@ -9,11 +10,13 @@ export function AccountSecurity() {
   const revoke = useRevokeDevice();
   const remove = useDeletePasskey();
   const add = useAddPasskey();
+  // false while hydrating, then the browser's real answer, so server and client markup match
+  const canPasskey = useSyncExternalStore(() => () => {}, passkeysSupported, () => false);
   return (
     <SecurityPanel
       devices={devices.data ?? []}
       passkeys={passkeys.data ?? []}
-      passkeysSupported={passkeysSupported()}
+      passkeysSupported={canPasskey}
       busy={revoke.isPending || remove.isPending || add.isPending}
       passkeyError={add.isError}
       onForgetDevice={(id) => revoke.mutate(id)}

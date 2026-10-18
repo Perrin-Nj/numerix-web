@@ -40,14 +40,15 @@ if (process.env.FAIL_SHOTS) {
   });
 }
 const errors = [];
-page.on('pageerror', (e) => errors.push(e.message.slice(0, 160)));
+page.on('pageerror', (e) => errors.push(`${page.url().replace(BASE, '')} ${e.message.slice(0, process.env.FULL_ERR ? 3000 : 160)}`));
 // answers the checks provoke on purpose: a wrong PIN, a login screen asking if this device is known, a signed-out picker
 const EXPECTED = /children\/[^/]+\/token|auth\/device|\/api\/v1\/children$/;
 const failedLoad = /Failed to load resource/;
-page.on('console', (m) => m.type() === 'error' && !failedLoad.test(m.text()) && errors.push(m.text().slice(0, 160)));
+page.on('console', (m) => m.type() === 'error' && !failedLoad.test(m.text()) && errors.push(`${page.url().replace(BASE, '')} ${m.text().slice(0, process.env.FULL_ERR ? 3000 : 160)}`));
 let fails = 0;
+let allow401 = false; // the expired-session checks provoke 401 answers on purpose
 page.on('response', (r) => {
-  if (r.status() >= 400 && !EXPECTED.test(r.url())) errors.push(`HTTP ${r.status()} ${r.request().method()} ${r.url().replace(BASE, '').slice(0, 80)}`);
+  if (r.status() >= 400 && !(allow401 && r.status() === 401) && !EXPECTED.test(r.url())) errors.push(`HTTP ${r.status()} ${r.request().method()} ${r.url().replace(BASE, '').slice(0, 80)}`);
 });
 
 async function check(name, fn) {
@@ -78,9 +79,10 @@ await check('kid door without an adult explains what to do', async () => {
   }
   await note.waitFor(T);
 });
+const uiEmail = `ui${Date.now()}@example.com`;
 await check('grown-up registers', async () => {
   await page.goto(`${BASE}/parent/register`, { waitUntil: 'networkidle' });
-  await page.getByLabel(/courriel/i).fill(`ui${Date.now()}@example.com`);
+  await page.getByLabel(/courriel/i).fill(uiEmail);
   await page.getByLabel(/mot de passe/i).fill('correct-horse-battery');
   await page.getByRole('button', { name: /créer mon compte/i }).click();
   await page.waitForURL('**/parent/children/new', T);
@@ -349,11 +351,90 @@ await check('parent presses Play on a child: that child plays at once, no second
   await page.waitForURL('**/play/home', T);
   if (await page.getByText(/qui joue aujourd/i).count()) throw new Error('picker shown after choosing a child');
 });
+// ── Flows: deep links, back button, expired sessions, known device, passkey
+const dropCookies = async (...names) => {
+  const all = await ctx.cookies();
+  await ctx.clearCookies();
+  await ctx.addCookies(all.filter((c) => !names.includes(c.name)));
+};
+await check('deep links: kid pages open straight from the address bar and Back returns', async () => {
+  await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
+  for (const [path, title] of [['/play/challenges', /défis/i], ['/play/collection', /cartes/i], ['/play/worlds', /monde/i], ['/play/me', /./]]) {
+    await page.goto(`${BASE}${path}`, { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: title }).first().waitFor(T);
+    if (!page.url().endsWith(path)) throw new Error(`${path} ended on ${page.url()}`);
+  }
+  await page.goBack();
+  await page.waitForURL('**/play/worlds', T);
+});
+await check('deep links: a parent page reloads in place and Back returns to the list', async () => {
+  await page.goto(`${BASE}/parent`, { waitUntil: 'networkidle' });
+  const link = page.locator('a[href^="/parent/children/"]:not([href$="/new"])').first();
+  await link.waitFor(T);
+  const href = await link.getAttribute('href');
+  await link.click();
+  await page.waitForURL(`**${href}`, T);
+  await page.reload({ waitUntil: 'networkidle' });
+  if (!page.url().endsWith(href)) throw new Error(`reload moved to ${page.url()}`);
+  await page.getByText(/sa progression/i).first().waitFor(T);
+  await page.goBack();
+  await page.waitForURL('**/parent', T);
+});
+allow401 = true;
+await check('kid token ended (401): the kid lands on the profile picker, not on a dead screen', async () => {
+  await ctx.addCookies([{ name: 'nx_child', value: 'expired', url: BASE }]);
+  await page.goto(`${BASE}/play/challenges`, { waitUntil: 'domcontentloaded' });
+  await page.waitForURL((u) => u.pathname === '/play', T);
+  await page.getByText(/qui joue aujourd/i).first().waitFor(T);
+});
+await check('parent session ended (401): login keeps the page and brings the parent back to it', async () => {
+  await dropCookies('nx_device', 'nx_refresh');
+  await ctx.addCookies([{ name: 'nx_parent', value: 'expired', url: BASE }]);
+  await page.goto(`${BASE}/parent/account`, { waitUntil: 'domcontentloaded' });
+  await page.waitForURL(/\/parent\/login\?next=%2Fparent%2Faccount/, T);
+  await page.getByLabel(/courriel/i).fill(uiEmail);
+  await page.getByLabel(/mot de passe/i).fill('correct-horse-battery');
+  await page.getByRole('button', { name: /^se connecter$/i }).click();
+  await page.waitForURL('**/parent/account', T);
+});
+allow401 = false;
+await check('known device: reopening the kid door shows the profile picker at once', async () => {
+  // The device cookie is issued at sign-in; without a sign-in session it must open the app by itself
+  await page.goto(`${BASE}/parent/login`, { waitUntil: 'networkidle' }).catch(() => {});
+  const has = (await ctx.cookies()).some((c) => c.name === 'nx_device');
+  if (!has) throw new Error('no device cookie after sign-in');
+  await dropCookies('nx_parent', 'nx_refresh', 'nx_child', 'nx_child_id');
+  await page.goto(`${BASE}/play`, { waitUntil: 'domcontentloaded' });
+  await page.getByText(/qui joue aujourd/i).first().waitFor(T);
+  if (await page.getByText(/un adulte doit d.abord se connecter/i).count()) throw new Error('asked for a login on a known device');
+});
+await check('passkey button: hidden when the browser has no passkeys, calm hint when the prompt is cancelled', async () => {
+  const fresh = await browser.newContext({ locale: 'fr-CA', viewport: { width: 420, height: 880 } });
+  const plain = await fresh.newPage();
+  await plain.addInitScript(() => {
+    delete window.PublicKeyCredential;
+  });
+  await plain.goto(`${BASE}/parent/login`, { waitUntil: 'networkidle' });
+  await plain.getByLabel(/courriel/i).waitFor(T);
+  if (await plain.getByRole('button', { name: /clé d.accès/i }).count()) throw new Error('passkey button shown without support');
+  await plain.close();
+  const capable = await fresh.newPage();
+  await capable.addInitScript(() => {
+    window.PublicKeyCredential = Object.assign(function PublicKeyCredential() {}, { parseCreationOptionsFromJSON: (o) => o, parseRequestOptionsFromJSON: (o) => o });
+    navigator.credentials.get = () => Promise.reject(new DOMException('cancelled', 'NotAllowedError'));
+  });
+  await capable.goto(`${BASE}/parent/login`, { waitUntil: 'networkidle' });
+  await capable.getByRole('button', { name: /clé d.accès/i }).click();
+  await capable.getByText(/pas de souci/i).first().waitFor(T);
+  if (await capable.getByText(/n.a pas fonctionné/i).count()) throw new Error('a cancel was shown as an error');
+  await fresh.close();
+});
 await check('cross-site writes to the API are refused', async () => {
   const res = await page.request.post(`${BASE}/api/v1/auth/login`, { headers: { origin: 'https://evil.example', 'content-type': 'application/json' }, data: { email: 'a@b.c', password: 'x' } });
   if (res.status() !== 403) throw new Error(`status ${res.status()}`);
 });
 
+if (errors.length) fails++;
 console.log(errors.length ? `console errors: ${[...new Set(errors)].join(' | ')}` : 'console errors: none');
 console.log(fails ? `${fails} FAILED` : 'all ui checks pass');
 await browser.close();

@@ -56,6 +56,7 @@
       },
       "passkey": {
         "signIn": "Se connecter avec une clé d'accès",
+        "cancelled": "Pas de souci. Réessaie, ou utilise ton mot de passe.",
         "error": "La clé d'accès n'a pas fonctionné. Essaie avec ton mot de passe."
       }
     },
@@ -276,6 +277,7 @@
       },
       "collection": {
         "title": "Tes cartes d'histoire",
+        "empty": "Pas encore de carte. Termine un chapitre pour gagner ta première.",
         "retry": "Réessayer"
       },
       "quest": {

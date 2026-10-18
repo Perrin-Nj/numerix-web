@@ -9,6 +9,7 @@ import { getSession, keys, useEngagement, useSessionStatus } from '@/data/hooks'
 import { useStartChapter } from './useStartChapter';
 import { ChapterComplete } from '@/game/chapter-complete';
 import { MascotBubble } from '@/game/mascot-bubble';
+import { ScreenState } from '@/game/screen-state';
 import { Skeleton } from '@/ui/skeleton';
 import type { Reward } from '@/data/api/types';
 
@@ -37,10 +38,12 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
   const voice = useSpokenLine(appreciation, { lang });
   const mute = !voice.supported || (voice.voicesLoaded && !voice.voiceLabel);
 
-  if (session.isLoading) {
+  if (session.isLoading || session.error) {
     return (
       <main className="mx-auto max-w-lg px-4 py-10">
-        <Skeleton height={320} />
+        <ScreenState isLoading={session.isLoading} error={session.error} onRetry={() => void session.refetch()} area="play" skeleton={<Skeleton height={320} />}>
+          {null}
+        </ScreenState>
       </main>
     );
   }

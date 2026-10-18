@@ -1,10 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ApiError, setApiMode } from '@/data/api/client';
 import { reportError } from '@/platform/errors/bridge';
 import { useChildren, useChildToken, useSessionStatus, signOut } from '@/data/hooks';
+import { useDeviceLogin } from '@/data/hooks/devices';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { Avatar } from '@/game/avatar';
 import { Button } from '@/ui/button';
@@ -29,6 +30,20 @@ export function ProfilePicker() {
   const [pinError, setPinError] = useState<string | undefined>();
   const [blocked, setBlocked] = useState(false);
   const [entering, setEntering] = useState(false);
+
+  // A known device (long-lived cookie) reopens the parent session by itself, so the picker shows at once.
+  const deviceLogin = useDeviceLogin();
+  const deviceTried = useRef(false);
+  const [unknownDevice, setUnknownDevice] = useState(false);
+  const needsParent = Boolean(status.data && !status.data.parent && !status.data.child);
+  useEffect(() => {
+    if (!needsParent || deviceTried.current) return;
+    deviceTried.current = true;
+    deviceLogin.mutateAsync().then(
+      (opened) => !opened && setUnknownDevice(true),
+      () => setUnknownDevice(true),
+    );
+  }, [needsParent, deviceLogin]);
 
   const hasChild = Boolean(status.data?.child);
   useEffect(() => {
@@ -66,6 +81,13 @@ export function ProfilePicker() {
   // A profile is already chosen on this device: go straight to play. Switching player lives in the Me screen.
   if (entering || status.data?.child) return null;
 
+  if (needsParent && !unknownDevice) {
+    return (
+      <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center gap-4 px-4 py-10" role="status" aria-busy="true">
+        <Skeleton height={160} />
+      </main>
+    );
+  }
   if (status.data && !status.data.parent) {
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center gap-6 px-4 py-10">

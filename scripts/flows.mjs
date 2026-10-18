@@ -112,6 +112,42 @@ for (const [world, skill] of [['nature', 'ARI-OPE-A06a'], ['espace', 'ARI-OPE-A0
   }
   ok('2 of 3 right: chapter completes without a card', last.json?.session?.status === 'completed' && !last.json.rewards.some((x) => x.type === 'card_earned'), JSON.stringify(last.json?.rewards ?? []).slice(0, 100));
 }
+// After a wrong answer the next exercise is a different one, not a replay
+{
+  r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'nature', kind: 'chapter', skill_id: 'ARI-OPE-A06a' }, headers: { 'idempotency-key': crypto.randomUUID() } });
+  const sid = r.json?.id;
+  r = await api('POST', `/sessions/${sid}/beats`, { mode: 'child', headers: { 'idempotency-key': crypto.randomUUID() } });
+  const first = r.json;
+  await api('POST', `/sessions/${sid}/beats/${first.id}/answer`, { mode: 'child', body: { answer: wrong(first.question.choices, solve(first.question.math_text)) }, headers: { 'idempotency-key': crypto.randomUUID() } });
+  r = await api('POST', `/sessions/${sid}/beats`, { mode: 'child', headers: { 'idempotency-key': crypto.randomUUID() } });
+  ok('wrong answer: the next exercise is different', r.status < 300 && r.json.question.math_text !== first.question.math_text, `${first.question.math_text} / ${r.json?.question?.math_text}`);
+}
+// Challenges and the welcome gift are server state
+{
+  r = await api('GET', `/children/${nora.id}/challenges`, { mode: 'child' });
+  ok('challenges: the catalogue is listed with a status', r.status === 200 && r.json.items.length > 0 && r.json.items.every((c) => ['available', 'active', 'done'].includes(c.status)), r.text.slice(0, 80));
+  const first = r.json.items.find((c) => c.status === 'available');
+  r = await api('POST', `/children/${nora.id}/challenges/${first.id}/accept`, { mode: 'child' });
+  ok('challenges: accepting makes it active', r.status === 200 && r.json.status === 'active', r.text.slice(0, 80));
+  r = await api('POST', `/children/${nora.id}/challenges/${first.id}/accept`, { mode: 'child' });
+  ok('challenges: accepting twice is harmless', r.status === 200 && r.json.status === 'active');
+  r = await api('GET', `/children/${nora.id}/home`, { mode: 'child' });
+  ok('home: the open challenges are counted', r.json?.active_challenges > 0, String(r.json?.active_challenges));
+  const giftOn = r.json?.gift_available === true;
+  if (!giftOn) {
+    // FEATURE_WELCOME_GIFT is off: no gift is offered and a claim is refused
+    r = await api('POST', `/children/${nora.id}/gift/claim`, { mode: 'child' });
+    ok('gift off: nothing on offer and a claim is refused', r.status === 404, String(r.status));
+  } else {
+    r = await api('POST', `/children/${nora.id}/gift/claim`, { mode: 'child' });
+    const giftCard = r.json?.id;
+    ok('gift: first claim creates the card', r.status === 201 && Boolean(giftCard), r.text.slice(0, 80));
+    r = await api('POST', `/children/${nora.id}/gift/claim`, { mode: 'child' });
+    ok('gift: second claim returns the same card', r.status === 200 && r.json.id === giftCard);
+    r = await api('GET', `/children/${nora.id}/home`, { mode: 'child' });
+    ok('home: the gift is gone after the claim', r.json?.gift_available === false);
+  }
+}
 // Subscription gate, driven by the admin API of the platform (skipped when no admin token is available, e.g. against a locked-down deployment)
 {
   const ADMIN = process.env.PLATFORM_URL ?? 'http://localhost:8081';
@@ -143,7 +179,7 @@ r = await api('GET', `/children/${nora.id}/collection`, { mode: 'child' });
 ok('collection readable', r.status === 200);
 
 // ── Pages render for a logged-in child
-for (const path of ['/play/home', '/play/feed', '/play/worlds', '/play/collection', '/play/me']) {
+for (const path of ['/play/home', '/play/feed', '/play/worlds', '/play/collection', '/play/challenges', '/play/quest', '/play/me']) {
   r = await call('GET', path, { headers: { accept: 'text/html' } });
   ok(`page ${path}`, r.status === 200);
 }

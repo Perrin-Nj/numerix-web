@@ -85,6 +85,7 @@
       },
       "collection": {
         "title": "Your story cards",
+        "empty": "No cards yet. Finish a chapter to win your first one.",
         "retry": "Try again"
       },
       "quest": {
@@ -208,6 +209,7 @@
       },
       "passkey": {
         "signIn": "Sign in with a passkey",
+        "cancelled": "No problem. Try again, or use your password.",
         "error": "The passkey did not work. Try your password instead."
       }
     },

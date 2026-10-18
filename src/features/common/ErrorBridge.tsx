@@ -1,7 +1,8 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { signOut } from '@/data/hooks';
 import { ApiError } from '@/data/api/client';
 import { registerReporter, reportError } from '@/platform/errors/bridge';
 import { useNotify } from '@/ui/notification-center';
@@ -19,20 +20,53 @@ export function ErrorBridge() {
   const t = useTranslations('errors');
   const { notify } = useNotify();
   const router = useRouter();
+  const pathname = usePathname();
+  // The route is read through a ref so the reporter is registered once, not on every navigation
+  const where = useRef(pathname);
+  useEffect(() => {
+    where.current = pathname;
+  }, [pathname]);
+  const leaving = useRef(false);
 
   useEffect(() => {
     return registerReporter((error, opts) => {
       const raw = error instanceof ApiError ? error.code : 'unknown';
       const code = KNOWN.has(raw) ? raw : 'unknown';
+      let redirecting = code === 'unauthorized' && leaving.current;
+      if (code === 'unauthorized' && !leaving.current) {
+        const here = where.current;
+        if (here.startsWith('/play') && here !== '/play') {
+          // The kid's token ended: drop it and ask who is playing again; the picker needs only the parent session
+          redirecting = true;
+          leaving.current = true;
+          void signOut('child')
+            .catch(() => {})
+            .finally(() => {
+              leaving.current = false;
+              router.replace('/play');
+            });
+        } else if (here.startsWith('/parent') && !/^\/parent\/(login|register)/.test(here)) {
+          // Back to the same page after logging in again
+          redirecting = true;
+          leaving.current = true;
+          void signOut('parent')
+            .catch(() => {})
+            .finally(() => {
+              leaving.current = false;
+              router.replace(`/parent/login?next=${encodeURIComponent(here)}`);
+            });
+        }
+      }
       const hasRetry = Boolean(opts?.retry) && RETRYABLE.has(code);
       notify({
         id: `err-${code}`,
         kind: SEVERE.has(code) ? 'error' : 'warning',
         title: t(`${code}.title`),
         description: t(`${code}.description`),
-        action:
-          code === 'unauthorized'
-            ? { label: t('unauthorized.action'), onClick: () => router.push('/parent/login') }
+        action: redirecting
+          ? undefined
+          : code === 'unauthorized'
+            ? { label: t('unauthorized.action'), onClick: () => router.push(where.current.startsWith('/play') ? '/play' : '/parent/login') }
             : hasRetry
               ? { label: t('retry'), onClick: () => opts!.retry!() }
               : undefined,

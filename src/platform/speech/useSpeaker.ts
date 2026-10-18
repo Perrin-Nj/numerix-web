@@ -29,6 +29,7 @@ function subVoices(cb: () => void) {
 }
 const getVoices = () => voices;
 const noVoices: SpeechSynthesisVoice[] = [];
+const noSubscribe = () => () => {};
 
 // Autoplay lock: speech only after the first gesture
 let unlockedFlag = false;
@@ -69,6 +70,8 @@ export function useSpeaker(defaultLang?: string) {
     /* no AudioProvider: speech follows prefs only */
   }
   const list = useSyncExternalStore(subVoices, getVoices, () => noVoices);
+  // false on the server and during hydration, the real answer right after, so the markup matches
+  const speechSupported = useSyncExternalStore(noSubscribe, supported, () => false);
   const unlocked = useSyncExternalStore(subUnlock, () => unlockedFlag, () => false);
   const [speaking, setSpeaking] = useState(false);
   const [pending, setPending] = useState(false);
@@ -145,5 +148,5 @@ export function useSpeaker(defaultLang?: string) {
   }, [unlocked, list.length]);
 
   const voice = pickVoice(list, lang, prefs.voiceName);
-  return { speak, cancel, speaking, pending, supported: supported(), unlocked, voiceLabel: voice?.name ?? null, voicesLoaded: list.length > 0 };
+  return { speak, cancel, speaking, pending, supported: speechSupported, unlocked, voiceLabel: voice?.name ?? null, voicesLoaded: list.length > 0 };
 }

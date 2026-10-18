@@ -50,6 +50,7 @@ function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
   const [opened, setOpened] = useState(false);
   const [ready, setReady] = useState(false); // claim button shows once the card has settled
   const [line, setLine] = useState(() => pick('mascot.welcome'));
+  const [earnedAt] = useState(() => new Date().toISOString());
 
   useEffect(() => {
     if (!opened) return;
@@ -111,7 +112,7 @@ function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
               >
                 <StoryCard
                   source="gift"
-                  card={{ id: card.id, world: card.world, title: card.title, image_url: '', earned_at: '' }}
+                  card={{ id: card.id, world: card.world, title: card.title, image_url: '', earned_at: earnedAt }}
                 />
               </div>
             )}

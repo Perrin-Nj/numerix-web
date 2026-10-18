@@ -20,6 +20,7 @@ import { StreakBadge } from '@/game/streak-badge';
 import { WelcomeGift } from '@/game/welcome-gift';
 import { WorldTeaser } from '@/game/world-teaser';
 import { GuidedTour } from '@/ui/guided-tour';
+import { ScreenState } from '@/game/screen-state';
 import { Reveal } from '@/ui/reveal';
 import { Skeleton } from '@/ui/skeleton';
 import { ThemeToggle } from '@/ui/theme-toggle';
@@ -95,12 +96,22 @@ export function HomeFeed() {
           <ThemeToggle variant="icon" />
         </div>
       </header>
-      {(home.isLoading || status.isLoading) && (
-        <div className="flex flex-col gap-4">
-          <Skeleton height={160} />
-          <Skeleton height={120} />
-          <Skeleton height={120} />
-        </div>
+      {(home.isLoading || status.isLoading || home.error || status.error) && (
+        <ScreenState
+          isLoading={home.isLoading || status.isLoading}
+          error={status.error ?? home.error}
+          onRetry={() => void (status.error ? status.refetch() : home.refetch())}
+          area="play"
+          skeleton={
+            <div className="flex flex-col gap-4">
+              <Skeleton height={160} />
+              <Skeleton height={120} />
+              <Skeleton height={120} />
+            </div>
+          }
+        >
+          {null}
+        </ScreenState>
       )}
       {d && (
         <div className="flex flex-col gap-5">

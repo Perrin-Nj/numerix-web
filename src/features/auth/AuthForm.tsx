@@ -19,6 +19,12 @@ import { Panel } from '@/ui/panel';
 
 type Mode = 'login' | 'register';
 
+/** Where to go after signing in: the page that sent the user here (same site, parent area only), else the parent home. */
+function landing(): string {
+  const next = new URLSearchParams(window.location.search).get('next') ?? '';
+  return /^\/parent(\/[\w\-/]*)?$/.test(next) && !next.startsWith('//') ? next : '/parent';
+}
+
 export function AuthForm({ mode }: { mode: Mode }) {
   const t = useTranslations('screens.auth');
   const te = useTranslations('errors');
@@ -30,6 +36,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const deviceLogin = useDeviceLogin();
   const passkeyLogin = usePasskeyLogin();
   const [passkeyFailed, setPasskeyFailed] = useState(false);
+  const [passkeyCancelled, setPasskeyCancelled] = useState(false);
   // browser support is only known on the client: false on the server render, then the real answer
   const canPasskey = useSyncExternalStore(() => () => {}, passkeysSupported, () => false);
   const deviceTried = useRef(false);
@@ -38,13 +45,15 @@ export function AuthForm({ mode }: { mode: Mode }) {
   useEffect(() => {
     if (mode !== 'login' || deviceTried.current) return;
     deviceTried.current = true;
-    deviceLogin.mutateAsync().then((opened) => opened && router.replace('/parent'), () => {});
+    deviceLogin.mutateAsync().then((opened) => opened && router.replace(landing()), () => {});
   }, [mode, deviceLogin, router]);
 
   async function onPasskey() {
     setPasskeyFailed(false);
+    setPasskeyCancelled(false);
     try {
-      if (await passkeyLogin.mutateAsync()) router.replace('/parent');
+      if (await passkeyLogin.mutateAsync()) router.replace(landing());
+      else setPasskeyCancelled(true);
     } catch {
       setPasskeyFailed(true);
     }
@@ -73,7 +82,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       if (mode === 'login') await login.mutateAsync(values);
       else await register.mutateAsync({ ...values, locale });
       localStorage.setItem(PARENT_EMAIL_KEY, values.email);
-      router.replace(mode === 'login' ? '/parent' : '/parent/children/new');
+      router.replace(mode === 'login' ? landing() : '/parent/children/new');
     } catch (e) {
       if (e instanceof ApiError && e.status === 409) setFormError(t('errors.emailTaken'));
       else if (e instanceof ApiError && (e.code === 'unauthorized' || e.status === 401)) setFormError(t('errors.wrongCredentials'));
@@ -120,7 +129,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </form>
         {mode === 'login' && canPasskey && (
           <div className="mt-4 border-t border-line pt-4">
-            <PasskeyLoginButton busy={passkeyLogin.isPending} error={passkeyFailed} onClick={() => void onPasskey()} />
+            <PasskeyLoginButton busy={passkeyLogin.isPending} error={passkeyFailed} cancelled={passkeyCancelled} onClick={() => void onPasskey()} />
           </div>
         )}
       </Panel>

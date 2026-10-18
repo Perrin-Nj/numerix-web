@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useCollection, useSessionStatus } from '@/data/hooks';
 import { StoryCard } from '@/game/story-card';
 import { Button } from '@/ui/button';
+import { ScreenState } from '@/game/screen-state';
 import { Skeleton } from '@/ui/skeleton';
 import type { StoryCard as StoryCardData } from '@/data/api/types';
 
@@ -34,12 +35,20 @@ export function CollectionScreen() {
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-6">
       <h1 className="mb-4 font-display text-4xl font-bold">{t('title')}</h1>
-      {col.isLoading && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <Skeleton height={190} />
-          <Skeleton height={190} />
-        </div>
-      )}
+      <ScreenState
+        isLoading={status.isLoading || col.isLoading}
+        error={status.error ?? col.error}
+        isEmpty={Boolean(col.data) && groups.length === 0}
+        onRetry={() => void (status.error ? status.refetch() : col.refetch())}
+        area="play"
+        skeleton={
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <Skeleton height={190} />
+            <Skeleton height={190} />
+          </div>
+        }
+        empty={<p className="rounded-lg border-2 border-line bg-elevated p-5 text-lg text-muted">{t('empty')}</p>}
+      >
       {groups.map(([world, cards]) => (
         <section key={world} className="mb-6">
           <h2 className="mb-2 font-display text-2xl font-bold">{tw(world)}</h2>
@@ -52,8 +61,9 @@ export function CollectionScreen() {
           </ul>
         </section>
       ))}
+      </ScreenState>
       <div ref={more} />
-      {col.isError && <Button onClick={() => void col.refetch()}>{t('retry')}</Button>}
+      {col.isFetchNextPageError && <Button onClick={() => void fetchNextPage()}>{t('retry')}</Button>}
     </main>
   );
 }

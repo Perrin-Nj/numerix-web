@@ -24,12 +24,12 @@ export function useSessionStatus() {
 
 /**
  * Ends the session through DELETE /api/session, then clears on-device state and tells the service worker to drop
- * cached data. scope 'child' switches player, 'all' signs the parent out too. Throws if the server call fails.
+ * cached data. scope 'child' switches player, 'parent' drops a dead parent session but keeps the known-device cookie, 'all' signs the parent out for good. Throws if the server call fails.
  */
-export async function signOut(scope: 'child' | 'all') {
+export async function signOut(scope: 'child' | 'parent' | 'all') {
   const res = await fetch(`/api/session?scope=${scope}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Sign out failed');
   // forget cached child data on this device
-  clearLocalState(scope);
+  clearLocalState(scope === 'all' ? 'all' : 'child');
   if ('serviceWorker' in navigator) navigator.serviceWorker.controller?.postMessage('CLEAR_DATA');
 }

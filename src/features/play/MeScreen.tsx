@@ -16,6 +16,7 @@ import { StreakBadge } from '@/game/streak-badge';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 import { Panel } from '@/ui/panel';
+import { ScreenState } from '@/game/screen-state';
 import { Skeleton } from '@/ui/skeleton';
 import { Switch } from '@/ui/switch';
 
@@ -139,7 +140,11 @@ export function MeScreen() {
           {profile && <p className="text-muted">{t('title')}</p>}
         </div>
       </header>
-      {engagement.isLoading && <Skeleton height={140} />}
+      {(engagement.isLoading || engagement.error) && (
+        <ScreenState isLoading={engagement.isLoading} error={engagement.error} onRetry={() => void engagement.refetch()} area="play" skeleton={<Skeleton height={140} />}>
+          {null}
+        </ScreenState>
+      )}
       {engagement.data && (
         <Panel title={t('today')}>
           <div className="flex flex-wrap items-center justify-between gap-4">

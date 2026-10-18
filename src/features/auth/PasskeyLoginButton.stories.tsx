@@ -12,4 +12,5 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 export const Busy: Story = { args: { busy: true } };
+export const Cancelled: Story = { args: { cancelled: true } };
 export const Failed: Story = { args: { error: true } };
