@@ -20,8 +20,9 @@ if ! curl -sf -o /dev/null -H "Authorization: Bearer $ADMIN_API_TOKEN" "$PLATFOR
   API_DIR="../../numerix-api"
   [ -x "$API_DIR/bin/api.exe" ] || (cd "$API_DIR" && PATH="$PATH:/c/Program Files/Go/bin" go build -o bin/api.exe ./cmd/api)
   cp "$API_DIR/bin/api.exe" "$API_DIR/bin/api-admin.exe"
-  (cd "$API_DIR" && PORT="${PLATFORM_API_URL##*:}" APP_ENV=development DB_PATH=./data/admin-test.db ./bin/api-admin.exe > /tmp/admin-platform.log 2>&1 &)
+  (cd "$API_DIR" && PORT="${PLATFORM_API_URL##*:}" env -u ADMIN_API_TOKEN APP_ENV=development DB_PATH=./data/admin-test.db ./bin/api-admin.exe > /tmp/admin-platform.log 2>&1 &)
   for _ in $(seq 1 40); do curl -sf -o /dev/null -H "Authorization: Bearer $ADMIN_API_TOKEN" "$PLATFORM_API_URL/admin/v1/overview" && break; sleep 0.5; done
+  node ../scripts/seed-dev.mjs "$PLATFORM_API_URL/v1" > /dev/null || echo "seed failed"  # a parent with two children, through the real endpoints
 fi
 npx next build > /tmp/admin-build.log 2>&1 && echo "PASS build" || { tail -30 /tmp/admin-build.log; echo "FAIL build"; exit 1; }
 PORT=$PORT npx next start -p "$PORT" > /tmp/admin-start.log 2>&1 & pids+=($!)
