@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -30,12 +30,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const deviceLogin = useDeviceLogin();
   const passkeyLogin = usePasskeyLogin();
   const [passkeyFailed, setPasskeyFailed] = useState(false);
-  const [canPasskey, setCanPasskey] = useState(false);
+  // browser support is only known on the client: false on the server render, then the real answer
+  const canPasskey = useSyncExternalStore(() => () => {}, passkeysSupported, () => false);
   const deviceTried = useRef(false);
 
   // A known device opens without signing in: one try when the login screen shows, a miss is silent
   useEffect(() => {
-    setCanPasskey(passkeysSupported());
     if (mode !== 'login' || deviceTried.current) return;
     deviceTried.current = true;
     deviceLogin.mutateAsync().then((opened) => opened && router.replace('/parent'), () => {});
