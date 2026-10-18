@@ -64,7 +64,7 @@ Privacy: the bank holds no personal data. `child_question` is personal data (Law
 | HTTP | `net/http` with `chi` |
 | Contract | spec first: `oapi-codegen` (module `github.com/oapi-codegen/oapi-codegen/v2`) generates server stubs and models from `contracts/openapi.yaml`; CI fails if generated code drifts (BE-49) |
 | Database | PostgreSQL, `pgx`, typed queries with `sqlc`, migrations with `goose` or `golang-migrate` |
-| Cache and rate limits | Redis (Upstash works through REST for the mock; use a real Redis in production) |
+| Cache and rate limits | Redis in production |
 | Jobs | purge, BKT recompute, bank warm-up (`river` on Postgres, or a plain worker) |
 | Observability | `slog`, OpenTelemetry traces, `X-Request-Id` and `traceparent` (BE-47) |
 | LLM | one provider interface with failover and a daily cost cap (BE-54) |
@@ -95,10 +95,10 @@ backend/
 ## 6. Integration readiness checklist
 
 - [x] Contract: `MethodVisual` schema and `AnswerResult.method_visual` in `openapi.yaml`, types regenerated.
-- [x] Mock returns `method_visual` (`mock/lib/visual.mjs`) and varies the shape of addition and subtraction per beat.
+
 - [x] Web: `MethodVisual` component with stories, wired into the outcome stage.
 - [ ] Go: scaffold `backend/` from the spec with `oapi-codegen`; port engine and tests.
 - [ ] Go: question bank, history and selection (section 3).
-- [ ] Go: visual builder with the four kinds and golden tests against `mock/lib/visual.mjs` output.
+
 - [ ] Go: narrator with leak detector, cache and fallback bank.
-- [ ] Switch a staging environment to `NEXT_PUBLIC_STATE_SOURCE=api` and run `bash scripts/test.sh` against it.
+

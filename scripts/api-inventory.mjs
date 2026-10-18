@@ -162,7 +162,7 @@ for (const cookie of ['nx_parent', 'nx_refresh', 'nx_child', 'nx_child_id', 'nx_
 const envFile = read('src/config/env.ts');
 const envNames = new Set([...envFile.matchAll(/\b((?:NEXT_PUBLIC_[A-Z_]+)|API_URL)\b/g)].map((m) => m[1]));
 for (const f of ['admin/src/lib/env.ts']) for (const m of read(f).matchAll(/\b(ADMIN_[A-Z_]+|PLATFORM_API_URL)\b/g)) envNames.add(m[1]);
-for (const n of ['UPSTASH_REDIS_REST_URL', 'ADMIN_ORIGIN', 'IMAGE_HOSTS', 'CONNECT_ORIGINS', 'VERCEL_REGIONS']) envNames.add(n);
+for (const n of ['ADMIN_ORIGIN', 'IMAGE_HOSTS', 'CONNECT_ORIGINS', 'VERCEL_REGIONS']) envNames.add(n);
 for (const n of envNames) say(guideHas(n) ? 'ok' : 'FAIL', `env var ${n} in the guide`);
 
 for (const header of ['accept-language', 'idempotency-key', 'x-nx-mode', 'last-event-id'])

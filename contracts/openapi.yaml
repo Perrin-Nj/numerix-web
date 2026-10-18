@@ -4,8 +4,8 @@ info:
   version: 0.1.0
   summary: Contract between the Next.js app and the Numerix backend.
   description: |
-    Source of truth for the frontend and the backend. TypeScript types and the
-    mock server are generated from this file; the FastAPI service is checked
+    Source of truth for the frontend and the backend. TypeScript types are
+    generated from this file; the Go API (`../numerix-api`) is the reference server and is checked
     against it.
 
     **The one rule (see docs/NUMERIX_CONTEXT.md):** the LLM never does math.
@@ -38,12 +38,11 @@ info:
     - `Idempotency-Key` is required on `startSession`, `nextBeat` and `answerBeat`.
     - Dates are ISO 8601 UTC. Ids are UUID v4 unless noted (feed items and notifications use opaque strings).
     - Cursor lists answer `{items, next_cursor}`; `next_cursor` is null at the end.
-    - Optional request header `x-card-threshold-pct` (0 to 100) is honoured by the mock only.
 servers:
   - url: http://localhost:8000/v1
     description: Local development
   - url: http://localhost:8081/v1
-    description: Numerix mock (node, same behaviour as WireMock)
+    description: Numerix Go API
 tags:
   - name: Auth
   - name: Children
@@ -273,7 +272,7 @@ paths:
       description: |
         Returns a child-scoped token. A PIN is required if the profile has one (403 `invalid_pin`). The backend
         should also refuse with 403 `consent_missing` while the parent has not consented; the profile picker
-        handles that answer (the mock still issues the token and refuses at session start).
+        handles that answer (refusal at session start is the second line of defence).
       requestBody:
         content:
           application/json:
@@ -1117,7 +1116,7 @@ paths:
     post:
       tags: [Parent]
       operationId: checkoutSubscription
-      summary: Start a paid plan (BE-24). The real backend returns the processor's hosted page URL; the mock completes instantly.
+      summary: Start a paid plan (BE-24). The real backend returns the processor's hosted page URL; development completes instantly.
       description: |
         Idempotent: the client sends `Idempotency-Key`; a retry with the same key returns the same
         `checkout_url` (or the same activated subscription) and never creates a second checkout.
@@ -1148,13 +1147,13 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/ServerError' }
         '200':
-          description: Subscription after checkout (mock), or the current subscription plus `checkout_url` (processor)
+          description: Subscription after checkout (instant in development), or the current subscription plus `checkout_url` (processor)
           content:
             application/json:
               schema: { $ref: '#/components/schemas/CheckoutResult' }
               examples:
                 instant:
-                  summary: Mock, completed at once
+                  summary: Completed at once (development)
                   value: { status: active, plan: family_monthly, method: card, renews_at: '2026-11-11T14:00:00Z', can_play: true, days_left: 30 }
                 hosted:
                   summary: Processor, redirect the browser
@@ -2557,7 +2556,7 @@ components:
           properties:
             target_chapters: { type: integer }
             done_chapters: { type: integer }
-        minutes_today: { type: integer, description: 'Active play minutes today in the child time zone. The kid home needs it for the time-limit reminder; in local mode it is derived on the device.' }
+        minutes_today: { type: integer, description: 'Active play minutes today in the child time zone. The kid home needs it for the time-limit reminder; computed by the server.' }
         last_played_at: { type: [string, 'null'], format: date-time, description: 'End of the last chapter, used for the play reminder' }
     StoryCard:
       type: object
@@ -2579,7 +2578,7 @@ components:
         title: { type: string }
         text: { type: string }
         ai_generated: { type: boolean, const: true, description: Always true. The UI shows an "AI generated" label. }
-        generated_by: { type: string, example: mock }
+        generated_by: { type: string, example: pip }
         author:
           type: object
           description: The storyteller persona that "wrote" the item (an AI character, never a real person).

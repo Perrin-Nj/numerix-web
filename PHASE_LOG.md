@@ -25,9 +25,14 @@ Todo (11 steps): review requirements done, inspect docs done, architecture done,
 
 Open debt:
 - World photos, mascot art and avatars are placeholders (emoji and gradients).
-- The 8 BKT parameters and the mock texts are guesses.
-- Deployed mock backend host is pending (Vercel cannot run WireMock).
+
+
 - No unit tests by owner decision; verification is Storybook plus the smoke scripts.
 - The Storybook story tests (`@storybook/addon-vitest`) were not run.
 
-Decision: GO for playtest preparation once the hosted mock exists.
+
+
+
+## Mock removal
+
+The WireMock mock, the local state source and the on-device game store were removed. The Go API serves every endpoint, including challenges and the welcome gift.

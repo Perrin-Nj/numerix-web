@@ -74,7 +74,7 @@ bash scripts/test.sh live        # flows, ui and error checks against numerix-we
 curl -s https://numerix-web-snowy.vercel.app/api/health
 curl -s https://<go-api-host>/v1/health
 curl -s -o /dev/null -w "%{http_code}\n" https://numerix-admin.vercel.app/login          # 200
-curl -s -o /dev/null -w "%{http_code}\n" https://numerix-mock.vercel.app/admin/v1/overview   # 401 without the token
+
 ```
 
 Then open https://numerix-admin.vercel.app/login and sign in.
@@ -90,7 +90,7 @@ Run it inside the folder of the project to roll back.
 
 ## Connect GitHub to Vercel (done for web and admin; only needed again for a new project)
 
-In GitHub: Settings, Applications, Vercel, Configure, add the repository. Then in Vercel for each project: Settings, Git, Connect Git Repository. Set the root directory to `.` (web), `admin` (admin) and `mock` (mock).
+In GitHub: Settings, Applications, Vercel, Configure, add the repository. Then in Vercel for each project: Settings, Git, Connect Git Repository.
 
 ## Keep-alive
 

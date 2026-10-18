@@ -447,7 +447,7 @@
         "method": {
           "title": "How do you want to pay?",
           "secure": "You never type a card number here. When you continue, payment finishes on the payment provider's secure page.",
-          "mock": "In this test version, payment completes instantly and no money moves.",
+          "testNote": "In this test version, payment completes instantly and no money moves.",
           "card": {
             "name": "Credit or debit card",
             "hint": "Visa, Mastercard, Amex"

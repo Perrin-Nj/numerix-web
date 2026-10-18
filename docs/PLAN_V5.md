@@ -17,7 +17,6 @@ Phone audit (`scripts/mobile-audit.mjs`, 360x740, Zoé signed in), then security
 | A7 | Gift overlay covers Home with no way to skip | screenshot | "Plus tard" secondary action, remembered for the session |
 | A8 | Parent clicks Play on a child, then is asked again who plays | owner report | Play on a child card enters that child at once (PIN dialog only if the profile has a PIN), then `/play/home` |
 | S1 | No `Origin` check on the same-origin proxy; relies on SameSite=Lax only | `route.ts` | reject mutating requests whose `Origin` is not the app origin (403 `forbidden_origin`) |
-| S2 | `nx_parent_email` cookie is readable by scripts and holds PII | mock-only helper | only set when `useMock`; backend uses the token; document removal (BE side) |
 | S3 | CSP allows `'unsafe-inline'` scripts | headers | document as a known limit; plan nonce-based CSP via proxy.ts (Next supports it) behind a flag, ticket BE-29 for report-uri |
 | S4 | Admin login rate limit is per serverless instance | admin README | documented; Vercel Firewall rule recommended; real backend must rate limit |
 | S5 | Dependencies | `pnpm audit --prod` | clean, add to CI list |
@@ -54,7 +53,7 @@ Phone layout of the story screen (360x740): a fixed top bar (exit, pause), a sta
 ## 5. Backend contract, complete (`contracts/`)
 
 Deliverables:
-- `contracts/BACKEND_INTEGRATION.md`: the one document a backend team reads. Sections: architecture and trust boundaries, auth (parent login, refresh, child token, PIN, consent, cookies or bearer, token lifetimes), the full endpoint catalogue with who calls it and when, request and response examples, error catalogue (`Problem` codes with HTTP status, fr/en text keys, frontend behaviour), idempotency rules, pagination, narration SSE protocol (events, heartbeats, fallback, resume), subscription and payments (hosted checkout, webhooks, states, grace), notifications and web push (VAPID, payload, topics), admin API, platform config, analytics series, audit log, data model per entity with fields, enums and limits, rate limits, CORS and CSP, headers the frontend sends, health and readiness, versioning and deprecation, content rules (localisation, reading level, no free text from children), privacy (Law 25: retention, export, delete, consent), observability, performance budgets, environments and env vars, seed and fixtures, acceptance checklist, and a migration switch list (`USE_MOCK`, `STATE_SOURCE`).
+- `contracts/BACKEND_INTEGRATION.md`: the one document a backend team reads.
 - `scripts/api-inventory.mjs`: scans `src/**` for every API call and every `/api/v1` path, compares with `contracts/openapi.yaml` and with the guide, and fails when a call has no operation or an operation is undocumented. Part of `scripts/test.sh contract`.
 - `contracts/BACKEND_REQUIREMENTS.md` is kept and cross-linked; every BE item has an owner, priority, and acceptance test.
 - The list is reviewed three times: (1) inventory script output, (2) walk through each screen and note every network or stored value, (3) walk through `docs/PRODUCT_PROMPT.md` hard rules. Result recorded in the guide's "review log".
@@ -74,7 +73,7 @@ platform/   browser services: audio, speech, notifications, storage, theme
 config/     validated environment
 ```
 
-Changes: `lib/game/*` becomes `domain/game/*`; `lib/api` becomes `data/api`; `features/api/hooks.ts` (360 lines) is split into `data/hooks/{auth,children,sessions,progress,platform}.ts` with one gateway interface (`data/gateway.ts`) and two adapters, so switching `STATE_SOURCE` swaps an adapter, not scattered conditionals; `lib/{audio,speech,notify,theme,motion}` become `platform/*`. Barrel files per folder, each folder gets a `README.md` (purpose, public API, rules, examples). ESLint `no-restricted-imports` zones and `scripts/check-architecture.mjs` enforce the arrows in CI. `docs/ARCHITECTURE.md` explains layers, data flow (kid answer to state to screens), local vs api state, error handling, i18n, theming, testing. TSDoc on every exported function and component. ADRs for the gateway split and the layer rules.
+Changes: `lib/game/*` becomes `domain/game/*`; `lib/api` becomes `data/api`; `lib/{audio,speech,notify,theme,motion}` become `platform/*`. Barrel files per folder, each folder gets a `README.md` (purpose, public API, rules, examples). ESLint `no-restricted-imports` zones and `scripts/check-architecture.mjs` enforce the arrows in CI. `docs/ARCHITECTURE.md` explains layers, data flow (kid answer to state to screens), local vs api state, error handling, i18n, theming, testing. TSDoc on every exported function and component. ADRs for the gateway split and the layer rules.
 
 Risk: a large move can break imports. Mitigation: do it last, mechanically (git mv plus path rewrite script), typecheck and the full shell suite after each layer move, commit per step.
 
@@ -101,4 +100,4 @@ Reviewed on 2026-10-13: scope is coherent, the order avoids file collisions, ris
 | 2 Answer experience and story phone layout (section 3) plus human imagery (section 4) | agent story | `StoryScreen`, `game/{outcome-sim,scene-picture,mascot,choice-button,story-panel,outcome-beat,illustration-frame,human-avatar,reaction}`, `public/reactions`, `public/LICENSES.md` | story checks, mobile audit story step, reduced-motion stories |
 | 3 Backend contract and inventory script | agent contract | `contracts/**`, `scripts/api-inventory.mjs` | `test.sh contract` passes |
 | 4 Clean architecture refactor and docs | agent architecture | whole `src/` moves, eslint config, `docs/ARCHITECTURE.md`, folder READMEs | typecheck, lint, full suite, architecture check |
-| 5 Redeploy app, mock, admin; update PR | lead | | live checks |
+| 5 Redeploy app, admin; update PR | lead | | live checks |

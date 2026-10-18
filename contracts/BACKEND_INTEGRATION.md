@@ -79,7 +79,7 @@ For every browser call to `/api/v1/<path>`:
 1. Builds the upstream URL `API_URL/<path>?<same query string>`. `API_URL` already contains `/v1` (default `http://localhost:8081/v1`).
 2. Reads header `x-nx-mode` (`parent` default, `child`). It chooses the cookie: mode `child` uses `nx_child`, otherwise `nx_parent`. The mode header is **not** forwarded.
 3. Skips the token for `auth/login`, `auth/register`, `auth/refresh`.
-4. Forwards only these request headers: `content-type`, `accept`, `idempotency-key`, `last-event-id`, `accept-language` (value of cookie `NEXT_LOCALE`, else the browser header), and `authorization: Bearer <token>`. In mock mode it adds `x-card-threshold-pct`, `x-mock-parent-email`, `x-mock-scenario`, `x-mock-state`.
+4. Forwards only these request headers: `content-type`, `accept`, `idempotency-key`, `last-event-id`, `accept-language` (value of cookie `NEXT_LOCALE`, else the browser header), and `authorization: Bearer <token>`.
 5. Sends the request with a 15 second total timeout, `redirect: manual`, no cache. **Consequence:** an SSE response is cut at 15 s, and the backend must never redirect.
 6. On `401` for a parent call with a refresh cookie present: calls `POST /auth/refresh {refresh_token}` once. If it answers 200 with `access_token`, `refresh_token`, `expires_in`, the proxy stores the new cookies and replays the original request once. If refresh fails, the original 401 is returned to the browser (cookies are not cleared; the app then shows the "session ended" message with a login action).
 7. Child calls never refresh. A `401` on a child call goes straight to the browser.
@@ -97,7 +97,7 @@ The backend must therefore return exactly the `AuthSession` and `ChildToken` sha
 ### 2.4 Parent accounts
 
 - **Register:** `POST /auth/register {email, password, locale}`. Password minimum 10 characters (the form also enforces it). Store with argon2id (or bcrypt cost 12+). Email unique, case-insensitive: duplicate answers `409 email_taken`. Creates a parent in `trial` with `trial_days` from the platform config. Returns 201 and `AuthSession`.
-- **Login:** `POST /auth/login {email, password}`. A wrong email or password answers `401 unauthorized` with the same text for both cases (no account enumeration) and the same timing. The mock refuses the password `wrong-password` for any email, which the tests rely on. Rate limit per email and per IP (section 16).
+- **Login:** `POST /auth/login {email, password}`. A wrong email or password answers `401 unauthorized` with the same text for both cases (no account enumeration) and the same timing. Rate limit per email and per IP (section 16).
 - **Refresh:** `POST /auth/refresh {refresh_token}`. Refresh tokens **rotate**: every successful call returns a new `refresh_token` and the old one becomes invalid. Re-using an old token revokes the whole token family and answers 401. Families expire after 30 days without use.
 - **Logout:** `POST /auth/logout {refresh_token?}` revokes the family. Idempotent, always 204. The web app does not call it yet.
 - **Parent gate:** the kid area asks a grown-up to type their password before leaving child mode. The web app does it with `POST /auth/login` using the email kept in `localStorage` (`nx:parent-email`) and the typed password. A success replaces the cookies; a failure shows "wrong password". A cheaper dedicated check is requested in CR-7.
@@ -110,7 +110,7 @@ The backend must therefore return exactly the `AuthSession` and `ChildToken` sha
 - PIN is exactly 4 digits (`^[0-9]{4}$`). Store hashed (argon2id with a per-child salt). The PIN is **never returned** by any endpoint; only `has_pin`.
 - Lock out: 5 wrong PINs for one child within 15 minutes answers `429 rate_limited` with `retry_after_seconds` until the window ends.
 - The child token is bound to `child_id`, role `child`, and cannot create other tokens. The child must belong to the parent in the parent token (otherwise `404 not_found`).
-- Without consent, the backend should refuse the token with `403 consent_missing` (the profile picker handles that answer; it also checks `consent_given` before asking). The mock still issues the token and refuses later at session start (M24). Either way `POST /children/{childId}/sessions` must refuse a child without consent.
+- Without consent, the backend should refuse the token with `403 consent_missing` (the profile picker handles that answer; it also checks `consent_given` before asking). Either way `POST /children/{childId}/sessions` must refuse a child without consent.
 - **Device model:** the kid door lists profiles with `GET /children`, which needs the parent token. So a family device keeps the parent cookies (`nx_parent`, `nx_refresh`, up to 30 days) and the child cookies side by side. Without a parent session the kid door shows "a grown-up must log in first". Changing player clears only the child cookies.
 - The child token carries no refresh token. When it expires the child sees the "session ended" message. Therefore its lifetime must cover a long play session (below).
 
@@ -118,7 +118,7 @@ The backend must therefore return exactly the `AuthSession` and `ChildToken` sha
 
 - `POST /auth/consent {child_id, version, accepted: true}` with the parent token. `version` is the privacy notice version the parent saw (currently `"2026-10"`, constant in `ConsentScreen`). Answers `204`. Idempotent. A child of another parent answers `404`.
 - Store as evidence: parent id, child id, notice version, a hash of the notice text shown, UTC timestamp, source IP network (truncated) and user agent family. Keep the evidence while the child profile exists and for 2 years after deletion (BE-39).
-- `Child.consent_given` becomes true. Until then session start, feed and play-related reads for that child are refused with `403 consent_missing` (the mock keeps feed reads closed too; reads of the child profile stay open).
+- `Child.consent_given` becomes true. reads of the child profile stay open).
 - Revoking consent is done by deleting the child profile (`DELETE /children/{childId}`), which cascades (section 22).
 
 ### 2.7 Lifetimes
@@ -298,7 +298,7 @@ Eight worlds, always in this order: `nature, espace, cuisine, sport, constructio
 
 #### `GET /skills`
 Caller: none today (reserved for the parent curriculum view). Parent token. Query `world`, `grade` (1 to 4), `implemented` (boolean).
-Response 200: `{ "items": [ Skill ] }` with `id`, `label`, `ref_pda`, `section`, `grade_intro`, `grade_mastery`, `cycle`, `prerequisites[]`, `worlds[]`, `implemented`. 75 skills in the curriculum; the contract names 8 with a generator, the mock implements the 7 listed in section 13.
+Response 200: `{ "items": [ Skill ] }` with `id`, `label`, `ref_pda`, `section`, `grade_intro`, `grade_mastery`, `cycle`, `prerequisites[]`, `worlds[]`, `implemented`. 75 skills in the curriculum;
 
 ### 3.4 Journey, home, engagement, progress
 
@@ -311,7 +311,7 @@ Caller: journey screen `/play/journey/[world]` (`useJourney`, query `world` requ
 Rules: one node per skill, ordered; `position.row` is the index in the path and `col` 0 to 4 zigzags (the layout is data, the app draws a winding path). `state`: `locked | available | in_progress | mastered | needs_review`. `level` 0 to 5 is shine on the node (0 new), never a score. `current_skill_id` is the planner's suggestion for the big Play button (first `needs_review`, else first `in_progress`, else first `available`, else the last node). A step completed (chapter finished at or above the card threshold) opens the next; **at least two steps beyond the completed ones are always playable** (`READY_AHEAD = 2` in `rules.ts`). Status: 200; 404; 422 (unknown world).
 
 #### `GET /children/{childId}/home`
-Caller: kid home `/play/home` (`useHome`, only when `NEXT_PUBLIC_STATE_SOURCE=api`). Child token.
+Child token.
 ```json
 { "suggested": { "world": "echecs", "skill_id": "ARI-OPE-A06a", "label": "Les tables", "open_session": null },
   "quest": { "available": true, "completed": false, "skill_ids": ["ARI-OPE-A06a"] },
@@ -443,7 +443,7 @@ Child token. `NEXT_PUBLIC_FEATURE_FEED` hides the tab; the endpoints still exist
 Caller: feed screen `/play/feed` (`useFeed`, infinite query, page size 5). Query `cursor`, `limit` (1 to 20, default 5).
 ```json
 { "items": [ { "id": "feed-0", "kind": "story_short", "world": "nature", "title": "La porte à chiffres", "text": "Un petit renard trouve une porte...",
-               "ai_generated": true, "generated_by": "mock", "author": { "name": "Pip", "emoji": "🦊" }, "liked": false, "saved": false,
+
                "puzzle": null, "cta": { "label": "Jouer dans Nature", "world": "nature", "skill_id": "ARI-OPE-A06a" } } ],
   "next_cursor": "i5" }
 ```
@@ -457,10 +457,10 @@ Caller: puzzle card (`answerFeedPuzzle`). Body `{ "answer": 42 }`. Response 200 
 
 ### 3.7 Challenges and gift (BE-20)
 
-Child token. Until the server owns them, the web app derives them from its on-device event log (section 15). Catalogue and metrics in section 14.
+Child token. Catalogue and metrics in section 14.
 
 #### `GET /children/{childId}/challenges`
-Caller: challenges screen `/play/challenges`, home badge, parent overview (`useChallenges`, local today).
+Caller: challenges screen `/play/challenges`, home badge, parent overview (`useChallenges`).
 ```json
 { "items": [ { "id": "sharp_three", "title": "Triplé gagnant", "description": "Réponds juste 3 fois de suite.", "target": 3, "progress": 1,
                "status": "active", "reward_label": "Une carte rare", "emoji": "🎯", "accepted_at": "2026-10-12T14:00:00Z", "card": null } ] }
@@ -499,7 +499,7 @@ Caller: subscription screen Subscribe button (`useCheckout`).
 ```json
 { "plan": "family_monthly", "method": "card" }
 ```
-Mock response 200 (instant): `{ "status": "active", "plan": "family_monthly", "method": "card", "renews_at": "2026-11-11T14:00:00Z", "can_play": true, "days_left": 30 }`.
+
 Processor response 200: the current subscription plus `"checkout_url": "https://checkout.processor.com/c/cs_123"`. The app navigates the browser to it only when it starts with `https://`; the subscription changes only after the webhook (section 8).
 Status: 200; 409 `conflict` (already on that paid plan); 422 `validation_failed` (free plan, unknown method).
 
@@ -649,7 +649,7 @@ Storage: key scope is (parent or child id, method, path). Keep the first respons
 | Page | every list of the admin API | `page` (from 1), `page_size` (1 to 100, default 20) | `{ "items": [], "page": 1, "page_size": 20, "total": 40 }` |
 | None | children (max 8), worlds (8), skills, journey nodes, reviews, notifications (latest 100), challenges | | `{ "items": [] }` |
 
-Cursors are opaque URL-safe strings of at most 256 characters, stable while new rows are added at the head. A malformed cursor answers `422 validation_failed`. `limit` defaults to 20 (max 100); the feed defaults to 5 (max 20). The feed's `next_cursor` is never null. The mock feed uses `i<index>`; do not copy that, it is only a mock.
+Cursors are opaque URL-safe strings of at most 256 characters, stable while new rows are added at the head. A malformed cursor answers `422 validation_failed`. `limit` defaults to 20 (max 100); the feed defaults to 5 (max 20). The feed's `next_cursor` is never null.
 
 ## 7. Narration SSE protocol
 
@@ -673,15 +673,15 @@ data: {}
 
 ```
 - Event name equals the phase: `scene` for `phase=scene`, `denouement` for `phase=denouement`. `data` is JSON `{"delta": "<text>"}`.
-- **Chunk format:** about 4 words per chunk, trailing space kept on every chunk but the last, so the client appends `delta` strings verbatim. Typical stream: 7 to 15 chunks, about 1.2 s in the mock. UTF-8, no newline inside `delta` (JSON-escape).
+- **Chunk format:** about 4 words per chunk, trailing space kept on every chunk but the last, so the client appends `delta` strings verbatim. UTF-8, no newline inside `delta` (JSON-escape).
 - `event: done` with `data: {}` ends a healthy stream. Close the connection after it.
 - `event: fallback` with `data: {"text":"<whole canned text>"}` replaces `done` when the model failed, timed out, produced empty text, or the leak check failed twice. The client stops, shows the text, and tells the user the story was simplified (never silent). Close after it. The beat/answer `narration.status` becomes `fallback`.
 - **Heartbeat:** a comment line `: ping` followed by a blank line every 5 seconds while no chunk is ready. The client ignores blocks without an `event:`.
 - **Timing budget:** first byte within 3 s, last chunk within 8 s. The web proxy cuts every request at **15 s total**, so the backend must send `fallback` by 8 s. Never keep a stream open longer than 12 s.
 - **Resume:** every block carries `id: <n>` (1-based). A client that reconnects with header `Last-Event-ID: <n>` gets blocks from `n+1`. The web app reconnects **once, from scratch, without** the header after a dropped stream; so the stream must be replayable from the start. Therefore: store the generated text per (beat, phase) as soon as it exists; a second request for the same (beat, phase) replays the stored text immediately (all chunks in a burst, then `done`), and never calls the model again.
-- **Slow scenario:** the mock scenario `narration-slow` delays the first byte by 9 s and then sends the stream over 1.4 s. The web app shows a "story is being written" waiting state while nothing arrives. The real backend should treat 3 s without a first chunk as slow (log it) and send `fallback` at 8 s.
+The web app shows a "story is being written" waiting state while nothing arrives. The real backend should treat 3 s without a first chunk as slow (log it) and send `fallback` at 8 s.
 - **Errors before the stream:** use normal problem+json statuses (404 unknown beat, 409 `beat_not_answered` when `phase=denouement` before the answer, 409 `session_completed`, 401, 429). After the first byte, errors are only `fallback`.
-- **After the stream:** `Beat.scene` and `AnswerResult.denouement` show `{status: "ready", text: "<full text>"}` (or `fallback`), so a reload shows the text without a stream. The mock leaves `pending` and `null` forever; the real backend must not.
+- **After the stream:** `Beat.scene` and `AnswerResult.denouement` show `{status: "ready", text: "<full text>"}` (or `fallback`), so a reload shows the text without a stream. the real backend must not.
 - **Content gates** (checked before the first chunk is sent, so generate the whole text, check it, then stream it in chunks): scene 25 to 60 words, denouement 15 to 45 words; no digits-as-answer and no math symbols (`+ − × ÷ =`) in narration; numbers are said in words; the scene ends with a question; no em dash; the correct answer (as digits or as words, both languages, and the remainder for division) must not appear (`fuite_detectee()`); language equals `Accept-Language`. The denouement depends on the outcome: `correct` celebrates; `erreur_typique` is gentle and adds the one-sentence nudge for the misconception of the skill (section 13); `erreur_aleatoire` offers another try. Never say "wrong", never name a score.
 
 ## 8. Subscriptions and payments
@@ -757,7 +757,7 @@ The original request said unpaid parents' kids "can play" and paid parents' kids
 | `time_limit` | parent | minutes played today >= child's `daily_time_limit_minutes` | `kind:` + local date |
 | `announcement` | parent or child | admin broadcast, one row per recipient with a shared `broadcast_id` | broadcast id |
 
-Title and body are stored in the parent's locale (`fr-CA` or `en-CA`). Text of the four automatic kinds (fr / en) is in `mock/lib/platform.mjs` `NOTE_COPY`. The list endpoint creates the automatic ones lazily in the mock; the real backend should create them with a scheduled job and keep only the latest 1500.
+Title and body are stored in the parent's locale (`fr-CA` or `en-CA`). the real backend should create them with a scheduled job and keep only the latest 1500.
 
 The web app also computes **local reminders** on the device from the same rules (`src/features/notify/reminders.ts`) and merges them with server items by `created_at`. They have different ids (`play_reminder:<local day>`), so if the server also creates `play_reminder` or `time_limit` the parent can see both (M12). Until the app dedupes: create `play_reminder` and `time_limit` on the server **only** for parents who have a push subscription, and let the in-app list show the local ones.
 
@@ -795,7 +795,7 @@ Paged lists answer `{items, page, page_size, total}`.
 Caller: admin dashboard. Response: the complete `Overview` object; every field in 10.4 is required. All time series have their stated fixed number of points, including `trend_30` with 31 snapshots (30 days ago through today). Do not omit a series when it has no activity; return zero-valued points. The dashboard reads the first and last `trend_30` entries.
 
 #### `GET /admin/v1/parents`
-Caller: admin parents list. Query: `status` (`active|blocked`), `subscription` (effective status), `plan` (the mock ignores it, the real API must filter), `q` (name or email, case-insensitive), `page`, `page_size`. Newest first.
+Caller: admin parents list. Query: `status` (`active|blocked`), `subscription` (effective status), `plan`, `q` (name or email, case-insensitive), `page`, `page_size`. Newest first.
 ```json
 { "items": [ { "id": "aaaaaaaa-0000-4000-8000-000000000001", "email": "marie.tremblay1@example.com", "name": "Marie Tremblay",
                "created_at": "2026-08-02T10:00:00Z", "locale": "fr-CA", "status": "active",
@@ -856,7 +856,7 @@ Caller: admin audit screen. Newest first. The admin app searches actor and targe
 - Append an `AuditEntry {id, at, actor, action, target_type, target_id, detail}` for **every mutation** and for **every read of a child record**. Actions in use: `parent.block`, `parent.unblock`, `parent.update`, `parent.delete`, `child.read`, `child.activity.read`, `children.list`, `child.update`, `plans.update`, `config.update`, `notification.broadcast`. Parent-side exports add `child.export` (actor `parent:<id>`).
 - `target_type`: `parent | child | config | plans | notification`. `target_id` is `*` for list reads and config.
 - `detail` is at most 300 characters, never a name, email or free text from a child; ids and field names only.
-- Append-only: no update or delete route. Keep at least 12 months. The privacy officer can review it. The mock keeps the latest 500; the real store keeps all.
+- Append-only: no update or delete route. Keep at least 12 months. The privacy officer can review it. the real store keeps all.
 - Failed admin authentication attempts are logged in the security log, not in this audit list.
 
 ### 10.4 Analytics series (definitions)
@@ -946,7 +946,7 @@ Enums: world ids `nature, espace, cuisine, sport, construction, medecine, scienc
 1. **Answers stay hidden (BE-01).** The correct answer and the misconception answer exist only inside the engine and in the two server-only beat columns. They never appear in `Beat`, `Session.current_beat`, `GET /sessions/{id}`, feed puzzles, the journey, logs, caches, analytics, error bodies or any SSE stream. After the child answers, `AnswerResult.correct_answer` reveals the correct value (and only then).
 2. **Three outcomes.** `correct`: the answer equals the engine's correct value. `erreur_typique`: it equals the documented misconception answer of the skill (for example 11 + 6 mistaken for the sum without carry). `erreur_aleatoire`: anything else. Comparison is numeric: integers and numeric strings compare as numbers; division with remainder compares `[quotient, remainder]` element by element. The outcome only selects which story beat is shown; it is never shown as success or failure chrome, never as a score on the play screen.
 3. **Question shape.** `math_text` is plain text the app prints and the test solver parses: `a + b = ?`, `a − b = ?` (U+2212), `a + ? = c`, `a × b = ?`, `N ÷ k = ?`, and `N ÷ k = ? (avec reste)` / `(with remainder)`. `choices` has exactly 4 distinct values: the correct value, the typical-error value, and two near values (the correct value plus or minus small steps), never negative, shuffled with the session seed. Division with remainder uses `[q, r]` pairs.
-4. **Determinism and variety.** A problem is a pure function of (skill, seed, beat index) so a replay is identical; numbers and wording change on every new session (new seed). Reference generators: `problemFor` in `mock/lib/session.mjs`.
+4. **Determinism and variety.** A problem is a pure function of (skill, seed, beat index) so a replay is identical; numbers and wording change on every new session (new seed).
 5. **Chapter loop.** A chapter is 3 beats. `POST .../sessions` creates the session and picks a story title from the world kit; each `POST .../beats` returns the next question (or the open one); each answer returns the verdict, the rewards on the last beat, and the new session state. The planner picks the skill (review, consolidation, new, upkeep) unless `skill_id` is given; an unknown or missing id falls back to the first implemented skill. `kind=onboarding` serves fixed easy problems and does not count in mastery; `kind=daily_quest` uses the due reviews.
 6. **Skill ids and misconception codes** (the seven skills with generators in the contract; 75 exist in the curriculum, `GET /skills`):
 
@@ -960,8 +960,8 @@ Enums: world ids `nature, espace, cuisine, sport, construction, medecine, scienc
 | `ARI-OPE-A07a` | Division avec reste / Division with remainder | `reste_ignore` | Ignore le reste dans une division | Ignores the remainder in a division |
 | `ARI-SEN-A01c` | Grands nombres / Big numbers | `retenue_grands_nombres` | Oublie la retenue avec les grands nombres | Forgets the carry with big numbers |
 
-   Typical-error value per skill: carry forgotten = `sum − 10`; borrow reversed = `10 * (tensA − tensB) + (onesB − onesA)`; missing term added instead = `c + a`; times table added = `a + b`; share subtracted = `N − k`; remainder ignored = `[q, 0]`; big-number carry forgotten = `sum − 1000`. The one-sentence nudge shown after an `erreur_typique` is stored per skill in both languages (`mock/lib/session.mjs` `SKILLS`, columns 7 and 8). Each new misconception adds a row here and a nudge in both languages.
-7. **Mastery.** Stand-in model used by the local state and the tests: start 0; right answer +0.25 (max 1); typical mistake −0.15; other mistake −0.10 (min 0); after 3 idle days mastery decays by 0.05 per idle day. A skill is `mastered` at 0.75 or more. The server may use a better model (Bayesian knowledge tracing or similar) if: mastery is a probability in 0 to 1 that decays with time; three right answers in a row on a fresh skill reach `mastered`; mistakes never drop it below 0; states follow section 14.
+   Typical-error value per skill: carry forgotten = `sum − 10`; borrow reversed = `10 * (tensA − tensB) + (onesB − onesA)`; missing term added instead = `c + a`; times table added = `a + b`; share subtracted = `N − k`; remainder ignored = `[q, 0]`; big-number carry forgotten = `sum − 1000`. Each new misconception adds a row here and a nudge in both languages.
+7. **Mastery.** Stand-in model used by tests: start 0; right answer +0.25 (max 1); typical mistake −0.15; other mistake −0.10 (min 0); after 3 idle days mastery decays by 0.05 per idle day. A skill is `mastered` at 0.75 or more. The server may use a better model (Bayesian knowledge tracing or similar) if: mastery is a probability in 0 to 1 that decays with time; three right answers in a row on a fresh skill reach `mastered`; mistakes never drop it below 0; states follow section 14.
 8. **Spaced review.** A mastered skill becomes `needs_review` after 7 days without practice in the stand-in model; the server should schedule `next_review_at` at +1, +3, +7, +14, +30 days after each successful review (the `level`, 0 to 5, counts distinct days with a right answer). `GET /children/{childId}/reviews` lists due items; the daily quest uses them.
 9. **Narrator contract.** Input to the LLM: world kit, language, skill name, numbers in words, outcome for the denouement, misconception nudge. Never the child's name or any identifier (section 22). Output is checked by the leak detector (digits and number words of the answer in both languages), word counts, symbols, language, em dashes; retry once; then `fallback` (section 7). Narrator state is exposed as `narrator` in `/health`.
 10. **Daily limit.** `daily_time_limit_minutes` counts active play minutes of the child's local day. At session start, if reached: `403 daily_limit_reached`. The web app never enforces it (it only shows reminders), so the server must (BE-38).
@@ -972,7 +972,7 @@ All day boundaries use the **child's time zone** (`Child.timezone`).
 
 - **Chapter completion:** a chapter is completed when its 3rd beat is answered, or the child finishes it early with `POST /sessions/{id}/finish` (then it is `abandoned` if fewer than 3 answers).
 - **Score object** (`Session.score`, on the answer result and the summary): `correct` = beats with outcome `correct`; `total` = answered beats; `pct = round(1000 * correct / total) / 10` (0 when total is 0); `threshold_pct` = `card_threshold_pct`; `card_awarded = completed && total > 0 && pct >= threshold_pct`. With 3 beats and the default 70, only 3 of 3 passes (2 of 3 is 66.7); with 50, 2 of 3 passes. The play screen never shows it.
-- **Card threshold rule:** the same test decides the card and whether the journey step counts as completed (opening the next step). The threshold comes from the platform config; the web app sends `x-card-threshold-pct` only to the mock.
+- **Card threshold rule:** the same test decides the card and whether the journey step counts as completed (opening the next step). The threshold comes from the platform config;
 - **Cards:** one card per completed chapter that passes, `card_earned` reward on the last answer; id is a UUID, `session_id` set, `world` = session world, `title` = story title. Challenge cards have id `ch-<challenge id>`. The gift card has id `welcome`. A card is never awarded twice for the same session or challenge. Whenever an action completes a challenge (the last answer of a chapter, a like, a puzzle), the response of that action carries the challenge card as a `card_earned` reward (id `ch-<challenge id>`), because the app shows its celebration from the response, not by polling.
 - **Streak:** days (in the child's time zone) with at least one **completed** chapter. `current_days` counts consecutive days ending today, or ending yesterday if nothing was done yet today (so the streak survives until the day ends). `longest_days` is the longest run ever; always at least `current_days`. `last_active_date` is the latest such day or null. A missed day resets to 0 with no punishment screen. Milestones 3, 7 and 14 days are celebrated by the app from `current_days`.
 - **Daily goal:** `target_chapters` = `daily_goal_chapters` (1 to 5); `done_chapters` = completed chapters today.
@@ -994,15 +994,13 @@ All day boundaries use the **child's time zone** (`Child.timezone`).
 
   Metrics: `chapters_done` completed chapters; `correct_streak` longest run of `correct` answers in a row; `worlds_played` distinct worlds with a started session; `likes` distinct feed items currently liked (an unlike removes one); `puzzles_correct` feed puzzles answered `correct`; `days_played` distinct days with a completed chapter. Full texts (descriptions and card titles in both languages) are in `src/domain/game/catalog.ts`, constant `CHALLENGES`; the backend stores the same strings.
 - **Gift:** one welcome gift per child, a card (`welcome`, world nature, "Le cadeau de bienvenue" / "The welcome gift"); `gift_available` is true until `POST .../gift/claim` succeeds.
-- **Tour:** the first-run guided tour sets `onboarding_completed` (the local event `tour`).
+- **Tour:** the first-run guided tour sets `onboarding_completed`.
 
-## 15. Local state vs API state
+## 15. State ownership
 
-`NEXT_PUBLIC_STATE_SOURCE` is `api` (default) or `local`.
+The server owns all game state: journey, home, engagement, growth, collection, progress, challenges and the welcome gift. The device keeps only preferences and caches (below). Sessions, beats and answers always go to the server because grading needs it.
 
-In **local** mode everything a child does is appended to an on-device event log (`nx:game:v1` in `localStorage`, per child id, last 2000 events) and every screen derives its numbers from that log with pure functions (`src/domain/game/selectors.ts`). No names are stored there. In **api** mode the server owns all of it and the screens call the endpoints below. Sessions, beats and answers go to the server in both modes (grading always needs the server).
-
-| Event (`src/domain/game/events.ts`) | Local effect | Server owns it through |
+| Action | Meaning | Endpoint |
 |----------------------------------|--------------|------------------------|
 | `start` | session begins, mode `chapter`, `daily_quest`, `challenge` or `onboarding` | `POST /children/{childId}/sessions` (the `challenge` mode does not exist server side: a challenge is accepted with `accept`, and plays are normal chapters) |
 | `answer` | outcome appended with beat index | `POST /sessions/{sessionId}/beats/{beatId}/answer` |
@@ -1014,11 +1012,10 @@ In **local** mode everything a child does is appended to an on-device event log 
 | `gift` | welcome gift claimed (with its `card` event) | `POST /children/{childId}/gift/claim` |
 | `tour` | guided tour done | `PATCH /children/{childId}` with `onboarding_completed: true` |
 
-Reads the server must answer in api mode (hook, endpoint): `useHome` `GET /children/{childId}/home`; `useJourney` `GET /children/{childId}/journey`; `useCollection` `GET /children/{childId}/collection`; `useEngagement` `GET /children/{childId}/engagement`; `useGrowth` `GET /children/{childId}/growth`; `useDailyQuest` `GET /children/{childId}/quests/daily`; `useProgress` `GET /children/{childId}/progress`; `useSessionList` `GET /children/{childId}/sessions`; `useSessionSummary` `GET /sessions/{sessionId}/summary`; `useWeeklyReport` `GET /reports/weekly`. Always from the server in both modes: children, settings, worlds, feed, subscription, notifications, platform.
+Reads the server must answer (hook, endpoint): `useHome` `GET /children/{childId}/home`; `useJourney` `GET /children/{childId}/journey`; `useCollection` `GET /children/{childId}/collection`; `useEngagement` `GET /children/{childId}/engagement`; `useGrowth` `GET /children/{childId}/growth`; `useDailyQuest` `GET /children/{childId}/quests/daily`; `useProgress` `GET /children/{childId}/progress`; `useSessionList` `GET /children/{childId}/sessions`; `useSessionSummary` `GET /sessions/{sessionId}/summary`; `useWeeklyReport` `GET /reports/weekly`. Always from the server in both modes: children, settings, worlds, feed, subscription, notifications, platform.
 
-Today `useChallenges`, the welcome gift and the tour flag stay local even when `STATE_SOURCE=api` (the hook says "local-only until the server has them", BE-20; M13). On a device the following stays local in every mode: language cookie, theme cookies, preferences (`nx:prefs:v1`: sound, vibration, voice), the child's first name and avatar cache (`nx:child:<id>:profile`), tour flag key `nx:onboarding:<id>`, greeting flags (sessionStorage `nx:greet:*`), temporary rewards (`nx:rewards:<sessionId>`), seen notification ids (`nx:notified`), notification prompt dismissal (`nx:notify-prompt-dismissed`), parent email for the gate (`nx:parent-email`). Signing out as a grown-up clears everything under `nx:`; changing player clears memory only.
+On a device the following stays local: language cookie, theme cookies, preferences (`nx:prefs:v1`: sound, vibration, voice), the child's first name and avatar cache (`nx:child:<id>:profile`), tour flag key `nx:onboarding:<id>`, greeting flags (sessionStorage `nx:greet:*`), temporary rewards (`nx:rewards:<sessionId>`), seen notification ids (`nx:notified`), notification prompt dismissal (`nx:notify-prompt-dismissed`), parent email for the gate (`nx:parent-email`). Signing out as a grown-up clears everything under `nx:`; changing player clears memory only.
 
-Switching from local to api does not migrate the device log (BE-46, optional import). A child starts from the server state; the device log stays untouched so a switch back is safe.
 
 ## 16. Rate limits
 
@@ -1098,7 +1095,7 @@ The web app only distinguishes ok, timeout, error and unreachable. A slow `/heal
 - Additive changes allowed inside v1: new optional request fields, new response fields, new endpoints. Clients ignore unknown fields.
 - New values of an existing enum (outcomes, reward types, notification kinds, node states, error codes) are treated as breaking for server-emitted enums unless the frontend release that handles them ships first. The frontend maps any unknown error code to `unknown` and ignores unknown reward types.
 - Breaking changes require `/v2` served side by side. Deprecate with headers `Deprecation: true` and `Sunset: <date>` and at least 90 days of overlap, announced in `BACKEND_REQUIREMENTS.md`.
-- Workflow: edit `openapi.yaml`, run `pnpm gen:api`, run `pnpm typecheck`, run `bash scripts/test.sh contract`, update the WireMock mapping and the mock in the same pull request.
+
 
 ## 21. Content rules
 
@@ -1146,7 +1143,7 @@ Parent: email, password hash, locale, subscription, consent records, push endpoi
   "reactions": [ { "item_id": "feed-3", "liked": true, "saved": false } ],
   "challenges": [ { "id": "sharp_three", "accepted_at": "...", "completed_at": null } ] }
 ```
-The mock returns only `{child, sessions: [], progress: []}`; the real export must be complete. It never includes the PIN hash or other families' data. Audit `child.export`.
+the real export must be complete. It never includes the PIN hash or other families' data. Audit `child.export`.
 
 ### 22.4 Delete and cascade
 `DELETE /children/{childId}` removes the child, settings, sessions, beats, answers, mastery, misconceptions, cards, challenge state, gift, reactions, `activity_day` rows, idempotency records and cached aggregates, then scrubs the child id from logs after 30 days. It also revokes any child token (add the child to a deny list until the token expires). `DELETE /admin/v1/parents/{parentId}` and `DELETE /account` do the same for all children plus the parent, subscription (the processor subscription is canceled and the customer deleted), notifications, push subscriptions and refresh tokens. A deletion is audited.
@@ -1201,8 +1198,7 @@ Payloads: home 20 KB or less gzip, journey 10 KB or less, list pages 50 KB or le
 |----------|-------|---------|---------|
 | `API_URL` | server | `http://localhost:8081/v1` | Backend base URL including `/v1`. |
 | `NEXT_PUBLIC_APP_ENV` | public | `development` | `development`, `preview`, `production`. |
-| `NEXT_PUBLIC_STATE_SOURCE` | public | `api` | `local` or `api` (section 15). |
-| `NEXT_PUBLIC_CARD_THRESHOLD_PCT` | public | 70 | 0 to 100. Used by the local game rules and sent to the mock. The real backend uses `PlatformConfig.card_threshold_pct`. |
+| `NEXT_PUBLIC_CARD_THRESHOLD_PCT` | public | 70 | 0 to 100. The real backend uses `PlatformConfig.card_threshold_pct`. |
 | `NEXT_PUBLIC_DEFAULT_LOCALE`, `NEXT_PUBLIC_LOCALES` | public | `fr-CA`, `fr-CA,en-CA` | Locales offered. |
 | `NEXT_PUBLIC_FEATURE_FEED`, `NEXT_PUBLIC_FEATURE_KIOSK`, `NEXT_PUBLIC_FEATURE_TV`, `NEXT_PUBLIC_FEATURE_READ_ALOUD` | public | true | Feature switches in the UI. |
 | `NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI`, `NEXT_PUBLIC_FEATURE_WELCOME_GIFT`, `NEXT_PUBLIC_SHOW_DEMO_BADGE` | public | false | Hide-by-default UI switches: the trial and subscription badge, card and links; the first-visit welcome gift (other gifts stay); the demo-data badge. They hide UI only, the server still enforces the subscription gate (BE-62, BE-63). |
@@ -1215,7 +1211,7 @@ Payloads: home 20 KB or less gzip, journey 10 KB or less, list pages 50 KB or le
 
 **Admin app:** `ADMIN_PASSWORD` (min 8), `ADMIN_SESSION_SECRET` (min 32), `PLATFORM_API_URL` (platform base without `/admin/v1`), `ADMIN_API_TOKEN`. All server only.
 
-**Platform / mock:** `ADMIN_API_TOKEN`, `ADMIN_ORIGIN`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (shared store for the demo), `NODE_ENV` (the dev default token `dev-admin-token` exists only outside production).
+
 
 **Backend (proposed names):** `DATABASE_URL`, `REDIS_URL`, `JWT_SIGNING_KEYS` (rotating set), `ACCESS_TTL_SECONDS` (3600), `REFRESH_TTL_DAYS` (30), `CHILD_TTL_SECONDS` (28800), `NARRATOR_PROVIDER` and key, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `PAYMENT_API_KEY`, `PAYMENT_WEBHOOK_SECRET`, `PAYMENT_GRACE_DAYS` (3), `EMAIL_PROVIDER` and key, `ADMIN_API_TOKEN`, `ADMIN_ORIGIN`, `SEED_DEMO_CHILDREN` (never true in production), `CSP_REPORT_ENABLED`. Secrets live in the platform secret store, never in the repo.
 
@@ -1230,68 +1226,61 @@ Payloads: home 20 KB or less gzip, journey 10 KB or less, list pages 50 KB or le
 
 ## 27. Acceptance checklist
 
-The backend passes when every item below passes. "flows" is `node scripts/flows.mjs <app url>` (HTTP through the web proxy with real cookies), "selftest" is `node mock/scripts/selftest.mjs <mock url>` (reference behaviour; against a real backend, port the check names into the backend's own tests), "contract" is `bash scripts/test.sh contract`, "ui" is `node scripts/ui-checks.mjs`.
+The backend passes when every item below passes. against a real backend, port the check names into the backend's own tests), "contract" is `bash scripts/test.sh contract`, "ui" is `node scripts/ui-checks.mjs`.
 
 | # | Requirement | Test | Item |
 |---|-------------|------|------|
 | AC-01 | Every frontend call has an operation and every operation is documented | contract (all lines `ok`) | BE-49 |
 | AC-02 | Register sets the parent cookie and the body has no token | flows "register" | BE-19 |
-| AC-03 | Wrong password refused; wrong-password sentinel works in staging | flows, selftest "wrong PIN is refused" for PIN | BE-19 |
+| AC-03 | Wrong password refused; wrong-password sentinel works in staging | flows, API test "wrong PIN is refused" for PIN | BE-19 |
 | AC-04 | Child list, create with PIN, new child starts without consent | flows "create child", "new child starts without consent" | BE-19 |
 | AC-05 | Wrong PIN gives 403 `invalid_pin`; own PIN gives a child cookie and no token in the body | flows "wrong PIN refused", "own PIN accepted..." | BE-19 |
-| AC-06 | Play without consent gives 403 `consent_missing`; consent gives 204 and play works | flows "chapter refused without consent", "parent gives consent"; selftest "no consent yet: play refused", "consent recorded" | BE-19 |
-| AC-07 | A beat never carries the answer; 4 distinct choices including the answer and the misconception | flows "question without answer"; selftest "beat never carries the answer", "beat has 4 distinct choices..." | BE-01 |
-| AC-08 | Three outcomes are told apart and graded by the engine | selftest "typical error, random error and correct are told apart", "wrong answers still return correct_answer for the engine" | BE-01 |
-| AC-09 | A chapter ends after 3 answers with `chapter_complete`; early answers carry no rewards | selftest "chapter ends after 3 answers...", "early answers carry no rewards..." | BE-21 |
-| AC-10 | Card threshold: 3 of 3 earns a card; 2 of 3 at 70 does not; threshold 50 does; invalid header falls back to 70 | flows "2 of 3 right: chapter completes without a card"; selftest threshold checks, "final answer carries score..." | BE-22 |
-| AC-11 | Score object on answer and summary | selftest "score shows 2/3, 66.7, card_awarded false" | BE-22 |
-| AC-12 | Idempotent beat and answer: same beat returned, second answer gives 409 `beat_answered` | selftest "open beat requested again returns the same beat (200)", "answering a beat twice gives 409 beat_answered" | BE-02 |
-| AC-13 | Unknown beat or session gives 404; beat after completion gives 409 `session_completed` | selftest "unknown beat gives 404", "unknown session gives 404", "beat after completion gives 409 session_completed" | BE-03 |
-| AC-14 | Narration streams `scene` events then `done`; denouement before answering gives 409; chunks about 4 words | selftest "scene streams as scene events then done", "denouement before the answer is refused (409)", "chunks are about 4 words" | BE-04 |
-| AC-15 | Narration `fallback` event and slow stream behave as specified | selftest "narration-fallback sends a fallback event", "narration-slow holds the stream back"; ui error checks | BE-04 |
-| AC-16 | Narration text gates: lengths, no math symbols, no em dash, language | selftest "scene is 25-60 words...", "no + − × ÷ = in scene narration", "no em dash in scenes", "denouement is 15-45 words" | BE-05 |
-| AC-17 | Pause, resume, finish, summary with stuck points | selftest "pause", "resume", "finish", "summary: ..." | BE-21 |
-| AC-18 | Injected failures return the right status and problem body | selftest "rate-limited gives 429...", "unauthorized gives 401...", "server-error gives 500...", "daily-limit gives 403..." | BE-03 |
-| AC-19 | Feed: 20 items per page, endless, no repeats, AI labelled, puzzle never leaks, graded by the engine, reaction stored | selftest feed checks, "puzzle answer is graded", "reaction stored" | BE-18 |
-| AC-20 | Profiles are real state: create, list, delete, nine profiles refused | selftest "new child is listed with the others", "deleted child disappears", "a ninth profile is refused" | BE-19 |
-| AC-21 | Trial parent can start a chapter; plans, checkout (+30 days), cancel keeps access | selftest "register creates a trial parent", "plans: free 0, monthly 899...", "checkout activates...", "cancel keeps access..." | BE-24 |
-| AC-22 | Unpaid gives 402 with i18n; blocked gives 403; policy allow lets play; paid works again | flows "unpaid parent: Play is refused...", "blocked parent..."; selftest "unpaid: 402 subscription_inactive with i18n copy", "policy allow lets an unpaid family play" | BE-24 |
-| AC-23 | Platform public exposes policy and threshold | selftest "platform public exposes policy and threshold" | BE-25 |
-| AC-24 | Notifications: broadcast reaches the right parent in the right language, mark read works | selftest "broadcast reaches one targeted parent", "parent receives the broadcast in the right language", "mark read works" | BE-25 |
-| AC-25 | Admin refuses missing and wrong tokens; CORS only for `ADMIN_ORIGIN` | selftest "admin refused without token", "admin refused with a wrong token", "CORS: ..." | BE-23 |
-| AC-26 | Admin parents are paged, searchable, filterable; block, unblock, mark paid or unpaid, extend, delete | selftest "parents are paged" ... "admin deletes a parent" | BE-23 |
-| AC-27 | Admin overview figures are consistent (sums, series lengths, MRR) | selftest "overview counts parents...", "overview subscription_mix sums...", "overview kids_by_grade sums...", "overview plan_mix mrr equals...", "overview day series...", "overview month series..." | BE-23 |
-| AC-28 | Every admin mutation and child read is audited | selftest "audit grew with every mutation", "child reads are audited", "audit entries carry actor, action and target" | BE-27 |
-| AC-29 | `kid_can_change_language` round trip parent to kid and admin to kid | selftest "settings default kid_can_change_language true", "parent turns kid_can_change_language off", "admin turns it back on and the kid app sees it" | BE-28 |
-| AC-30 | Admin plan edits reach parents | selftest "admin edits plan prices, parents see them" | BE-23 |
+| AC-06 | Play without consent gives 403 `consent_missing`; consent gives 204 and play works | flows "chapter refused without consent", "parent gives consent"; API test "no consent yet: play refused", "consent recorded" | BE-19 |
+| AC-07 | A beat never carries the answer; 4 distinct choices including the answer and the misconception | flows "question without answer"; API test "beat never carries the answer", "beat has 4 distinct choices..." | BE-01 |
+| AC-08 | Three outcomes are told apart and graded by the engine | API test "typical error, random error and correct are told apart", "wrong answers still return correct_answer for the engine" | BE-01 |
+| AC-09 | A chapter ends after 3 answers with `chapter_complete`; early answers carry no rewards | API test "chapter ends after 3 answers...", "early answers carry no rewards..." | BE-21 |
+| AC-10 | Card threshold: 3 of 3 earns a card; 2 of 3 at 70 does not; threshold 50 does; invalid header falls back to 70 | flows "2 of 3 right: chapter completes without a card"; API test threshold checks, "final answer carries score..." | BE-22 |
+| AC-11 | Score object on answer and summary | API test "score shows 2/3, 66.7, card_awarded false" | BE-22 |
+| AC-12 | Idempotent beat and answer: same beat returned, second answer gives 409 `beat_answered` | API test "open beat requested again returns the same beat (200)", "answering a beat twice gives 409 beat_answered" | BE-02 |
+| AC-13 | Unknown beat or session gives 404; beat after completion gives 409 `session_completed` | API test "unknown beat gives 404", "unknown session gives 404", "beat after completion gives 409 session_completed" | BE-03 |
+| AC-14 | Narration streams `scene` events then `done`; denouement before answering gives 409; chunks about 4 words | API test "scene streams as scene events then done", "denouement before the answer is refused (409)", "chunks are about 4 words" | BE-04 |
+| AC-15 | Narration `fallback` event and slow stream behave as specified | API test "narration-fallback sends a fallback event", "narration-slow holds the stream back"; ui error checks | BE-04 |
+| AC-16 | Narration text gates: lengths, no math symbols, no em dash, language | API test "scene is 25-60 words...", "no + − × ÷ = in scene narration", "no em dash in scenes", "denouement is 15-45 words" | BE-05 |
+| AC-17 | Pause, resume, finish, summary with stuck points | API test "pause", "resume", "finish", "summary: ..." | BE-21 |
+| AC-18 | Injected failures return the right status and problem body | API test "rate-limited gives 429...", "unauthorized gives 401...", "server-error gives 500...", "daily-limit gives 403..." | BE-03 |
+| AC-19 | Feed: 20 items per page, endless, no repeats, AI labelled, puzzle never leaks, graded by the engine, reaction stored | API test feed checks, "puzzle answer is graded", "reaction stored" | BE-18 |
+| AC-20 | Profiles are real state: create, list, delete, nine profiles refused | API test "new child is listed with the others", "deleted child disappears", "a ninth profile is refused" | BE-19 |
+| AC-21 | Trial parent can start a chapter; plans, checkout (+30 days), cancel keeps access | API test "register creates a trial parent", "plans: free 0, monthly 899...", "checkout activates...", "cancel keeps access..." | BE-24 |
+| AC-22 | Unpaid gives 402 with i18n; blocked gives 403; policy allow lets play; paid works again | flows "unpaid parent: Play is refused...", "blocked parent..."; API test "unpaid: 402 subscription_inactive with i18n copy", "policy allow lets an unpaid family play" | BE-24 |
+| AC-23 | Platform public exposes policy and threshold | API test "platform public exposes policy and threshold" | BE-25 |
+| AC-24 | Notifications: broadcast reaches the right parent in the right language, mark read works | API test "broadcast reaches one targeted parent", "parent receives the broadcast in the right language", "mark read works" | BE-25 |
+| AC-25 | Admin refuses missing and wrong tokens; CORS only for `ADMIN_ORIGIN` | API test "admin refused without token", "admin refused with a wrong token", "CORS: ..." | BE-23 |
+| AC-26 | Admin parents are paged, searchable, filterable; block, unblock, mark paid or unpaid, extend, delete | API test "parents are paged" ... "admin deletes a parent" | BE-23 |
+| AC-27 | Admin overview figures are consistent (sums, series lengths, MRR) | API test "overview counts parents...", "overview subscription_mix sums...", "overview kids_by_grade sums...", "overview plan_mix mrr equals...", "overview day series...", "overview month series..." | BE-23 |
+| AC-28 | Every admin mutation and child read is audited | API test "audit grew with every mutation", "child reads are audited", "audit entries carry actor, action and target" | BE-27 |
+| AC-29 | `kid_can_change_language` round trip parent to kid and admin to kid | API test "settings default kid_can_change_language true", "parent turns kid_can_change_language off", "admin turns it back on and the kid app sees it" | BE-28 |
+| AC-30 | Admin plan edits reach parents | API test "admin edits plan prices, parents see them" | BE-23 |
 | AC-31 | The kid shell, home, feed, worlds, collection, me render for a logged-in child | flows "page /play/home" and the other pages | BE-21 |
 | AC-32 | Delete child removes it from the list | flows "delete child", "deleted child is gone" | BE-19 |
 | AC-33 | Error screens: API failure, offline, never-answering endpoint show the right message | `bash scripts/test.sh errors` | BE-03 |
-| AC-34 | Journey, home, engagement, growth, collection, progress reflect real plays when `STATE_SOURCE=api` | ui checks run with `NEXT_PUBLIC_STATE_SOURCE=api` (kid chapter, map checks) | BE-21 |
+| AC-34 | Journey, home, engagement, growth, collection, progress reflect real plays | ui checks (kid chapter, map checks) | BE-21 |
 | AC-35 | Webhook signature rejects bad signatures and replays; checkout is idempotent | backend unit tests (not in this repo) | BE-32 |
 | AC-36 | Push subscribe upsert, 410 cleanup, payload shape | backend unit tests; `scripts/check-reminders.mjs` for the local rules | BE-26 |
-| AC-37 | Rate limits return 429 with `retry_after_seconds` | backend tests; selftest "rate-limited gives 429 on a domain route" for the shape | BE-40 |
+| AC-37 | Rate limits return 429 with `retry_after_seconds` | backend tests; API test "rate-limited gives 429 on a domain route" for the shape | BE-40 |
 | AC-38 | Export is complete and delete cascades | backend tests against section 22 | BE-37 |
 | AC-39 | `/health` under 100 ms, `/ready` truthful | monitor and `GET /api/health` | BE-14 |
 | AC-40 | Latency budgets met on staging | load test against section 24 | BE-50 |
 
 ## 28. Migration switch checklist
 
-Two independent switches in the web app:
-
-| `NEXT_PUBLIC_STATE_SOURCE` | Meaning |
-|----------------------------|---------|
-| `api` | Default. The server owns everything. |
-| `local` | Progress screens derived from the on-device log; accounts, children, sessions and billing still use the Go API. |
-
 Steps:
-1. Backend staging is up; `GET /health` is `ok`; `API_URL` of a preview deployment points to it . Check no `x-mock-*` header is sent.
+1. Backend staging is up; `GET /health` is `ok`; `API_URL` of a preview deployment points to it .
 2. Run `bash scripts/test.sh contract`: all lines `ok`.
 3. Run `node scripts/flows.mjs <preview url>` with `SEED_DEMO_CHILDREN=true` on staging; every line `ok`. The subscription gate block of the script runs only against `localhost`; test it with the backend's own tests (AC-22).
 4. Run the UI and error checks against the preview: `bash scripts/test.sh ui` and `bash scripts/test.sh errors` with `BASE_URL` set.
 5. Verify the P0 items of `BACKEND_REQUIREMENTS.md`.
 6. Confirm secrets are in the store.
-7. Turn on `NEXT_PUBLIC_STATE_SOURCE=api` on a preview first: play a chapter and check the eleven reads of section 15 change with the plays (AC-34). Challenges, gift and tour stay local until BE-20 is built. Keep `local` as the rollback; the device log is untouched.
+7. On a preview, play a chapter and check the eleven reads of section 15 change with the plays (AC-34).
 8. Admin: set `PLATFORM_API_URL` to the real platform, `ADMIN_ORIGIN` on the platform to the admin app origin, rotate `ADMIN_API_TOKEN` and `ADMIN_PASSWORD`.
 9. Payments: processor live keys, webhook endpoint and secret, a test card run, tax settings, then `features.payments` true.
 10. Push: VAPID keys, set `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `features.push` true.
@@ -1299,34 +1288,26 @@ Steps:
 
 ## 29. Known mismatches
 
-Places where the current frontend or the mock differs from the contract above. The contract wins. The contract author does not edit `src/`, `mock/` or `admin/`; owners fix these.
+The contract wins. owners fix these.
 
 | ID | Where | Mismatch | Impact | Owner | Item |
 |----|-------|----------|--------|-------|------|
-| M1 | `src/data/hooks/platform.ts` `usePlans`, `ManageSubscription` `PlanCard` | The app expects an array or `{items}` and a field `price_cad` in dollars. The API (and mock) answer `{currency, plans[], methods[]}` with `price_cad_cents`. `items()` returns `undefined`, so the plans query fails and no price shows. | Subscription screen broken against the mock and any backend that follows the contract | frontend | BE-24 |
+| M1 | `src/data/hooks/platform.ts` `usePlans`, `ManageSubscription` `PlanCard` | The app expects an array or `{items}` and a field `price_cad` in dollars. The API answers `{currency, plans[], methods[]}` with `price_cad_cents`. `items()` returns `undefined`, so the plans query fails and no price shows. | Subscription screen broken against any backend that follows the contract | frontend | BE-24 |
 | M2 | `src/data/api/platform-types.ts` | Hand-written `Plan`, `Subscription`, `CheckoutResult`, `PlatformPublic`, `ServerNotification` duplicate generated types and differ (M1). | Drift | frontend | BE-49 |
 | M3 | `src/app/api/v1/[...path]/route.ts`, `messages.*.json` | No `Origin` check yet (S1) and no message key for `forbidden_origin`. | CSRF defence relies on SameSite only | frontend | BE-30 |
 | M4 | `ErrorBridge.tsx`, `ui/error-screen/classify.ts`, `StoryScreen.tsx` `KNOWN`, `client.ts` `ErrorCode` | `subscription_inactive`, `account_blocked`, `forbidden_origin`, `beat_not_answered` are not in the known sets, so any screen other than the Play dialog shows them as `unknown`. | Generic text for a precise problem | frontend | BE-03 |
 | M5 | `signOut()` in `hooks.ts` | Sign out clears cookies only and never calls the backend. | Refresh token stays valid until it expires | frontend + backend | BE-31 |
 | M6 | `NEXT_PUBLIC_ANALYTICS_ENABLED` | The flag exists, nothing sends `POST /events`. | No product analytics | frontend | BE-53 |
-| M7 | `EnableNotificationsPrompt`, `src/config/env.ts`, mock | No env var carries the VAPID public key and no caller passes `vapidPublicKey`, so subscribing ends with `no_key`. The mock has no `/push/subscribe`. | Web push cannot work | frontend + mock | BE-26 |
+| M7 | `EnableNotificationsPrompt`, `src/config/env.ts` | No env var carries the VAPID public key and no caller passes `vapidPublicKey`, so subscribing ends with `no_key`. | Web push cannot work | frontend | BE-26 |
 | M8 | `useCheckout` | No `Idempotency-Key` on checkout. | Double click can open two checkouts | frontend | BE-32 |
-| M9 | mock `sse()`, `streamNarration` | Mock streams have no `id:` and no heartbeat; the client retries once from scratch without `Last-Event-ID`. The real stream must be replayable (section 7). | None if the backend follows section 7 | backend | BE-04 |
 | M10 | `AuthForm`, `ParentGate` | The parent email is kept in `localStorage` (`nx:parent-email`) for the parent gate. | Personal data at rest on the device | frontend | CR-7 |
 | M11 | `ErrorBridge` | A 401 on a child call offers "log in" to `/parent/login`; the child token has no refresh. | A child can be thrown out mid-play after the token ends | frontend | BE-31 |
 | M12 | `useNotifications`, `reminders.ts` | Local reminders and server `play_reminder` / `time_limit` have different ids and are not deduped. | Duplicate bell entries | frontend + backend | BE-26 |
-| M13 | `hooks.ts` `useChallenges`, `HomeFeed` gift and tour | With `STATE_SOURCE=api` challenges, gift and tour flag still come from the device. | Progress split between device and server | frontend | BE-20 |
-| M14 | mock and admin | Grades 1 to 6 are accepted; the contract and the child form allow 1 to 4. | Inconsistent limits | mock + admin | BE-19 |
-| M15 | mock `session.mjs` | `GET .../sessions` returns only the current session; `finish` always marks `completed`; `scene.text` stays `pending`; no fallback flag in the summary (CR-6). | Reports show too little against the mock | mock | BE-21 |
 | M16 | proxy | Only `content-type` and `cache-control` reach the browser; `Retry-After`, `X-Request-Id` are dropped and `traceparent` is not forwarded. | 429 delay and trace ids lost | frontend | BE-47 |
 | M17 | proxy | A 15 s total timeout also cuts SSE bodies. | A slow narrator must fall back by 8 s | backend | BE-04 |
 | M18 | `openapi.yaml` | Operations the frontend does not call today: `getChild`, `listSkills`, `getReviewCalendar`, `sendEvents`, `logoutParent`, `unsubscribePush`, `ready`, `getAccount`, `updateAccount`, `deleteAccount`. Challenges and gift are not called either (local, BE-20). | Dead until used; kept for the target design | frontend | BE-20 |
-| M19 | mock export | `GET .../export` returns `{child, sessions: [], progress: []}`; the real export is the full document of section 22.3. | Incomplete mock | mock | BE-37 |
-| M21 | `HomeFeed` `playToday(events)` | Minutes played today and the last play time come from the device log, which stays empty when `STATE_SOURCE=api`, so the time-limit and play reminders never fire. The contract adds `Engagement.minutes_today` and `last_played_at`. | Reminders silent in api mode | frontend | BE-21 |
 | M22 | `StoryScreen`, `DoneScreen` | Rewards and score for the done screen live in `sessionStorage` (`nx:rewards:<sessionId>`) and vanish on reload. The contract recommends `Session.score` on completed sessions. | Done screen empty after a reload | frontend | BE-22 |
 | M23 | `AccountScreen`, `MeScreen` | The language choice sets the `NEXT_LOCALE` cookie only; the parent's stored `locale` (used for notification and email text) never changes. `PATCH /account` exists for it. | Notifications in the wrong language | frontend | BE-55 |
-| M24 | mock `/children/{id}/token` | The mock issues a child token without consent; the contract asks for `403 consent_missing`. | Mock more permissive than the target | mock | BE-19 |
-| M20 | selftest and flows | `selftest` sends no bearer and relies on `x-mock-state`; it cannot run unchanged against a real backend. `flows` needs the staging demo seed (section 26). | Acceptance must use the backend's own port of the checks | backend | BE-43 |
 
 ## 30. Review log
 
@@ -1347,27 +1328,27 @@ Added by pass 1:
 
 ### Pass 2: screen by screen
 
-For each screen: network calls, then stored values on the device. "(local)" means derived from the on-device event log.
+For each screen: network calls, then stored values on the device.
 
 | Screen | Network calls | Stored values |
 |--------|---------------|---------------|
 | Welcome `/` | `GET /api/session` | none |
 | Picker `/play` | `GET /api/session`, `GET /children` (parent token), `POST /children/{childId}/token` | `nx:child:<id>:profile` (first name, avatar); cookies `nx_child`, `nx_child_id` |
-| Home `/play/home` | `GET /api/session`, `GET /children/{childId}/home` (api mode), `GET /children/{childId}/settings`, `POST /children/{childId}/sessions` on Play | game log `nx:game:v1` (local), `nx:onboarding:<id>`, session flags `nx:greet:seen`, `nx:greet:spoken`; challenges, gift, tour (local) |
-| Feed `/play/feed` | `GET /children/{childId}/feed`, `PUT .../feed/{itemId}/reaction`, `POST .../feed/{itemId}/answer`, `POST .../sessions` from a call to action | `react` and `puzzle` events (local) |
+| Home `/play/home` | `GET /api/session`, `GET /children/{childId}/home`, `GET /children/{childId}/settings`, `POST /children/{childId}/sessions` on Play | `nx:onboarding:<id>`, session flags `nx:greet:seen`, `nx:greet:spoken` |
+| Feed `/play/feed` | `GET /children/{childId}/feed`, `PUT .../feed/{itemId}/reaction`, `POST .../feed/{itemId}/answer`, `POST .../sessions` from a call to action | none |
 | Worlds `/play/worlds` | `GET /worlds` | service worker data cache |
-| Journey `/play/journey/[world]` | `GET /worlds`, `GET /children/{childId}/journey`, `POST .../sessions` | game log (local) |
+| Journey `/play/journey/[world]` | `GET /worlds`, `GET /children/{childId}/journey`, `POST .../sessions` | - |
 | Story `/play/session/[id]` | `GET /sessions/{sessionId}`, `POST /sessions/{sessionId}/resume`, `POST .../beats`, `GET .../narration?phase=scene`, `POST .../answer`, `GET .../narration?phase=denouement`, `POST .../pause`, `POST .../finish`, `GET /children/{childId}/settings` | `nx:rewards:<sessionId>` (sessionStorage), game log events `start`, `answer`, `card`, `finish` |
 | Done `/play/session/[id]/done` | `GET /sessions/{sessionId}`, `GET /children/{childId}/engagement`, `POST .../sessions` for the next chapter | reads `nx:rewards:<sessionId>` |
-| Quest `/play/quest` | `GET /children/{childId}/quests/daily`, `GET .../home`, `POST .../sessions` (`daily_quest`) | game log (local) |
-| Challenges `/play/challenges` | none (local) | `accept` events |
-| Collection `/play/collection` | `GET /children/{childId}/collection` | game log (local) |
+| Quest `/play/quest` | `GET /children/{childId}/quests/daily`, `GET .../home`, `POST .../sessions` (`daily_quest`) | - |
+| Challenges `/play/challenges` | `GET /children/{childId}/challenges`, `POST .../challenges/{challengeId}/accept` | none |
+| Collection `/play/collection` | `GET /children/{childId}/collection` | - |
 | Me `/play/me` | `GET .../settings`, `GET .../engagement`, `GET .../growth`, `DELETE /api/session?scope=child` | `NEXT_LOCALE` cookie, `nx:prefs:v1` (sound, voices) |
-| Parent login and register | `POST /auth/login`, `POST /auth/register` | `nx:parent-email` (localStorage), `nx_parent_email` cookie (mock only), cookies `nx_parent`, `nx_refresh` |
+| Parent login and register | `POST /auth/login`, `POST /auth/register` | `nx:parent-email` (localStorage), cookies `nx_parent`, `nx_refresh` |
 | Parent home `/parent` | `GET /children`, `POST .../token` (Play), `GET /subscription`, `GET /notifications` (60 s poll), `POST /notifications/{id}/read`, `POST /push/subscribe` (prompt) | `nx:notified`, `nx:notify-prompt-dismissed` |
 | Child form `/parent/children/new` | `POST /children` (sends the browser time zone) | none |
 | Consent `/parent/children/[id]/consent` | `POST /auth/consent` (version `2026-10`) | none |
-| Overview `/parent/children/[id]` | `GET .../growth`, `GET .../progress`, `GET .../sessions`, `POST .../token` (Play) | challenges (local) |
+| Overview `/parent/children/[id]` | `GET .../growth`, `GET .../progress`, `GET .../sessions`, `GET .../challenges`, `POST .../token` (Play) | none |
 | Settings `/parent/children/[id]/settings` | `GET` and `PUT .../settings`, `GET .../export`, `DELETE /children/{childId}`, `GET /children` | none |
 | Recap `/parent/children/[id]/sessions/[sid]` | `GET /sessions/{sessionId}/summary` | none |
 | Report `/parent/children/[id]/report` | `GET /reports/weekly` | none |

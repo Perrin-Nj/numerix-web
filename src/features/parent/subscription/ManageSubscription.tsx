@@ -239,7 +239,7 @@ export function ManageSubscription() {
               </fieldset>
               <p className="mt-3 flex items-start gap-2 text-sm text-muted">
                 <Icon name="lock" size={16} className="mt-0.5" />
-                <span>{t('method.mock')}</span>
+                <span>{t('method.testNote')}</span>
               </p>
             </Panel>
 

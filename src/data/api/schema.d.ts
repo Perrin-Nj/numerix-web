@@ -132,7 +132,7 @@ export interface paths {
          * Switch to a child (play mode)
          * @description Returns a child-scoped token. A PIN is required if the profile has one (403 `invalid_pin`). The backend
          *     should also refuse with 403 `consent_missing` while the parent has not consented; the profile picker
-         *     handles that answer (the mock still issues the token and refuses at session start).
+         *     handles that answer (refusal at session start is the second line of defence).
          */
         post: operations["createChildToken"];
         delete?: never;
@@ -711,7 +711,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Start a paid plan (BE-24). The real backend returns the processor's hosted page URL; the mock completes instantly.
+         * Start a paid plan (BE-24). The real backend returns the processor's hosted page URL; development completes instantly.
          * @description Idempotent: the client sends `Idempotency-Key`; a retry with the same key returns the same
          *     `checkout_url` (or the same activated subscription) and never creates a second checkout.
          *     With a processor, the response carries `checkout_url` (https only) and the subscription stays
@@ -1968,7 +1968,7 @@ export interface components {
                 target_chapters: number;
                 done_chapters: number;
             };
-            /** @description Active play minutes today in the child time zone. The kid home needs it for the time-limit reminder; in local mode it is derived on the device. */
+            /** @description Active play minutes today in the child time zone. The kid home needs it for the time-limit reminder; computed by the server. */
             minutes_today?: number;
             /**
              * Format: date-time
@@ -2000,7 +2000,7 @@ export interface components {
              * @constant
              */
             ai_generated: true;
-            /** @example mock */
+            /** @example pip */
             generated_by?: string;
             /** @description The storyteller persona that "wrote" the item (an AI character, never a real person). */
             author?: {
@@ -3475,7 +3475,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Subscription after checkout (mock), or the current subscription plus `checkout_url` (processor) */
+            /** @description Subscription after checkout (instant in development), or the current subscription plus `checkout_url` (processor) */
             200: {
                 headers: {
                     [name: string]: unknown;

@@ -49,7 +49,6 @@ Rules that hold in every phase:
 | Data | `openapi-typescript`, `openapi-fetch`, TanStack Query v5 | Contract-first, typed |
 | UI state | Zustand (small slices) | Minimal re-renders |
 | Forms and validation | React Hook Form with zod | One schema for forms and tests |
-| Mock backend | WireMock (Docker image or standalone jar; Java 17 and Docker are installed locally) with mappings and body files in `contracts/wiremock/`, generated from and checked against `contracts/openapi.yaml`. Shared JSON fixtures in `contracts/fixtures/` are the single source for WireMock bodies, Storybook stories and tests. | Owner decision: contract folder drives the mock; one source of truth for backend behavior |
 | PWA | Serwist | Maintained successor to next-pwa |
 | Onboarding | driver.js wrapped as `GuidedTour` | Small, accessible, tokenized |
 | Virtual lists | `@tanstack/react-virtual` | Feed-like lists |
@@ -69,7 +68,7 @@ Services/frontend/
   package.json  pnpm-lock.yaml  next.config.ts  tsconfig.json
   .storybook/                  main, preview (theme, locale, viewport presets, typed fixtures)
   messages/                    fr-CA.json  en-CA.json
-  contracts/                   openapi.yaml, BACKEND_REQUIREMENTS.md, fixtures/, wiremock/ (mappings, __files, docker-compose)
+
   public/
     sounds/                    packaged audio + LICENSES.md
     icons/  manifest.webmanifest
@@ -164,7 +163,7 @@ Tasks:
 - P0-8 i18n skeleton: next-intl config, middleware for device language detection, empty message files, a test with `Accept-Language`.
 - P0-9 Contract pipeline: `gen:api` script reading `../../contracts/openapi.yaml`.
 - P0-10 PWA skeleton: manifest, Serwist config, offline fallback page.
-- P0-11 Vercel project config and preview environment variables. Mock on in previews.
+- P0-11 Vercel project config and preview environment variables.
 - P0-12 `PHASE_LOG.md` (with the evidence template in section 8), `docs/DEPENDENCIES.md`, and an `adr/` folder.
 - P0-13 Animation spike (product prompt: "research and choose the best lightweight animation solution"): build the same reward sequence three ways (CSS only; CSS plus Motion `useAnimate` mini; `LazyMotion` plus `domAnimation`), measure bundle impact with `size-limit`, frame rate on a mid-range Android profile, reduced-motion behavior, and hover/touch/large-screen behavior. Write `adr/0001-animation.md` with the numbers. Default outcome is CSS plus mini.
 - P0-14 Sound sourcing: pick the packs (candidates: Kenney.nl CC0 audio, CC0 Freesound), verify each license at download, fill `public/sounds/LICENSES.md`, produce WebM/Opus and MP3 files within budget. Resolves spec 21 question 3.
@@ -195,7 +194,7 @@ Order (each is built in Storybook first):
 8. Feed: `VirtualFeed` (cursor loading, sticky group headers) and `SnapFeed` (scroll-snap, keyboard and remote navigation, reduced-motion variant). Both are generic and reused by home, collection and the parent timeline.
 9. Shared state: `createSlice` factory over Zustand and the generic hooks (`useFeed`, `useApiError`, `useSound`, `useReducedMotion`, `useLocaleFormat`).
 10. Remaining primitives named in spec 8.1: `Panel`, `NotificationCenter`, `WorldTeaser`, `ContinueCard`, `QuestCard`.
-11. Dependency-inversion interfaces and their fakes (`AudioPlayer`, `Notifier`, `Clock`, `Storage`) with null and mock implementations for Storybook and tests.
+11.
 12. Inventory docs page in Storybook.
 
 Exit evidence:
@@ -208,19 +207,19 @@ Exit evidence:
 
 Verification items touched: 1, 2, 3, 4, 6, 8, 9, 11.
 
-### P2. Data layer and mock backend (4 days)
+### P2.
 
-Goal: a typed client and a mock that behaves like the real contract, including failures.
+
 
 Tasks:
 - P2-1 Generate types; typed `openapi-fetch` client; same-origin proxy route handlers with httpOnly cookies for parent and child sessions.
 - P2-2 Query keys and hooks per feature (`useChildren`, `useJourney`, `useSession`, `useEngagement`, and so on). Mutations for `startSession`, `nextBeat`, `answerBeat` use idempotency keys.
 - P2-3 SSE client for narration with a single reconnect, `fallback` handling, and a timeout message (spec 7.5).
-- P2-4 WireMock mappings for all operations in `contracts/wiremock/`. Stateful behavior through WireMock scenarios and response templating: a fixed set of sample problems per skill with four choices; the chosen answer selects the outcome (`correct`, `erreur_typique`, `erreur_aleatoire`) by request-body matching; rewards (card, streak, mastery, goal) come from scenario state; pause and resume; consent and limit errors, conflicts, and fault injection through dedicated header triggers (`X-Mock-Scenario`) and WireMock delays and faults. SSE narration served as `text/event-stream` with chunked delays. `docker compose up` in `contracts/wiremock/` starts it.
+the chosen answer selects the outcome (`correct`, `erreur_typique`, `erreur_aleatoire`) by request-body matching; rewards (card, streak, mastery, goal) come from scenario state; pause and resume; SSE narration served as `text/event-stream` with chunked delays.
 - P2-5 Story state machine (`lib/session`): pure reducer with unit tests covering every state and transition in spec 7.5, including network drop and retry.
-- P2-6 Engine boundary test: assert no pre-answer payload in the mock contains the correct answer.
-- P2-7 Point the dev server, Playwright and CI at WireMock (`API_URL`); Storybook and Vitest use the shared typed fixtures. A script checks that every operation in `openapi.yaml` has a mapping and every mapping validates against the schema.
-- P2-8 Hosted mock for Vercel deployments (WireMock cannot run on Vercel): host the same Docker image elsewhere (decision pending, see section 11) and set `API_URL` in the Vercel environment.
+
+Storybook and Vitest use the shared typed fixtures. A script checks that every operation in `openapi.yaml` has a mapping and every mapping validates against the schema.
+
 
 Exit evidence:
 - Contract check passes. Every operation has a handler or a documented reason.
@@ -256,11 +255,11 @@ Stories: C-01 to C-07, C-12, X-05.
 
 Tasks:
 - P4-1 Profile picker and PIN pad.
-- P4-2 Home feed (spec 7.3b) as the landing after the profile picker, then world picker and transition to the journey. Uses the aggregate home request once CR-10 exists; until then the mock serves it.
+- P4-2 Home feed (spec 7.3b) as the landing after the profile picker, then world picker and transition to the journey. Uses the aggregate home request once CR-10 exists;
 - P4-3 Journey map with all node states and the Play button.
 - P4-4 Story screen on the state machine from P2-5: streaming narration, question, answering, outcome beats, rewards, pause dialog, resume after reload.
 - P4-5 Chapter complete screen with card reveal, confetti and sounds.
-- P4-6 Child first-run guided flow with the mascot (fixed easy practice problem from the mock; the real flow uses a flagged first session from the backend, decision recorded).
+the real flow uses a flagged first session from the backend, decision recorded).
 - P4-7 TV mode: spatial navigation, large layout, remote key handling. Kiosk mode (spec 10.3): fullscreen layout, idle reset to the profile picker after pausing any open chapter, parent-password exit, optional attract mode.
 - P4-8 Read-aloud with Web Speech API and the no-voice notice.
 - P4-9 Playwright flow: pick child, pick world, play a chapter with all three outcomes, pause and resume, finish, see the card.
@@ -312,7 +311,7 @@ Verification items touched: all twelve.
 ### P7. Integration and playtest build (4 days)
 
 Tasks:
-- P7-1 Point the proxy at the real FastAPI; turn the mock off in staging.
+- P7-1 Point the proxy at the real FastAPI;
 - P7-2 Contract tests against the live backend; reconcile differences with the backend team and update `contracts/openapi.yaml` (change requests CR-1 to CR-8).
 - P7-3 Seed the five playtest profiles; prepare the facilitator checklist.
 - P7-4 Playtest build deployed; error reporting verified end to end.
@@ -368,7 +367,7 @@ For the first five-children test, the minimum set is P0, P1, P2, P3 (register, l
 | Risk | Impact | Mitigation |
 |---|---|---|
 | Narration latency from the LLM | Child waits | Stream text, show the question separately after readiness, timeout message with retry, fallback text |
-| Backend not ready | Frontend blocked | Contract-first plus stateful mock; P7 swap |
+| Backend not ready | Frontend blocked | Contract-first; P7 swap |
 | Contract drift | Rework | `check-contract` in CI, change requests tracked |
 | Third-party template or install step | Supply-chain risk | Review output, commit separately, lockfile, dependency audit in CI |
 | Autoplay and audio quirks on iOS | Silent or glitchy sound | Unlock on first gesture, visible notice on failure, real-device tests |
@@ -474,7 +473,7 @@ The first version of this plan and spec under-used the prompt. Gaps found and fi
 Received from the owner on 2026-10-12:
 - Repository: `github.com/Perrin-Nj/numerix-web` (local folder `Services/frontend`). Vercel team slug `numerix`. Deploy to the free `*.vercel.app` domain for now.
 - Revised plan treated as approved by the owner's go-ahead (the gate in section 10 is re-run at the end of P0 before P1 starts).
-- Mock backend is WireMock driven by the `contracts/` folder; backend requirements are recorded there as work proceeds (spec 22.6).
+backend requirements are recorded there as work proceeds (spec 22.6).
 - Mascot is pluggable by environment variables, emoji for now; free CC0 sounds downloaded by us; all components from Storybook; Material UI allowed where it matters under ADR; motion kits chosen by need (spec 22).
 - Vercel configuration externalized and generated from the repo; config-first development (spec 22.1, 22.5).
 - Agent skills: the Vercel skills from section 2 and these from the aitmpl catalog (`github.com/davila7/claude-code-templates`, `cli-tool/components/skills`): `web-development/react-best-practices`, `web-development/nextjs-app-router-patterns`, `web-development/progressive-web-app`, `web-development/shadcn`, `web-development/tailwind-design-system`, `web-development/tanstack-query-expert`, `web-development/zod-validation-expert`, `development/accessibility`, `development/e2e-testing-patterns`, `development/design-system-starter`, `creative-design/web-design-guidelines`, `creative-design/scroll-experience`. Installed in P0-3 through `npx claude-code-templates@latest --skill <category>/<name>`.
@@ -482,7 +481,7 @@ Received from the owner on 2026-10-12:
 Still needed from the owner:
 1. `gh auth login` (interactive) so pull requests can be opened from the CLI.
 2. `npx vercel login` (interactive), then permission to create and link the `numerix-web` project in team `numerix`.
-3. Where to host the WireMock container for deployed (Vercel) environments: Vercel cannot run it. Local development and CI use Docker.
+3. Local development and CI use Docker.
 4. Preview protection: whether playtest families may open previews without a Vercel login (spec 22.5).
 
 Start of work: P0-1 (repository, done), P0-2 (scaffold).
@@ -491,8 +490,8 @@ Start of work: P0-1 (repository, done), P0-2 (scaffold).
 
 ## 12. Status after the first implementation pass (2026-10-12)
 
-Stack changes from section 2, all recorded in `adr/` and `PHASE_LOG.md`: Next.js 16.4 (proxy.ts instead of middleware, Cache Components off), Storybook 10, Tailwind 4, WireMock instead of MSW, `vercel.ts` instead of a generated `vercel.json`, a hand-written service worker instead of Serwist, CSS-only animation (Motion not needed so far), Montreal region `yul1` confirmed.
+
 
 Built and verified by running the app: parent register, login, child profiles, consent, settings, recap, weekly report, account; child profile picker with PIN, home feed, worlds, journey, the three-beat story chapter with streaming narration and all three outcomes, rewards, chapter complete, collection, daily quest, my growth; failure scenarios; PWA install and offline page; French and English; deployed to `https://numerix-web-blush.vercel.app`.
 
-Still open: hosted WireMock for the deployed site, real art and mascot, TV and kiosk visual pass on real devices, the P6 full-app audit (screen reader pass, device matrix), CI run on GitHub, and the real backend (P7).
+

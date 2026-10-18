@@ -113,6 +113,6 @@ The messages name the real cause:
 7. **Leave the game.** In a chapter, the X at the top left asks "Quitter cette histoire ?". Leaving marks the session as left early. The grown-up recap says so, and it does not count for the streak.
 8. **Theme switch.** The sun/moon button (home header, welcome screen, parent header) switches system, light, dark and high contrast.
 9. **Different voices.** Outcomes use several sounds each. "Une surprise" is a low voice and changes from play to play. The feed makes no sound while scrolling.
-10. **Everything stays.** Close the tab and come back: progress, cards, challenges and likes are still there on the same device (on-device state, `NEXT_PUBLIC_STATE_SOURCE=local`).
+10. **Everything stays.** Close the tab and come back: progress, cards, challenges and likes are still there, because the server keeps them.
 
 Shell tests: `bash scripts/test.sh` (all), or `bash scripts/test.sh state|flows|ui|errors|mobile|live`.

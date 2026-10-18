@@ -15,7 +15,7 @@ export type Subscription = {
 export type Plan = { id: PlanId; price_cad: number; interval?: 'month' | 'year' | null };
 
 export type CheckoutRequest = { plan: PlanId; method: PaymentMethod };
-/** The mock completes at once and returns the new subscription. A real provider returns a hosted page URL (BE-24). */
+/** Development completes at once and returns the new subscription. A real provider returns a hosted page URL (BE-24). */
 export type CheckoutResult = { subscription?: Subscription; checkout_url?: string };
 
 export type ServerNotificationKind = 'play_reminder' | 'time_limit' | 'subscription_expiring' | 'payment_due' | 'announcement';

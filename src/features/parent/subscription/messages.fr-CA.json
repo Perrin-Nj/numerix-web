@@ -35,7 +35,7 @@
         "method": {
           "title": "Comment voulez-vous payer?",
           "secure": "Vous ne tapez jamais de numéro de carte ici. En continuant, le paiement se termine sur la page sécurisée du fournisseur de paiement.",
-          "mock": "Dans cette version d'essai, le paiement se termine tout de suite et aucun argent n'est prélevé.",
+          "testNote": "Dans cette version d'essai, le paiement se termine tout de suite et aucun argent n'est prélevé.",
           "card": { "name": "Carte de crédit ou de débit", "hint": "Visa, Mastercard, Amex" },
           "interac": { "name": "Interac", "hint": "Payez depuis votre banque canadienne" },
           "paypal": { "name": "PayPal", "hint": "Utilisez votre compte PayPal" },

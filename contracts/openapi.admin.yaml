@@ -24,7 +24,7 @@ info:
     `validation_failed`, `not_found`, `internal_error`, `rate_limited`.
 servers:
   - url: http://localhost:8081/admin/v1
-    description: Numerix mock
+    description: Numerix Go API
 tags:
   - name: Overview
   - name: Parents
@@ -63,7 +63,7 @@ paths:
       parameters:
         - { name: status, in: query, schema: { type: string, enum: [active, blocked] } }
         - { name: subscription, in: query, description: Effective subscription status, schema: { type: string, enum: [trial, active, unpaid, expired, canceled] } }
-        - { name: plan, in: query, description: 'Plan id. The mock ignores it and the admin app filters the loaded page; the real API must filter.', schema: { type: string, enum: [free, family_monthly, family_yearly] } }
+        - { name: plan, in: query, description: 'Plan id. The API filters on it.', schema: { type: string, enum: [free, family_monthly, family_yearly] } }
         - { name: q, in: query, description: Case-insensitive match on name or email, schema: { type: string } }
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'

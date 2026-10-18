@@ -13,7 +13,7 @@ const base: FeedItem = {
   title: 'Le renard et les noisettes',
   text: 'Un petit renard partage ses noisettes avec ses amis, une par une, jusqu’au coucher du soleil.',
   ai_generated: true,
-  generated_by: 'mock',
+  generated_by: 'story',
   author: { name: 'Pip', emoji: '🦊' },
   liked: false,
   saved: false,

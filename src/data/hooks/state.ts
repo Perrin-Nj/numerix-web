@@ -7,12 +7,12 @@ import { keys } from './keys';
 
 // ───────── Catalog, home, journey ─────────
 /** World catalog. */
-) {
+export function useWorlds() {
   return useQuery({ queryKey: keys.worlds, queryFn: () => unwrap(api.GET('/worlds')).then((r) => r.items), staleTime: 10 * 60_000 });
 }
 
 /** Home screen data for a child: next step, quest, worlds, recent cards, engagement, gift flag. */
-id: string | null) {
+export function useHome(id: string | null) {
   return useQuery({
     queryKey: keys.home(id ?? ''),
     enabled: Boolean(id),
@@ -21,7 +21,7 @@ import { keys } from './keys';
 }
 
 /** Journey map of one world for a child. */
-id: string | null, world: WorldId) {
+export function useJourney(id: string | null, world: WorldId) {
   return useQuery({
     queryKey: keys.journey(id ?? '', world),
     enabled: Boolean(id),
@@ -30,7 +30,7 @@ import { keys } from './keys';
 }
 
 /** The child's story-card collection. */
-id: string | null) {
+export function useCollection(id: string | null) {
   return useInfiniteQuery({
     queryKey: keys.collection(id ?? ''),
     enabled: Boolean(id),
@@ -41,7 +41,7 @@ import { keys } from './keys';
 }
 
 /** Streak, daily goal and related figures. */
-id: string | null) {
+export function useEngagement(id: string | null) {
   return useQuery({
     queryKey: keys.engagement(id ?? ''),
     enabled: Boolean(id),
@@ -50,7 +50,7 @@ import { keys } from './keys';
 }
 
 /** Growth summary per world. */
-id: string | null) {
+export function useGrowth(id: string | null) {
   return useQuery({
     queryKey: keys.growth(id ?? ''),
     enabled: Boolean(id),
@@ -59,7 +59,7 @@ import { keys } from './keys';
 }
 
 /** Today's quest. */
-id: string | null) {
+export function useDailyQuest(id: string | null) {
   return useQuery({
     queryKey: keys.quest(id ?? ''),
     enabled: Boolean(id),
@@ -69,12 +69,12 @@ import { keys } from './keys';
 
 // ───────── Parent data ─────────
 /** Progress overview for a child. */
-id: string) {
+export function useProgress(id: string) {
   return useQuery({ queryKey: keys.progress(id), queryFn: () => unwrap(api.GET('/children/{childId}/progress', { params: { path: { childId: id } } })) });
 }
 
 /** A child's past sessions. */
-id: string) {
+export function useSessionList(id: string) {
   return useQuery({
     queryKey: keys.sessions(id),
     queryFn: () => unwrap(api.GET('/children/{childId}/sessions', { params: { path: { childId: id } } })).then((r) => r.items),
@@ -82,18 +82,18 @@ import { keys } from './keys';
 }
 
 /** Summary of one finished session. */
-sid: string) {
+export function useSessionSummary(sid: string) {
   return useQuery({ queryKey: keys.summary(sid), queryFn: () => unwrap(api.GET('/sessions/{sessionId}/summary', { params: { path: { sessionId: sid } } })) });
 }
 
 /** The parent's weekly report for a child. */
-id: string) {
+export function useWeeklyReport(id: string) {
   return useQuery({ queryKey: keys.weekly(id), queryFn: () => unwrap(api.GET('/reports/weekly', { params: { query: { child_id: id } } })) });
 }
 
 // ───────── Challenges and the welcome gift ─────────
 /** The challenge catalogue with this child's progress. */
-id: string | null) {
+export function useChallenges(id: string | null) {
   return useQuery({
     queryKey: keys.challenges(id ?? ''),
     enabled: Boolean(id),

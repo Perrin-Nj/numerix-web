@@ -17,7 +17,7 @@ pnpm storybook   # component library on :6006
 
 `pnpm dev` reuses a Go API that is already running on :8081 and otherwise builds and starts `../numerix-api/bin/api.exe` on `data/dev.db`. Demo parent: `demo@numerix.dev` / `correct-horse-battery`, child PINs `1234` and `4321` (created through the real endpoints by `scripts/seed-dev.mjs`, development only).
 
-Progress state: `NEXT_PUBLIC_STATE_SOURCE=api` (default) lets the server own the world map, streak, cards and reports (BE-21); `local` derives them from an on-device event log in localStorage.
+
 
 Automated checks, one line each (`bash scripts/test.sh` runs them all):
 

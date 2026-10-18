@@ -28,7 +28,7 @@ Owner requests (verbatim themes), then plan, critique, todos, file ownership, te
 - **Scene picture.** `ScenePicture({ world, skill, numbers })` draws the actual quantities: addition shows two groups of the world's object emoji (28 + 19 seeds), subtraction shows crossed-out items, multiplication shows rows, division shows groups with leftovers. Backgrounds from `WorldScene`. Different numbers give a different picture.
 - **Outcome simulation.** `OutcomeSim({ world, good })` is a short animated SVG/CSS scene with a sound: construction (bridge holds / collapses), nature (garden blooms / dries), espace (rocket lands / drifts), cuisine (cake rises / flops), sport (goal / miss), medecine (patient smiles / worsens, never gory), science (reaction works / fizzles), echecs (checkmate / trap). After a wrong answer the sim shows the risk, then the mascot encourages. Text under the sim is a world-specific line pair from the story kit style (fr and en pools in `game/outcome-sim/messages.*`).
 - **Cards and gift.** Each card gets a unique frame generated from its id (hue, pattern, foil), tilt on pointer, flip to read the story, shine sweep. Gift box: lid lifts, light burst, card rises out. Cards from chapters, challenges and gift look different from one another.
-- **Healthy joy rule (product prompt).** Delight, variety and surprise stay. No timers, no loss framing, no streak shaming, no fake urgency. Hints and sims never mock a wrong answer.
+- **Healthy joy rule (product prompt).** Delight, variety and surprise stay. No timers, no loss framing, no streak shaming, no fake urgency.
 
 ## Critique of the plan
 

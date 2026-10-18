@@ -346,7 +346,7 @@ Streak, daily goal ring (done chapters of target), and "this week compared with 
 - SOLID, concretely:
   - Single responsibility: presentational components hold no data fetching; feature hooks hold no markup.
   - Open/closed: variants and slots extend components; no editing a base to add a case.
-  - Liskov: every `AudioPlayer`, `Notifier`, `Storage` implementation (real, mock, null) is interchangeable.
+
   - Interface segregation: small interfaces (`AudioPlayer.play`, `Notifier.notify`) instead of one big service.
   - Dependency inversion: components receive `AudioPlayer`, `Notifier`, `Clock`, `Storage` and the API client through providers, so Storybook and tests inject fakes.
 - Composition over duplication: shared hooks (`useReducedMotion`, `useLocaleFormat`, `useSound`, `useApiError`, `useFeed`), motion wrappers, a single `Dialog` base, and a generic state container factory (`createSlice` over Zustand) used by every store.
@@ -546,7 +546,7 @@ The client parses `application/problem+json`. The `code` field selects the messa
 | `network` | Banner. | "No connection. Check your network and retry." Retry button. |
 | `unknown` | Dialog. | "Something went wrong on our side." Retry and copy details for support. |
 
-These codes are contract change request CR-5. Until they exist in the backend, the mock defines them.
+These codes are contract change request CR-5.
 
 ### 14.3 Rules
 
@@ -594,8 +594,8 @@ These codes are contract change request CR-5. Until they exist in the backend, t
 - **Auth transport:** tokens live in httpOnly, secure, same-site cookies set by Next route handlers (a thin same-origin proxy). Browser code never reads a token. The proxy forwards to `API_URL`. It runs on the Edge runtime (no Node-only APIs) so streaming narration and low latency work on Vercel; public pages are statically generated; secrets are Vercel environment variables, never `NEXT_PUBLIC_*`.
 - **Idempotency:** `startSession`, `nextBeat` and `answerBeat` send a fresh `Idempotency-Key` per user action and reuse it on retry.
 - **Streaming:** narration uses `EventSource`-style SSE through the proxy. Handles `scene`, `denouement`, `done`, `fallback`, and reconnects once before showing an error.
-- **Mock backend:** WireMock, driven by the `contracts/` folder (mappings and body files in `contracts/wiremock/`, shared typed fixtures in `contracts/fixtures/`). Scenarios and response templating give the stateful game loop: three outcomes chosen by the submitted answer, rewards, SSE narration, fallback, consent and limit errors, conflicts. Storybook and unit tests use the same typed fixtures. Flag: `NEXT_PUBLIC_USE_MOCK` selects the mock `API_URL`.
-- **Engine boundary test:** a test asserts no pre-answer payload (mock or real) contains the correct answer.
+Scenarios and response templating give the stateful game loop: three outcomes chosen by the submitted answer, rewards, SSE narration, fallback, consent and limit errors, conflicts. Storybook and unit tests use the same typed fixtures.
+
 - **Pagination:** cursor based, with virtualized lists for the collection and the parent timeline.
 - **Operations not owned by a single story:**
   - `listSessions` feeds the parent session timeline (7.10) and the "last played" line on the children list.
@@ -647,7 +647,7 @@ Server components for static parts, route-level code splitting, `next/image`, fo
 | Unit | Vitest | utils, formatters, error mapping, state machines |
 | Component | Testing Library and Storybook interaction tests | every component and state |
 | Visual and a11y | Storybook test-runner with axe | every story, all themes and locales |
-| Contract | type regeneration check and WireMock mapping validation | no drift |
+| Contract | type regeneration check | no drift |
 | End to end | Playwright with axe | parent signup to child chapter to recap, offline, TV keyboard flow |
 | Performance and PWA | Lighthouse CI | budgets and installability |
 | Engine boundary | dedicated test | no answer before answering |
@@ -655,7 +655,7 @@ Server components for static parts, route-level code splitting, `next/image`, fo
 ### 19.4 Deployment
 
 - Vercel from day one. Static generation where possible, edge-safe middleware limited to locale detection.
-- Environment variables: `API_URL`, `NEXT_PUBLIC_USE_MOCK`, `NEXT_PUBLIC_APP_ENV`. Preview deployments per pull request run with the mock backend.
+
 - Region preference: Canada, subject to the privacy review (section 21).
 - Edge-safe architecture: proxy and middleware avoid Node-only APIs; static generation for public routes; per-environment variables; no secrets in the client bundle.
 
@@ -741,8 +741,7 @@ Anything that varies by environment, brand, device or rollout is configuration, 
 
 | Variable | Scope | Default | Purpose |
 |---|---|---|---|
-| `API_URL` | server | WireMock URL | Backend base URL for the same-origin proxy |
-| `NEXT_PUBLIC_USE_MOCK` | client | `true` until the real backend exists | Shows a visible "demo data" badge when true |
+| `API_URL` | server | Go API URL | Backend base URL for the same-origin proxy |
 | `NEXT_PUBLIC_APP_ENV` | client | `development` | `development`, `preview`, `production` |
 | `NEXT_PUBLIC_DEFAULT_LOCALE`, `NEXT_PUBLIC_LOCALES` | client | `fr-CA`, `fr-CA,en-CA` | Language set |
 | `NEXT_PUBLIC_MASCOT_ENABLED` | client | `true` | Turns the mascot on or off everywhere |
@@ -787,7 +786,7 @@ Each step beyond level 1 needs an ADR with the measured size and the use it unlo
   - `vercel.ts` (with `@vercel/config`, Vercel's own config-as-code file, run at build time) holds regions, security headers and CSP, and cache rules. Tunable values come from environment variables with safe defaults (`VERCEL_REGIONS`, `IMAGE_HOSTS`, `CONNECT_ORIGINS`).
   - `config/env/production.env` and `config/env/preview.env` hold the non-secret variable values. `scripts/vercel-env.mjs diff|push <environment>` compares and syncs them with the project through the Vercel CLI. Every variable must be documented in `.env.example`.
 - Preview protection: Vercel protects previews by default. Sharing a preview with playtest families needs a deliberate setting (protection bypass link or turning it off for one project); this is an explicit decision, recorded in the log.
-- The first production deploy runs with `NEXT_PUBLIC_USE_MOCK=true` against a hosted WireMock. WireMock needs a JVM or Docker host, which Vercel does not provide, so the mock is hosted elsewhere (decision pending in plan section 11).
+
 - Region: `yul1` (Montreal, Canada) exists on Vercel (docs checked 2026-10-12) and is the default in `vercel.ts`.
 
 ### 22.6 Backend requirements live in the contract folder
@@ -795,6 +794,6 @@ Each step beyond level 1 needs an ADR with the measured size and the use it unlo
 Every backend need discovered while building the frontend is recorded in the same pull request that creates it:
 1. `contracts/openapi.yaml` updated.
 2. `contracts/BACKEND_REQUIREMENTS.md` updated (what, why, which screen needs it, status).
-3. A WireMock mapping and a typed fixture added or changed.
+3.
 4. Types regenerated; CI fails if any of these is missing or inconsistent.
 The change requests CR-1 to CR-10 in section 21 move to `contracts/BACKEND_REQUIREMENTS.md`, which is now their source of truth.

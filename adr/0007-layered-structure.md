@@ -8,7 +8,7 @@ Status: accepted, 2026-10-13.
 
 ## Decision
 
-Ten layers with inward-only arrows (app, features, game, ui, data, domain, platform, shared, config, i18n), documented in `docs/ARCHITECTURE.md` and enforced by `scripts/check-architecture.mjs` (CI via `scripts/test.sh arch`). Pure rules live in `domain/` and run in node. `data/` owns HTTP, hooks (one file per concern) and the on-device event store; the `STATE_SOURCE` switch lives in `data/hooks/state.ts` only. Every folder has a README and every export in the logic layers has a doc comment (`scripts/check-docs.mjs`).
+Nine layers with inward-only arrows (app, features, game, ui, data, platform, shared, config, i18n), documented in `docs/ARCHITECTURE.md` and enforced by `scripts/check-architecture.mjs` (CI via `scripts/test.sh arch`). Pure rules live in `domain/` and run in node. `data/` owns HTTP, hooks (one file per concern) and the on-device event store; the `STATE_SOURCE` switch lives in `data/hooks/state.ts` only. Every folder has a README and every export in the logic layers has a doc comment (`scripts/check-docs.mjs`).
 
 ## Consequences
 
