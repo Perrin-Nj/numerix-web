@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Mascot, type MascotConfig, type MascotPose, type MascotSize } from './Mascot';
 
 const on: MascotConfig = { enabled: true, kind: 'emoji', emoji: '🦊', src: '' };
+const rabbit: MascotConfig = { ...on, kind: 'lottie', src: '/mascot/rabbit-balloon.lottie' };
 const off: MascotConfig = { ...on, enabled: false };
 const poses: MascotPose[] = ['greet', 'cheer', 'think', 'rest', 'curious', 'amazed', 'happy', 'sad'];
 const sizes: MascotSize[] = ['sm', 'md', 'lg'];
@@ -60,7 +61,7 @@ export const AllSizes: Story = {
 };
 export const CustomEmoji: Story = { args: { config: { ...on, emoji: '🐼' } } };
 export const UnimplementedKindFallsBack: Story = {
-  args: { config: { ...on, kind: 'lottie' } },
+  args: { config: { ...on, kind: 'rive' } },
 };
 export const CheerWiggle: Story = { args: { pose: 'cheer', size: 'lg' } };
 export const IdleFloat: Story = {
@@ -82,3 +83,25 @@ export const HighContrast: Story = { render: AllPoses.render, globals: { theme: 
 export const French: Story = { args: { pose: 'sad' }, globals: { locale: 'fr-CA' } };
 export const English: Story = { args: { pose: 'happy' }, globals: { locale: 'en-CA' } };
 export const TvScale: Story = { globals: { display: 'tv' } };
+
+const rabbitPoses: Story['render'] = (args) => (
+  <ul className="flex flex-wrap gap-8">
+    {poses.map((p) => (
+      <li key={p} className="flex flex-col items-center gap-2 text-sm text-muted">
+        <Mascot {...args} config={rabbit} pose={p} size="lg" />
+        {p}
+      </li>
+    ))}
+  </ul>
+);
+export const RabbitAllPoses: Story = {
+  render: rabbitPoses,
+  parameters: { docs: { description: { story: 'One Lottie only. greet, rest, curious: slow loop. cheer: loop. amazed, happy: fast loop. think: paused mid frame. sad: first frame, tilted and dimmed. More poses need more files.' } } },
+};
+export const RabbitDark: Story = { render: rabbitPoses, globals: { theme: 'dark' } };
+export const RabbitLight: Story = { render: rabbitPoses, globals: { theme: 'light' } };
+export const RabbitReducedMotion: Story = { render: rabbitPoses, globals: { motion: 'reduced' } };
+export const RabbitFrench: Story = { args: { config: rabbit, pose: 'cheer', size: 'lg' }, globals: { locale: 'fr-CA' } };
+export const RabbitLoadFailureFallsBackToEmoji: Story = {
+  args: { config: { ...rabbit, src: '/mascot/missing.lottie' }, size: 'lg' },
+};

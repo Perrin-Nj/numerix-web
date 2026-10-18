@@ -717,6 +717,9 @@
     "journeyPath": {
       "play": "Play"
     },
+    "mascot": {
+      "label": "Numerix rabbit mascot with a balloon"
+    },
     "methodVisual": {
       "replay": "Watch again",
       "step": "Step {n} of {total}"

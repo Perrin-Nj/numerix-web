@@ -717,6 +717,9 @@
     "journeyPath": {
       "play": "Jouer"
     },
+    "mascot": {
+      "label": "Mascotte lapin de Numerix avec un ballon"
+    },
     "methodVisual": {
       "replay": "Revoir",
       "step": "Étape {n} sur {total}"
