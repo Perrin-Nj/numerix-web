@@ -103,7 +103,7 @@ export function HomeFeed() {
       <header className="mb-4 flex items-center justify-between gap-3">
         <h1 className="font-display text-3xl font-extrabold text-brand">{t('title')}</h1>
         <div className="flex items-center gap-1">
-          <NotificationCenterBell reminders={reminders} />
+          <NotificationCenterBell reminders={reminders} enabled={false} />
           <ThemeToggle variant="icon" />
         </div>
       </header>

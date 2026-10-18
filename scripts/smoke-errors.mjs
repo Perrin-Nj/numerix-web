@@ -30,7 +30,7 @@ async function login() {
   await page.goto(`${BASE}/parent/login`, { waitUntil: 'networkidle' });
   await page.getByLabel(/courriel/i).fill('demo@numerix.dev');
   await page.getByLabel(/mot de passe/i).fill('correct-horse-battery');
-  await page.getByRole('button', { name: /se connecter/i }).click();
+  await page.getByRole('button', { name: /^se connecter$/i }).click();
   await page.waitForURL('**/parent');
 }
 async function enterChild() {
@@ -49,7 +49,7 @@ await check('wrong password shows an inline message', async () => {
   await page.goto(`${BASE}/parent/login`, { waitUntil: 'networkidle' });
   await page.getByLabel(/courriel/i).fill('demo@numerix.dev');
   await page.getByLabel(/mot de passe/i).fill('wrong-password');
-  await page.getByRole('button', { name: /se connecter/i }).click();
+  await page.getByRole('button', { name: /^se connecter$/i }).click();
   await page.getByText(/incorrect/i).waitFor({ timeout: 8000 });
   await page.screenshot({ path: join(OUT, 'wrong-password.png') });
 });
@@ -97,7 +97,7 @@ async function loginAttempt(setup) {
   await setup(c, p);
   await p.getByLabel(/courriel/i).fill('demo@numerix.dev');
   await p.getByLabel(/mot de passe/i).fill('correct-horse-battery');
-  await p.getByRole('button', { name: /se connecter/i }).click();
+  await p.getByRole('button', { name: /^se connecter$/i }).click();
   return { c, p };
 }
 await check('device offline: says it is the connection', async () => {

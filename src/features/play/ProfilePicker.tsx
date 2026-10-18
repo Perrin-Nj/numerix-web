@@ -32,7 +32,9 @@ export function ProfilePicker() {
 
   const hasChild = Boolean(status.data?.child);
   useEffect(() => {
-    if (hasChild) router.replace('/play/home');
+    if (!hasChild) return;
+    setApiMode('child'); // the picker page is parent mode; the home it opens must call the API as the child
+    router.replace('/play/home');
   }, [hasChild, router]);
 
   async function enter(child: Child, withPin?: string) {

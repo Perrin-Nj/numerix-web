@@ -34,12 +34,20 @@ await ctx.addInitScript(() => {
   });
 });
 const page = await ctx.newPage();
+if (process.env.FAIL_SHOTS) {
+  page.on('response', async (r) => {
+    if (r.status() >= 400 && r.url().includes('/api/v1')) console.log('HTTP', r.status(), r.request().method(), r.request().headers()['x-nx-mode'], page.url().slice(21), r.url().slice(22, 100), (await r.text().catch(() => '')).slice(0, 110));
+  });
+}
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message.slice(0, 160)));
-page.on('console', (m) => m.type() === 'error' && errors.push(m.text().slice(0, 160)));
+// answers the checks provoke on purpose: a wrong PIN, a login screen asking if this device is known, a signed-out picker
+const EXPECTED = /children\/[^/]+\/token|auth\/device|\/api\/v1\/children$/;
+const failedLoad = /Failed to load resource/;
+page.on('console', (m) => m.type() === 'error' && !failedLoad.test(m.text()) && errors.push(m.text().slice(0, 160)));
 let fails = 0;
 page.on('response', (r) => {
-  if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.request().method()} ${r.url().replace(BASE, '').slice(0, 80)}`);
+  if (r.status() >= 400 && !EXPECTED.test(r.url())) errors.push(`HTTP ${r.status()} ${r.request().method()} ${r.url().replace(BASE, '').slice(0, 80)}`);
 });
 
 async function check(name, fn) {
@@ -49,11 +57,12 @@ async function check(name, fn) {
   } catch (e) {
     fails++;
     console.log(`FAIL ${name}: ${e.message.split('\n')[0].slice(0, 900)}`);
+    if (process.env.FAIL_SHOTS) await page.screenshot({ path: `${process.env.FAIL_SHOTS}/${name.replace(/\W+/g, '_').slice(0, 40)}.png` }).catch(() => {});
   }
 }
 const T = { timeout: 15000 };
-// The welcome gift is behind NEXT_PUBLIC_FEATURE_WELCOME_GIFT (off by default); test.sh turns it on for the dev server.
-const GIFT = process.env.NX_GIFT !== '0';
+// The welcome gift screens only exist with NEXT_PUBLIC_STATE_SOURCE=local (the server owns the gift otherwise): NX_GIFT=1 turns the gift checks on.
+const GIFT = process.env.NX_GIFT === '1';
 
 await check('first screen has both doors', async () => {
   await page.goto(BASE, { waitUntil: 'networkidle' });
@@ -174,7 +183,14 @@ await check('feed uses the page scroll only', async () => {
 
 // Reads the question off the screen and answers it (no answer is ever sent to the page)
 async function question() {
-  await page.waitForFunction(() => [...document.querySelectorAll('button')].some((b) => /^D\s/.test(b.innerText)), null, { timeout: 25000 });
+  // the real engine can award a mastery ("Nouveau pouvoir") between questions: close it and keep waiting
+  const deadline = Date.now() + 25000;
+  const hasChoices = () => page.evaluate(() => [...document.querySelectorAll('button')].some((b) => /^D\s/.test(b.innerText)));
+  while (!(await hasChoices())) {
+    if (Date.now() > deadline) throw new Error('no question with choices within 25 s');
+    if (await page.getByText(/nouveau pouvoir/i).count()) await page.getByRole('button', { name: /continuer/i }).first().click({ timeout: 2000 }).catch(() => {});
+    await page.waitForTimeout(300);
+  }
   await page.waitForTimeout(400);
   await page.waitForFunction(() => /\d+\s*[+−×÷-]\s*(\d+|\?)\s*=\s*(\d+|\?)/.test(document.body.innerText), null, { timeout: 25000 });
   return page.evaluate(() => { const all = [...document.body.innerText.matchAll(/\d+\s*[+−×÷-]\s*(?:\d+|\?)\s*=\s*(?:\d+|\?)(?:\s*\(avec reste\))?/g)]; return all[all.length - 1][0]; });
@@ -265,7 +281,11 @@ await check('outcome: one stage image, sheet within 1.5 s, Continue inside a 360
     await question();
     await answerCorrectly();
     const t0 = Date.now();
-    await page.locator('[data-outcome-sheet]').waitFor({ timeout: 1500 });
+    // the real engine can award a mastery ("Nouveau pouvoir") on this answer: it has to be closed before the sheet shows
+    const sheet = page.locator('[data-outcome-sheet]');
+    await sheet.or(page.getByText(/nouveau pouvoir/i)).first().waitFor({ timeout: 1500 });
+    if (await page.getByText(/nouveau pouvoir/i).count()) await page.getByRole('button', { name: /continuer/i }).first().click();
+    await sheet.waitFor({ timeout: 4000 });
     const waited = Date.now() - t0;
     const imgs = await page.locator('[data-stage] [role="img"]').count();
     if (imgs !== 1) throw new Error(`${imgs} images in the stage during the outcome`);

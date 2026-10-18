@@ -32,7 +32,7 @@ await check('grown-up logs in', async () => {
   await page.goto(`${BASE}/parent/login`, { waitUntil: 'networkidle' });
   await page.getByLabel(/courriel/i).fill('demo@numerix.dev');
   await page.getByLabel(/mot de passe/i).fill('correct-horse-battery');
-  await page.getByRole('button', { name: /se connecter/i }).click();
+  await page.getByRole('button', { name: /^se connecter$/i }).click();
   await page.waitForURL('**/parent', T);
 });
 
