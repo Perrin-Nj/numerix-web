@@ -1,9 +1,5 @@
 'use client';
-/** Query keys and the state-source switch. */
-import { appConfig } from '@/config/app';
-
-/** True when the server owns progress state (NEXT_PUBLIC_STATE_SOURCE=api). */
-export const apiOn = appConfig.stateSource === 'api';
+/** Query keys. */
 
 /** Query keys in one place so invalidation stays consistent. */
 export const keys = {
@@ -15,6 +11,7 @@ export const keys = {
   journey: (id: string, world: string) => ['journey', id, world] as const,
   collection: (id: string) => ['collection', id] as const,
   engagement: (id: string) => ['engagement', id] as const,
+  challenges: (id: string) => ['challenges', id] as const,
   growth: (id: string) => ['growth', id] as const,
   quest: (id: string) => ['quest', id] as const,
   progress: (id: string) => ['progress', id] as const,

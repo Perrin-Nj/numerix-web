@@ -9,7 +9,6 @@ import { streamNarration } from '@/data/api/narration';
 import { reportError } from '@/platform/errors/bridge';
 import { initialStoryState, storyReducer } from './story-machine';
 import { useReadAloud } from '@/platform/speech';
-import { useGameStore } from '@/data/local/store';
 import { usePickLine } from '@/platform/lines';
 import {
   finishSession,
@@ -86,10 +85,6 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const [pauseOpen, setPauseOpen] = useState(false);
   const [exitOpen, setExitOpen] = useState(false);
   const pick = usePickLine();
-  // Local game state (NEXT_PUBLIC_STATE_SOURCE=local): every play is traced as it happens
-  const record = useGameStore((g) => g.append);
-  const trace = appConfig.stateSource === 'local' ? status.data?.childId ?? null : null;
-  const traced = useRef(new Set<string>());
   const reduced = useReducedMotion();
   // Right answers in a row in this chapter: shown only as a glow around the hero
   const [streak, setStreak] = useState(0);
@@ -310,30 +305,9 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     if (s.phase === 'done') router.replace(`/play/session/${sessionId}/done`);
   }, [s.phase, router, sessionId]);
 
-  // Trace the play: start when the first beat arrives, then every answer, the finish and the cards
-  useEffect(() => {
-    if (!trace || !s.beat || !s.session) return;
-    record(trace, { k: 'start', sid: sessionId, world: s.session.world, skill: s.beat.skill_id, mode: s.session.kind === 'daily_quest' ? 'daily_quest' : s.session.kind === 'onboarding' ? 'onboarding' : 'chapter' });
-  }, [trace, record, s.beat, s.session, sessionId]);
-
-  useEffect(() => {
-    if (!trace || s.phase !== 'outcome' || !s.outcome || !s.beat || !s.session) return;
-    const key = `a:${s.beat.id}`;
-    if (traced.current.has(key)) return;
-    traced.current.add(key);
-    record(trace, { k: 'answer', sid: sessionId, world: s.session.world, skill: s.beat.skill_id, outcome: s.outcome, i: s.beat.index });
-    for (const r of s.rewards) {
-      if (r.type === 'card_earned' && r.card) {
-        record(trace, { k: 'card', card: { id: r.card.id, world: r.card.world, title: r.card.title, earnedAt: r.card.earned_at, source: 'chapter' } });
-      }
-    }
-    if (s.session.status === 'completed') record(trace, { k: 'finish', sid: sessionId, done: true, title: s.session.story_title ?? undefined });
-  }, [trace, record, s.phase, s.outcome, s.beat, s.session, s.rewards, sessionId]);
-
   async function exitPlay() {
     try {
       await finishSession(sessionId);
-      if (trace) record(trace, { k: 'finish', sid: sessionId, done: false });
       stopSpeaking();
       router.replace('/play/home');
     } catch (e) {

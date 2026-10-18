@@ -2,8 +2,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
-import { appConfig } from '@/config/app';
-import { useGameStore } from '@/data/local/store';
 import { reportError } from '@/platform/errors/bridge';
 import type { AnswerValue, FeedItem, FeedPage } from '@/data/api/types';
 import { answerFeedPuzzle, reactToFeedItem, useFeed, useSessionStatus } from '@/data/hooks';
@@ -34,8 +32,6 @@ function LoadingCard() {
 export function FeedScreen() {
   const t = useTranslations('screens.play.feed');
   const qc = useQueryClient();
-  const record = useGameStore((s) => s.append);
-  const local = appConfig.stateSource === 'local';
   const status = useSessionStatus();
   const childId = status.data?.childId ?? null;
   const feed = useFeed(childId);
@@ -44,7 +40,7 @@ export function FeedScreen() {
   const [scrolled, setScrolled] = useState(false);
   const lastActive = useRef(0);
 
-  // Page index is part of the key: the endless mock feed can repeat item ids across pages.
+  // Page index is part of the key: the endless feed can repeat item ids across pages.
   const entries = useMemo(
     () => (feed.data?.pages ?? []).flatMap((page, p) => page.items.map((item) => ({ key: `${p}-${item.id}`, item }))),
     [feed.data],
@@ -78,7 +74,6 @@ export function FeedScreen() {
       if (!childId) return;
       const before = { liked: item.liked, saved: item.saved };
       patch(item.id, next);
-      if (local) record(childId, { k: 'react', item: item.id, liked: next.liked, saved: next.saved });
       try {
         await reactToFeedItem(childId, item.id, next);
       } catch (e) {
@@ -86,21 +81,20 @@ export function FeedScreen() {
         reportError(e);
       }
     },
-    [childId, patch, local, record],
+    [childId, patch],
   );
 
   const onAnswer = useCallback(
     async (item: FeedItem, answer: AnswerValue) => {
       try {
         const res = await answerFeedPuzzle(childId ?? '', item.id, answer);
-        if (local && childId) record(childId, { k: 'puzzle', item: item.id, outcome: res.outcome });
         return res;
       } catch (e) {
         reportError(e);
         throw e;
       }
     },
-    [childId, local, record],
+    [childId],
   );
 
   const onCta = useCallback(

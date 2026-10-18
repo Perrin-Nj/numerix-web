@@ -1,6 +1,5 @@
 'use client';
 import type { QueryClient } from '@tanstack/react-query';
-import { useGameStore } from '@/data/local/store';
 import { DEFAULT_PREFS, usePrefs } from '@/platform/prefs/store';
 
 let client: QueryClient | null = null;
@@ -14,9 +13,8 @@ export const registerQueryClient = (qc: QueryClient) => {
 
 /**
  * Frees what the device remembers.
- * - 'child' (change who plays): memory only, so nothing of the last player stays on screen. Each child's
- *   own on-device progress is kept for when they come back (the server owns it once BE-21 exists).
- * - 'all' (grown-up signs out): everything under `nx:` goes, progress included. Kept: language (cookie)
+ * - 'child' (change who plays): memory only, so nothing of the last player stays on screen. Progress lives on the server.
+ * - 'all' (grown-up signs out): everything under `nx:` goes. Kept: language (cookie)
  *   and the theme, which are device settings, not account state.
  */
 export function clearLocalState(scope: 'child' | 'all') {
@@ -26,10 +24,8 @@ export function clearLocalState(scope: 'child' | 'all') {
   } catch {
     /* storage can be blocked */
   }
-  useGameStore.setState({ queue: [] });
   client?.clear();
   if (scope !== 'all') return;
-  useGameStore.setState({ byChild: {} });
   usePrefs.setState({ ...DEFAULT_PREFS });
   try {
     Object.keys(localStorage)

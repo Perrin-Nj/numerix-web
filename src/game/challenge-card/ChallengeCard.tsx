@@ -2,10 +2,22 @@
 import { memo, type CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/shared/cn';
-import type { ChallengeView } from '@/domain/game/types';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 import { Progress } from '@/ui/progress';
+
+/** What a challenge card shows. */
+export type ChallengeView = {
+  id: string;
+  title: string;
+  description: string;
+  target: number;
+  progress: number;
+  status: 'available' | 'active' | 'done';
+  /** Short text such as "Une carte rare". */
+  rewardLabel: string;
+  emoji: string;
+};
 
 export type ChallengeCardProps = ChallengeView & {
   onAccept?: (id: string) => void;

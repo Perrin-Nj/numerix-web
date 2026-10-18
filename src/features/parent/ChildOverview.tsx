@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { useFormatter, useTranslations } from 'next-intl';
 import { useCountUp } from '@/platform/motion';
 import { useChallenges, useGrowth, useProgress, useSessionList } from '@/data/hooks';
-import { appConfig } from '@/config/app';
 import { Progress } from '@/ui/progress';
 import { ParentPage } from './ParentPage';
 import { Card, CardBody } from '@/ui/card';
@@ -64,10 +63,10 @@ export function ChildOverview({ childId }: { childId: string }) {
 
       {growth.isLoading || growth.error ? <ScreenState isLoading={growth.isLoading} error={growth.error} onRetry={() => void growth.refetch()} area="parent" skeleton={<Skeleton height={140} />}>{null}</ScreenState> : growth.data && <GrowthPanel growth={growth.data} />}
 
-      {appConfig.stateSource === 'local' && (
+      {challenges.data && challenges.data.length > 0 && (
         <Panel title={tc('title')}>
           <ul className="flex flex-col gap-3">
-            {challenges.map((c) => (
+            {challenges.data.map((c) => (
               <li key={c.id} className="rounded-md bg-sunken p-3">
                 <p className="font-display font-semibold">
                   <span aria-hidden>{c.emoji} </span>

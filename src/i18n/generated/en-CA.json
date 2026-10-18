@@ -37,6 +37,7 @@
         "title": "Home",
         "feedLabel": "Your adventure feed",
         "worlds": "Pick a world",
+        "giftCard": "The welcome gift",
         "recentCards": "Your latest cards",
         "growth": "This week: {now} chapters. The week before: {before}. You are getting better!",
         "tour": {

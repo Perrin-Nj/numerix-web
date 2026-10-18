@@ -1,4 +1,4 @@
-// Solves the mock's math_text formats so tests can answer correctly without the server leaking answers.
+// Solves the server's math_text formats so tests can answer correctly without the server leaking answers.
 export function solve(mathText) {
   const t = mathText.replace(/\s+/g, ' ').trim();
   let m;

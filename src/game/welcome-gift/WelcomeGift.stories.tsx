@@ -17,8 +17,6 @@ const meta = {
       id: 'card-1',
       world: 'nature',
       title: 'Le premier pas dans la forêt',
-      earnedAt: '2026-03-14T15:00:00Z',
-      source: 'welcome',
     },
   },
 } satisfies Meta<typeof WelcomeGift>;

@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, unwrap } from '@/data/api/client';
 import type { components } from '@/data/api/schema';
-import { apiOn, keys } from './keys';
+import { keys } from './keys';
 
 export type KnownDevice = components['schemas']['Device'];
 export type PasskeyInfo = components['schemas']['Passkey'];
@@ -26,7 +26,6 @@ export function passkeysSupported(): boolean {
 export function useDevices() {
   return useQuery({
     queryKey: deviceKeys.devices,
-    enabled: apiOn,
     queryFn: () => unwrap(api.GET('/account/devices')).then((r) => r.items),
   });
 }
@@ -44,7 +43,6 @@ export function useRevokeDevice() {
 export function usePasskeys() {
   return useQuery({
     queryKey: deviceKeys.passkeys,
-    enabled: apiOn,
     queryFn: () => unwrap(api.GET('/account/passkeys')).then((r) => r.items),
   });
 }

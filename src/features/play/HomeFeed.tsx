@@ -3,15 +3,11 @@ import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
-import { useChallenges, useChildSettings, useHome, useSessionStatus } from '@/data/hooks';
+import { useChildSettings, useClaimGift, useHome, useSessionStatus } from '@/data/hooks';
 import { useStartChapter } from './useStartChapter';
-import { giftClaimed, welcomeCard } from '@/domain/game/selectors';
-import { nowMs } from '@/domain/game/clock';
-import { useGameEvents, useGameStore } from '@/data/local/store';
 import { usePickLine } from '@/platform/lines';
 import { useLocalReminders } from '@/features/notify';
 import { NotificationCenterBell } from '@/features/common/NotificationCenterBell';
-import { playToday } from '@/domain/game/selectors';
 import { useChildName } from '@/data/local/who';
 import { useSpokenLine } from '@/platform/speech/useSpokenLine';
 import { ContinueCard } from '@/game/continue-card';
@@ -39,20 +35,18 @@ export function HomeFeed() {
   const status = useSessionStatus();
   const childId = status.data?.childId ?? null;
   const home = useHome(childId);
-  const challenges = useChallenges(childId);
-  const events = useGameEvents(childId);
-  const claimGift = useGameStore((g) => g.claimGift);
-  const record = useGameStore((g) => g.append);
+  const claim = useClaimGift(childId);
+  const d = home.data;
+  const openChallenges = d?.active_challenges ?? 0;
   const { begin, dialog } = useStartChapter(childId);
   const [tourDone, setTourDone] = useState(false);
   const kidName = useChildName(childId);
   const settings = useChildSettings(childId ?? '');
-  const today = playToday(events, nowMs());
   const reminders = useLocalReminders({
     childName: kidName ?? '',
-    minutesToday: today.minutes,
+    minutesToday: d?.engagement.minutes_today ?? 0,
     dailyLimit: settings.data?.daily_time_limit_minutes ?? 0,
-    lastPlayedAt: today.lastPlayedAt,
+    lastPlayedAt: d?.engagement.last_played_at ?? null,
   });
   const [greeting, setGreeting] = useState('');
   const [firstVisit, setFirstVisit] = useState(false);
@@ -83,20 +77,14 @@ export function HomeFeed() {
   useSpokenLine(firstVisit && greeting ? greeting : null, { lang });
   // Data loads on the client only, so reading storage here cannot mismatch the server render
   const tour = Boolean(childId && home.data && !tourDone && !localStorage.getItem(onboardingKey(childId)));
-  const local = appConfig.stateSource === 'local';
   const [giftLater, setGiftLater] = useState(false);
-  const giftOpen = appConfig.features.welcomeGift && local && !giftLater && Boolean(childId && home.data && !tour && !giftClaimed(events));
+  const giftOpen = appConfig.features.welcomeGift && !giftLater && Boolean(d?.gift_available && !tour);
 
   function endTour() {
     setTourDone(true);
-    if (childId) {
-      localStorage.setItem(onboardingKey(childId), 'done');
-      if (local) record(childId, { k: 'tour' });
-    }
+    if (childId) localStorage.setItem(onboardingKey(childId), 'done');
   }
 
-  const d = home.data;
-  const openChallenges = challenges.filter((c) => c.status !== 'done').length;
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 pb-6 pt-3">
@@ -176,7 +164,7 @@ export function HomeFeed() {
           { target: '#tour-worlds', title: t('tour.worldsTitle'), description: t('tour.worlds') },
         ]}
       />
-      <WelcomeGift open={giftOpen} card={welcomeCard(nowMs(), lang)} onClaim={() => childId && claimGift(childId)} onLater={() => setGiftLater(true)} />
+      <WelcomeGift open={giftOpen} card={{ id: 'welcome', world: 'nature', title: t('giftCard') }} onClaim={() => claim.mutate()} onLater={() => setGiftLater(true)} />
     </main>
   );
 }

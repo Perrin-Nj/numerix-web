@@ -10,7 +10,6 @@ import { fileURLToPath } from 'node:url';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const verbose = process.argv.includes('--verbose');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
-const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 let fails = 0;
 const counts = {};
 const say = (kind, msg) => {
@@ -157,9 +156,6 @@ for (const extra of ['subscription_inactive', 'account_blocked', 'forbidden_orig
 errorCodes.delete('sound'); errorCodes.delete('narrationFailed'); errorCodes.delete('offline'); errorCodes.delete('back'); errorCodes.delete('retry');
 for (const code of errorCodes) say(guideHas(`\`${code}\``) ? 'ok' : 'FAIL', `error code ${code} in the guide`);
 
-const events = [...read('src/domain/game/events.ts').matchAll(/k: '([a-z]+)'/g)].map((m) => m[1]);
-for (const k of new Set(events)) say(guideHas(`\`${k}\``) ? 'ok' : 'FAIL', `game event ${k} mapped in the guide`);
-
 for (const cookie of ['nx_parent', 'nx_refresh', 'nx_child', 'nx_child_id', 'nx_admin', 'NEXT_LOCALE'])
   say(guideHas(cookie) ? 'ok' : 'FAIL', `cookie ${cookie} in the guide`);
 
@@ -169,8 +165,6 @@ for (const f of ['admin/src/lib/env.ts']) for (const m of read(f).matchAll(/\b(A
 for (const n of ['UPSTASH_REDIS_REST_URL', 'ADMIN_ORIGIN', 'IMAGE_HOSTS', 'CONNECT_ORIGINS', 'VERCEL_REGIONS']) envNames.add(n);
 for (const n of envNames) say(guideHas(n) ? 'ok' : 'FAIL', `env var ${n} in the guide`);
 
-const rules = read('src/domain/game/rules.ts');
-void rules;
 for (const header of ['accept-language', 'idempotency-key', 'x-nx-mode', 'last-event-id'])
   say(guide.toLowerCase().includes(header) ? 'ok' : 'FAIL', `header ${header} in the guide`);
 

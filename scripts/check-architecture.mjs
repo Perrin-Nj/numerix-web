@@ -7,13 +7,12 @@ const SRC = resolve(import.meta.dirname, '../src');
 
 /** layer -> layers it may import. A layer may always import itself. */
 const ALLOWED = {
-  app: ['features', 'game', 'ui', 'data', 'domain', 'platform', 'shared', 'config', 'i18n'],
-  features: ['game', 'ui', 'data', 'domain', 'platform', 'shared', 'config', 'i18n'],
-  game: ['ui', 'domain', 'platform', 'shared', 'config', 'i18n'],
+  app: ['features', 'game', 'ui', 'data', 'platform', 'shared', 'config', 'i18n'],
+  features: ['game', 'ui', 'data', 'platform', 'shared', 'config', 'i18n'],
+  game: ['ui', 'platform', 'shared', 'config', 'i18n'],
   ui: ['platform', 'shared', 'config', 'i18n'],
-  data: ['domain', 'platform', 'shared', 'config'],
-  domain: ['shared'],
-  platform: ['domain', 'shared', 'config'],
+  data: ['platform', 'shared', 'config'],
+  platform: ['shared', 'config'],
   shared: [],
   config: ['shared'],
   i18n: ['config', 'shared'],

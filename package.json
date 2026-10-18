@@ -20,12 +20,10 @@
     "check:sounds": "node scripts/check-sounds.mjs",
     "vercel:env": "node scripts/vercel-env.mjs",
     "check": "pnpm check:stories && pnpm check:copy && pnpm check:sounds && pnpm typecheck && pnpm lint",
-    "smoke": "node scripts/smoke.mjs",
     "smoke:errors": "node scripts/smoke-errors.mjs",
     "flows": "node scripts/flows.mjs",
     "ui-checks": "node scripts/ui-checks.mjs",
     "dev:next": "next dev",
-    "test:state": "node scripts/state-checks.mjs",
     "test": "bash scripts/test.sh"
   },
   "dependencies": {

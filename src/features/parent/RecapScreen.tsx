@@ -8,7 +8,7 @@ import { ScreenState } from '@/game/screen-state';
 
 export function RecapScreen({ childId, sessionId }: { childId: string; sessionId: string }) {
   const t = useTranslations('screens.parent.recap');
-  const summary = useSessionSummary(sessionId, childId);
+  const summary = useSessionSummary(sessionId);
   const s = summary.data;
 
   return (

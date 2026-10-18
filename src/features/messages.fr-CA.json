@@ -243,6 +243,7 @@
         "title": "Accueil",
         "feedLabel": "Ton fil d'aventures",
         "worlds": "Choisis un monde",
+        "giftCard": "Le cadeau de bienvenue",
         "recentCards": "Tes dernières cartes",
         "growth": "Cette semaine : {now} chapitres. La semaine d'avant : {before}. Tu avances bien !",
         "tour": {

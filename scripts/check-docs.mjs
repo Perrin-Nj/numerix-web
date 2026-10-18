@@ -4,9 +4,9 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
 
 const SRC = resolve(import.meta.dirname, '../src');
-const LAYERS = ['data', 'domain', 'platform', 'shared', 'config', 'i18n', 'features', 'game', 'ui'];
-const NEEDS_DOC = ['data', 'domain', 'platform', 'shared', 'config', 'i18n', 'features', 'game', 'ui'];
-const STRICT_DIRS = new Set(['data', 'domain', 'platform', 'shared', 'config', 'i18n']); // every export documented; elsewhere only components and hooks
+const LAYERS = ['data', 'platform', 'shared', 'config', 'i18n', 'features', 'game', 'ui'];
+const NEEDS_DOC = ['data', 'platform', 'shared', 'config', 'i18n', 'features', 'game', 'ui'];
+const STRICT_DIRS = new Set(['data', 'platform', 'shared', 'config', 'i18n']); // every export documented; elsewhere only components and hooks
 
 function walk(dir) {
   const out = [];

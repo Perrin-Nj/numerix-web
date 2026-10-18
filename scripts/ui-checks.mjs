@@ -61,8 +61,8 @@ async function check(name, fn) {
   }
 }
 const T = { timeout: 15000 };
-// The welcome gift screens only exist with NEXT_PUBLIC_STATE_SOURCE=local (the server owns the gift otherwise): NX_GIFT=1 turns the gift checks on.
-const GIFT = process.env.NX_GIFT === '1';
+// Gift checks run by default (the Go API serves the gift behind FEATURE_WELCOME_GIFT); NX_GIFT=0 skips them against a deployment without it.
+const GIFT = process.env.NX_GIFT !== '0';
 
 await check('first screen has both doors', async () => {
   await page.goto(BASE, { waitUntil: 'networkidle' });

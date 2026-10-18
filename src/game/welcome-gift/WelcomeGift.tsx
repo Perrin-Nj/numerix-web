@@ -6,13 +6,13 @@ import { cn } from '@/shared/cn';
 import { useSound } from '@/platform/audio';
 import { usePickLine } from '@/platform/lines';
 import { useReducedMotion } from '@/platform/motion';
-import type { CardView } from '@/domain/game/types';
+import type { WorldId } from '@/data/api/types';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { StoryCard } from '@/game/story-card';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 
-export type WelcomeGiftProps = { open: boolean; card: CardView; onClaim: () => void; onLater?: () => void };
+export type WelcomeGiftProps = { open: boolean; card: { id: string; world: WorldId; title: string }; onClaim: () => void; onLater?: () => void };
 
 /** Full-screen first-card gift. Cannot be dismissed by mistake: the only way out is the claim button. */
 export function WelcomeGift({ open, card, onClaim, onLater }: WelcomeGiftProps) {
@@ -111,7 +111,7 @@ function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
               >
                 <StoryCard
                   source="gift"
-                  card={{ id: card.id, world: card.world, title: card.title, image_url: '', earned_at: card.earnedAt }}
+                  card={{ id: card.id, world: card.world, title: card.title, image_url: '', earned_at: '' }}
                 />
               </div>
             )}

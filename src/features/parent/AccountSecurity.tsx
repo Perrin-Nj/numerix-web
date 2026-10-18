@@ -1,5 +1,5 @@
 'use client';
-import { apiOn, passkeysSupported, useAddPasskey, useDeletePasskey, useDevices, usePasskeys, useRevokeDevice } from '@/data/hooks';
+import { passkeysSupported, useAddPasskey, useDeletePasskey, useDevices, usePasskeys, useRevokeDevice } from '@/data/hooks';
 import { SecurityPanel } from './SecurityPanel';
 
 /** Connects SecurityPanel to the data hooks. Renders nothing unless the Go backend owns the data. */
@@ -9,7 +9,6 @@ export function AccountSecurity() {
   const revoke = useRevokeDevice();
   const remove = useDeletePasskey();
   const add = useAddPasskey();
-  if (!apiOn) return null;
   return (
     <SecurityPanel
       devices={devices.data ?? []}

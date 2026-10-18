@@ -1,14 +1,10 @@
 'use client';
 import { useEffect, type ReactNode } from 'react';
-import { useLocale } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAudioSettings } from '@/platform/audio';
 import { useChildSettings, useSessionStatus } from '@/data/hooks';
 import { OfflineBanner } from '@/features/common/OfflineBanner';
-import { useGameStore } from '@/data/local/store';
-import { toStoryCard } from '@/domain/game/selectors';
-import { RewardBurst } from '@/game/reward-burst';
 import { BottomNav } from '@/ui/bottom-nav';
 
 /** Frame for child screens. The story screen gets no navigation at all. */
@@ -25,11 +21,6 @@ export function PlayShell({ children }: { children: ReactNode }) {
     if (settings.data) setEnabled(settings.data.sound);
   }, [settings.data, setEnabled]);
 
-  const lang = useLocale().startsWith('en') ? 'en' : 'fr';
-  const setLang = useGameStore((g) => g.setLang);
-  useEffect(() => setLang(lang), [lang, setLang]);
-  const celebration = useGameStore((g) => g.queue[0]);
-  const popCelebration = useGameStore((g) => g.popCelebration);
   const inStory = /^\/play\/session\//.test(pathname);
   const showNav = !inStory && pathname !== '/play';
   const is = (p: string) => pathname === p || pathname.startsWith(`${p}/`);
@@ -37,11 +28,6 @@ export function PlayShell({ children }: { children: ReactNode }) {
   return (
     <>
       <OfflineBanner />
-      {celebration && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 p-4">
-          <RewardBurst reward={{ type: 'card_earned', card: toStoryCard(celebration.card) }} onDone={popCelebration} />
-        </div>
-      )}
       <div className={showNav ? 'pb-24' : undefined}>{children}</div>
       {showNav && (
         <BottomNav

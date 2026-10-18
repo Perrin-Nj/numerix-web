@@ -33,8 +33,7 @@ export type Problem = S['Problem'];
 export type ReviewDue = S['ReviewDue'];
 
 /**
- * All story worlds in display order. Screens that list worlds (settings, journey) iterate this; the rules copy
- * lives in domain/game/catalog.
+ * All story worlds in display order. Screens that list worlds (settings, journey) iterate this.
  */
 export const WORLD_IDS: WorldId[] = [
   'nature', 'espace', 'cuisine', 'sport', 'construction', 'medecine', 'science', 'echecs',

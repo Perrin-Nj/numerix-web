@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One entry point for every automated check. One line per check, nothing else.
 #   bash scripts/test.sh            all local checks (state, sounds, flows, ui)
-#   bash scripts/test.sh state      pure game-state selectors (node, instant)
+#   bash scripts/test.sh state      pure node checks (spoken, voices, coach, scene, cards)
 #   bash scripts/test.sh arch       layer arrows and documentation coverage
 #   bash scripts/test.sh flows      HTTP flows through the app
 #   bash scripts/test.sh ui         browser checks (kid door, feed, chapter, theme, exit, map...)
@@ -48,7 +48,7 @@ ensure_app() {
   export NEXT_PUBLIC_FEATURE_WELCOME_GIFT=true NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI=true
   # A production build by default: next dev recompiles and reloads pages under the browser checks and makes them flaky. NX_DEV=1 for dev.
   if [ -n "${NX_DEV:-}" ]; then pnpm exec next dev >/dev/null 2>&1 &
-  else pnpm exec next build >/dev/null 2>&1 || { echo "[app] build failed"; FAILS=$((FAILS+1)); return; }; pnpm exec next start >/dev/null 2>&1 &
+  else pnpm gen:messages >/dev/null 2>&1; pnpm exec next build >/dev/null 2>&1 || { echo "[app] build failed"; FAILS=$((FAILS+1)); return; }; pnpm exec next start >/dev/null 2>&1 &
   fi
   STARTED+=(3000)
   for _ in $(seq 1 60); do up "$BASE/api/health" && return; sleep 1; done
@@ -63,7 +63,7 @@ warm() {
 }
 
 case "$MODE" in
-  state)  run state node scripts/state-checks.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs ;;
+  state)  run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs ;;
   contract) run contract node scripts/api-inventory.mjs ;;
   arch)   run architecture node scripts/check-architecture.mjs; run docs node scripts/check-docs.mjs ;;
   sounds) run sounds node scripts/check-sounds.mjs; run visual node scripts/check-method-visual.mjs; run variants node scripts/check-sound-variants.mjs ;;
@@ -73,7 +73,7 @@ case "$MODE" in
   mobile) ensure_app; warm; run mobile node scripts/mobile-audit.mjs "$BASE" ;;
   live)   LIVE="${LIVE_URL:-https://numerix-web-snowy.vercel.app}"
           run flows node scripts/flows.mjs "$LIVE"; NX_GIFT=0 run ui node scripts/ui-checks.mjs "$LIVE"; run errors node scripts/ui-error-checks.mjs "$LIVE" ;;
-  all)    run contract node scripts/api-inventory.mjs; run state node scripts/state-checks.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs
+  all)    run contract node scripts/api-inventory.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs
           run sounds node scripts/check-sounds.mjs; run visual node scripts/check-method-visual.mjs; run variants node scripts/check-sound-variants.mjs
           ensure_app; warm; run flows node scripts/flows.mjs "$BASE"; run ui node scripts/ui-checks.mjs "$BASE"; run errors node scripts/ui-error-checks.mjs "$BASE"; run mobile node scripts/mobile-audit.mjs "$BASE" ;;
   *)      echo "unknown mode: $MODE"; exit 2 ;;
