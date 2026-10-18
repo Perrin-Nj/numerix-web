@@ -46,6 +46,7 @@ await check('forced API failure shows the error screen with Retry', async () => 
 });
 
 await check('offline shows the offline variant', async () => {
+  await setScenario(null); // a routed reply would hide the offline state
   await ctx.setOffline(true);
   await page.locator('[data-error-kind]').first().getByRole('button', { name: /réessayer/i }).click();
   await page.locator('[data-error-kind="offline"]').waitFor(T);
