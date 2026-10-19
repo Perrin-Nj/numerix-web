@@ -13,6 +13,8 @@ const nav: { href: string; label: Key }[] = [
   { href: '/', label: 'nav.overview' },
   { href: '/parents', label: 'nav.parents' },
   { href: '/children', label: 'nav.children' },
+  { href: '/questions', label: 'nav.questions' },
+  { href: '/media', label: 'nav.media' },
   { href: '/plans', label: 'nav.plans' },
   { href: '/config', label: 'nav.config' },
   { href: '/notifications', label: 'nav.notifications' },

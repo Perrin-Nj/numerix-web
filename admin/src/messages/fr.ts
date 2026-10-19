@@ -1,3 +1,5 @@
+import { cfr } from './content-fr';
+
 export const fr = {
   'nav.overview': 'Vue d’ensemble',
   'nav.parents': 'Parents',
@@ -268,6 +270,7 @@ export const fr = {
   'audit.what': 'Action',
   'audit.target': 'Cible',
   'audit.detail': 'Détail',
+  ...cfr,
 } as const;
 
 export type Key = keyof typeof fr;

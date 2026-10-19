@@ -2,18 +2,19 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
+    public body?: unknown,
   ) {
     super(message);
   }
 }
 
 /** Browser calls always go to this app's own /api/*; the session cookie rides along. */
-export async function api<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
+export async function api<T>(path: string, init?: { method?: string; body?: unknown; headers?: Record<string, string> }): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`/api/${path}`, {
       method: init?.method ?? 'GET',
-      headers: init?.body !== undefined ? { 'content-type': 'application/json' } : undefined,
+      headers: { ...(init?.body !== undefined ? { 'content-type': 'application/json' } : {}), ...init?.headers },
       body: init?.body !== undefined ? JSON.stringify(init.body) : undefined,
     });
   } catch {
@@ -31,7 +32,7 @@ export async function api<T>(path: string, init?: { method?: string; body?: unkn
   }
   if (!res.ok) {
     const d = data as { message?: string; error?: string; detail?: string } | null;
-    throw new ApiError(d?.message ?? d?.error ?? d?.detail ?? `HTTP ${res.status}`, res.status);
+    throw new ApiError(d?.message ?? d?.error ?? d?.detail ?? `HTTP ${res.status}`, res.status, data);
   }
   return data as T;
 }

@@ -29,6 +29,7 @@ async function handle(req: NextRequest, ctx: { params: Promise<{ path: string[] 
         authorization: `Bearer ${e.ADMIN_API_TOKEN}`,
         accept: 'application/json',
         ...(hasBody ? { 'content-type': 'application/json' } : {}),
+        ...(req.headers.get('if-match') ? { 'if-match': req.headers.get('if-match')! } : {}), // optimistic locking on question saves
       },
       body: hasBody ? await req.text() : undefined,
       cache: 'no-store',

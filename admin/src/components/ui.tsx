@@ -118,7 +118,7 @@ export function Switch({ checked, onChange, label, hint }: { checked: boolean; o
 }
 
 /** Modal on native <dialog>: focus trap, Esc and backdrop close come for free. */
-export function Modal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+export function Modal({ open, onClose, title, children, wide }: { open: boolean; onClose: () => void; title: string; children: ReactNode; wide?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;
@@ -132,7 +132,7 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
       aria-label={title}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-2xl border border-line bg-elevated p-0 text-fg"
+      className={cx('m-auto max-h-[90dvh] rounded-2xl border border-line bg-elevated p-0 text-fg', wide ? 'w-[min(56rem,calc(100vw-2rem))]' : 'w-[min(32rem,calc(100vw-2rem))]')}
     >
       {open && (
         <div className="p-5">
