@@ -39,12 +39,12 @@ export function CreditsScreen() {
                 <p className="text-muted">{t('licence', { licence: c.licence })}</p>
                 <p className="flex flex-wrap gap-x-3">
                   {c.source_url && (
-                    <a className="inline-flex min-h-11 items-center font-semibold text-brand underline underline-offset-4" href={c.source_url} target="_blank" rel="noopener noreferrer">
+                    <a className="inline-flex min-h-11 min-w-11 items-center justify-center font-semibold text-brand underline underline-offset-4" href={c.source_url} target="_blank" rel="noopener noreferrer">
                       {t('source')}
                     </a>
                   )}
                   {c.licence_url && (
-                    <a className="inline-flex min-h-11 items-center font-semibold text-brand underline underline-offset-4" href={c.licence_url} target="_blank" rel="noopener noreferrer">
+                    <a className="inline-flex min-h-11 min-w-11 items-center justify-center font-semibold text-brand underline underline-offset-4" href={c.licence_url} target="_blank" rel="noopener noreferrer">
                       {t('licenceLink')}
                     </a>
                   )}
