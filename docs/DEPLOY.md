@@ -1,13 +1,13 @@
 # Deploy
 
-Two Vercel projects in the team `numerix`. GitHub is linked: a push to `main` deploys the web app and the admin app by itself. The Go API (`../numerix-api`) is hosted separately as a container; its deployment is outside this document.
+Two Vercel projects in the team `numerix`. GitHub is linked: a push to `main` deploys the web app and the admin app by itself. The Go API (`../numerix-api`) runs on an Oracle Cloud Always Free VM (Ubuntu, Caddy for HTTPS, SQLite on disk, Litestream backups); the steps are summarised in section 1 and detailed in `../numerix-api/docs/DEPLOY_ORACLE.md`.
 
 | Project | Folder | Live URL | What it is |
 |---|---|---|---|
 | `numerix-web` | repo root | https://numerix-web-snowy.vercel.app | The Next.js kid and parent app |
 | `numerix-admin` | `admin/` | https://numerix-admin.vercel.app | The super-admin app (separate server, own login) |
 
-Deploy order when several change: **Go API, then admin, then web** (the admin and the web app both call the Go API).
+Deploy order when several change: **Go API (and its content seed), then admin, then web** (the admin and the web app both call the Go API). The checklist of what must be true before merging to `main` is `../numerix-api/docs/RELEASE_CHECKLIST.md`.
 
 ## One-time setup
 
@@ -26,15 +26,43 @@ Run from the repo root `Services/frontend`. Every command is safe to rerun.
 
 ```bash
 pnpm install
-pnpm typecheck && pnpm lint && pnpm check:stories && pnpm check:copy
-node scripts/check-architecture.mjs && node scripts/check-docs.mjs
+pnpm check                      # stories, copy (fr-CA and en-CA parity), sounds, typecheck, lint
+bash scripts/test.sh arch       # layer arrows and documentation coverage
 bash scripts/test.sh            # state, contract, flows, ui, errors, mobile (starts the servers it needs)
-(cd admin && npm install && npm test)
+SEED_CONTENT=1 bash scripts/test.sh play   # world map, journeys, every question kind (loads the question bank)
+(cd admin && npm install && npm test)      # starts its own Go API on a fresh database with the question bank
 ```
 
-### 1. Go API
+### 1. Go API (Oracle VM) and its content
 
-Build and host `../numerix-api` (`go build ./cmd/api`, see its docs). Production needs `APP_ENV=production`, `JWT_SECRET`, `ADMIN_API_TOKEN` (16+ random chars, the same value as the admin project's) and `DB_PATH`. Never run `scripts/seed-dev.mjs` against it.
+The API is one static binary (`GOARCH=arm64` for the Ampere VM) with SQLite on the VM disk. Full walkthrough: `../numerix-api/docs/DEPLOY_ORACLE.md`. Short version, from `../numerix-api`:
+
+```bash
+bash deploy/oracle/deploy.sh ubuntu@<vm-ip> arm64     # build, copy, restart (about 10 s of downtime)
+curl -s https://<api-host>/v1/health                  # {"status":"ok",...}
+```
+
+Production needs `APP_ENV=production`, `JWT_SECRET`, `ADMIN_API_TOKEN` (16+ random chars, the same value as the admin project's), `DB_PATH`, `ALLOWED_ORIGINS` (the web origin), `ADMIN_ORIGIN`, `WEBAUTHN_RP_ID` and `WEBAUTHN_ORIGINS` (set in `/etc/numerix/api.env`, never committed). Never run `scripts/seed-dev.mjs` against it.
+
+**Seeding the question bank in production** (1229 questions, 89 quests, 20 worlds with hero pictures, 193 assets). It is a separate, repeatable step: a deploy of the binary does not change content. On the VM, from the API folder:
+
+```bash
+bash scripts/db-prod-deploy.sh                  # validate + dry run: shows added/changed/unchanged, writes nothing
+bash scripts/db-prod-deploy.sh --apply          # backup (VACUUM INTO), migrate, write only what changed
+bash scripts/db-prod-deploy.sh --rollback <run_id>
+```
+
+Run the dry run first and read the counts. The first run on an empty database adds everything; later runs only apply edits. The demo file `_examples.json` is never loaded. The API sees new content within 30 s. Details and rollback: `../numerix-api/docs/DB_PROD_DEPLOY.md`.
+
+**Picture files.** The browser asks the web origin for `/assets/...`; `next.config.ts` rewrites that to `$API_URL/assets/...`, so the Go API stays the single source of the bytes. Every asset URL is content-addressed and the API answers `Cache-Control: public, max-age=31536000, immutable` with an `ETag` (and 304 on revalidation); the rewrite forwards those headers, so the browser and the Vercel CDN cache each picture after the first request and a picture change gets a new URL. Check after a deploy: `curl -sI https://<web-host>/assets/<file> | grep -i -E "cache-control|etag"`.
+
+**Variables that point at the API**
+
+| Where | Variable | Value |
+|---|---|---|
+| Vercel `numerix-web` (`config/env/production.env`) | `API_URL` | `https://<api-host>/v1` (with `/v1`; also the target of the `/assets` rewrite) |
+| Vercel `numerix-admin` | `PLATFORM_API_URL` | `https://<api-host>` (no `/v1`) |
+| Vercel `numerix-admin` and the VM | `ADMIN_API_TOKEN` | the same secret on both; it stays on servers and never reaches a browser |
 
 ### 2. Admin app
 
