@@ -308,7 +308,7 @@ Caller: journey screen `/play/journey/[world]` (`useJourney`, query `world` requ
 { "world": "echecs", "current_skill_id": "ARI-OPE-A05",
   "nodes": [ { "skill_id": "ARI-OPE-A02a", "label": "Additions rapides", "state": "mastered", "position": { "row": 0, "col": 2 }, "level": 3, "next_review_at": null } ] }
 ```
-Rules: one node per skill, ordered; `position.row` is the index in the path and `col` 0 to 4 zigzags (the layout is data, the app draws a winding path). `state`: `locked | available | in_progress | mastered | needs_review`. `level` 0 to 5 is shine on the node (0 new), never a score. `current_skill_id` is the planner's suggestion for the big Play button (first `needs_review`, else first `in_progress`, else first `available`, else the last node). A step completed (chapter finished at or above the card threshold) opens the next; **at least two steps beyond the completed ones are always playable** (`READY_AHEAD = 2` in `rules.ts`). Status: 200; 404; 422 (unknown world).
+Rules: one node per skill, ordered; `position.row` is the index in the path and `col` 0 to 4 zigzags (the layout is data, the app draws a winding path). `state`: `locked | available | in_progress | mastered | needs_review`. `locked_reason` (`prerequisites | grade`) is present only when `state` is `locked`: `grade` means the quest has fewer than 8 published questions that the child's school year can be served, so it is shown locked and never offered (starting it answers 422 on `skill_id`; the planner never picks it). `level` 0 to 5 is shine on the node (0 new), never a score. `current_skill_id` is the planner's suggestion for the big Play button (first `needs_review`, else first `in_progress`, else first `available`, else the last node). A step completed (chapter finished at or above the card threshold) opens the next; **at least two steps beyond the completed ones are always playable** (`READY_AHEAD = 2` in `rules.ts`). Status: 200; 404; 422 (unknown world).
 
 #### `GET /children/{childId}/home`
 Child token.
@@ -375,7 +375,7 @@ Caller: every Play button: home, journey, worlds, quest, feed call to action, do
 ```json
 { "world": "echecs", "kind": "chapter", "skill_id": "ARI-OPE-A06a" }
 ```
-`skill_id` is optional or null (the planner chooses; an unknown id falls back to the first implemented skill). `kind: onboarding` uses fixed easy problems and is not counted in mastery (BE-12). Response 201: `Session` with `beats_answered: 0`, `current_beat: null`, `story_title` set.
+`skill_id` is optional or null (the planner chooses). An unknown skill, or a chapter the child's grade has fewer than 8 playable questions for, answers 422 on `skill_id`. `kind: onboarding` uses fixed easy problems and is not counted in mastery (BE-12). Response 201: `Session` with `beats_answered: 0`, `current_beat: null`, `story_title` set.
 Status: 201; 402 `subscription_inactive`; 403 `consent_missing` | `daily_limit_reached` | `account_blocked`; 409 `session_active`; 422 `validation_failed` (unknown world).
 Order of checks (first failure wins): auth, ownership, `account_blocked`, `subscription_inactive`, `consent_missing`, `daily_limit_reached`, `session_active`, validation. The 402 and 403 bodies carry `i18n` copy in both languages (section 4).
 

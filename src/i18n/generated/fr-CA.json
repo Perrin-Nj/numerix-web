@@ -752,6 +752,7 @@
     },
     "journeyNode": {
       "locked": "Bientôt",
+      "lockedGrade": "Ouvre plus tard",
       "available": "À jouer",
       "in_progress": "En cours",
       "mastered": "Réussi",

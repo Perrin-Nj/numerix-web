@@ -1725,6 +1725,13 @@ export interface components {
             /** @description Child-friendly title of the chapter */
             label: string;
             state: components["schemas"]["NodeState"];
+            /**
+             * @description Present only when `state` is `locked`. `prerequisites`: earlier chapters first. `grade`: the quest has fewer
+             *     published questions than the playable threshold (8) for the child's school year, so it is shown but cannot
+             *     be started yet (starting it answers 422 on `skill_id`). The client shows a soft locked node, never an error.
+             * @enum {string}
+             */
+            locked_reason?: "prerequisites" | "grade";
             /** @description Layout slot on the winding path */
             position: {
                 row: number;

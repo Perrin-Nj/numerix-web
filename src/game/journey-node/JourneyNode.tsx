@@ -131,7 +131,7 @@ function JourneyNodeBase({ node, accent, current = false, thumb, onSelect }: Jou
         </span>
       )}
       <span className="text-center font-display text-base font-bold leading-tight">{node.quest?.name ?? node.label}</span>
-      <span className="text-sm text-muted">{t(state)}</span>
+      <span className="text-sm text-muted">{t(locked && node.locked_reason === 'grade' ? 'lockedGrade' : state)}</span>
     </button>
   );
 }

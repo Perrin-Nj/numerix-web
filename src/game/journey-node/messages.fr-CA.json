@@ -1,1 +1,1 @@
-{ "game": { "journeyNode": { "locked": "Bientôt", "available": "À jouer", "in_progress": "En cours", "mastered": "Réussi", "needs_review": "À revoir" } } }
+{ "game": { "journeyNode": { "locked": "Bientôt", "lockedGrade": "Ouvre plus tard", "available": "À jouer", "in_progress": "En cours", "mastered": "Réussi", "needs_review": "À revoir" } } }

@@ -35,6 +35,8 @@ export const Available: Story = {
   },
 };
 export const Locked: Story = { args: { node: node('locked') } };
+/** The quest has too few questions for the child's school year yet: shown locked with its own caption. */
+export const LockedForGrade: Story = { args: { node: { ...node('locked'), locked_reason: 'grade' } } };
 export const InProgress: Story = { args: { node: node('in_progress') } };
 export const Mastered: Story = { args: { node: node('mastered', 0) } };
 export const MasteredLevel3: Story = { args: { node: node('mastered', 3) } };
