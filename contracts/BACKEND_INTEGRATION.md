@@ -1203,7 +1203,7 @@ Payloads: home 20 KB or less gzip, journey 10 KB or less, list pages 50 KB or le
 | `NEXT_PUBLIC_FEATURE_FEED`, `NEXT_PUBLIC_FEATURE_KIOSK`, `NEXT_PUBLIC_FEATURE_TV`, `NEXT_PUBLIC_FEATURE_READ_ALOUD` | public | true | Feature switches in the UI. |
 | `NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI`, `NEXT_PUBLIC_FEATURE_WELCOME_GIFT`, `NEXT_PUBLIC_SHOW_DEMO_BADGE` | public | false | Hide-by-default UI switches: the trial and subscription badge, card and links; the first-visit welcome gift (other gifts stay); the demo-data badge. They hide UI only, the server still enforces the subscription gate (BE-62, BE-63). |
 | `NEXT_PUBLIC_SOUND_DEFAULT`, `NEXT_PUBLIC_ANALYTICS_ENABLED` | public | true | Defaults. No analytics sender is wired. |
-| `NEXT_PUBLIC_MASCOT_ENABLED`, `NEXT_PUBLIC_MASCOT_KIND`, `NEXT_PUBLIC_MASCOT_EMOJI`, `NEXT_PUBLIC_MASCOT_SRC` | public | true, `emoji`, 🦊, empty | Mascot. |
+| `NEXT_PUBLIC_MASCOT_ENABLED`, `NEXT_PUBLIC_MASCOT_KIND`, `NEXT_PUBLIC_MASCOT_EMOJI` | public | true, `owl`, 🦊 | Mascot. |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | public | not in the schema yet | Needed for web push (M7). |
 | `IMAGE_HOSTS` | build | empty | Hostnames allowed for remote images (`next.config.ts`, CSP). |
 | `CONNECT_ORIGINS` | build | empty | Extra `connect-src` origins (normally none). |

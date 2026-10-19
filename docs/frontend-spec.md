@@ -745,9 +745,8 @@ Anything that varies by environment, brand, device or rollout is configuration, 
 | `NEXT_PUBLIC_APP_ENV` | client | `development` | `development`, `preview`, `production` |
 | `NEXT_PUBLIC_DEFAULT_LOCALE`, `NEXT_PUBLIC_LOCALES` | client | `fr-CA`, `fr-CA,en-CA` | Language set |
 | `NEXT_PUBLIC_MASCOT_ENABLED` | client | `true` | Turns the mascot on or off everywhere |
-| `NEXT_PUBLIC_MASCOT_KIND` | client | `emoji` | `emoji`, `image`, `lottie`, `rive` |
+| `NEXT_PUBLIC_MASCOT_KIND` | client | `owl` | `owl`, `emoji`, `image`, `rive` |
 | `NEXT_PUBLIC_MASCOT_EMOJI` | client | a single emoji | Used when kind is `emoji` |
-| `NEXT_PUBLIC_MASCOT_SRC` | client | empty | Asset path for non-emoji kinds |
 | `NEXT_PUBLIC_FEATURE_FEED`, `_KIOSK`, `_TV`, `_READ_ALOUD` | client | `true` | Feature flags |
 | `NEXT_PUBLIC_SOUND_DEFAULT` | client | `true` | Default sound setting for new profiles |
 | `NEXT_PUBLIC_ANALYTICS_ENABLED` | client | `true` | Privacy-safe events on or off |
@@ -756,7 +755,7 @@ Anything that varies by environment, brand, device or rollout is configuration, 
 
 ### 22.2 Pluggable mascot
 
-- A `MascotProvider` exposes `{ enabled, kind, render(pose) }`. Adapters implement one small interface (`MascotAdapter`) for `emoji`, `image`, `lottie` and `rive`. Only `emoji` ships now.
+- A `MascotProvider` exposes `{ enabled, kind, render(pose) }`. Adapters implement one small interface (`MascotAdapter`). `owl` (Numa, hand-built SVG, see docs/MASCOT.md) is the default and `emoji` the fallback.
 - `NEXT_PUBLIC_MASCOT_ENABLED=false` removes the mascot everywhere with no layout hole: every component that shows it has a layout that works without it (Storybook stories cover both states).
 - The mascot is decorative by default (`aria-hidden`), with text carrying the meaning. Poses are a fixed vocabulary (`greet`, `cheer`, `think`, `rest`) so a later image or animation set maps one to one.
 - Mascot speech comes from locale messages, never hardcoded.

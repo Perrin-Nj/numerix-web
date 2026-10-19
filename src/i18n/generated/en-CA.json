@@ -86,7 +86,8 @@
       "collection": {
         "title": "Your story cards",
         "empty": "No cards yet. Finish a chapter to win your first one.",
-        "retry": "Try again"
+        "retry": "Try again",
+        "emptyAction": "Pick a world"
       },
       "quest": {
         "title": "Daily quest",
@@ -211,7 +212,11 @@
         "signIn": "Sign in with a passkey",
         "cancelled": "No problem. Try again, or use your password.",
         "error": "The passkey did not work. Try your password instead."
-      }
+      },
+      "tagline": "Progress, profiles and settings for the whole family.",
+      "showPassword": "Show characters",
+      "hidePassword": "Hide characters",
+      "backHome": "Back to the start"
     },
     "parent": {
       "shell": {
@@ -289,7 +294,8 @@
         "sessions": {
           "title": "Latest stories",
           "none": "No story played yet.",
-          "untitled": "Untitled story"
+          "untitled": "Untitled story",
+          "noneHint": "Once a story is played, it shows up here."
         },
         "challenges": {
           "title": "Challenges",
@@ -718,7 +724,14 @@
       "play": "Play"
     },
     "mascot": {
-      "label": "Numerix rabbit mascot with a balloon"
+      "pose": {
+        "idle": "Numa the owl, Numerix mascot",
+        "wave": "Numa the owl is waving hello",
+        "think": "Numa the owl is thinking",
+        "cheer": "Numa the owl is cheering",
+        "sad": "Numa the owl is a little sad",
+        "sleepy": "Numa the owl is sleepy"
+      }
     },
     "methodVisual": {
       "replay": "Watch again",

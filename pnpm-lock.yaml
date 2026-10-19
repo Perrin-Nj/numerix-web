@@ -17,9 +17,6 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.9.1
         version: 5.9.1(@standard-schema/spec@1.1.0)(react-hook-form@7.90.0(@types/react@19.3.0)(react@19.3.0))(valibot@1.5.0(typescript@5.9.3))(zod@4.6.6)
-      '@lottiefiles/dotlottie-react':
-        specifier: 0.19.16
-        version: 0.19.16(react@19.3.0)
       '@tanstack/react-query':
         specifier: ^5.104.2
         version: 5.104.2(react@19.3.0)
@@ -42,8 +39,8 @@ importers:
         specifier: ^1.55.0
         version: 1.55.0(@types/react@19.3.0)(react@19.3.0)
       motion:
-        specifier: ^14.1.0
-        version: 14.1.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 14.0.0
+        version: 14.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       next:
         specifier: 16.4.0
         version: 16.4.0(@babel/core@7.29.7)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -801,16 +798,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
-
-  '@lottiefiles/dotlottie-react@0.19.16':
-    resolution: {integrity: sha512-kf+v6tGn726XoAw6wAZb9JgVko6j+d6ppbBfe4vHlp3fjqmXoSfJt2bvxRMc6yG75c/atg8/H1uRmsViEESEeQ==}
-    engines: {node: '>=18.17.0', npm: '>=9.5.0'}
-    peerDependencies:
-      react: ^17 || ^18 || ^19
-
-  '@lottiefiles/dotlottie-web@0.80.0':
-    resolution: {integrity: sha512-M00APgOJfP6xPZ3kAzZAUNATxluFiMU0wD3asp6HQSXDX8qLzSDh/Jmqbo0H7+WcqfpQkN8WYBu3aOzm2y/b4g==}
-    engines: {node: '>=18.17.0', npm: '>=9.5.0'}
 
   '@mdx-js/react@3.1.1':
     resolution: {integrity: sha512-f++rKLQgUVYDAtECQ6fn/is15GkEH9+nZPM3MS0RcxVqoTfawHvDlSCH7JbMhAM6uJ32v3eXLvLmLvjGu7PTQw==}
@@ -3257,8 +3244,8 @@ packages:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
     engines: {node: '>= 0.4'}
 
-  framer-motion@14.1.0:
-    resolution: {integrity: sha512-QsdZSdWoyQfUmgi+GZfow8Du5COG6VRYEo9FlgKUPgH87/Le/fYekHCAKwLdYKHdCZcZfWHg4iOxlD6RoqXciQ==}
+  framer-motion@14.0.0:
+    resolution: {integrity: sha512-QAtHmybrDFSliyW1sexMtSQTQd+1jw2ajibEmzpuI4XdPVzQkn+dAzJMm2sW3pl9MJuSS4xN51djQ7huhlP/VA==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -3866,14 +3853,14 @@ packages:
   module-alias@2.3.4:
     resolution: {integrity: sha512-bOclZt8hkpuGgSSoG07PKmvzTizROilUTvLNyrMqvlC9snhs7y7GzjNWAVbISIOlhCP1T14rH1PDAV9iNyBq/w==}
 
-  motion-dom@14.1.0:
-    resolution: {integrity: sha512-FyFLkNUAAETzCvf851mZcl+v+kaZrKq+UM+XmkY4G8n+ny/WYfiWh9j0fhSQ1KOKVQrM9/cLO11THO2k71HJlg==}
+  motion-dom@14.0.0:
+    resolution: {integrity: sha512-aU3ApXo1yTpeUi3JU+jbDk2TELjxPE3MbBMUP7nZHlARb6RweJK+ojmLjpuB0YsY6zhbBl1YWGo8LMsI1/Llqw==}
 
-  motion-utils@14.1.0:
-    resolution: {integrity: sha512-xd4FeWOnnXsJHmAaRCLNbOS7mEaNOangjMt3Pl241H07f1kxW48fADQ/8O5hLLNhf1qdlozgY3PPAHBdOoU7AA==}
+  motion-utils@14.0.0:
+    resolution: {integrity: sha512-jBsyjVxTTRZNeuvd/v+btVXr90LQkYl4HhRu9T2ARc+PMnvkmjsjRVeAg4Qm10b6TlTw+kykWI8gu/6LuvpLSQ==}
 
-  motion@14.1.0:
-    resolution: {integrity: sha512-lsCsW9uJ+iMJj8MSiLccpUC+ZUpoSspaX6Pm78KrnZKMioCPAPG6WeG1d1d/Ywg+z1mny+STP6VyEYW+3nAqNw==}
+  motion@14.0.0:
+    resolution: {integrity: sha512-oGc2lkge2lkRZCP+J8/JsnYu4NFjqP1MtXirNdetn3QbvK2JqwM9A200EdT4C598KfzDhjLT12zF21xDM4Oilw==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -5345,13 +5332,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
-
-  '@lottiefiles/dotlottie-react@0.19.16(react@19.3.0)':
-    dependencies:
-      '@lottiefiles/dotlottie-web': 0.80.0
-      react: 19.3.0
-
-  '@lottiefiles/dotlottie-web@0.80.0': {}
 
   '@mdx-js/react@3.1.1(@types/react@19.3.0)(react@19.3.0)':
     dependencies:
@@ -7840,10 +7820,10 @@ snapshots:
     dependencies:
       is-callable: 1.2.7
 
-  framer-motion@14.1.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  framer-motion@14.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
-      motion-dom: 14.1.0
-      motion-utils: 14.1.0
+      motion-dom: 14.0.0
+      motion-utils: 14.0.0
       tslib: 2.8.1
     optionalDependencies:
       react: 19.3.0
@@ -8379,15 +8359,15 @@ snapshots:
 
   module-alias@2.3.4: {}
 
-  motion-dom@14.1.0:
+  motion-dom@14.0.0:
     dependencies:
-      motion-utils: 14.1.0
+      motion-utils: 14.0.0
 
-  motion-utils@14.1.0: {}
+  motion-utils@14.0.0: {}
 
-  motion@14.1.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  motion@14.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
-      framer-motion: 14.1.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      framer-motion: 14.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.3.0

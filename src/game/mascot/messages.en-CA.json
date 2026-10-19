@@ -1,1 +1,8 @@
-{ "game": { "mascot": { "label": "Numerix rabbit mascot with a balloon" } } }
+{ "game": { "mascot": { "pose": {
+  "idle": "Numa the owl, Numerix mascot",
+  "wave": "Numa the owl is waving hello",
+  "think": "Numa the owl is thinking",
+  "cheer": "Numa the owl is cheering",
+  "sad": "Numa the owl is a little sad",
+  "sleepy": "Numa the owl is sleepy"
+} } } }

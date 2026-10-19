@@ -1,1 +1,8 @@
-{ "game": { "mascot": { "label": "Mascotte lapin de Numerix avec un ballon" } } }
+{ "game": { "mascot": { "pose": {
+  "idle": "Numa la chouette, mascotte de Numerix",
+  "wave": "Numa la chouette te fait un coucou",
+  "think": "Numa la chouette réfléchit",
+  "cheer": "Numa la chouette fête ça",
+  "sad": "Numa la chouette est un peu triste",
+  "sleepy": "Numa la chouette a sommeil"
+} } } }

@@ -27,7 +27,7 @@ export function MascotBubble({ pose = 'greet', size = 'md', children, config, cl
   }, [pose, play]);
   return (
     <div className={cn('flex items-end gap-3', className)}>
-      <Mascot pose={pose} size={size} config={cfg} speaking />
+      <Mascot pose={pose} size={size} config={cfg} speaking decorative />
       <div
         className={cn(
           'relative min-w-0 rounded-lg border-2 border-line bg-elevated px-4 py-3 font-display text-fg shadow-1',

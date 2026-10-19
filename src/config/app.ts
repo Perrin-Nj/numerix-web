@@ -1,6 +1,6 @@
 import { publicEnv } from './env';
 
-export type MascotKind = 'emoji' | 'image' | 'lottie' | 'rive';
+export type MascotKind = 'emoji' | 'image' | 'owl' | 'rive';
 
 /**
  * Typed, read-only app settings built from the validated public environment: environment, state
@@ -17,7 +17,6 @@ export const appConfig = {
     enabled: publicEnv.NEXT_PUBLIC_MASCOT_ENABLED,
     kind: publicEnv.NEXT_PUBLIC_MASCOT_KIND as MascotKind,
     emoji: publicEnv.NEXT_PUBLIC_MASCOT_EMOJI,
-    src: publicEnv.NEXT_PUBLIC_MASCOT_SRC,
   },
   features: {
     feed: publicEnv.NEXT_PUBLIC_FEATURE_FEED,

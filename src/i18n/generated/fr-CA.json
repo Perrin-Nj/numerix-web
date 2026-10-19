@@ -86,7 +86,8 @@
       "collection": {
         "title": "Tes cartes d'histoire",
         "empty": "Pas encore de carte. Termine un chapitre pour gagner ta première.",
-        "retry": "Réessayer"
+        "retry": "Réessayer",
+        "emptyAction": "Choisir un monde"
       },
       "quest": {
         "title": "Défi du jour",
@@ -211,7 +212,11 @@
         "signIn": "Se connecter avec une clé d'accès",
         "cancelled": "Pas de souci. Réessaie, ou utilise ton mot de passe.",
         "error": "La clé d'accès n'a pas fonctionné. Essaie avec ton mot de passe."
-      }
+      },
+      "tagline": "Suivi, profils et réglages pour toute la famille.",
+      "showPassword": "Afficher les caractères",
+      "hidePassword": "Masquer les caractères",
+      "backHome": "Retour à l'accueil"
     },
     "parent": {
       "shell": {
@@ -289,7 +294,8 @@
         "sessions": {
           "title": "Dernières histoires",
           "none": "Aucune histoire jouée pour l'instant.",
-          "untitled": "Histoire sans titre"
+          "untitled": "Histoire sans titre",
+          "noneHint": "Dès qu'une histoire est jouée, elle s'affiche ici."
         },
         "challenges": {
           "title": "Défis",
@@ -718,7 +724,14 @@
       "play": "Jouer"
     },
     "mascot": {
-      "label": "Mascotte lapin de Numerix avec un ballon"
+      "pose": {
+        "idle": "Numa la chouette, mascotte de Numerix",
+        "wave": "Numa la chouette te fait un coucou",
+        "think": "Numa la chouette réfléchit",
+        "cheer": "Numa la chouette fête ça",
+        "sad": "Numa la chouette est un peu triste",
+        "sleepy": "Numa la chouette a sommeil"
+      }
     },
     "methodVisual": {
       "replay": "Revoir",
