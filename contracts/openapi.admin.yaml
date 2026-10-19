@@ -33,6 +33,7 @@ tags:
   - name: Config
   - name: Notifications
   - name: Audit
+  - name: Content
 
 security:
   - adminBearer: []
@@ -392,6 +393,502 @@ paths:
                     properties:
                       items: { type: array, items: { $ref: '#/components/schemas/AuditEntry' } }
 
+  # ---- Content: question bank, worlds, quests, coverage, media (numerix-api docs/ADMIN_API.md, "Content") ----
+  /questions:
+    get:
+      tags: [Content]
+      operationId: adminListQuestions
+      summary: Page of question summaries with filters
+      parameters:
+        - { name: world, in: query, schema: { type: string } }
+        - { name: quest, in: query, schema: { type: string } }
+        - { name: skill, in: query, schema: { type: string } }
+        - { name: type, in: query, schema: { type: string } }
+        - { name: grade, in: query, schema: { type: integer, minimum: 1, maximum: 6 } }
+        - { name: difficulty, in: query, schema: { type: integer } }
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/QuestionStatus' } }
+        - { name: author, in: query, schema: { type: string } }
+        - { name: tag, in: query, schema: { type: string } }
+        - { name: q, in: query, description: Text search in the prompts., schema: { type: string } }
+        - { name: ai, in: query, description: '1 keeps only AI drafts.', schema: { type: string, enum: ['1'] } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: A page of summaries
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PageEnvelope'
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/QuestionSummary' } }
+    post:
+      tags: [Content]
+      operationId: adminCreateQuestion
+      summary: Create a question; always saved as a draft
+      description: Without `id` the next free `quest.NNN` is used. A draft with problems is saved and the issues are returned.
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Question' } } } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '201':
+          description: The saved draft
+          content: { application/json: { schema: { $ref: '#/components/schemas/QuestionRecord' } } }
+
+  /questions/validate:
+    post:
+      tags: [Content]
+      operationId: adminValidateQuestion
+      summary: Run the publish validator on a question body without saving
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Question' } } } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '200':
+          description: The validation report
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationReport' } } }
+
+  /questions/validate-all:
+    post:
+      tags: [Content]
+      operationId: adminValidateAllQuestions
+      summary: Validate every stored question (optionally one world)
+      parameters:
+        - { name: world, in: query, schema: { type: string } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '200':
+          description: Counts and the first 500 failing questions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [total, with_errors, with_warnings_only, questions]
+                properties:
+                  total: { type: integer }
+                  with_errors: { type: integer }
+                  with_warnings_only: { type: integer }
+                  questions: { type: array, items: { type: object, additionalProperties: true } }
+                  set_issues: { type: array, items: { type: object, additionalProperties: true } }
+
+  /questions/ai-draft:
+    post:
+      tags: [Content]
+      operationId: adminAiDraftQuestion
+      summary: Ask the model for a draft question (503 not_configured unless the key and model are set)
+      description: The server forces status draft, recomputes every `calc` and runs the validator. 30 drafts per hour per admin. The child API never calls the model.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quest, type]
+              properties:
+                quest: { type: string }
+                type: { type: string }
+                grade: { type: integer, minimum: 1, maximum: 6 }
+                difficulty: { type: integer }
+                topic_hint: { type: string }
+                language_primary: { type: string, enum: [fr, en] }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '502': { description: 'The model call failed (code draft_failed)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '503': { description: 'AI drafts are off (code not_configured)', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '201':
+          description: The draft and its checks
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [question, unverified, needs_review, valid]
+                properties:
+                  question: { $ref: '#/components/schemas/QuestionRecord' }
+                  unverified: { type: boolean }
+                  calc_corrections: { type: array, items: { type: object, additionalProperties: true } }
+                  needs_review: { type: boolean }
+                  valid: { type: boolean }
+
+  /questions/export:
+    get:
+      tags: [Content]
+      operationId: adminExportQuestions
+      summary: Export questions in the seed file shape
+      parameters:
+        - { name: world, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/QuestionStatus' } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '200':
+          description: Seed shaped export
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [schema, questions]
+                properties:
+                  schema: { type: integer, enum: [1] }
+                  world: { type: string }
+                  exported_at: { type: string }
+                  questions: { type: array, items: { $ref: '#/components/schemas/Question' } }
+
+  /questions/import:
+    post:
+      tags: [Content]
+      operationId: adminImportQuestions
+      summary: Import questions (the export shape or an array); unchanged ones are left alone
+      parameters:
+        - { name: dry_run, in: query, schema: { type: string, enum: ['1'] } }
+        - { name: publish, in: query, description: 'With 1 a valid non-AI question keeps review or published.', schema: { type: string, enum: ['1'] } }
+      requestBody: { required: true, content: { application/json: { schema: { oneOf: [{ type: object, properties: { schema: { type: integer }, questions: { type: array, items: { type: object } } } }, { type: array, items: { type: object } }] } } } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '200':
+          description: What was or would be written
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [added, changed, unchanged, invalid]
+                properties:
+                  dry_run: { type: boolean }
+                  added: { type: integer }
+                  changed: { type: integer }
+                  unchanged: { type: integer }
+                  invalid: { type: array, items: { type: object, properties: { index: { type: integer }, id: { type: string }, issues: { type: array, items: { $ref: '#/components/schemas/ValidationIssue' } } } } }
+
+  /questions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/QuestionId'
+    get:
+      tags: [Content]
+      operationId: adminGetQuestion
+      summary: One question with its versions and live validation issues
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '200':
+          description: The record
+          content: { application/json: { schema: { $ref: '#/components/schemas/QuestionRecord' } } }
+    put:
+      tags: [Content]
+      operationId: adminPutQuestion
+      summary: Save a new version of a question
+      description: Header `If-Match` carries the version the editor loaded (409 version_conflict when stale). Editing a published question sends it back to review; a retired one answers 409.
+      parameters:
+        - { name: If-Match, in: header, schema: { type: string } }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Question' } } } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { description: 'version_conflict or transition_not_allowed', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '200':
+          description: The saved record
+          content: { application/json: { schema: { $ref: '#/components/schemas/QuestionRecord' } } }
+
+  /questions/{id}/transition:
+    parameters:
+      - $ref: '#/components/parameters/QuestionId'
+    post:
+      tags: [Content]
+      operationId: adminTransitionQuestion
+      summary: Move a question through the review lifecycle
+      description: review and published need zero blocking issues (422, one field error per issue). An AI draft cannot be published by its own author (409 needs_reviewer).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to]
+              properties:
+                to: { $ref: '#/components/schemas/QuestionStatus' }
+                comment: { type: string }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { description: 'transition_not_allowed or needs_reviewer', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '200':
+          description: The record after the move
+          content: { application/json: { schema: { $ref: '#/components/schemas/QuestionRecord' } } }
+
+  /questions/{id}/versions:
+    parameters:
+      - $ref: '#/components/parameters/QuestionId'
+    get:
+      tags: [Content]
+      operationId: adminListQuestionVersions
+      summary: Version history of a question
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '200':
+          description: One row per saved version
+          content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { type: object, additionalProperties: true } } } } } }
+
+  /questions/{id}/versions/{n}:
+    parameters:
+      - $ref: '#/components/parameters/QuestionId'
+      - { name: n, in: path, required: true, schema: { type: integer, minimum: 1 } }
+    get:
+      tags: [Content]
+      operationId: adminGetQuestionVersion
+      summary: The full body of one saved version
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '200':
+          description: The snapshot
+          content: { application/json: { schema: { type: object, required: [version, question], properties: { version: { type: integer }, question: { $ref: '#/components/schemas/Question' } } } } }
+
+  /questions/{id}/restore:
+    parameters:
+      - $ref: '#/components/parameters/QuestionId'
+    post:
+      tags: [Content]
+      operationId: adminRestoreQuestionVersion
+      summary: Restore an old version as a new draft version
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [version], properties: { version: { type: integer, minimum: 1 } } } } } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { description: 'version_conflict or transition_not_allowed', content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '200':
+          description: The record after the restore
+          content: { application/json: { schema: { $ref: '#/components/schemas/QuestionRecord' } } }
+
+  /worlds:
+    get:
+      tags: [Content]
+      operationId: adminListWorlds
+      summary: All worlds
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '200':
+          description: Worlds
+          content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { type: object, additionalProperties: true } } } } } }
+
+  /worlds/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    put:
+      tags: [Content]
+      operationId: adminPutWorld
+      summary: Hotfix a world; the seed files own worlds
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '200':
+          description: The merged world
+          content: { application/json: { schema: { type: object, additionalProperties: true } } }
+
+  /quests:
+    get:
+      tags: [Content]
+      operationId: adminListQuests
+      summary: Quests, optionally of one world
+      parameters:
+        - { name: world, in: query, schema: { type: string } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '200':
+          description: Quests
+          content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { type: object, additionalProperties: true } } } } } }
+
+  /quests/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    put:
+      tags: [Content]
+      operationId: adminPutQuest
+      summary: Hotfix a quest; the seed files own quests
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '200':
+          description: The merged quest
+          content: { application/json: { schema: { type: object, additionalProperties: true } } }
+
+  /content/coverage:
+    get:
+      tags: [Content]
+      operationId: adminContentCoverage
+      summary: Question counts by status and type per quest, and the missing quota per world
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '200':
+          description: Coverage
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [quests, worlds]
+                properties:
+                  quests: { type: array, items: { type: object, required: [target_count, by_status], properties: { id: { type: string }, target_count: { type: integer }, by_status: { type: object, additionalProperties: { type: integer } } }, additionalProperties: true } }
+                  worlds: { type: array, items: { type: object, additionalProperties: true } }
+
+  /assets:
+    get:
+      tags: [Content]
+      operationId: adminListAssets
+      summary: Page of media assets with filters
+      parameters:
+        - { name: kind, in: query, schema: { type: string } }
+        - { name: world, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: string } }
+        - { name: licence, in: query, schema: { type: string } }
+        - { name: facet, in: query, schema: { type: string } }
+        - { name: value, in: query, schema: { type: string } }
+        - { name: q, in: query, schema: { type: string } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '200':
+          description: A page of assets
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PageEnvelope'
+                  - type: object
+                    properties:
+                      items: { type: array, items: { $ref: '#/components/schemas/AdminAsset' } }
+    post:
+      tags: [Content]
+      operationId: adminCreateAsset
+      summary: Not available, answers 501 (images come from tools/assets and cmd/seed)
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '501': { description: Not implemented, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+
+  /assets/search:
+    get:
+      tags: [Content]
+      operationId: adminSearchAssets
+      summary: Scored asset candidates for a topic
+      parameters:
+        - { name: world, in: query, schema: { type: string } }
+        - { name: topic, in: query, schema: { type: string } }
+        - { name: object, in: query, schema: { type: string } }
+        - { name: mood, in: query, schema: { type: string } }
+        - { name: setting, in: query, schema: { type: string } }
+        - { name: kind, in: query, schema: { type: string } }
+        - { name: grade, in: query, schema: { type: integer } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '200':
+          description: Candidates, best first
+          content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { type: object, additionalProperties: true } } } } } }
+
+  /assets/resolve:
+    get:
+      tags: [Content]
+      operationId: adminResolveAsset
+      summary: The asset a child would get, or fallback gradient
+      parameters:
+        - { name: world, in: query, schema: { type: string } }
+        - { name: topic, in: query, schema: { type: string } }
+        - { name: child, in: query, schema: { type: string } }
+        - { name: question, in: query, schema: { type: string } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '200':
+          description: The resolved asset
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  asset: { oneOf: [{ $ref: '#/components/schemas/AdminAsset' }, { type: 'null' }] }
+                  fallback: { type: string, enum: [gradient] }
+
+  /assets/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [Content]
+      operationId: adminGetAsset
+      summary: One asset
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '200':
+          description: The asset
+          content: { application/json: { schema: { $ref: '#/components/schemas/AdminAsset' } } }
+    patch:
+      tags: [Content]
+      operationId: adminPatchAsset
+      summary: Edit alt text, review status and safety flags
+      description: Approval needs alt text in both languages, people_free and brand_free; a Pexels photo needs creator_url.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                alt_fr: { type: string }
+                alt_en: { type: string }
+                review_status: { type: string }
+                people_free: { type: boolean }
+                brand_free: { type: boolean }
+                tags: { type: array, items: { type: string } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '200':
+          description: The updated asset
+          content: { application/json: { schema: { $ref: '#/components/schemas/AdminAsset' } } }
+
 components:
   securitySchemes:
     adminBearer:
@@ -403,6 +900,7 @@ components:
     ParentId: { name: parentId, in: path, required: true, schema: { type: string } }
     ChildId: { name: childId, in: path, required: true, schema: { type: string } }
     Page: { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+    QuestionId: { name: id, in: path, required: true, schema: { type: string } }
     PageSize: { name: page_size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
 
   responses:
@@ -696,3 +1194,84 @@ components:
       properties:
         date: { type: string, format: date }
         value: { type: integer }
+    QuestionStatus:
+      type: string
+      enum: [draft, review, published, retired]
+    QuestionSummary:
+      type: object
+      required: [id, world, quest, type, status, version]
+      properties:
+        id: { type: string, example: meteo.pluie.001 }
+        world: { type: string }
+        quest: { type: string }
+        skill: { type: string }
+        type: { type: string }
+        grade: { type: integer }
+        difficulty: { type: integer }
+        status: { $ref: '#/components/schemas/QuestionStatus' }
+        version: { type: integer }
+        author: { type: string }
+        ai_drafted: { type: boolean }
+        prompt_fr: { type: string }
+        prompt_en: { type: string }
+        updated_at: { type: string }
+    Question:
+      type: object
+      description: The seed question shape (numerix-api seed/README.md). Free form beyond the listed fields; the validator is the rule.
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        quest: { type: string }
+        type: { type: string }
+        prompt: { type: object, properties: { fr: { type: string }, en: { type: string } } }
+        hint: { type: object, properties: { fr: { type: string }, en: { type: string } } }
+        answer: { type: object, additionalProperties: true }
+        tags: { type: array, items: { type: string } }
+    QuestionRecord:
+      type: object
+      required: [id, status, version, question]
+      properties:
+        id: { type: string }
+        world: { type: string }
+        quest: { type: string }
+        status: { $ref: '#/components/schemas/QuestionStatus' }
+        version: { type: integer }
+        content_hash: { type: string }
+        ai_drafted: { type: boolean }
+        reviewed_by: { type: [string, 'null'] }
+        published_at: { type: [string, 'null'] }
+        question: { $ref: '#/components/schemas/Question' }
+        versions: { type: array, items: { type: object, additionalProperties: true } }
+        issues: { type: array, items: { $ref: '#/components/schemas/ValidationIssue' } }
+    ValidationIssue:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string, example: answer_leak }
+        field: { type: string }
+        message: { type: string }
+        warning: { type: boolean }
+    ValidationReport:
+      type: object
+      required: [ok, issues]
+      properties:
+        ok: { type: boolean }
+        issues: { type: array, items: { $ref: '#/components/schemas/ValidationIssue' } }
+        unverified: { type: boolean }
+        calc_corrections: { type: array, items: { type: object, additionalProperties: true } }
+    AdminAsset:
+      type: object
+      required: [id, licence, media]
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        kind: { type: string }
+        world: { type: string }
+        licence: { type: string }
+        review_status: { type: string }
+        alt_fr: { type: string }
+        alt_en: { type: string }
+        media:
+          type: object
+          properties:
+            srcset: { type: array, items: { type: object, properties: { url: { type: string }, w: { type: integer } } } }

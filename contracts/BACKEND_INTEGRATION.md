@@ -862,6 +862,30 @@ Caller: admin notifications screen. Body: `{audience: "parent"|"child", title, b
 #### `GET /admin/v1/audit`
 Caller: admin audit screen. Newest first. The admin app searches actor and target on the loaded page (BE-33 asks for server search).
 
+#### Content operations (question bank, worlds, media)
+
+Callers: the admin question editor, coverage, import and export, and media screens. Same auth, paging, problem codes and audit rules as above; every mutation also writes `question.<action>` audit rows, a version snapshot and the Mongo outbox rows in one transaction. Extra problem codes: `version_conflict` 409, `transition_not_allowed` 409, `needs_reviewer` 409, `not_configured` 503, `draft_failed` 502, `draft_unreadable` 422. The full field list of the numerix-api handlers is in its `docs/ADMIN_API.md`.
+
+- `GET /admin/v1/questions` page of summaries; filters `world quest skill type grade difficulty status author tag q ai`.
+- `POST /admin/v1/questions` saves a draft (201); problems are returned, not refused.
+- `POST /admin/v1/questions/validate` returns `{ok, issues[], unverified, calc_corrections[]}` without saving.
+- `POST /admin/v1/questions/validate-all` counts the failing questions (first 500 listed).
+- `POST /admin/v1/questions/ai-draft` 201 with a draft, 503 `not_configured` when no key or model is set, 429 after 30 drafts per hour.
+- `GET /admin/v1/questions/export` returns `{schema: 1, questions[]}` in the seed shape.
+- `POST /admin/v1/questions/import` takes that shape or an array; `dry_run=1` writes nothing; unchanged questions are a no-op.
+- `GET /admin/v1/questions/{id}` returns the record, its versions and the live validation issues.
+- `PUT /admin/v1/questions/{id}` saves a new version; header `If-Match` with the loaded version, 409 `version_conflict` when stale.
+- `POST /admin/v1/questions/{id}/transition` body `{to, comment}`; review and published need zero blocking issues (422).
+- `GET /admin/v1/questions/{id}/versions` lists the saved versions.
+- `GET /admin/v1/questions/{id}/versions/{n}` returns one snapshot.
+- `POST /admin/v1/questions/{id}/restore` body `{version}`; the old version becomes a new draft version.
+- `GET /admin/v1/worlds` lists worlds; `PUT /admin/v1/worlds/{id}` hotfixes one (the seed files own worlds).
+- `GET /admin/v1/quests` lists quests (`world` filter); `PUT /admin/v1/quests/{id}` hotfixes one.
+- `GET /admin/v1/content/coverage` counts questions by status and type per quest against `target_count`.
+- `GET /admin/v1/assets` page of assets with filters; `POST /admin/v1/assets` answers 501 (images come from `tools/assets` and `cmd/seed`).
+- `GET /admin/v1/assets/search` scored candidates; `GET /admin/v1/assets/resolve` what a child would get or `fallback: gradient`.
+- `GET /admin/v1/assets/{id}` one asset; `PATCH /admin/v1/assets/{id}` edits alt text, review status and safety flags (approval needs alt in both languages, people_free and brand_free).
+
 ### 10.3 Audit rules (Law 25)
 
 - Append an `AuditEntry {id, at, actor, action, target_type, target_id, detail}` for **every mutation** and for **every read of a child record**. Actions in use: `parent.block`, `parent.unblock`, `parent.update`, `parent.delete`, `child.read`, `child.activity.read`, `children.list`, `child.update`, `plans.update`, `config.update`, `notification.broadcast`. Parent-side exports add `child.export` (actor `parent:<id>`).
