@@ -10,6 +10,7 @@ for (const layer of ['ui', 'game']) {
   if (!existsSync(dir)) continue;
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
+    if (name === 'README.md') continue; // the layer's documentation, required by check-docs
     if (!statSync(p).isDirectory()) {
       errors.push(`${layer}/${name}: component files must live in a folder (src/${layer}/<name>/)`);
       continue;

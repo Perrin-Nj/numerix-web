@@ -7,6 +7,7 @@ import { signOut } from '@/data/hooks';
 import { OfflineBanner } from '@/features/common/OfflineBanner';
 import { NotificationCenterBell } from '@/features/common/NotificationCenterBell';
 import { SubscriptionPill } from '@/features/common/SubscriptionPill';
+import { ParentFooter } from './ParentFooter';
 import { reportError } from '@/platform/errors/bridge';
 import { AppHeader } from '@/ui/app-header';
 import { Icon } from '@/ui/icon';
@@ -56,7 +57,10 @@ export function ParentPage({ title, backHref, wide, children }: Props) {
       />
       <OfflineBanner />
       <PageContainer width={wide ? 'wide' : 'default'}>
-        <div className="flex flex-col gap-6 py-6">{children}</div>
+        <div className="flex flex-col gap-6 py-6">
+          {children}
+          <ParentFooter />
+        </div>
       </PageContainer>
     </>
   );

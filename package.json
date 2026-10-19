@@ -16,7 +16,7 @@
     "prestorybook": "pnpm gen:messages",
     "typecheck": "tsc --noEmit",
     "check:stories": "node scripts/check-stories.mjs",
-    "check:copy": "node scripts/check-copy.mjs",
+    "check:copy": "node scripts/build-messages.mjs && node scripts/check-copy.mjs",
     "check:sounds": "node scripts/check-sounds.mjs",
     "vercel:env": "node scripts/vercel-env.mjs",
     "check": "pnpm check:stories && pnpm check:copy && pnpm check:sounds && pnpm typecheck && pnpm lint",
