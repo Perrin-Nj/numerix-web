@@ -22,6 +22,18 @@ const HERO: Record<WorldId, string> = {
   medecine: '🧑‍⚕️',
   science: '🧑‍🔬',
   echecs: '♞',
+  ocean: '🐙',
+  dinosaures: '🦖',
+  animaux: '🦊',
+  musique: '🎻',
+  transport: '🚂',
+  pirates: '🏴‍☠️',
+  marche: '🧺',
+  meteo: '🌦️',
+  robots: '🤖',
+  arts: '🎨',
+  hiver: '⛷️',
+  jeux: '🧩',
 };
 
 // Tile crops to the middle so the hero and one prop read at 80px.

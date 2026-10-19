@@ -477,6 +477,8 @@ function echecs(detail: boolean): Art {
 
 const BUILD: Record<WorldId, (detail: boolean) => Art> = {
   nature, espace, cuisine, sport, construction, medecine, science, echecs,
+  ocean: nature, dinosaures: nature, animaux: nature, musique: echecs, transport: construction, pirates: espace,
+  marche: cuisine, meteo: science, robots: science, arts: echecs, hiver: sport, jeux: echecs,
 };
 
 export function buildArt(world: WorldId, detail: boolean): Art {

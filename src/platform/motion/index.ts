@@ -19,3 +19,4 @@ export function useReducedMotion(): boolean {
   return reduced;
 }
 export { useCountUp } from './useCountUp';
+export { useParallax, useTilt } from './useParallax';

@@ -1,0 +1,22 @@
+{
+  "game": {
+    "worldCard": {
+      "locked": "Ask a grown-up to open this world",
+      "progress": "{pct} percent of the path done"
+    }
+  },
+  "worlds": {
+    "ocean": "Ocean",
+    "dinosaures": "Dinosaurs",
+    "animaux": "Animals",
+    "musique": "Music",
+    "transport": "Transport",
+    "pirates": "Pirates",
+    "marche": "Market",
+    "meteo": "Weather",
+    "robots": "Robots",
+    "arts": "Arts",
+    "hiver": "Winter",
+    "jeux": "Games"
+  }
+}

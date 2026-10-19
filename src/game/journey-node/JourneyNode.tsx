@@ -3,7 +3,8 @@ import { memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/shared/cn';
 import { useSound } from '@/platform/audio';
-import type { JourneyNode as JourneyNodeData } from '@/data/api/types';
+import type { JourneyNode as JourneyNodeData, MediaRef } from '@/data/api/types';
+import { MediaImage } from '@/game/media-image';
 import { Icon, type IconName } from '@/ui/icon';
 
 export type JourneyNodeProps = {
@@ -11,6 +12,8 @@ export type JourneyNodeProps = {
   /** Any CSS color, usually the world accent. Falls back to the brand token. */
   accent?: string;
   current?: boolean;
+  /** Photo shown inside the node: the quest icon, else a scene of the world. */
+  thumb?: MediaRef;
   onSelect: (node: JourneyNodeData) => void;
 };
 
@@ -25,13 +28,14 @@ const ICON: Record<JourneyNodeData['state'], IconName> = {
 // Shine grows with the level (0 to 5); stars below the node repeat it for people who cannot see the glow.
 const SHINE = ['', 'ring-2', 'ring-4', 'ring-[6px]', 'ring-8', 'ring-[10px]'];
 
-function JourneyNodeBase({ node, accent, current = false, onSelect }: JourneyNodeProps) {
+function JourneyNodeBase({ node, accent, current = false, thumb, onSelect }: JourneyNodeProps) {
   const t = useTranslations('game.journeyNode');
   const { play } = useSound();
   const { state } = node;
   const level = Math.max(0, Math.min(5, node.level ?? 0));
   const locked = state === 'locked';
   const ringColor = accent ? { borderColor: accent } : undefined;
+  const photo = thumb ?? node.media;
 
   return (
     <button
@@ -49,7 +53,7 @@ function JourneyNodeBase({ node, accent, current = false, onSelect }: JourneyNod
       }}
       className={cn('lift group flex w-28 flex-col items-center gap-2 rounded-lg p-1 text-fg', locked && 'cursor-not-allowed')}
     >
-      <span className="relative flex size-[4.5rem] items-center justify-center">
+      <span className={cn('relative flex items-center justify-center', photo ? 'size-20' : 'size-[4.5rem]')}>
         {state === 'available' && (
           <span
             aria-hidden
@@ -75,7 +79,7 @@ function JourneyNodeBase({ node, accent, current = false, onSelect }: JourneyNod
         )}
         <span
           className={cn(
-            'relative flex size-full items-center justify-center rounded-full border-4',
+            'relative flex size-full items-center justify-center overflow-hidden rounded-full border-4',
             locked && 'border-dashed border-line bg-sunken text-muted',
             state === 'available' && 'border-brand bg-elevated text-brand shadow-2',
             state === 'in_progress' && 'border-line bg-elevated text-brand shadow-2',
@@ -85,21 +89,39 @@ function JourneyNodeBase({ node, accent, current = false, onSelect }: JourneyNod
             current && 'scale-110',
           )}
         >
-          <Icon name={ICON[state]} size={32} />
-          {state === 'mastered' && (
-            <span aria-hidden className="nx-sparkle absolute -right-2 -top-2 text-lg">
-              ✨
-            </span>
+          {photo && (
+            <>
+              <span aria-hidden className={cn('absolute inset-0', locked && 'grayscale')}>
+                <MediaImage media={photo} alt="" sizes="80px" />
+              </span>
+              {locked && <span aria-hidden className="absolute inset-0 bg-black/45" />}
+            </>
           )}
-          {state === 'needs_review' && (
-            <span
-              aria-hidden
-              className="absolute -right-1 -top-1 flex size-7 items-center justify-center rounded-full bg-brand text-brand-fg"
-            >
-              <Icon name="refresh" size={16} className="animate-[spin_6s_linear_infinite] motion-reduce:animate-none" />
-            </span>
-          )}
+          {/* With a photo the state icon sits in a corner badge; without it the icon fills the node */}
+          {!photo && <Icon name={ICON[state]} size={32} />}
+          {photo && locked && <Icon name="lock" size={28} className="relative text-white" />}
         </span>
+        {photo && !locked && (
+          <span
+            aria-hidden
+            className="absolute -bottom-1 -end-1 flex size-8 items-center justify-center rounded-full border-2 border-bg bg-brand text-brand-fg shadow-1"
+          >
+            <Icon name={ICON[state]} size={16} />
+          </span>
+        )}
+        {state === 'mastered' && (
+          <span aria-hidden className="nx-sparkle absolute -right-2 -top-2 text-lg">
+            ✨
+          </span>
+        )}
+        {state === 'needs_review' && !photo && (
+          <span
+            aria-hidden
+            className="absolute -right-1 -top-1 flex size-7 items-center justify-center rounded-full bg-brand text-brand-fg"
+          >
+            <Icon name="refresh" size={16} className="animate-[spin_6s_linear_infinite] motion-reduce:animate-none" />
+          </span>
+        )}
       </span>
       {state === 'mastered' && level > 0 && (
         <span aria-hidden className="flex gap-0.5 text-brand">
@@ -108,7 +130,7 @@ function JourneyNodeBase({ node, accent, current = false, onSelect }: JourneyNod
           ))}
         </span>
       )}
-      <span className="text-center font-display text-base font-bold leading-tight">{node.label}</span>
+      <span className="text-center font-display text-base font-bold leading-tight">{node.quest?.name ?? node.label}</span>
       <span className="text-sm text-muted">{t(state)}</span>
     </button>
   );

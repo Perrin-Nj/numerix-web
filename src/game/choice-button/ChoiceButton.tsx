@@ -11,7 +11,7 @@ export type ChoiceState = 'idle' | 'selected' | 'locked' | 'success' | 'miss';
 
 export type ChoiceButtonProps = {
   value: AnswerValue;
-  /** 0 to 3. Shows the letter A to D and the 1 to 4 key. */
+  /** 0 to 4. Shows the letter A to E and the 1 to 5 key. */
   index: number;
   state: ChoiceState;
   onSelect: (value: AnswerValue) => void;
@@ -19,15 +19,15 @@ export type ChoiceButtonProps = {
 };
 
 const SPARKS = [['-60px', '-34px'], ['58px', '-38px'], ['-36px', '30px'], ['40px', '34px'], ['0px', '-48px']];
-const LETTERS = ['A', 'B', 'C', 'D'];
+const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 
-const STATE: Record<ChoiceState, string> = {
+export const CHOICE_STATE: Record<ChoiceState, string> = {
   idle: 'border-line bg-elevated text-fg shadow-1',
   selected: 'nx-pop border-brand bg-brand-soft text-fg ring-4 ring-brand/30',
   locked: 'border-line bg-sunken text-muted',
   success: 'nx-choice-right relative border-success bg-elevated text-fg',
-  // A soft wobble and a dim: never red, never a shake of the page
-  miss: 'nx-choice-wrong border-line bg-sunken text-muted',
+  // Warm amber tint, no shake and no dimming: never red, never a punishment. The sheet below explains.
+  miss: 'border-warning bg-warning-soft text-fg',
 };
 
 function ChoiceButtonBase({ value, index, state, onSelect, shortcut }: ChoiceButtonProps) {
@@ -63,7 +63,7 @@ function ChoiceButtonBase({ value, index, state, onSelect, shortcut }: ChoiceBut
       className={cn(
         // 3.75rem = 60px, 90px at TV scale (html font-size scales)
         'lift relative flex min-h-[3.75rem] w-full items-center gap-2 rounded-md border-2 px-3 py-3 sm:gap-4 sm:px-4 text-start font-display text-xl font-semibold disabled:pointer-events-none',
-        STATE[state],
+        CHOICE_STATE[state],
       )}
     >
       <span

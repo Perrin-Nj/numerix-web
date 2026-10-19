@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { cn } from '@/shared/cn';
 import { WorldScene } from '@/game/world-scene';
-import type { WorldId } from '@/data/api/types';
+import type { MediaRef, WorldId } from '@/data/api/types';
+import { MediaImage } from '@/game/media-image';
 
 export const WORLD_EMOJI: Record<WorldId, string> = {
   nature: '🌿',
@@ -13,6 +14,18 @@ export const WORLD_EMOJI: Record<WorldId, string> = {
   medecine: '🩺',
   science: '🔬',
   echecs: '♟️',
+  ocean: '🐠',
+  dinosaures: '🦕',
+  animaux: '🦊',
+  musique: '🎵',
+  transport: '🚂',
+  pirates: '🏴‍☠️',
+  marche: '🛒',
+  meteo: '⛅',
+  robots: '🤖',
+  arts: '🎨',
+  hiver: '⛄',
+  jeux: '🎲',
 };
 
 // Static class names so Tailwind can see them.
@@ -25,6 +38,19 @@ export const WORLD_BG: Record<WorldId, string> = {
   medecine: 'bg-world-medecine',
   science: 'bg-world-science',
   echecs: 'bg-world-echecs',
+  // The twelve newer worlds borrow the nearest colour; their own accent comes from GET /worlds
+  ocean: 'bg-world-nature',
+  dinosaures: 'bg-world-nature',
+  animaux: 'bg-world-nature',
+  musique: 'bg-world-echecs',
+  transport: 'bg-world-construction',
+  pirates: 'bg-world-espace',
+  marche: 'bg-world-cuisine',
+  meteo: 'bg-world-science',
+  robots: 'bg-world-science',
+  arts: 'bg-world-echecs',
+  hiver: 'bg-world-sport',
+  jeux: 'bg-world-echecs',
 };
 
 export type IllustrationMood = 'idle' | 'success' | 'detour' | 'surprise';
@@ -32,6 +58,8 @@ export type IllustrationMood = 'idle' | 'success' | 'detour' | 'surprise';
 export type IllustrationFrameProps = {
   world: WorldId;
   src?: string | null;
+  /** Photo of the question's scene (server MediaRef). Full when alone, a soft backdrop under a stage or picture. */
+  media?: MediaRef | null;
   alt: string;
   mood?: IllustrationMood;
   /** Drawn over the scene, e.g. a ScenePicture. The frame keeps its alt. */
@@ -47,7 +75,7 @@ export type IllustrationFrameProps = {
   className?: string;
 };
 
-export function IllustrationFrame({ world, src, alt, mood = 'idle', picture, stage, stageKey, children, className }: IllustrationFrameProps) {
+export function IllustrationFrame({ world, src, media, alt, mood = 'idle', picture, stage, stageKey, children, className }: IllustrationFrameProps) {
   return (
     <div
       className={cn(
@@ -57,13 +85,20 @@ export function IllustrationFrame({ world, src, alt, mood = 'idle', picture, sta
         className,
       )}
     >
+      {media && (stage || picture) && (
+        <div aria-hidden className="absolute inset-0 opacity-30">
+          <MediaImage media={media} alt="" sizes="(min-width: 1024px) 50vw, 100vw" />
+        </div>
+      )}
       {stage ? (
         <div key={stageKey} data-stage="" className="nx-stage-in absolute inset-0 flex items-center justify-center overflow-hidden p-2">
           {stage}
         </div>
       ) : (
       <div className="absolute inset-0">
-        {src ? (
+        {media ? (
+          <MediaImage media={media} sizes="(min-width: 1024px) 50vw, 100vw" priority />
+        ) : src ? (
           <Image src={src} alt={alt} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
         ) : (
           <div role="img" aria-label={alt} className="size-full">

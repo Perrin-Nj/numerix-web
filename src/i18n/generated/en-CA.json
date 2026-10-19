@@ -624,7 +624,19 @@
     "construction": "Building",
     "medecine": "Medicine",
     "science": "Science",
-    "echecs": "Chess"
+    "echecs": "Chess",
+    "ocean": "Ocean",
+    "dinosaures": "Dinosaurs",
+    "animaux": "Animals",
+    "musique": "Music",
+    "transport": "Transport",
+    "pirates": "Pirates",
+    "marche": "Market",
+    "meteo": "Weather",
+    "robots": "Robots",
+    "arts": "Arts",
+    "hiver": "Winter",
+    "jeux": "Games"
   },
   "lib": {
     "notify": {
@@ -722,6 +734,10 @@
     },
     "journeyPath": {
       "play": "Play"
+    },
+    "lessonProgress": {
+      "label": "Chapter progress",
+      "text": "Question {done} of {total}"
     },
     "mascot": {
       "pose": {
@@ -844,6 +860,38 @@
       "completed": "Quest done. See you tomorrow for more!",
       "play": "Let's go"
     },
+    "questionInput": {
+      "keypad": "Number keypad",
+      "answer": "Your answer",
+      "quotient": "Whole part",
+      "remainder": "Left over",
+      "erase": "Erase",
+      "minus": "Minus sign",
+      "decimal": "Decimal mark",
+      "check": "Check",
+      "next": "Next",
+      "true": "True",
+      "false": "False",
+      "yourOrder": "Your order",
+      "emptySlot": "Empty place {n}",
+      "move": "{text}, place {n}. Drag, or press the up and down arrows to move it.",
+      "takeBack": "Take back {text}",
+      "cards": "Cards to place",
+      "matchPickLeft": "Tap a card on the left.",
+      "matchPickRight": "Now tap its partner on the right.",
+      "leftColumn": "Left cards",
+      "rightColumn": "Right cards",
+      "estimate": "Slide to your estimate"
+    },
+    "questionVisual": {
+      "barItem": "{label}: {value}",
+      "each": "Each star counts for {n}.",
+      "clock": "A clock showing {hour}:{minute}",
+      "numberline": "A number line from {min} to {max}",
+      "grid": "A grid of {cols} columns and {rows} rows",
+      "fraction": "A circle cut in {parts} equal parts, {filled} coloured",
+      "dice": "Dice showing {list}"
+    },
     "reactionBar": {
       "like": "Like",
       "liked": "Liked",
@@ -926,6 +974,10 @@
       "opened": "Here is your first card!",
       "claim": "Keep it in my collection",
       "later": "Later"
+    },
+    "worldCard": {
+      "locked": "Ask a grown-up to open this world",
+      "progress": "{pct} percent of the path done"
     },
     "worldTeaser": {
       "open": "Explore this world"

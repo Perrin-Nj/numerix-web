@@ -18,6 +18,12 @@ export type JourneyNode = S['JourneyNode'];
 export type Session = S['Session'];
 export type Beat = S['Beat'];
 export type Question = S['Question'];
+export type QuestionKind = S['QuestionKind'];
+export type QuestionItem = S['QuestionItem'];
+export type QuestionVisual = S['QuestionVisual'];
+export type MediaRef = S['MediaRef'];
+export type QuestionMedia = S['QuestionMedia'];
+export type CreditItem = S['CreditItem'];
 export type Narration = S['Narration'];
 export type AnswerResult = S['AnswerResult'];
 export type MethodVisual = S['MethodVisual'];
@@ -37,6 +43,7 @@ export type ReviewDue = S['ReviewDue'];
  */
 export const WORLD_IDS: WorldId[] = [
   'nature', 'espace', 'cuisine', 'sport', 'construction', 'medecine', 'science', 'echecs',
+  'ocean', 'dinosaures', 'animaux', 'musique', 'transport', 'pirates', 'marche', 'meteo', 'robots', 'arts', 'hiver', 'jeux',
 ];
 
 export type FeedItem = S['FeedItem'];

@@ -8,7 +8,10 @@ export function useFormatAnswer() {
   const word = locale.startsWith('fr') ? 'reste' : 'remainder';
   const nf = new Intl.NumberFormat(locale);
   return (v: AnswerValue): string => {
-    if (Array.isArray(v)) return `${nf.format(v[0])} ${word} ${nf.format(v[1])}`;
+    if (Array.isArray(v)) {
+      if (v.length === 2 && typeof v[0] === 'number' && typeof v[1] === 'number') return `${nf.format(v[0])} ${word} ${nf.format(v[1])}`;
+      return v.map((x) => (Array.isArray(x) ? x.join(' = ') : String(x))).join(', ');
+    }
     if (typeof v === 'number') return nf.format(v);
     return String(v);
   };

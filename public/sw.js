@@ -12,7 +12,7 @@ const DATA = `${VERSION}-data`;
 const OFFLINE_URL = '/offline';
 const REACTION_FILES = ['happy', 'sad', 'thinking', 'party', 'hug', 'thumbs-up', 'star-struck', 'pleading', 'sleepy', 'wave', 'clap', 'hearts'].map((n) => `/reactions/${n}.svg`);
 
-const READABLE = /^\/api\/v1\/(worlds|children\/[^/]+\/(journey|collection|home|engagement|growth))/;
+const READABLE = /^\/api\/v1\/(worlds|credits|children\/[^/]+\/(journey|collection|home|engagement|growth))/;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -78,7 +78,7 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-  if (/^\/(_next\/static|sounds|icons)\//.test(url.pathname) || /\.(woff2?|png|svg|webm|mp3)$/.test(url.pathname)) {
+  if (/^\/(_next\/static|sounds|icons|assets)\//.test(url.pathname) || /\.(woff2?|png|svg|webm|mp3|webp)$/.test(url.pathname)) {
     event.respondWith(cacheFirst(request));
   }
 });

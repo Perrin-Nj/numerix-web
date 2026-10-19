@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { motion } from 'motion/react';
 import { useReducedMotion } from '@/platform/motion';
-import type { JourneyNode as JourneyNodeData, SkillId, WorldId } from '@/data/api/types';
+import type { JourneyNode as JourneyNodeData, MediaRef, SkillId, WorldId } from '@/data/api/types';
 import { JourneyNode } from '@/game/journey-node';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
@@ -14,12 +15,14 @@ export type JourneyPathProps = {
   onSelectNode: (node: JourneyNodeData) => void;
   onPlay: () => void;
   accent?: string;
+  /** Scene photos of the world. Nodes without their own quest icon take one, in turn, as a thumbnail. */
+  scenes?: MediaRef[];
 };
 
 const ROW_H = 168; // px
 const COLS = 5;
 
-export function JourneyPath({ nodes, world, currentSkillId, onSelectNode, onPlay, accent }: JourneyPathProps) {
+export function JourneyPath({ nodes, world, currentSkillId, onSelectNode, onPlay, accent, scenes = [] }: JourneyPathProps) {
   const t = useTranslations('game.journeyPath');
   const reduced = useReducedMotion();
   const currentRef = useRef<HTMLDivElement>(null);
@@ -54,33 +57,47 @@ export function JourneyPath({ nodes, world, currentSkillId, onSelectNode, onPlay
             const a = placed[i];
             const mid = (a.y + p.y) / 2;
             const ahead = p.node.state === 'locked';
-            return (
-              <path
+            const d = `M ${a.x} ${a.y} C ${a.x} ${mid}, ${p.x} ${mid}, ${p.x} ${p.y}`;
+            const common = {
+              d,
+              fill: 'none',
+              strokeWidth: 6,
+              strokeLinecap: 'round' as const,
+              vectorEffect: 'non-scaling-stroke' as const,
+            };
+            // Dashed when the next stop is locked, solid (and drawn in, 600 ms) otherwise: shape, not color alone.
+            return ahead ? (
+              <path key={p.node.skill_id} {...common} strokeDasharray="2 10" className="stroke-line" />
+            ) : (
+              <motion.path
                 key={p.node.skill_id}
-                d={`M ${a.x} ${a.y} C ${a.x} ${mid}, ${p.x} ${mid}, ${p.x} ${p.y}`}
-                fill="none"
-                strokeWidth="6"
-                strokeLinecap="round"
-                // Dashed when the next stop is locked, solid otherwise: shape, not color alone.
-                strokeDasharray={ahead ? '2 10' : undefined}
-                vectorEffect="non-scaling-stroke"
-                className={ahead ? 'stroke-line' : 'stroke-brand'}
+                {...common}
+                className="stroke-brand"
+                initial={reduced ? false : { pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.6, delay: i * 0.04, ease: 'easeOut' }}
               />
             );
           })}
         </svg>
         <ol className="m-0 list-none p-0">
-          {placed.map(({ node, x, y }) => {
+          {placed.map(({ node, x, y }, i) => {
             const isCurrent = node.skill_id === currentSkillId;
+            const thumb = node.media ?? (scenes.length ? scenes[i % scenes.length] : undefined);
             return (
               <li
                 key={node.skill_id}
                 className="absolute -translate-x-1/2 -translate-y-1/2"
                 style={{ left: `${x}%`, top: y }}
               >
-                <div ref={isCurrent ? currentRef : undefined}>
-                  <JourneyNode node={node} current={isCurrent} accent={accent} onSelect={onSelectNode} />
-                </div>
+                <motion.div
+                  ref={isCurrent ? currentRef : undefined}
+                  initial={reduced ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, delay: i * 0.04 }}
+                >
+                  <JourneyNode node={node} current={isCurrent} accent={accent} thumb={thumb} onSelect={onSelectNode} />
+                </motion.div>
               </li>
             );
           })}

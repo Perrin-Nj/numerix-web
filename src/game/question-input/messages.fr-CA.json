@@ -1,0 +1,27 @@
+{
+  "game": {
+    "questionInput": {
+      "keypad": "Clavier numérique",
+      "answer": "Ta réponse",
+      "quotient": "Partie entière",
+      "remainder": "Il reste",
+      "erase": "Effacer",
+      "minus": "Signe moins",
+      "decimal": "Virgule",
+      "check": "Vérifier",
+      "next": "Suivant",
+      "true": "Vrai",
+      "false": "Faux",
+      "yourOrder": "Ton ordre",
+      "emptySlot": "Place {n} vide",
+      "move": "{text}, place {n}. Glisse la carte, ou utilise les flèches haut et bas pour la déplacer.",
+      "takeBack": "Reprendre {text}",
+      "cards": "Cartes à placer",
+      "matchPickLeft": "Touche une carte à gauche.",
+      "matchPickRight": "Touche maintenant sa partenaire à droite.",
+      "leftColumn": "Cartes de gauche",
+      "rightColumn": "Cartes de droite",
+      "estimate": "Glisse pour donner ton estimation"
+    }
+  }
+}

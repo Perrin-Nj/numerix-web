@@ -190,7 +190,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The eight story worlds */
+        /** The twenty story worlds */
         get: operations["listWorlds"];
         put?: never;
         post?: never;
@@ -328,6 +328,31 @@ export interface paths {
          *     Safe to retry with the same `Idempotency-Key`: the verdict is stored.
          */
         post: operations["answerBeat"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sessions/{sessionId}/beats/{beatId}/hint": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: components["parameters"]["SessionId"];
+                beatId: components["parameters"]["BeatId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask for the hint of the open question (BE-70)
+         * @description Curated questions carry a written hint that guides without giving the answer. Only available while the beat
+         *     is unanswered (409 `beat_answered` afterwards) and when `Question.hint_available` is true (404 otherwise).
+         *     Asking never changes the verdict or the mastery estimate today; the client may show a softer mascot pose.
+         */
+        post: operations["requestHint"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1108,6 +1133,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/assets/{file}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One image (CR-17, BE-71)
+         * @description `a_<20 hex>.webp` is the widest variant, `a_<20 hex>-<w>.webp` the variant of width `w` (a `MediaRef.srcset`
+         *     entry). The id is a hash of the image, so the answer never changes: `Cache-Control: public, max-age=31536000,
+         *     immutable`, a strong `ETag`, and 304 for `If-None-Match`. Unknown, unapproved or unsafe assets are 404.
+         *     In the web app this path is rewritten from `/assets/*` so the browser and the CDN see the immutable headers.
+         */
+        get: operations["getAsset"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/credits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Attributions required by the images in use (CR-17)
+         * @description One entry per approved image whose licence asks for a credit. Printed on the credits page of the parent area.
+         */
+        get: operations["listCredits"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -1228,8 +1296,13 @@ export interface components {
                 message?: string;
             }[];
         };
-        /** @enum {string} */
-        WorldId: "nature" | "espace" | "cuisine" | "sport" | "construction" | "medecine" | "science" | "echecs";
+        /**
+         * @description The twenty story worlds. The first eight are the original worlds; the other twelve came with the question bank
+         *     (CR-11). A client must treat an id it does not know as a generic world (accent colour and name come from
+         *     `GET /worlds`), so a new world never needs a release.
+         * @enum {string}
+         */
+        WorldId: "nature" | "espace" | "cuisine" | "sport" | "construction" | "medecine" | "science" | "echecs" | "ocean" | "dinosaures" | "animaux" | "musique" | "transport" | "pirates" | "marche" | "meteo" | "robots" | "arts" | "hiver" | "jeux";
         /**
          * @description PDA skill id from the curriculum graph
          * @example ARI-OPE-A07a
@@ -1241,8 +1314,66 @@ export interface components {
          *       48,
          *       4
          *     ]
+         * @example true
+         * @example [
+         *       "c",
+         *       "a",
+         *       "b"
+         *     ]
+         * @example [
+         *       [
+         *         "l1",
+         *         "r2"
+         *       ],
+         *       [
+         *         "l2",
+         *         "r1"
+         *       ]
+         *     ]
          */
-        AnswerValue: number | string | number[];
+        AnswerValue: number | string | boolean | number[] | string[] | string[][];
+        MediaRef: {
+            /** @example a_3f9c0b7e21d4a85c6e10 */
+            id: string;
+            /** @description Describes what is visible */
+            alt: string;
+            /** @description Width of the largest variant */
+            width: number;
+            height: number;
+            /** @description Dominant colour */
+            color: string;
+            /** @description Tiny blurred preview as a data: URI (webp) */
+            lqip: string;
+            srcset: {
+                w: number;
+                /** @description Path under the asset base (default /assets), for example /assets/a_3f9c0b7e21d4a85c6e10-960.webp */
+                url: string;
+            }[];
+            /** @description Present when the licence asks for attribution. Show it near the image or on the credits page. */
+            credit?: components["schemas"]["MediaCredit"];
+        };
+        MediaCredit: {
+            /** @example Photo by Jane Doe on Pexels */
+            text: string;
+            source_url?: string;
+            /** @example PEXELS */
+            licence: string;
+            licence_url?: string;
+        };
+        QuestionMedia: {
+            /** @description scene, object, visual or choice:<id> */
+            role: string;
+            image: components["schemas"]["MediaRef"];
+        };
+        CreditItem: {
+            id: string;
+            /** @description Thumbnail path */
+            url: string;
+            text: string;
+            source_url?: string;
+            licence: string;
+            licence_url?: string;
+        };
         RegisterRequest: {
             /** Format: email */
             email: string;
@@ -1560,12 +1691,19 @@ export interface components {
             /** @example Échecs */
             name: string;
             tagline: string;
-            /** @description Empty until real art exists; the app then shows its placeholder art */
+            /** @description Path of the hero image (largest variant). Empty when the world has no approved hero yet; the app then draws a gradient from accent_color */
             image_url: string;
             accent_color: string;
             /** @description One short teaser line shown on the home feed */
             hook?: string;
             skill_count: number;
+            /** @description First school year the world serves (CR-12) */
+            grade_min?: number;
+            grade_max?: number;
+            /** @description Hero image with its responsive sizes (CR-12). Absent when the world has no approved hero yet. */
+            hero?: components["schemas"]["MediaRef"];
+            /** @description A few scene images of the world for the world page (CR-12). Empty until art is approved. */
+            scenes?: components["schemas"]["MediaRef"][];
         };
         Skill: {
             id: components["schemas"]["SkillId"];
@@ -1577,7 +1715,7 @@ export interface components {
             cycle: number;
             prerequisites: components["schemas"]["SkillId"][];
             worlds?: components["schemas"]["WorldId"][];
-            /** @description A generator exists for this skill today */
+            /** @description The skill can be played today - a generator exists or at least 8 published bank questions exist in some quest */
             implemented: boolean;
         };
         /** @enum {string} */
@@ -1596,6 +1734,18 @@ export interface components {
             level?: number;
             /** Format: date-time */
             next_review_at?: string | null;
+            /** @description The quest this node belongs to in the world (CR-18). Absent for skills played through a generator only. */
+            quest?: components["schemas"]["JourneyQuest"];
+            /** @description Icon of the quest when one is approved (CR-18) */
+            media?: components["schemas"]["MediaRef"];
+        };
+        JourneyQuest: {
+            /** @example cuisine.fournee */
+            id: string;
+            /** @example La fournée de biscuits */
+            name: string;
+            /** @description What the child practises */
+            goal: string;
         };
         Journey: {
             world: components["schemas"]["WorldId"];
@@ -1699,14 +1849,61 @@ export interface components {
              */
             checkout_url?: string;
         };
-        /** @description Built by the engine. Never contains the correct answer on its own. */
+        /**
+         * @description Built by the engine or taken from the curated bank. Never contains the correct answer on its own, nor the
+         *     explanation, the `calc` expression, the common errors or any misconception code (BE-67).
+         *     A client that only knows `math_text` and four `choices` keeps working: generated questions are unchanged and
+         *     curated questions fill `math_text` with the statement. `kind` tells which input to show:
+         *     `numeric` (keypad; the answer may be [quotient, remainder] for a division with remainder), `choice` (2 to 5 cards,
+         *     answer = the value of the chosen card), `truefalse` (two buttons, answer = boolean), `order` (answer = item ids
+         *     in order), `match` (answer = [left id, right id] pairs), `word` and `visual` (numeric or choice), `estimate`
+         *     (a number inside a range, or choice). An unknown `kind` should be shown as a numeric entry.
+         */
         Question: {
-            /** @example 340 ÷ 7 = ? (avec reste) */
+            kind?: components["schemas"]["QuestionKind"];
+            /**
+             * @description Language neutral statement; for curated questions without one, the prompt text
+             * @example 340 ÷ 7 = ? (avec reste)
+             */
             math_text: string;
+            /** @description Generated questions always send 4. Curated `choice`/`estimate` questions send 3 to 5; other kinds send none (CR-13). */
             choices: components["schemas"]["AnswerValue"][];
+            /** @description What to answer */
+            prompt?: string;
+            /** @description Short story line of the question (curated questions); also the scene text */
+            story?: string;
+            items?: components["schemas"]["QuestionItems"];
+            visual?: components["schemas"]["QuestionVisual"];
+            media?: components["schemas"]["QuestionMedia"][];
+            /** @description True when POST .../hint will answer (BE-70) */
+            hint_available?: boolean;
+        };
+        /** @enum {string} */
+        QuestionKind: "numeric" | "choice" | "truefalse" | "order" | "match" | "word" | "visual" | "estimate";
+        QuestionItem: {
+            id: string;
+            text: string;
+        };
+        /** @description Cards for `order` (`cards`, shown in a shuffled order) or the two columns of `match`. */
+        QuestionItems: {
+            cards?: components["schemas"]["QuestionItem"][];
+            left?: components["schemas"]["QuestionItem"][];
+            right?: components["schemas"]["QuestionItem"][];
+        };
+        /** @description Data for a picture the child reads (see seed/README.md in numerix-api for each data shape). No pixels, no answer. */
+        QuestionVisual: {
+            /** @enum {string} */
+            kind: "bars" | "pictograph" | "clock" | "numberline" | "grid" | "fraction" | "dice";
+            data?: {
+                [key: string]: unknown;
+            };
         };
         /** @enum {string} */
         NarrationStatus: "pending" | "streaming" | "ready" | "fallback";
+        /**
+         * @description For a curated question the beat's `scene` is `ready` at once with the question's own story text and no model is
+         *     called (CR-15); the narration stream then replays the same text. Generated questions keep the pending flow.
+         */
         Narration: {
             status: components["schemas"]["NarrationStatus"];
             /** @description Full text when `ready` or `fallback`; null while pending */
@@ -1841,6 +2038,12 @@ export interface components {
         AnswerResult: {
             outcome: components["schemas"]["Outcome"];
             correct_answer: components["schemas"]["AnswerValue"];
+            /** @description Curated questions only (BE-69): how to solve it, in the request language. Shown after answering, never before. */
+            explain?: string | null;
+            /** @description Curated questions only (BE-69): the matched typical error code when `outcome` is erreur_typique. For analytics and parent reports, not for display. */
+            misconception?: string | null;
+            /** @description Curated questions only: the kind message written for the matched common error, when there is one. */
+            feedback?: string | null;
             denouement: components["schemas"]["Narration"];
             session: components["schemas"]["Session"];
             rewards?: components["schemas"]["Reward"][];
@@ -2580,7 +2783,7 @@ export interface operations {
             query?: {
                 world?: components["schemas"]["WorldId"];
                 grade?: number;
-                /** @description Only skills that have a generator today (8 of 75) */
+                /** @description Only skills that can be played today (a generator exists or at least 8 published bank questions) */
                 implemented?: boolean;
             };
             header?: {
@@ -2858,6 +3061,48 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    requestHint: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                sessionId: components["parameters"]["SessionId"];
+                beatId: components["parameters"]["BeatId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The hint text */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        hint: string;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            /** @description This beat was already answered */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
             429: components["responses"]["RateLimited"];
             500: components["responses"]["ServerError"];
         };
@@ -4132,6 +4377,69 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    getAsset: {
+        parameters: {
+            query?: never;
+            header?: {
+                "If-None-Match"?: string;
+            };
+            path: {
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The image */
+            200: {
+                headers: {
+                    ETag?: string;
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/webp": string;
+                };
+            };
+            /** @description Not modified */
+            304: {
+                headers: {
+                    ETag?: string;
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    listCredits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Credits */
+            200: {
+                headers: {
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["CreditItem"][];
+                    };
+                };
+            };
             429: components["responses"]["RateLimited"];
             500: components["responses"]["ServerError"];
         };

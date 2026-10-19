@@ -624,7 +624,19 @@
     "construction": "Construction",
     "medecine": "Médecine",
     "science": "Science",
-    "echecs": "Échecs"
+    "echecs": "Échecs",
+    "ocean": "Océan",
+    "dinosaures": "Dinosaures",
+    "animaux": "Animaux",
+    "musique": "Musique",
+    "transport": "Transports",
+    "pirates": "Pirates",
+    "marche": "Marché",
+    "meteo": "Météo",
+    "robots": "Robots",
+    "arts": "Arts",
+    "hiver": "Hiver",
+    "jeux": "Jeux"
   },
   "lib": {
     "notify": {
@@ -722,6 +734,10 @@
     },
     "journeyPath": {
       "play": "Jouer"
+    },
+    "lessonProgress": {
+      "label": "Avancement du chapitre",
+      "text": "Question {done} sur {total}"
     },
     "mascot": {
       "pose": {
@@ -844,6 +860,38 @@
       "completed": "Quête terminée. À demain pour la suite !",
       "play": "C'est parti"
     },
+    "questionInput": {
+      "keypad": "Clavier numérique",
+      "answer": "Ta réponse",
+      "quotient": "Partie entière",
+      "remainder": "Il reste",
+      "erase": "Effacer",
+      "minus": "Signe moins",
+      "decimal": "Virgule",
+      "check": "Vérifier",
+      "next": "Suivant",
+      "true": "Vrai",
+      "false": "Faux",
+      "yourOrder": "Ton ordre",
+      "emptySlot": "Place {n} vide",
+      "move": "{text}, place {n}. Glisse la carte, ou utilise les flèches haut et bas pour la déplacer.",
+      "takeBack": "Reprendre {text}",
+      "cards": "Cartes à placer",
+      "matchPickLeft": "Touche une carte à gauche.",
+      "matchPickRight": "Touche maintenant sa partenaire à droite.",
+      "leftColumn": "Cartes de gauche",
+      "rightColumn": "Cartes de droite",
+      "estimate": "Glisse pour donner ton estimation"
+    },
+    "questionVisual": {
+      "barItem": "{label} : {value}",
+      "each": "Chaque étoile vaut {n}.",
+      "clock": "Une horloge qui montre {hour} h {minute}",
+      "numberline": "Une droite numérique de {min} à {max}",
+      "grid": "Une grille de {cols} colonnes et {rows} rangées",
+      "fraction": "Un cercle coupé en {parts} parts égales, {filled} colorées",
+      "dice": "Des dés qui montrent {list}"
+    },
     "reactionBar": {
       "like": "J'aime",
       "liked": "Aimé",
@@ -926,6 +974,10 @@
       "opened": "Voici ta première carte !",
       "claim": "La garder dans ma collection",
       "later": "Plus tard"
+    },
+    "worldCard": {
+      "locked": "Demande à un adulte d’ouvrir ce monde",
+      "progress": "{pct} pour cent du chemin parcouru"
     },
     "worldTeaser": {
       "open": "Découvrir ce monde"

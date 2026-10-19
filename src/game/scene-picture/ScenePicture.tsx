@@ -2,7 +2,8 @@
 import { useId, useMemo, type CSSProperties, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/shared/cn';
-import type { WorldId } from '@/data/api/types';
+import type { MediaRef, WorldId } from '@/data/api/types';
+import { MediaImage } from '@/game/media-image';
 import { HumanAvatar } from '@/game/human-avatar';
 import { layoutFor, type Group, type Layout } from './layout';
 
@@ -16,6 +17,18 @@ export const ITEMS: Record<WorldId, [string, string]> = {
   medecine: ['💊', '🩹'],
   science: ['💎', '🔹'],
   echecs: ['♟️', '♙'],
+  ocean: ['🐟', '🐚'],
+  dinosaures: ['🥚', '🦴'],
+  animaux: ['🐾', '🍎'],
+  musique: ['🎵', '🎶'],
+  transport: ['🚗', '🚌'],
+  pirates: ['🪙', '💎'],
+  marche: ['🍎', '🍊'],
+  meteo: ['☀️', '💧'],
+  robots: ['⚙️', '🔩'],
+  arts: ['🎨', '🖌️'],
+  hiver: ['❄️', '⛄'],
+  jeux: ['🎲', '🧩'],
 };
 
 export type ScenePictureProps = {
@@ -26,8 +39,12 @@ export type ScenePictureProps = {
   hero?: string;
   /** 0 to 3 right answers in a row: a growing glow around the hero, never a score. */
   glow?: number;
+  /** Server sprite (3D emoji) drawn instead of the world emoji. */
+  sprite?: MediaRef;
   className?: string;
 };
+
+type Glyph = string | MediaRef;
 
 type Tr = (key: string, values?: Record<string, string | number>) => string;
 
@@ -54,7 +71,7 @@ const step = (n: number) => Math.min(1, 16 / Math.max(n, 1));
 const cellStyle = (cell: number): CSSProperties => ({ fontSize: `${cell}cqw` });
 const idxStyle = (i: number) => ({ '--i': i }) as CSSProperties;
 
-function Item({ emoji, i, n, gone }: { emoji: string; i: number; n: number; gone?: boolean }) {
+function Item({ emoji, i, n, gone }: { emoji: Glyph; i: number; n: number; gone?: boolean }) {
   return (
     <span className="nx-pop-in-stagger inline-block leading-none" style={idxStyle(i * step(n))}>
       <span
@@ -63,13 +80,19 @@ function Item({ emoji, i, n, gone }: { emoji: string; i: number; n: number; gone
           gone && 'opacity-40 grayscale after:absolute after:inset-x-0 after:top-1/2 after:h-[0.07em] after:-rotate-[35deg] after:bg-fg',
         )}
       >
-        {emoji}
+        {typeof emoji === 'string' ? (
+          emoji
+        ) : (
+          <span className="inline-block size-[1em] align-middle">
+            <MediaImage media={emoji} alt="" fit="contain" sizes="64px" />
+          </span>
+        )}
       </span>
     </span>
   );
 }
 
-function Pile({ g, emoji, cell, start }: { g: Group; emoji: string; cell: number; start: number }) {
+function Pile({ g, emoji, cell, start }: { g: Group; emoji: Glyph; cell: number; start: number }) {
   let i = start;
   return (
     <div className="flex flex-wrap items-start justify-center gap-[1.5cqw]" style={cellStyle(cell)}>
@@ -115,9 +138,11 @@ function NumberLine({ value, max }: { value: number; max: number }) {
   );
 }
 
-export function ScenePicture({ world, skillId, numbers, hero, glow = 0, className }: ScenePictureProps) {
+export function ScenePicture({ world, skillId, numbers, hero, glow = 0, sprite, className }: ScenePictureProps) {
   const t = useTranslations('game.scenePicture');
-  const [e1, e2] = ITEMS[world];
+  const [w1, w2] = ITEMS[world];
+  const e1: Glyph = sprite ?? w1;
+  const e2: Glyph = sprite ?? w2;
   const l = useMemo(() => layoutFor(skillId, numbers), [skillId, numbers]);
   const uid = useId();
   const key = uid + skillId + numbers.join(','); // remount, so the pop-in replays for new numbers

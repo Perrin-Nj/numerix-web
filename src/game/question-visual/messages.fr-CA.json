@@ -1,0 +1,13 @@
+{
+  "game": {
+    "questionVisual": {
+      "barItem": "{label} : {value}",
+      "each": "Chaque étoile vaut {n}.",
+      "clock": "Une horloge qui montre {hour} h {minute}",
+      "numberline": "Une droite numérique de {min} à {max}",
+      "grid": "Une grille de {cols} colonnes et {rows} rangées",
+      "fraction": "Un cercle coupé en {parts} parts égales, {filled} colorées",
+      "dice": "Des dés qui montrent {list}"
+    }
+  }
+}

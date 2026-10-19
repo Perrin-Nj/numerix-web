@@ -1,0 +1,13 @@
+{
+  "game": {
+    "questionVisual": {
+      "barItem": "{label}: {value}",
+      "each": "Each star counts for {n}.",
+      "clock": "A clock showing {hour}:{minute}",
+      "numberline": "A number line from {min} to {max}",
+      "grid": "A grid of {cols} columns and {rows} rows",
+      "fraction": "A circle cut in {parts} equal parts, {filled} coloured",
+      "dice": "Dice showing {list}"
+    }
+  }
+}

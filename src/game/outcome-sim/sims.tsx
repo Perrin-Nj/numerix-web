@@ -461,4 +461,9 @@ const echecs: SimScene = {
   ),
 };
 
-export const SCENES: Record<WorldId, SimScene> = { construction, nature, espace, cuisine, sport, medecine, science, echecs };
+// The twelve newer worlds replay the nearest original animation
+export const SCENES: Record<WorldId, SimScene> = {
+  construction, nature, espace, cuisine, sport, medecine, science, echecs,
+  ocean: nature, dinosaures: nature, animaux: nature, musique: echecs, transport: construction, pirates: espace,
+  marche: cuisine, meteo: science, robots: science, arts: echecs, hiver: sport, jeux: echecs,
+};

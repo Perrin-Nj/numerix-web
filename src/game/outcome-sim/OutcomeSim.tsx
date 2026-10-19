@@ -18,6 +18,18 @@ export const SIM_SOUND: Record<WorldId, { good: SoundName; bad: SoundName }> = {
   medecine: { good: 'tick', bad: 'question' },
   science: { good: 'glass', bad: 'beat_surprise' },
   echecs: { good: 'chapter_complete', bad: 'question' },
+  ocean: { good: 'sparkle', bad: 'beat_detour' },
+  dinosaures: { good: 'sparkle', bad: 'beat_detour' },
+  animaux: { good: 'sparkle', bad: 'beat_detour' },
+  musique: { good: 'chapter_complete', bad: 'question' },
+  transport: { good: 'beat_success', bad: 'collapse' },
+  pirates: { good: 'whoosh', bad: 'beat_detour' },
+  marche: { good: 'sparkle', bad: 'drop' },
+  meteo: { good: 'glass', bad: 'beat_surprise' },
+  robots: { good: 'glass', bad: 'beat_surprise' },
+  arts: { good: 'chapter_complete', bad: 'question' },
+  hiver: { good: 'chapter_complete', bad: 'pluck' },
+  jeux: { good: 'chapter_complete', bad: 'question' },
 };
 
 export type OutcomeSimProps = {
