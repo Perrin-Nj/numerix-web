@@ -6,9 +6,9 @@ import { cn } from '@/shared/cn';
 const card = cva('block rounded-lg text-fg', {
   variants: {
     tone: {
-      plain: 'border border-line bg-elevated shadow-1',
-      brand: 'border border-brand bg-brand-soft',
-      sunken: 'border border-line bg-sunken',
+      plain: 'border-2 border-line bg-elevated shadow-[var(--shadow-1),var(--shadow-inset)]',
+      brand: 'border-2 border-brand bg-gradient-to-br from-brand-soft to-elevated shadow-1',
+      sunken: 'border-2 border-line bg-sunken',
     },
     interactive: { true: 'lift lift-tilt cursor-pointer text-left', false: '' },
   },

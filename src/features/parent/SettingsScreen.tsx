@@ -63,11 +63,11 @@ export function SettingsScreen({ childId }: { childId: string }) {
 
   return (
     <ParentPage title={t('title')} backHref={`/parent/children/${childId}`}>
-      {!draft && <ScreenState isLoading={settings.isLoading} error={settings.error} isEmpty onRetry={() => void settings.refetch()} area="parent" skeleton={<Skeleton height={240} />}>{null}</ScreenState>}
+      {!draft && <ScreenState isLoading={settings.isLoading} error={settings.error} isEmpty onRetry={() => void settings.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card" height={240} />}>{null}</ScreenState>}
       {draft && (
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
-          <Panel title={t('play')}>
-            <div className="flex flex-col gap-4">
+          <Panel title={t('play')} icon="settings">
+            <div className="flex flex-col gap-4 [&>div:has(button[role=switch])]:border-t-2 [&>div:has(button[role=switch])]:border-line [&>div:has(button[role=switch])]:pt-4">
               <Select
                 label={t('goal')}
                 value={String(draft.daily_goal_chapters)}
@@ -102,7 +102,7 @@ export function SettingsScreen({ childId }: { childId: string }) {
             </div>
           </Panel>
 
-          <Panel title={t('worlds')}>
+          <Panel title={t('worlds')} icon="map">
             <div className="grid gap-3 sm:grid-cols-2">
               {WORLD_IDS.map((w: WorldId) => {
                 const on = draft.enabled_worlds.includes(w);
@@ -125,11 +125,13 @@ export function SettingsScreen({ childId }: { childId: string }) {
             <p className="mt-2 text-sm text-muted">{t('worldsHint')}</p>
           </Panel>
 
-          <Button size="lg" onClick={onSave} loading={save.isPending}>
-            {t('save')}
-          </Button>
+          <div className="sticky bottom-3 z-10 flex">
+            <Button size="lg" className="max-sm:w-full" onClick={onSave} loading={save.isPending}>
+              {t('save')}
+            </Button>
+          </div>
 
-          <Panel title={t('data')}>
+          <Panel title={t('data')} icon="download" className="border-danger/40">
             <div className="flex flex-wrap gap-3">
               <Button variant="secondary" iconLeft={<Icon name="download" />} onClick={onExport}>
                 {t('export')}

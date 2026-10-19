@@ -23,7 +23,7 @@ export function AccountScreen() {
   return (
     <ParentPage title={t('title')} backHref="/parent">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
-        <Panel title={t('language')}>
+        <Panel title={t('language')} icon="globe">
           <Select
             label={t('language')}
             value={locale}
@@ -31,7 +31,7 @@ export function AccountScreen() {
             options={appConfig.locales.map((l) => ({ value: l, label: t(`locales.${l}`) }))}
           />
         </Panel>
-        <Panel title={t('appearance')}>
+        <Panel title={t('appearance')} icon="sun">
           <div className="flex flex-col gap-4">
             <Select
               label={t('theme')}
@@ -53,7 +53,7 @@ export function AccountScreen() {
           </div>
         </Panel>
         <AccountSecurity />
-        <Panel title={t('guide')}>
+        <Panel title={t('guide')} icon="info">
           <p className="mb-3 text-muted">{t('guideHint')}</p>
           <Button
             variant="secondary"

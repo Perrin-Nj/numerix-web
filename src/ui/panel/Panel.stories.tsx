@@ -18,3 +18,4 @@ export const Brand: Story = { args: { tone: 'brand' } };
 export const Sunken: Story = { args: { tone: 'sunken' } };
 export const NoTitle: Story = { args: { title: undefined } };
 export const NotPadded: Story = { args: { padded: false } };
+export const WithIcon: Story = { args: { icon: 'trophy', title: 'Défis' } };

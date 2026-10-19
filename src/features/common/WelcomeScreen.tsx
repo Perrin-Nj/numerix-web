@@ -16,12 +16,18 @@ export function WelcomeScreen() {
   const hasParent = Boolean(status.data?.parent);
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center gap-8 px-4 py-10">
+    <main className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center gap-8 px-4 py-10">
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <span className="nx-float absolute -start-16 top-24 size-56 rounded-full bg-brand-soft opacity-80 blur-2xl" />
+        <span className="nx-float absolute -end-20 bottom-24 size-64 rounded-full bg-info-soft opacity-80 blur-2xl [animation-delay:-1.6s]" />
+        <span className="nx-twinkle absolute end-10 top-40 text-2xl text-brand/60" style={{ '--i': 1 } as React.CSSProperties}>✦</span>
+        <span className="nx-twinkle absolute start-8 bottom-40 text-xl text-brand/50" style={{ '--i': 3 } as React.CSSProperties}>✦</span>
+      </div>
       <div className="fixed end-3 top-3 z-20">
         <ThemeToggle variant="icon" />
       </div>
       <Reveal>
-        <h1 className="font-display text-5xl font-extrabold leading-tight text-brand">Numerix</h1>
+        <h1 className="font-display text-[length:var(--text-display)] font-extrabold leading-none text-brand">Numerix</h1>
         <p className="mt-2 text-xl text-muted">{t('tagline')}</p>
       </Reveal>
       <Reveal delayMs={120}>
@@ -30,7 +36,7 @@ export function WelcomeScreen() {
         </MascotBubble>
       </Reveal>
       <Reveal delayMs={220}>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 rounded-xl border-2 border-line bg-elevated p-4 shadow-3">
           <div>
             <Button size="xl" fullWidth iconLeft={<Icon name="play" size={28} />} onClick={() => router.push('/play')}>
               {t('kidButton')}

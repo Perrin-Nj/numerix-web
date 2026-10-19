@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { useCollection, useSessionStatus } from '@/data/hooks';
 import { StoryCard } from '@/game/story-card';
 import { Button } from '@/ui/button';
+import { EmptyState } from '@/ui/empty-state';
 import { ScreenState } from '@/game/screen-state';
 import { Skeleton } from '@/ui/skeleton';
 import type { StoryCard as StoryCardData } from '@/data/api/types';
@@ -12,6 +14,7 @@ import type { StoryCard as StoryCardData } from '@/data/api/types';
 export function CollectionScreen() {
   const t = useTranslations('screens.play.collection');
   const tw = useTranslations('worlds');
+  const router = useRouter();
   const status = useSessionStatus();
   const col = useCollection(status.data?.childId ?? null);
   const more = useRef<HTMLDivElement>(null);
@@ -43,11 +46,22 @@ export function CollectionScreen() {
         area="play"
         skeleton={
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <Skeleton height={190} />
-            <Skeleton height={190} />
+            <Skeleton shape="block" className="nx-skeleton-card" height={190} />
+            <Skeleton shape="block" className="nx-skeleton-card" height={190} />
           </div>
         }
-        empty={<p className="rounded-lg border-2 border-line bg-elevated p-5 text-lg text-muted">{t('empty')}</p>}
+        empty={
+          <EmptyState
+            size="page"
+            icon="star"
+            title={t('empty')}
+            action={
+              <Button size="lg" onClick={() => router.push('/play/worlds')}>
+                {t('emptyAction')}
+              </Button>
+            }
+          />
+        }
       >
       {groups.map(([world, cards]) => (
         <section key={world} className="mb-6">

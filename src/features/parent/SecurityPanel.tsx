@@ -2,6 +2,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/ui/button';
 import { InlineError } from '@/ui/inline-error';
+import { Chip } from '@/ui/chip';
 import { Panel } from '@/ui/panel';
 
 export type SecurityDevice = { id: string; label: string; last_used_at: string; current: boolean };
@@ -37,10 +38,10 @@ export function SecurityPanel({
   const date = (iso: string) => new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(iso));
 
   return (
-    <Panel title={t('title')}>
+    <Panel title={t('title')} icon="shield">
       <div className="flex flex-col gap-6">
         <section aria-labelledby="sec-devices" className="flex flex-col gap-2">
-          <h3 id="sec-devices" className="font-semibold">
+          <h3 id="sec-devices" className="font-display text-lg font-semibold">
             {t('devices.title')}
           </h3>
           <p className="text-muted">{t('devices.hint')}</p>
@@ -49,11 +50,11 @@ export function SecurityPanel({
           ) : (
             <ul className="flex flex-col gap-2">
               {devices.map((d) => (
-                <li key={d.id} className="flex items-center justify-between gap-3">
+                <li key={d.id} className="flex items-center justify-between gap-3 rounded-md border-2 border-line bg-sunken p-3">
                   <span>
                     <span className="block font-medium">
                       {d.label}
-                      {d.current && <span className="ml-2 text-sm text-brand">{t('devices.current')}</span>}
+                      {d.current && <Chip tone="brand" className="ms-2">{t('devices.current')}</Chip>}
                     </span>
                     <span className="block text-sm text-muted">{t('devices.lastUsed', { date: date(d.last_used_at) })}</span>
                   </span>
@@ -73,7 +74,7 @@ export function SecurityPanel({
         </section>
 
         <section aria-labelledby="sec-passkeys" className="flex flex-col gap-2">
-          <h3 id="sec-passkeys" className="font-semibold">
+          <h3 id="sec-passkeys" className="font-display text-lg font-semibold">
             {t('passkeys.title')}
           </h3>
           <p className="text-muted">{t('passkeys.hint')}</p>
@@ -82,7 +83,7 @@ export function SecurityPanel({
           ) : (
             <ul className="flex flex-col gap-2">
               {passkeys.map((p) => (
-                <li key={p.id} className="flex items-center justify-between gap-3">
+                <li key={p.id} className="flex items-center justify-between gap-3 rounded-md border-2 border-line bg-sunken p-3">
                   <span>
                     <span className="block font-medium">{p.nickname}</span>
                     <span className="block text-sm text-muted">{t('passkeys.added', { date: date(p.created_at) })}</span>

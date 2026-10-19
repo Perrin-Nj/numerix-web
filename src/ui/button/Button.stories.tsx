@@ -30,3 +30,13 @@ export const Disabled: Story = { args: { disabled: true } };
 export const WithIcon: Story = { args: { iconLeft: <Icon name="play" /> } };
 export const ExtraLarge: Story = { args: { size: 'xl' } };
 export const FullWidth: Story = { args: { fullWidth: true } };
+export const AllVariants: Story = {
+  render: () => (
+    <div className="flex flex-wrap items-center gap-4 p-4">
+      <Button>Jouer</Button>
+      <Button variant="secondary">Retour</Button>
+      <Button variant="ghost">Plus tard</Button>
+      <Button variant="danger">Supprimer</Button>
+    </div>
+  ),
+};

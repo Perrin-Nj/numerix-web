@@ -10,6 +10,8 @@ import { MascotBubble } from '@/game/mascot-bubble';
 import { Avatar } from '@/game/avatar';
 import { Button } from '@/ui/button';
 import { Dialog } from '@/ui/dialog';
+import { EmptyState } from '@/ui/empty-state';
+import { Icon } from '@/ui/icon';
 import { PinInput } from '@/ui/pin-input';
 import { Reveal } from '@/ui/reveal';
 import { Skeleton } from '@/ui/skeleton';
@@ -118,15 +120,25 @@ export function ProfilePicker() {
           area="play"
           skeleton={
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              <Skeleton height={160} />
-              <Skeleton height={160} />
+              <Skeleton shape="block" className="nx-skeleton-card" height={200} />
+              <Skeleton shape="block" className="nx-skeleton-card" height={200} />
             </div>
           }
         >
           {null}
         </ScreenState>
       )}
-      {children.data && children.data.length === 0 && <p className="text-lg text-muted">{t('none')}</p>}
+      {children.data && children.data.length === 0 && (
+        <EmptyState
+          icon="users"
+          title={t('none')}
+          action={
+            <Button iconLeft={<Icon name="shield" />} onClick={() => router.push('/parent')}>
+              {t('parentArea')}
+            </Button>
+          }
+        />
+      )}
       <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         {(children.data ?? []).map((c, i) => (
           <li key={c.id}>
@@ -134,11 +146,16 @@ export function ProfilePicker() {
               <button
                 type="button"
                 onClick={() => choose(c)}
-                className="lift flex w-full flex-col items-center gap-3 rounded-lg border-2 border-line bg-elevated p-5 shadow-1"
+                className="flex min-h-48 w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-xl border-2 border-line bg-elevated p-5 shadow-[var(--shadow-press-neutral)] transition-[transform,box-shadow,border-color] duration-[var(--dur-1)] ease-[var(--ease-out)] hover:-translate-y-0.5 hover:border-brand active:translate-y-[3px] active:scale-[0.98] active:shadow-none"
               >
                 <Avatar avatarId={c.avatar_id} name={c.display_name} size="lg" />
-                <span className="font-display text-2xl font-bold">{c.display_name}</span>
-                {c.has_pin && <span className="text-sm text-muted">{t('pinProtected')}</span>}
+                <span className="font-display text-2xl font-bold leading-tight">{c.display_name}</span>
+                {c.has_pin && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-sunken px-2.5 py-1 text-sm text-muted">
+                    <Icon name="lock" size={14} />
+                    {t('pinProtected')}
+                  </span>
+                )}
               </button>
             </Reveal>
           </li>
@@ -146,11 +163,12 @@ export function ProfilePicker() {
       </ul>
 
       <div className="flex flex-wrap gap-3">
-        <Button variant="ghost" onClick={() => router.push('/parent')}>
+        <Button variant="ghost" iconLeft={<Icon name="shield" />} onClick={() => router.push('/parent')}>
           {t('parentArea')}
         </Button>
         <Button
           variant="ghost"
+          iconLeft={<Icon name="log-out" />}
           onClick={async () => {
             try {
               await signOut('all');

@@ -16,6 +16,13 @@
   --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-focus: var(--focus-ring);
+  --color-brand-strong: var(--brand-strong);
+  --color-success-soft: var(--success-soft);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger-soft: var(--danger-soft);
+  --color-info-soft: var(--info-soft);
+  --color-line-strong: var(--border-strong);
+  --color-line-input: var(--border-input);
   --color-beat-success: var(--beat-success);
   --color-beat-detour: var(--beat-detour);
   --color-beat-surprise: var(--beat-surprise);
@@ -30,6 +37,7 @@
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
   --font-display: var(--font-display-family), ui-rounded, system-ui, sans-serif;
   --font-sans: var(--font-body-family), system-ui, sans-serif;
   --shadow-press: var(--shadow-press);
@@ -42,11 +50,17 @@ html,
 body {
   min-height: 100dvh;
 }
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
 body {
-  background: var(--bg);
+  background: var(--page-glow) no-repeat top center / 100% 32rem, var(--bg);
   color: var(--fg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-wrap: pretty; /* no lone word or punctuation mark on the last line */
   padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
 }
 
@@ -55,6 +69,84 @@ body {
   outline-offset: 3px;
   border-radius: var(--radius-sm);
 }
+/* Headings that take focus on route or error change are not controls: no ring around them */
+[tabindex='-1']:focus-visible {
+  outline: none;
+}
+
+/* Route transition (React ViewTransition). Short cross-fade with a 6px rise; reduced motion gets none.
+   The fallback class animates only where the View Transitions API does not exist. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: var(--ease-out);
+}
+::view-transition-group(nx-page) {
+  animation-duration: 220ms;
+  animation-timing-function: var(--ease-out);
+}
+::view-transition-old(nx-page) {
+  animation: nx-vt-out 120ms ease-in both;
+}
+::view-transition-new(nx-page) {
+  animation: nx-vt-in 220ms var(--ease-out) 60ms both;
+}
+@keyframes nx-vt-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes nx-vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+:root[data-motion='reduced'] ::view-transition-group(*),
+:root[data-motion='reduced'] ::view-transition-old(*),
+:root[data-motion='reduced'] ::view-transition-new(*) {
+  animation: none !important;
+}
+@supports (view-transition-name: none) {
+  .nx-page-fallback {
+    animation: none !important;
+  }
+}
+
+/* Soft skeleton card: same shimmer as .nx-skeleton, rounded like a card */
+.nx-skeleton-card {
+  border-radius: var(--radius-lg);
+}
+
+/* Celebration for a number that went up: one gentle pop, then still */
+@keyframes nx-bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.nx-bump {
+  animation: nx-bump calc(500ms * var(--motion-scale, 1)) var(--ease-spring) both;
+}
+/* Bars grow in once */
+@keyframes nx-grow-x {
+  from { transform: scaleX(0); }
+}
+.nx-grow-x {
+  transform-origin: left center;
+  animation: nx-grow-x calc(700ms * var(--motion-scale, 1)) var(--ease-out) both;
+}
+:root[dir='rtl'] .nx-grow-x { transform-origin: right center; }
+@media (prefers-reduced-motion: reduce) {
+  .nx-bump, .nx-grow-x { animation: none; }
+}
+:root[data-motion='reduced'] :is(.nx-bump, .nx-grow-x) { animation: none; }
 
 /* Press feedback on touch and pointer; hover only on devices that hover */
 @media (hover: hover) {

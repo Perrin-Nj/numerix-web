@@ -69,7 +69,7 @@ export function PinInput({
               key={i}
               className={cn(
                 'flex size-14 items-center justify-center rounded-md border-2 bg-elevated font-display text-3xl font-semibold text-fg',
-                error ? 'border-danger' : 'border-line',
+                error ? 'border-danger' : 'border-line-input',
                 !disabled && i === Math.min(value.length, length - 1) && 'group-focus-within:border-focus group-focus-within:ring-2 group-focus-within:ring-focus',
                 disabled && 'opacity-50',
               )}

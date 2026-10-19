@@ -11,8 +11,8 @@
   --brand: #5b4bdb;
   --brand-fg: #ffffff;
   --brand-soft: #ebe8ff;
-  --success: #1f8f5f;
-  --info: #2563eb;
+  --success: #17744c;
+  --info: #1d4fd8;
   --warning: #8a5a00;
   --danger: #b3261e;
   --focus-ring: #2d5bff;
@@ -23,6 +23,20 @@
   --shadow-1: 0 1px 2px rgb(31 27 46 / 0.08), 0 2px 6px rgb(31 27 46 / 0.06);
   --shadow-2: 0 4px 14px rgb(31 27 46 / 0.12);
   --shadow-3: 0 12px 32px rgb(31 27 46 / 0.18);
+
+  /* Ramps: strong = pressed or text-on-soft, soft = tinted surface. Tints are AA with --fg. */
+  --brand-strong: #4338b8;
+  --brand-grad: linear-gradient(180deg, #6c5ce7 0%, #5b4bdb 100%);
+  --success-soft: #dcf5e8;
+  --warning-soft: #fdeccb;
+  --danger-soft: #fde4e1;
+  --info-soft: #dce8ff;
+  --border-strong: #cdbfa6;
+  --border-input: #8a7f6c;
+  --page-glow: radial-gradient(60rem 28rem at 50% -8rem, #ebe8ff 0%, transparent 70%);
+  --shadow-press-neutral: 0 3px 0 0 var(--border-strong);
+  --shadow-press-danger: 0 4px 0 0 color-mix(in srgb, var(--danger) 55%, black);
+  --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.55);
 
   --world-nature: #3fa34d;
   --world-espace: #5b5bd6;
@@ -36,6 +50,7 @@
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
+  --radius-xl: 28px;
   --radius-full: 9999px;
 
   --motion-scale: 1;
@@ -45,6 +60,18 @@
   --dur-4: calc(600ms * var(--motion-scale));
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Type scale (1.2 ratio, fluid at the top end). Use text-xs..text-4xl; display sizes use font-display. */
+  --text-meta: 0.8125rem;
+  --text-body: 1rem;
+  --text-lead: 1.125rem;
+  --text-title: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-headline: clamp(1.75rem, 1.4rem + 1.4vw, 2.25rem);
+  --text-display: clamp(2.5rem, 2rem + 2.4vw, 3.5rem);
+
+  /* Spacing steps (4px grid). Tailwind p-/gap- utilities use the same grid. */
+  --space-card: 1.25rem;
+  --space-section: 1.5rem;
 
   --ui-scale: 1;
 }
@@ -68,6 +95,17 @@
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.5);
   --shadow-2: 0 4px 14px rgb(0 0 0 / 0.5);
   --shadow-3: 0 12px 32px rgb(0 0 0 / 0.6);
+  --brand-strong: #c3baff;
+  --brand-grad: linear-gradient(180deg, #a99dff 0%, #9b8cff 100%);
+  --success-soft: #12322a;
+  --warning-soft: #392b10;
+  --danger-soft: #3a1c1f;
+  --info-soft: #17284a;
+  --border-strong: #463e63;
+  --border-input: #7a7399;
+  --page-glow: radial-gradient(60rem 28rem at 50% -8rem, #2a2450 0%, transparent 70%);
+  --shadow-press-neutral: 0 3px 0 0 var(--border-strong);
+  --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.06);
 }
 
 :root[data-theme='hc'] {
@@ -92,6 +130,18 @@
   --shadow-1: none;
   --shadow-2: none;
   --shadow-3: none;
+  --brand-strong: #ffffff;
+  --brand-grad: none;
+  --success-soft: #00210f;
+  --warning-soft: #221a00;
+  --danger-soft: #2a0000;
+  --info-soft: #00202a;
+  --border-strong: #ffffff;
+  --border-input: #ffffff;
+  --page-glow: none;
+  --shadow-press-neutral: 0 3px 0 0 #ffffff;
+  --shadow-press-danger: 0 4px 0 0 #ffffff;
+  --shadow-inset: none;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -110,6 +160,20 @@
     --warning: #f2b84b;
     --danger: #ff8a80;
     --focus-ring: #8fb0ff;
+    --brand-strong: #c3baff;
+    --brand-grad: linear-gradient(180deg, #a99dff 0%, #9b8cff 100%);
+    --success-soft: #12322a;
+    --warning-soft: #392b10;
+    --danger-soft: #3a1c1f;
+    --info-soft: #17284a;
+    --border-strong: #463e63;
+    --border-input: #7a7399;
+    --page-glow: radial-gradient(60rem 28rem at 50% -8rem, #2a2450 0%, transparent 70%);
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.5);
+    --shadow-2: 0 4px 14px rgb(0 0 0 / 0.5);
+    --shadow-3: 0 12px 32px rgb(0 0 0 / 0.6);
+    --shadow-press: 0 4px 0 0 color-mix(in srgb, var(--brand) 45%, black);
+    --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.06);
   }
 }
 

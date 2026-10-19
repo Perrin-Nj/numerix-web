@@ -10,10 +10,10 @@ export const cx = (...a: (string | false | null | undefined)[]) => a.filter(Bool
 
 type Variant = 'primary' | 'ghost' | 'danger' | 'soft';
 const variants: Record<Variant, string> = {
-  primary: 'bg-brand text-brand-fg hover:opacity-90',
-  soft: 'bg-brand-soft text-brand hover:opacity-80',
-  ghost: 'border border-line bg-elevated text-fg hover:bg-sunken',
-  danger: 'bg-danger text-white hover:opacity-90',
+  primary: 'bg-brand text-brand-fg shadow-[0_3px_0_0_color-mix(in_srgb,var(--brand)_55%,black)] hover:brightness-110 active:translate-y-[3px] active:shadow-none',
+  soft: 'bg-brand-soft text-brand hover:opacity-80 active:scale-[0.98]',
+  ghost: 'border-2 border-line bg-elevated text-fg shadow-[0_3px_0_0_var(--ledge)] hover:bg-sunken active:translate-y-[3px] active:shadow-none',
+  danger: 'bg-danger text-white shadow-[0_3px_0_0_color-mix(in_srgb,var(--danger)_55%,black)] hover:brightness-110 active:translate-y-[3px] active:shadow-none',
 };
 export function Button({ variant = 'ghost', small, className, ...p }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; small?: boolean }) {
   return (
@@ -21,8 +21,8 @@ export function Button({ variant = 'ghost', small, className, ...p }: ButtonHTML
       type="button"
       {...p}
       className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition disabled:cursor-not-allowed disabled:opacity-50',
-        small ? 'min-h-8 px-3 text-sm' : 'min-h-10 px-4 text-sm',
+        'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-[transform,box-shadow,background-color,filter] duration-150 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none',
+        small ? 'min-h-9 px-3 text-sm' : 'min-h-11 px-4 text-sm',
         variants[variant],
         className,
       )}
@@ -44,7 +44,7 @@ export const Badge = ({ tone = 'neutral', children }: { tone?: Tone; children: R
 );
 
 export const Card = ({ title, action, children, className }: { title?: ReactNode; action?: ReactNode; children: ReactNode; className?: string }) => (
-  <section className={cx('rounded-2xl border border-line bg-elevated p-4 sm:p-5', className)}>
+  <section className={cx('rounded-2xl border-2 border-line bg-elevated p-4 shadow-card sm:p-5', className)}>
     {(title || action) && (
       <div className="mb-3 flex items-center justify-between gap-3">
         {title && <h2 className="font-display text-lg font-semibold">{title}</h2>}
@@ -67,7 +67,7 @@ export const PageTitle = ({ title, sub, action }: { title: string; sub?: string;
 
 export const Skeleton = ({ className }: { className?: string }) => <div className={cx('skeleton', className ?? 'h-5 w-full')} aria-hidden />;
 
-const field = 'w-full min-h-10 rounded-xl border border-line bg-elevated px-3 text-sm text-fg placeholder:text-muted focus:border-brand';
+const field = 'w-full min-h-11 rounded-xl border-2 border-line bg-elevated px-3 text-sm text-fg placeholder:text-muted focus:border-brand';
 export function Input({ label, className, ...p }: InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
   const id = useId();
   return (

@@ -30,7 +30,7 @@ export default function Login() {
       <div className="mb-6 flex justify-end">
         <Toggles />
       </div>
-      <form onSubmit={submit} className="rounded-2xl border border-line bg-elevated p-6">
+      <form onSubmit={submit} className="rounded-2xl border-2 border-line bg-elevated p-6 shadow-[0_12px_32px_rgb(31_27_46/0.14)]">
         <div className="mb-5 flex items-center gap-3">
           <Fox size={52} />
           <div>

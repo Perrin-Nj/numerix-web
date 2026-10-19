@@ -51,7 +51,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               href={n.href}
               onClick={() => setNav(false)}
               aria-current={active(n.href) ? 'page' : undefined}
-              className={cx('rounded-xl px-3 py-2 text-sm font-semibold', active(n.href) ? 'bg-brand-soft text-brand' : 'text-muted hover:bg-sunken hover:text-fg')}
+              className={cx('flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-semibold', active(n.href) ? 'bg-brand-soft text-brand shadow-[inset_3px_0_0_var(--brand)]' : 'text-muted hover:bg-sunken hover:text-fg')}
             >
               {t(n.label)}
             </Link>

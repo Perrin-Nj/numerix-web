@@ -25,7 +25,10 @@ Contract between the component authors and the screen authors. Read `docs/PRODUC
 | `icon-button` | `IconButton` | `label` (required, becomes aria-label and tooltip), `icon: ReactNode`, `variant`, `size`. |
 | `icon` | `Icon` | `name` from a fixed registry mapped to lucide-react: `lock check play pause star flame sparkles volume volume-off settings user users plus x chevron-right chevron-left home book trophy refresh wifi-off alert info eye eye-off moon sun globe log-out shield trash download map`, `size?`, decorative by default (`aria-hidden`), optional `title`. |
 | `card` | `Card`, `CardHeader`, `CardBody`, `CardFooter` | `tone: 'plain'\|'brand'\|'sunken'`, `interactive?` (adds `lift`, focus ring, renders as button/anchor via `asChild`). |
-| `panel` | `Panel` | `title?`, `tone`, `padded?` section container for screens. |
+| `panel` | `Panel` | `title?`, `icon?`, `tone`, `padded?` section container for screens. |
+| `stat-tile` | `StatTile` | `label`, `value`, `icon?`, `compare?: {current, previous, previousLabel}`. One number for dashboards, inside a `dl`. Bars and a signed chip show the change. |
+| `empty-state` | `EmptyState` | `icon`, `title`, `description?`, `action?`, `size: 'compact'\|'page'`. Reason plus one next step. |
+| `chip` | `Chip` | `tone: 'neutral'\|'success'\|'warning'\|'info'\|'brand'`, `icon?`, `children`. Status pill, text always says the status. |
 | `dialog` | `Dialog` | Radix dialog. `open`, `onOpenChange`, `title`, `description?`, `children`, `footer?`, `tone?: 'default'\|'danger'`, `dismissible?` (default true). Focus trap, escape closes if dismissible. |
 | `sheet` | `Sheet` | `open`, `onOpenChange`, `title`, `side: 'bottom'\|'right'`, `children`. |
 | `notification-center` | `NotificationCenter`, `useNotify`, `useNotificationStore` | Toast stack (popups). `useNotify()` returns `{ notify(n), dismiss(id) }`, `n = { id?, kind: 'success'\|'info'\|'warning'\|'error', title, description?, action?: {label, onClick}, durationMs? }`. Errors and warnings persist until dismissed unless `durationMs` set. Warning and error call `play('notice_warning'/'notice_error')`. Polite live region (assertive for errors). Zustand store. `NotificationCenter` is mounted once in the app providers. |

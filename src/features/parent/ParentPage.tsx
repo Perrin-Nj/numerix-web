@@ -14,10 +14,10 @@ import { IconButton } from '@/ui/icon-button';
 import { PageContainer } from '@/ui/page-container';
 import { ThemeToggle } from '@/ui/theme-toggle';
 
-type Props = { title: string; backHref?: string; children: ReactNode };
+type Props = { title: string; backHref?: string; /** Dashboards use the wide frame. */ wide?: boolean; children: ReactNode };
 
 /** Common frame for parent screens: header, optional back link, offline notice, content. */
-export function ParentPage({ title, backHref, children }: Props) {
+export function ParentPage({ title, backHref, wide, children }: Props) {
   const t = useTranslations('screens.parent.shell');
   const router = useRouter();
   return (
@@ -35,7 +35,7 @@ export function ParentPage({ title, backHref, children }: Props) {
           <>
             <SubscriptionPill />
             <NotificationCenterBell />
-            <ThemeToggle variant="icon" />
+            <ThemeToggle variant="icon" className="hidden sm:inline-flex" />
             <IconButton label={t('account')} variant="ghost" icon={<Icon name="settings" />} onClick={() => router.push('/parent/account')} />
             <IconButton
               label={t('signOut')}
@@ -55,7 +55,7 @@ export function ParentPage({ title, backHref, children }: Props) {
         }
       />
       <OfflineBanner />
-      <PageContainer>
+      <PageContainer width={wide ? 'wide' : 'default'}>
         <div className="flex flex-col gap-6 py-6">{children}</div>
       </PageContainer>
     </>

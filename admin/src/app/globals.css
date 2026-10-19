@@ -10,15 +10,18 @@
   --brand: #5b4bdb;
   --brand-fg: #ffffff;
   --brand-soft: #ebe8ff;
-  --success: #1f8f5f;
+  --success: #17744c;
   --success-soft: #e3f5ec;
   --warning: #8a5a00;
   --warning-soft: #fdf1d6;
   --danger: #b3261e;
   --danger-soft: #fde8e6;
-  --info: #2563eb;
+  --info: #1d4fd8;
   --info-soft: #e5edff;
   --focus: #2d5bff;
+  --ledge: #cdbfa6;
+  --shadow-1: 0 1px 2px rgb(31 27 46 / 0.08), 0 2px 6px rgb(31 27 46 / 0.06);
+  --glow: radial-gradient(60rem 26rem at 50% -8rem, #ebe8ff 0%, transparent 70%);
   --c1: #5b4bdb;
   --c2: #e8731a;
   --c3: #1f8f5f;
@@ -45,6 +48,9 @@
   --info: #7aa7ff;
   --info-soft: #172544;
   --focus: #8fb0ff;
+  --ledge: #463e63;
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.5);
+  --glow: radial-gradient(60rem 26rem at 50% -8rem, #2a2450 0%, transparent 70%);
   --c1: #9b8cff;
   --c2: #f59a4a;
   --c3: #4cd196;
@@ -71,6 +77,8 @@
   --color-danger-soft: var(--danger-soft);
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
+  --color-ledge: var(--ledge);
+  --shadow-card: var(--shadow-1);
   --font-display: var(--font-display-family), ui-rounded, system-ui, sans-serif;
   --font-sans: var(--font-body-family), system-ui, sans-serif;
 }
@@ -80,7 +88,8 @@ body {
   min-height: 100dvh;
 }
 body {
-  background: var(--bg);
+  background: var(--glow) no-repeat top center / 100% 28rem, var(--bg);
+  text-wrap: pretty;
   color: var(--fg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

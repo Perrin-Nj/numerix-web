@@ -14,7 +14,9 @@ import { PARENT_EMAIL_KEY } from '@/features/common/ParentGate';
 import { Button } from '@/ui/button';
 import { FormField } from '@/ui/form-field';
 import { InlineError } from '@/ui/inline-error';
+import { Icon } from '@/ui/icon';
 import { Input } from '@/ui/input';
+import { IconButton } from '@/ui/icon-button';
 import { Panel } from '@/ui/panel';
 
 type Mode = 'login' | 'register';
@@ -33,6 +35,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const login = useLogin();
   const register = useRegister();
   const [formError, setFormError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const deviceLogin = useDeviceLogin();
   const passkeyLogin = usePasskeyLogin();
   const [passkeyFailed, setPasskeyFailed] = useState(false);
@@ -93,8 +96,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 px-4 py-10">
-      <h1 className="font-display text-3xl font-bold">{t(`${mode}.title`)}</h1>
-      <Panel>
+      <header className="nx-rise flex flex-col gap-3">
+        <Link href="/" className="inline-flex w-fit items-center gap-2 rounded-full" aria-label={t('backHome')}>
+          <span aria-hidden className="flex size-11 items-center justify-center rounded-full bg-brand text-brand-fg shadow-[var(--shadow-press),var(--shadow-inset)] [background-image:var(--brand-grad)]">
+            <Icon name="sparkles" size={22} />
+          </span>
+          <span className="font-display text-2xl font-extrabold text-brand">Numerix</span>
+        </Link>
+        <h1 className="font-display text-3xl font-bold leading-tight">{t(`${mode}.title`)}</h1>
+        <p className="text-lg text-muted">{t('tagline')}</p>
+      </header>
+      <Panel className="nx-rise p-6 shadow-2" >
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
           <FormField label={t('email')} htmlFor="email" error={errors.email?.message} required>
             <Input
@@ -113,14 +125,26 @@ export function AuthForm({ mode }: { mode: Mode }) {
             error={errors.password?.message}
             required
           >
+            <div className="relative">
             <Input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
+              className="pe-14"
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               invalid={Boolean(errors.password)}
               aria-describedby={[mode === 'register' ? 'password-hint' : '', errors.password ? 'password-error' : ''].filter(Boolean).join(' ') || undefined}
               {...field('password')}
             />
+            <IconButton
+              label={showPassword ? t('hidePassword') : t('showPassword')}
+              aria-pressed={showPassword}
+              tooltip={false}
+              sound={null}
+              className="absolute end-0 top-1/2 -translate-y-1/2"
+              icon={<Icon name={showPassword ? 'eye-off' : 'eye'} size={20} />}
+              onClick={() => setShowPassword((v) => !v)}
+            />
+            </div>
           </FormField>
           {formError && <InlineError message={formError} />}
           <Button type="submit" size="lg" fullWidth loading={pending}>
