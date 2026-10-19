@@ -1,11 +1,13 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocale } from 'next-intl';
 import { usePickLine } from '@/platform/lines';
 import { useSpokenLine } from '@/platform/speech/useSpokenLine';
 import { useRouter } from 'next/navigation';
-import { getSession, keys, useEngagement, useSessionStatus } from '@/data/hooks';
+import { getSession, keys, useEngagement, useSessionStatus, useWorlds } from '@/data/hooks';
+import { useReducedMotion } from '@/platform/motion';
+import { MediaImage } from '@/game/media-image';
 import { useStartChapter } from './useStartChapter';
 import { ChapterComplete } from '@/game/chapter-complete';
 import { MascotBubble } from '@/game/mascot-bubble';
@@ -28,6 +30,9 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
   const childId = status.data?.childId ?? null;
   const session = useQuery({ queryKey: keys.session_one(sessionId), queryFn: () => getSession(sessionId) });
   const engagement = useEngagement(childId);
+  const worlds = useWorlds();
+  const reduced = useReducedMotion();
+  const hero = worlds.data?.find((w) => w.id === session.data?.world)?.hero;
   const { begin, dialog } = useStartChapter(childId);
   const rewards = useMemo(() => readRewards(sessionId), [sessionId]);
   const pick = usePickLine();
@@ -37,6 +42,19 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
   // The appreciation is spoken. Only a device with no voice for this language shows it as text.
   const voice = useSpokenLine(appreciation, { lang });
   const mute = !voice.supported || (voice.voicesLoaded && !voice.voiceLabel);
+
+  // Light celebration when the chapter ends well (not under reduced motion)
+  const celebrate = session.isSuccess && !noCard && !reduced;
+  useEffect(() => {
+    if (!celebrate) return;
+    let off = false;
+    void import('canvas-confetti').then(({ default: confetti }) => {
+      if (!off) void confetti({ particleCount: 60, spread: 80, ticks: 90, origin: { y: 0.4 }, disableForReducedMotion: true });
+    });
+    return () => {
+      off = true;
+    };
+  }, [celebrate]);
 
   if (session.isLoading || session.error) {
     return (
@@ -50,7 +68,12 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col items-center justify-center gap-5 px-4 py-10">
-      <MascotBubble pose={noCard ? 'sad' : 'happy'}>{mute ? appreciation : ' '}</MascotBubble>
+      {hero && (
+        <div className="nx-rise h-32 w-full overflow-hidden rounded-lg shadow-2">
+          <MediaImage media={hero} alt="" sizes="(min-width: 512px) 512px, 100vw" priority />
+        </div>
+      )}
+      <MascotBubble pose={noCard ? 'think' : 'cheer'}>{mute ? appreciation : ' '}</MascotBubble>
       <ChapterComplete
         title={session.data?.story_title ?? undefined}
         rewards={rewards}

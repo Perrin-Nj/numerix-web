@@ -147,7 +147,7 @@ export function HomeFeed() {
           </div>
           <div id="tour-worlds" className="flex flex-col gap-3">
             <h2 className="font-display text-2xl font-bold">{t('worlds')}</h2>
-            {d.worlds.map((w) => (
+            {d.worlds.slice(0, 6).map((w) => (
               <WorldTeaser key={w.id} world={w} onOpen={(world) => router.push(`/play/journey/${world.id}`)} />
             ))}
           </div>

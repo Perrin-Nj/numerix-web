@@ -29,7 +29,6 @@ export function Keypad({ question, phase, chosen, outcome, onSubmit }: InputProp
   const [q, setQ] = useState('');
   const [r, setR] = useState('');
   const [field, setField] = useState<'q' | 'r'>('q');
-  const cur = field === 'q' ? q : r;
   const set = field === 'q' ? setQ : setR;
 
   const press = useCallback(

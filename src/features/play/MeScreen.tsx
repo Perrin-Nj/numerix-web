@@ -10,6 +10,7 @@ import { signOut, useChildSettings, useEngagement, useGrowth, useSessionStatus }
 import { useLocale } from 'next-intl';
 import { useChildProfile } from '@/data/local/who';
 import { Avatar } from '@/game/avatar';
+import { CreditsLink } from '@/game/credits-link';
 import { ParentGate } from '@/features/common/ParentGate';
 import { DailyGoalRing } from '@/game/daily-goal-ring';
 import { StreakBadge } from '@/game/streak-badge';
@@ -188,6 +189,9 @@ export function MeScreen() {
           </div>
         </div>
       </Panel>
+      <div className="mt-4 flex justify-center">
+        <CreditsLink />
+      </div>
       <ParentGate
         open={gate !== null}
         onOpenChange={(o) => !o && setGate(null)}

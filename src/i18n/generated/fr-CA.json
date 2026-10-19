@@ -49,21 +49,6 @@
           "streak": "Chaque jour où tu finis un chapitre, ta flamme grandit.",
           "worldsTitle": "Tes mondes",
           "worlds": "Choisis le monde que tu aimes : nature, espace, cuisine et plus encore."
-        },
-        "menu": {
-          "label": "Menu de jeu",
-          "challenges": "Défis",
-          "challengesHint": "Relève-en un",
-          "discover": "Découvrir",
-          "discoverHint": "Un fil sans fin",
-          "worlds": "Mondes",
-          "worldsHint": "Choisis ton aventure",
-          "cards": "Cartes",
-          "cardsHint": "Ta collection",
-          "progress": "Mes progrès",
-          "progressHint": "Ta série et tes pas",
-          "quest": "Défi du jour",
-          "questHint": "Un chapitre à retrouver"
         }
       },
       "feed": {
@@ -77,11 +62,17 @@
         "retry": "Réessayer"
       },
       "worlds": {
-        "title": "Choisis ton monde"
+        "title": "Choisis ton monde",
+        "guide": "On va où aujourd’hui ? Choisis un monde.",
+        "lockedTitle": "Ce monde dort encore",
+        "lockedText": "Un adulte peut l’ouvrir dans l’espace parent. Choisis un autre monde pour l’instant.",
+        "lockedOk": "Compris"
       },
       "journey": {
         "back": "Retour aux mondes",
-        "unknownWorld": "Ce monde n'existe pas. Retourne choisir un monde."
+        "unknownWorld": "Ce monde n'existe pas. Retourne choisir un monde.",
+        "guide": "Choisis une quête sur le chemin, ou touche Jouer et je choisis pour toi.",
+        "empty": "Aucune quête n’est prête dans ce monde. Essaie un autre monde pendant qu’on la prépare."
       },
       "collection": {
         "title": "Tes cartes d'histoire",
@@ -100,38 +91,7 @@
         "growth": "Ta progression",
         "growthLine": "Chapitres terminés cette semaine : {now} (avant : {before}).",
         "skillsLine": "Nouvelles compétences : {now} (avant : {before}).",
-        "grownUps": "Espace des adultes",
-        "voice": {
-          "title": "Voix et aide",
-          "voice": "Lire à voix haute",
-          "voiceHint": "Les histoires et les indices se font entendre.",
-          "vibration": "Petite vibration",
-          "vibrationHint": "Une courte vibration quand tu réponds, sur les téléphones qui peuvent.",
-          "hints": "Petits coups de pouce",
-          "hintsHint": "Un indice doux quand tu réfléchis longtemps.",
-          "delay": "Indice après",
-          "delayUnit": "{n} s",
-          "volume": "Volume des indices",
-          "low": "Doux",
-          "medium": "Moyen",
-          "normal": "Normal",
-          "test": "Tester la voix",
-          "sample": "Bonjour ! Je suis ta voix pour les histoires. On y va ?",
-          "using": "Voix choisie : {name}",
-          "noVoice": "Aucune voix trouvée sur cet appareil pour cette langue. Demande à un adulte d'ajouter une voix dans les réglages de l'appareil (Windows : Paramètres, Heure et langue, Voix ; ou ouvre l'appli dans Microsoft Edge qui offre des voix naturelles).",
-          "tapToHear": "Touche l'écran pour entendre."
-        },
-        "account": {
-          "title": "Qui joue ?",
-          "hint": "Change de joueur, ou déconnecte l'appareil. Quand un adulte se déconnecte, tout ce que l'appareil retenait est effacé.",
-          "switch": "Changer de joueur",
-          "signOut": "Déconnecter l'appareil (adulte)"
-        },
-        "language": {
-          "title": "Langue",
-          "label": "Langue de l'appli",
-          "locked": "Un adulte a choisi la langue de l'appli. Demande-lui si tu veux la changer."
-        }
+        "grownUps": "Espace des adultes"
       },
       "story": {
         "pause": "Faire une pause",
@@ -153,25 +113,9 @@
           "curious": "Oh, un détour intéressant !",
           "amazed": "Waouh, personne ne l’avait vu venir !"
         },
-        "exit": {
-          "label": "Quitter la partie",
-          "title": "Quitter cette histoire ?",
-          "text": "Ton histoire sera rangée. Tu pourras en commencer une autre quand tu veux.",
-          "confirm": "Quitter la partie",
-          "stay": "Continuer à jouer"
-        },
-        "tapToHear": "Touche pour écouter l'histoire"
-      },
-      "challenges": {
-        "title": "Défis",
-        "intro": "Choisis un défi, relève-le en jouant, et gagne une carte rien qu'à toi."
-      },
-      "celebrate": {
-        "title": "Défi réussi !"
-      },
-      "done": {
-        "noCard": "Pas de carte cette fois. Il faut au moins {pct} % de bonnes réponses pour la gagner. Rejoue ce chapitre, tu vas y arriver !",
-        "missed": "Tu as trouvé {right} bonne{right, plural, one {} other {s}} réponse{right, plural, one {} other {s}} sur {total}. Ce n'est pas encore ça, et c'est normal : on apprend en essayant. Reviens plus tard, on le refera ensemble. Il faut {pct} % de bonnes réponses pour gagner la carte."
+        "hint": "Donne-moi un indice",
+        "hintError": "L’indice n’est pas arrivé.",
+        "hintRetry": "Touche le bouton pour réessayer."
       }
     },
     "parentGate": {
@@ -509,6 +453,15 @@
       "updateTitle": "Une mise à jour est prête",
       "updateText": "Recharge pour profiter de la dernière version.",
       "updateAction": "Mettre à jour"
+    },
+    "credits": {
+      "title": "Crédits des images",
+      "intro": "Merci aux photographes et aux artistes dont les images font vivre nos mondes.",
+      "empty": "Aucun crédit à afficher pour l’instant.",
+      "back": "Retour",
+      "licence": "Licence : {licence}",
+      "source": "Source",
+      "licenceLink": "Conditions de la licence"
     }
   },
   "errors": {
@@ -689,6 +642,9 @@
     }
   },
   "game": {
+    "creditsLink": {
+      "label": "Crédits des images"
+    },
     "aiBadge": {
       "label": "Généré par IA"
     },

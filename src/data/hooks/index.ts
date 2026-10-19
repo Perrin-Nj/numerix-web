@@ -8,3 +8,4 @@ export * from './sessions';
 export * from './feed';
 export * from './state';
 export * from './devices';
+export * from './media';

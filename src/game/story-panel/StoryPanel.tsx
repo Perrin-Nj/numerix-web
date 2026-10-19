@@ -11,6 +11,10 @@ export type StoryPanelProps = {
   choicesHidden?: boolean;
   /** Extra classes for the choices area (e.g. room for a fixed demo badge). */
   choicesClassName?: string;
+  /** The choices area lays itself out (keypad, ordering, matching) instead of the 2x2 grid, and may scroll. */
+  choicesFree?: boolean;
+  /** Shrinks the stage so a tall input fits on a phone. */
+  compactStage?: boolean;
   className?: string;
 };
 
@@ -19,7 +23,7 @@ export type StoryPanelProps = {
  * scroll inside their own region, the four choices sit in a 2x2 grid pinned to the bottom.
  * Desktop and TV: illustration beside the text.
  */
-export function StoryPanel({ illustration, narration, question, choices, footer, choicesHidden, choicesClassName, className }: StoryPanelProps) {
+export function StoryPanel({ illustration, narration, question, choices, footer, choicesHidden, choicesClassName, choicesFree, compactStage, className }: StoryPanelProps) {
   const qid = useId();
   return (
     <section
@@ -29,7 +33,7 @@ export function StoryPanel({ illustration, narration, question, choices, footer,
       )}
     >
       <div className="shrink-0 px-3 pt-[calc(3.5rem+env(safe-area-inset-top))] lg:pt-0">
-        <div className="h-[38dvh] lg:aspect-[4/3] lg:h-auto">{illustration}</div>
+        <div className={cn('transition-[height] duration-300 lg:aspect-[4/3] lg:h-auto', compactStage ? 'h-[22dvh]' : 'h-[38dvh]')}>{illustration}</div>
       </div>
       <div className="flex min-h-0 flex-1 flex-col lg:flex-none lg:gap-6">
         <div className={cn('min-h-0 flex-1 overflow-y-auto px-3 py-3 lg:flex-none lg:overflow-visible lg:px-0', choicesHidden && 'pb-[34dvh] lg:pb-0')}>
@@ -45,11 +49,11 @@ export function StoryPanel({ illustration, narration, question, choices, footer,
             inert={choicesHidden}
             className={cn(
               'shrink-0 overflow-hidden px-3 transition-[max-height,opacity,padding] duration-300 lg:px-0',
-              choicesHidden ? 'max-h-0 pb-0 pt-0 opacity-0' : 'max-h-[40dvh] pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 opacity-100',
+              choicesHidden ? 'max-h-0 pb-0 pt-0 opacity-0' : cn('pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 opacity-100', choicesFree ? 'max-h-[58dvh] overflow-y-auto' : 'max-h-[40dvh]'),
               choicesClassName,
             )}
           >
-            <div role="group" aria-labelledby={question ? qid : undefined} className="grid grid-cols-2 gap-2 md:gap-3">
+            <div role="group" aria-labelledby={question ? qid : undefined} className={choicesFree ? undefined : 'grid grid-cols-2 gap-2 md:gap-3'}>
               {choices}
             </div>
           </div>

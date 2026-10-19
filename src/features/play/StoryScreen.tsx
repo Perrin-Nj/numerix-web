@@ -1,8 +1,8 @@
 'use client';
-import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { appConfig } from '@/config/app';
 import { ApiError, classifyConnectionFailure, newIdempotencyKey } from '@/data/api/client';
 import { streamNarration } from '@/data/api/narration';
@@ -11,10 +11,13 @@ import { initialStoryState, storyReducer } from './story-machine';
 import { useReadAloud } from '@/platform/speech';
 import { usePickLine } from '@/platform/lines';
 import {
+  fetchBeat,
   finishSession,
+  forgetBeat,
+  getHint,
   getSession,
   pauseSession,
-  requestBeat,
+  preloadMedia,
   resumeSession,
   sendAnswer,
   useChildSettings,
@@ -22,7 +25,10 @@ import {
 } from '@/data/hooks';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { useReducedMotion } from '@/platform/motion';
-import { ChoiceButton } from '@/game/choice-button';
+import { QuestionInput } from '@/game/question-input';
+import { QuestionSwap } from '@/game/question-swap';
+import { QuestionVisual } from '@/game/question-visual';
+import { LessonProgress } from '@/game/lesson-progress';
 import { IllustrationFrame } from '@/game/illustration-frame';
 import { OutcomeSim } from '@/game/outcome-sim';
 import { MethodVisual } from '@/game/method-visual';
@@ -77,6 +83,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const t = useTranslations('screens.play.story');
   const te = useTranslations('errors');
   const router = useRouter();
+  const qc = useQueryClient();
   const { notify } = useNotify();
   const status = useSessionStatus();
   const settings = useChildSettings(status.data?.childId ?? '');
@@ -91,6 +98,8 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   // Outcome entrance: 0 stage only, 1 caption, 2 sheet. Tap on the stage skips ahead.
   const [reveal, setReveal] = useState<{ key: string; step: 0 | 1 | 2 }>({ key: '', step: 0 });
   const [collapsedFor, setCollapsedFor] = useState<string | null>(null);
+  const [hint, setHint] = useState<{ beat: string; text: string } | null>(null);
+  const [hintError, setHintError] = useState(false);
 
   const { speak, cancel: stopSpeaking, pending: speechWaiting } = useReadAloud(
     (settings.data?.read_aloud ?? true) && appConfig.features.readAloud,
@@ -143,13 +152,23 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   useEffect(() => {
     if (s.phase !== 'requesting') return;
     let cancelled = false;
-    requestBeat(sessionId)
-      .then((beat) => !cancelled && dispatch({ type: 'BEAT_LOADED', beat }))
-      .catch((e) => !cancelled && fail(e));
+    const answered = s.session?.beats_answered ?? 0;
+    fetchBeat(qc, sessionId, answered)
+      .then((beat) => {
+        if (cancelled) return;
+        preloadMedia(beat);
+        forgetBeat(qc, sessionId, answered);
+        dispatch({ type: 'BEAT_LOADED', beat });
+      })
+      .catch((e) => {
+        forgetBeat(qc, sessionId, answered);
+        if (!cancelled) fail(e);
+      });
     return () => {
       cancelled = true;
     };
-  }, [s.phase, sessionId, fail]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s.phase, sessionId, fail, qc]);
 
   // 3. Stream the scene narration
   const beatId = s.beat?.id;
@@ -203,13 +222,19 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
       try {
         const result = await sendAnswer(sessionId, beatId, value, key);
         dispatch({ type: 'ANSWER_RESULT', result });
+        // Start the next question while the child reads the feedback. A failure here resurfaces, with a retry, on Continue.
+        if (result.session.status !== 'completed') {
+          void fetchBeat(qc, sessionId, result.session.beats_answered)
+            .then((b) => preloadMedia(b))
+            .catch(() => forgetBeat(qc, sessionId, result.session.beats_answered));
+        }
         setStreak((n) => (result.outcome === 'correct' ? n + 1 : 0));
       } catch (e) {
         const code = e instanceof ApiError && KNOWN.has(e.code) ? e.code : 'unknown';
         dispatch({ type: 'ANSWER_FAILED', code, message: code });
       }
     },
-    [beatId, sessionId],
+    [beatId, sessionId, qc],
   );
 
   function onSelect(value: AnswerValue) {
@@ -324,6 +349,16 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     }
   }
 
+  async function askHint() {
+    if (!beatId) return;
+    setHintError(false);
+    try {
+      setHint({ beat: beatId, text: await getHint(sessionId, beatId) });
+    } catch {
+      setHintError(true);
+    }
+  }
+
   function retryAfterError() {
     if (s.beat) {
       dispatch({ type: 'BEAT_LOADED', beat: s.beat });
@@ -342,7 +377,6 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
           ? 'detour'
           : 'surprise'
       : 'idle';
-  const sameChoice = (a: AnswerValue | null, b: AnswerValue) => a !== null && JSON.stringify(a) === JSON.stringify(b);
   const answerError = s.phase === 'answering' && s.error ? s.error.code : null;
   const linePool = s.phase !== 'outcome' ? 'think' : s.outcome === 'correct' ? 'cheer' : s.outcome === 'erreur_typique' ? 'curious' : 'encourage';
   const lang = useLocale();
@@ -352,7 +386,14 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     active: s.phase === 'question' || s.phase === 'answering',
     lang,
   });
-  const nums = (s.beat?.question.math_text.match(/\d+/g) ?? []).map(Number);
+  const q = s.beat?.question;
+  const nums = (q?.math_text.match(/\d+/g) ?? []).map(Number);
+  const sceneMedia = q?.media?.find((m) => m.role === 'scene')?.image ?? null;
+  const sprite = q?.media?.find((m) => m.role === 'object')?.image;
+  // Curated questions show a counting picture only when they come with a sprite; generated ones keep the emoji picture
+  const showCounting = nums.length > 0 && (q?.kind === undefined || ((q.kind === 'numeric' || q.kind === 'word') && Boolean(sprite)));
+  const compact = Boolean(q && q.choices.length === 0 && q.kind !== 'truefalse');
+  const questionText = q?.prompt ?? q?.math_text ?? '';
   const denReady = s.denouementStatus === 'ready' || s.denouementStatus === 'fallback';
   const outcomeStage = s.phase === 'outcome' && !!s.outcome;
   const sheetVisible = outcomeStage && step >= 2;
@@ -382,6 +423,9 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     <main className="relative min-h-dvh">
       <div className="fixed inset-x-0 top-0 z-20 box-content flex h-14 items-center justify-between bg-bg/85 px-3 pt-[env(safe-area-inset-top)] backdrop-blur">
         <IconButton label={t('exit.label')} variant="ghost" sound="back" icon={<Icon name="x" />} onClick={() => setExitOpen(true)} />
+        <div className="mx-3 max-w-md flex-1">
+          {s.session && <LessonProgress done={s.session.beats_answered} total={s.session.chapter_length} />}
+        </div>
         <IconButton
           label={t('pause')}
           variant="ghost"
@@ -392,9 +436,12 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
 
       <StoryPanel
         choicesHidden={sheetVisible}
+        choicesFree
+        compactStage={compact}
         illustration={
           <IllustrationFrame
             world={world}
+            media={sceneMedia}
             mood={mood}
             alt={t('illustration')}
             stageKey={s.beat && outcomeStage ? (showHow ? `how-${s.beat.id}` : `sim-${s.beat.id}`) : `scene-${s.beat?.id ?? ''}`}
@@ -406,8 +453,10 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                   <OutcomeSim world={world} good={s.outcome === 'correct'} showCaption={step >= 1} onDone={skipAhead} />
                   {s.outcome !== 'correct' && !reduced && step >= 1 && <Dust />}
                 </div>
-              ) : s.beat && nums.length > 0 ? (
-                <ScenePicture world={world} skillId={s.beat.skill_id} numbers={nums} hero={HERO_BY_WORLD[world]} glow={streak} />
+              ) : s.beat && q?.visual ? (
+                <QuestionVisual visual={q.visual} />
+              ) : s.beat && showCounting ? (
+                <ScenePicture world={world} skillId={s.beat.skill_id} numbers={nums} hero={HERO_BY_WORLD[world] ?? 'Mira'} glow={streak} sprite={sprite} />
               ) : undefined
             }
           />
@@ -442,6 +491,19 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                 </Button>
               </div>
             )}
+            {q?.hint_available && s.phase === 'question' && !hint && (
+              <div className="mt-3">
+                <Button variant="secondary" size="sm" iconLeft={<Icon name="info" />} onClick={() => void askHint()}>
+                  {t('hint')}
+                </Button>
+                {hintError && <InlineError message={t('hintError')} recovery={t('hintRetry')} />}
+              </div>
+            )}
+            {hint && hint.beat === beatId && s.phase !== 'outcome' && (
+              <MascotBubble size="sm" pose="think" className="mt-3">
+                {hint.text}
+              </MascotBubble>
+            )}
             {coach.hint && s.phase !== 'outcome' && (
               <MascotBubble size="sm" pose="think" className="mt-4">
                 {coach.hint}
@@ -456,33 +518,21 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
         }
         question={
           showQuestion && s.beat ? (
-            <p>{s.beat.question.math_text}</p>
+            <p>{questionText}</p>
           ) : undefined
         }
         choices={
           showQuestion && s.beat ? (
             <>
-              {s.beat.question.choices.map((c, i) => (
-                <div key={JSON.stringify(c)} className="nx-stagger" style={{ '--i': i } as CSSProperties}>
-                  <ChoiceButton
-                    value={c}
-                    index={i}
-                    shortcut={s.phase === 'question'}
-                    state={
-                      s.phase === 'question'
-                        ? 'idle'
-                        : sameChoice(s.chosen, c)
-                          ? s.phase === 'outcome'
-                            ? s.outcome === 'correct'
-                              ? 'success'
-                              : 'miss'
-                            : 'selected'
-                          : 'locked'
-                    }
-                    onSelect={onSelect}
-                  />
-                </div>
-              ))}
+              <QuestionSwap id={s.beat.id}>
+                <QuestionInput
+                  question={s.beat.question}
+                  phase={s.phase === 'question' ? 'question' : s.phase === 'answering' ? 'answering' : 'outcome'}
+                  chosen={s.chosen}
+                  outcome={s.outcome}
+                  onSubmit={onSelect}
+                />
+              </QuestionSwap>
             </>
           ) : undefined
         }
@@ -502,7 +552,9 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
         <OutcomeSheet
           right={s.outcome === 'correct'}
           line={mascotLine}
-          hero={HERO_BY_WORLD[world]}
+          detail={s.feedback ?? undefined}
+          explain={s.explain ?? undefined}
+          hero={HERO_BY_WORLD[world] ?? 'Mira'}
           glow={streak}
           continueLabel={t('continue')}
           canContinue={denReady}

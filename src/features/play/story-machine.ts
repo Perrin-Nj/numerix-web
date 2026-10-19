@@ -31,6 +31,9 @@ export type StoryState = {
   denouementStatus: NarrationStatus;
   /** How-to picture for the last answer (right or wrong), when the backend sent one. */
   methodVisual: MethodVisual | null;
+  /** Curated questions: kind note for the typical error, and how to solve it. */
+  feedback: string | null;
+  explain: string | null;
   rewards: Reward[];
   rewardIndex: number;
   /** Set when the last answer could not be sent; the same key is reused on retry. */
@@ -51,6 +54,8 @@ export const initialStoryState: StoryState = {
   denouementText: '',
   denouementStatus: 'pending',
   methodVisual: null,
+  feedback: null,
+  explain: null,
   rewards: [],
   rewardIndex: 0,
   pendingAnswer: null,
@@ -97,6 +102,8 @@ export function storyReducer(s: StoryState, a: StoryAction): StoryState {
         denouementText: '',
         denouementStatus: 'pending',
         methodVisual: null,
+        feedback: null,
+        explain: null,
         rewards: [],
         rewardIndex: 0,
         pendingAnswer: null,
@@ -129,6 +136,8 @@ export function storyReducer(s: StoryState, a: StoryAction): StoryState {
         denouementText: a.result.denouement.text ?? '',
         denouementStatus: a.result.denouement.status === 'ready' ? 'ready' : a.result.denouement.status === 'fallback' ? 'fallback' : 'pending',
         methodVisual: a.result.method_visual ?? null,
+        feedback: a.result.feedback ?? null,
+        explain: a.result.explain ?? null,
         rewards: a.result.rewards ?? [],
         rewardIndex: 0,
         pendingAnswer: null,
