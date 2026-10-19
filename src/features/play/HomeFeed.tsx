@@ -64,7 +64,12 @@ export function HomeFeed() {
     }
     let line = pick('mascot.welcome', { name: kidName });
     for (let i = 0; i < 20 && seen.includes(line); i++) line = pick('mascot.welcome', { name: kidName });
-    if (seen.includes(line)) seen = [];
+    if (seen.includes(line)) {
+      // every line was shown: start a new round, but never open it with the line the child just saw
+      const previous = seen.at(-1);
+      seen = [];
+      for (let i = 0; i < 20 && line === previous; i++) line = pick('mascot.welcome', { name: kidName });
+    }
     try {
       sessionStorage.setItem('nx:greet:seen', JSON.stringify([...seen, line]));
       setFirstVisit(!sessionStorage.getItem('nx:greet:spoken'));

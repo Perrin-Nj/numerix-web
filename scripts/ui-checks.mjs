@@ -248,7 +248,10 @@ await check('home greeting changes at every visit of the session', async () => {
   await page.mouse.click(5, 5); // speech waits for a first gesture; the gift click used to provide it
   const shown = [];
   for (let i = 0; i < 3; i++) {
+    const before = await page.evaluate(() => JSON.parse(sessionStorage.getItem('nx:greet:seen') ?? '[]').length);
     await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
+    // the greeting is chosen after mount: wait until this visit stored its line (a slow machine needs more than a fixed pause)
+    await page.waitForFunction((n) => JSON.parse(sessionStorage.getItem('nx:greet:seen') ?? '[]').length > n, before, { timeout: 10000 }).catch(() => {});
     await page.waitForTimeout(600);
     // the last line stored is the one on screen (the pool of lines can cycle in a long session, so compare neighbours)
     shown.push(await page.evaluate(() => JSON.parse(sessionStorage.getItem('nx:greet:seen') ?? '[]').at(-1)));
