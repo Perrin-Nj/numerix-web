@@ -33,6 +33,7 @@ export type ScreenStateProps = StateInput & {
   children: ReactNode;
 };
 
+/** Wraps a screen so loading, slow, error and empty states are always explicit. */
 export function ScreenState({ skeleton, empty, onRetry, area, children, ...input }: ScreenStateProps) {
   const t = useTranslations('screenState');
   const phase = useScreenState(input);

@@ -20,6 +20,7 @@ export type PinInputProps = {
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const;
 
+/** Numeric PIN entry with one box per digit. */
 export function PinInput({
   length = 4,
   value,

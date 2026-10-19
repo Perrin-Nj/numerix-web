@@ -26,6 +26,7 @@ const avatar = cva(
 
 export type AvatarProps = { avatarId: string; name: string; size?: 'sm' | 'md' | 'lg' };
 
+/** Round avatar of a child, drawn from the avatar id with the name as the accessible label. */
 export function Avatar({ avatarId, name, size }: AvatarProps) {
   const art = SEED[avatarId];
   return (

@@ -101,4 +101,5 @@ function ChallengeCardBase({
   );
 }
 
+/** Memoized card for one challenge with its progress and accept or claim action. */
 export const ChallengeCard = memo(ChallengeCardBase);

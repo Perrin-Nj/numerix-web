@@ -136,4 +136,5 @@ function JourneyNodeBase({ node, accent, current = false, thumb, onSelect }: Jou
   );
 }
 
+/** Memoized node of the journey path with its state (locked, current, done) and shine level. */
 export const JourneyNode = memo(JourneyNodeBase);

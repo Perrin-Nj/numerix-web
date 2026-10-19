@@ -61,4 +61,5 @@ function MenuTileBase({ icon, label, hint, badge, tone = 'brand', onSelect, clas
   );
 }
 
+/** Memoized big tile for the home menu (icon, label, optional badge). */
 export const MenuTile = memo(MenuTileBase);

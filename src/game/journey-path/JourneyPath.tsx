@@ -22,6 +22,7 @@ export type JourneyPathProps = {
 const ROW_H = 168; // px
 const COLS = 5;
 
+/** Winding path of journey nodes for one world, with scene art between them. */
 export function JourneyPath({ nodes, world, currentSkillId, onSelectNode, onPlay, accent, scenes = [] }: JourneyPathProps) {
   const t = useTranslations('game.journeyPath');
   const reduced = useReducedMotion();

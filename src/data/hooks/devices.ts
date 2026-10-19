@@ -8,6 +8,7 @@ import { keys } from './keys';
 export type KnownDevice = components['schemas']['Device'];
 export type PasskeyInfo = components['schemas']['Passkey'];
 
+/** React Query keys for the parent device and passkey lists. */
 export const deviceKeys = {
   devices: ['account-devices'] as const,
   passkeys: ['account-passkeys'] as const,

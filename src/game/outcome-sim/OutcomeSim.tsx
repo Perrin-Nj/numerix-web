@@ -46,6 +46,7 @@ export type OutcomeSimProps = {
   className?: string;
 };
 
+/** Small animation of what happens in the story after the answer, with sound and caption. */
 export function OutcomeSim({ world, good, playing = true, onDone, variant, showCaption = true, className }: OutcomeSimProps) {
   const t = useTranslations('game.outcomeSim');
   const { play } = useSound();

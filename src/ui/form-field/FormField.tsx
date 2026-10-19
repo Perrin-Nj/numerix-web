@@ -13,6 +13,7 @@ export type FormFieldProps = {
   children: ReactNode;
 };
 
+/** Label, hint and error message wired to one input by id. */
 export function FormField({ label, htmlFor, hint, error, required, children }: FormFieldProps) {
   const t = useTranslations('ui.formField');
   return (

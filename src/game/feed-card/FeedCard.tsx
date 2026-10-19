@@ -119,4 +119,5 @@ function FeedCardBase({ item, onReact, onAnswer, onCta, active = false }: FeedCa
   );
 }
 
+/** Memoized feed card: one question or story step in the vertical feed. */
 export const FeedCard = memo(FeedCardBase);

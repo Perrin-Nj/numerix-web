@@ -60,6 +60,7 @@ const Star = ({ x, y, s }: { x: number; y: number; s: number }) => (
   </g>
 );
 
+/** Numa, the vector mascot, with six poses, eye tracking and a speaking mouth. */
 export default function Numa({ pose, look, speaking, reduced }: NumaProps) {
   const uid = useId().replace(/\W/g, '');
   const ref = useRef<SVGSVGElement>(null);

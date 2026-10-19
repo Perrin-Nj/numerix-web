@@ -27,6 +27,7 @@ function landing(): string {
   return /^\/parent(\/[\w\-/]*)?$/.test(next) && !next.startsWith('//') ? next : '/parent';
 }
 
+/** Login or register form for the parent area; redirects to the page that sent the user, else the parent home. */
 export function AuthForm({ mode }: { mode: Mode }) {
   const t = useTranslations('screens.auth');
   const te = useTranslations('errors');

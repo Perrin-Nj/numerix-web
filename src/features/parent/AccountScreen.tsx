@@ -9,6 +9,7 @@ import { Panel } from '@/ui/panel';
 import { Select } from '@/ui/select';
 import { Switch } from '@/ui/switch';
 
+/** Parent preferences and security: theme, language, reduced motion, guided tour replay, passkeys and devices. */
 export function AccountScreen() {
   const t = useTranslations('screens.parent.account');
   const locale = useLocale();

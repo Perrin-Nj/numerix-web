@@ -6,6 +6,7 @@ import { useSound } from '@/platform/audio';
 export type TabItem = { value: string; label: string; content: ReactNode };
 export type TabsProps = { items: TabItem[]; defaultValue?: string; ariaLabel?: string };
 
+/** Tab list with panels, keyboard navigable. */
 export function Tabs({ items, defaultValue, ariaLabel }: TabsProps) {
   const { play } = useSound();
   return (

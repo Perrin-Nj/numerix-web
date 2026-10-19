@@ -138,6 +138,7 @@ function NumberLine({ value, max }: { value: number; max: number }) {
   );
 }
 
+/** Drawn scene of a world with counted objects for a skill; uses the hero art when given. */
 export function ScenePicture({ world, skillId, numbers, hero, glow = 0, sprite, className }: ScenePictureProps) {
   const t = useTranslations('game.scenePicture');
   const [w1, w2] = ITEMS[world];

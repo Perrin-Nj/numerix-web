@@ -9,6 +9,7 @@ export type DailyGoalRingProps = { done: number; target: number; className?: str
 const R = 44;
 const C = 2 * Math.PI * R;
 
+/** Ring that fills as the child completes the daily goal (done of target). */
 export function DailyGoalRing({ done, target, className }: DailyGoalRingProps) {
   const t = useTranslations('game.dailyGoalRing');
   const met = target > 0 && done >= target;

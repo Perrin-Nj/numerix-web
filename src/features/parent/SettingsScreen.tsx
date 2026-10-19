@@ -18,6 +18,7 @@ import { Skeleton } from '@/ui/skeleton';
 import { ScreenState } from '@/game/screen-state';
 import { Switch } from '@/ui/switch';
 
+/** Per-child settings: goal, time limit, sound, read aloud, languages, worlds, data export and deletion. */
 export function SettingsScreen({ childId }: { childId: string }) {
   const t = useTranslations('screens.parent.settings');
   const tw = useTranslations('worlds');

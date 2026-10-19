@@ -23,6 +23,7 @@ type State = {
 
 let seq = 0;
 
+/** Zustand store holding the queued notifications. */
 export const useNotificationStore = create<State>((set) => ({
   items: [],
   add: (n) => {

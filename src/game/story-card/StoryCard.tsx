@@ -348,4 +348,5 @@ function StoryCardBase({ card, onOpen, variant = 'tile', source }: StoryCardProp
   );
 }
 
+/** Memoized collectible story card with parallax, rarity dressing and flip. */
 export const StoryCard = memo(StoryCardBase);

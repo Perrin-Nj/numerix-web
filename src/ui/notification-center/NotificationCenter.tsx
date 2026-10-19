@@ -25,6 +25,7 @@ const LOOK: Record<NotificationKind, { icon: IconName; border: string; color: st
   error: { icon: 'alert', border: 'border-danger', color: 'text-danger' },
 };
 
+/** Hook returning the function that pushes a toast into the notification center. */
 export function useNotify() {
   const { play } = useSound();
   const add = useNotificationStore((s) => s.add);

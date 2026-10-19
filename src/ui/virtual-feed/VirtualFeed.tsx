@@ -34,6 +34,7 @@ type Row<T> = { kind: 'header'; key: string; label: string } | { kind: 'item'; k
 const HEADER_SIZE = 44;
 const PRELOAD_ROWS = 4;
 
+/** Windowed vertical list that renders only the visible items of a long feed. */
 export function VirtualFeed<T>({
   items,
   renderItem,

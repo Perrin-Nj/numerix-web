@@ -10,6 +10,7 @@ import { Switch } from '@/ui/switch';
 
 const NOTICE_VERSION = '2026-10';
 
+/** Shows and records the parent consent for one child (Law 25). */
 export function ConsentScreen({ childId }: { childId: string }) {
   const t = useTranslations('screens.parent.consent');
   const router = useRouter();

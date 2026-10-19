@@ -14,6 +14,7 @@ export type SelectProps = {
   disabled?: boolean;
 };
 
+/** Labelled select list (Radix) for a short list of options. */
 export function Select({ options, value, onValueChange, placeholder, label, disabled }: SelectProps) {
   const labelId = useId();
   const { play } = useSound();

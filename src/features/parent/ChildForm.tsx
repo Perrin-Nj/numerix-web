@@ -17,6 +17,7 @@ import { Switch } from '@/ui/switch';
 
 const AVATARS = ['fox', 'owl', 'bear', 'cat', 'panda', 'rabbit', 'lion', 'turtle'];
 
+/** Form to add a child profile (name, grade, avatar, PIN). */
 export function ChildForm() {
   const t = useTranslations('screens.parent.childForm');
   const router = useRouter();

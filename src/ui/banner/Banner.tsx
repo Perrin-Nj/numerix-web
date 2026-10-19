@@ -35,6 +35,7 @@ export type BannerProps = {
   onDismiss?: () => void;
 };
 
+/** Inline message strip with a tone, optional action and dismiss button. */
 export function Banner({ tone = 'info', title, description, action, onDismiss }: BannerProps) {
   const t = useTranslations('ui.banner');
   const icon = ICON[tone];

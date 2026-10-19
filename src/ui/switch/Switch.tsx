@@ -11,6 +11,7 @@ export type SwitchProps = {
   disabled?: boolean;
 };
 
+/** On/off switch with a label and optional description. */
 export function Switch({ checked, onCheckedChange, label, description, disabled }: SwitchProps) {
   const id = useId();
   const { play } = useSound();

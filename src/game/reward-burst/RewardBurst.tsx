@@ -42,6 +42,7 @@ function Rays() {
   return reduced ? null : <span aria-hidden className="nx-gift-rays pointer-events-none absolute left-1/2 top-1/2 -z-10 size-72 -translate-x-1/2 -translate-y-1/2" />;
 }
 
+/** One-shot confetti and rays for a reward; calls onDone when it ends. */
 export function RewardBurst({ reward, onDone }: RewardBurstProps) {
   const t = useTranslations('game.rewardBurst');
   const { play } = useSound();

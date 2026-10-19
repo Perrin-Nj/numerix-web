@@ -7,6 +7,7 @@ import { Icon } from '@/ui/icon';
 
 export type QuestCardProps = { quest: DailyQuest; onPlay: () => void };
 
+/** Card of one quest with its play button. */
 export function QuestCard({ quest, onPlay }: QuestCardProps) {
   const t = useTranslations('game.questCard');
   const state = quest.completed ? 'completed' : quest.available ? 'available' : 'unavailable';

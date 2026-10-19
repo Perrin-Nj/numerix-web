@@ -48,6 +48,7 @@ function GrowthPanel({ growth }: { growth: Growth }) {
   );
 }
 
+/** One child at a glance: stats, sessions, skills in progress, stuck skills and growth. */
 export function ChildOverview({ childId }: { childId: string }) {
   const t = useTranslations('screens.parent.overview');
   const tg = useTranslations('screens.parent.home');

@@ -6,6 +6,7 @@ import { Panel } from '@/ui/panel';
 import { Skeleton } from '@/ui/skeleton';
 import { ScreenState } from '@/game/screen-state';
 
+/** Recap of one session for a parent: skills practised and skills where the child got stuck. */
 export function RecapScreen({ childId, sessionId }: { childId: string; sessionId: string }) {
   const t = useTranslations('screens.parent.recap');
   const summary = useSessionSummary(sessionId);

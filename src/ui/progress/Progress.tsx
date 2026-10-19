@@ -3,6 +3,7 @@ import { Progress as P } from 'radix-ui';
 
 export type ProgressProps = { value: number; max: number; label: string };
 
+/** Accessible progress bar (value of max) with a text label. */
 export function Progress({ value, max, label }: ProgressProps) {
   const safeMax = max > 0 ? max : 1;
   const pct = Math.min(100, Math.max(0, (value / safeMax) * 100));

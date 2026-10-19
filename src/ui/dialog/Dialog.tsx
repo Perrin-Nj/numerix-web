@@ -18,6 +18,7 @@ export type DialogProps = {
   dismissible?: boolean;
 };
 
+/** Modal dialog with focus trap, title and close button (Radix underneath). */
 export function Dialog({
   open,
   onOpenChange,

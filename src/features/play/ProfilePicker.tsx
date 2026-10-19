@@ -19,6 +19,7 @@ import { ScreenState } from '@/game/screen-state';
 import { rememberChild } from '@/data/local/who';
 import type { Child } from '@/data/api/types';
 
+/** Kid door: pick a child profile and enter the PIN. */
 export function ProfilePicker() {
   const t = useTranslations('screens.play.picker');
   const te = useTranslations('errors');

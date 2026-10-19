@@ -77,6 +77,7 @@ export type IllustrationFrameProps = {
   className?: string;
 };
 
+/** Framed world picture with mood, optional stage and children drawn over the art. */
 export function IllustrationFrame({ world, src, media, fill, alt, mood = 'idle', picture, stage, stageKey, children, className }: IllustrationFrameProps) {
   return (
     <div

@@ -58,6 +58,7 @@ export type MascotProps = {
   className?: string;
 };
 
+/** Mascot of a given pose and size; picks the image or vector set from config. */
 export function Mascot({ pose = 'greet', size = 'md', speaking, look, decorative, config, className }: MascotProps) {
   const cfg = config ?? appConfig.mascot;
   const t = useTranslations('game.mascot');

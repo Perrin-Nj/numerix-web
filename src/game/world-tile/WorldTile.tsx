@@ -42,4 +42,5 @@ function WorldTileBase({ world, selected = false, onSelect, size = 'md' }: World
   );
 }
 
+/** Memoized tile of a world on the map with its progress. */
 export const WorldTile = memo(WorldTileBase);

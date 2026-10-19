@@ -93,6 +93,7 @@ export type IconProps = {
   className?: string;
 };
 
+/** Named icon from the app icon set; decorative unless a title is given. */
 export function Icon({ name, size = 20, title, className }: IconProps) {
   const Cmp = REGISTRY[name];
   return (

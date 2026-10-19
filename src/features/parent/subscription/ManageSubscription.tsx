@@ -136,6 +136,7 @@ function PlanCard({ id, plan, selected, current, onSelect }: { id: PlanId; plan?
   );
 }
 
+/** Subscription page: current plan, plan choice and the billing portal. */
 export function ManageSubscription() {
   const t = useTranslations('screens.parent.subscription');
   const format = useFormatter();

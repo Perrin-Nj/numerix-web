@@ -13,6 +13,7 @@ const SHAPE = {
   circle: 'size-12 rounded-full',
 } as const;
 
+/** Placeholder shape shown while content loads. */
 export function Skeleton({ className, width, height, shape = 'line' }: SkeletonProps) {
   return <div aria-hidden className={cn('nx-skeleton', SHAPE[shape], className)} style={{ width, height }} />;
 }

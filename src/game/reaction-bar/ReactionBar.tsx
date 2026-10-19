@@ -70,4 +70,5 @@ function ReactionBarBase({ liked, saved, onChange, disabled, className }: Reacti
   );
 }
 
+/** Memoized row of emoji reactions on a feed card. */
 export const ReactionBar = memo(ReactionBarBase);

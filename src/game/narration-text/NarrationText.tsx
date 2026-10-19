@@ -16,6 +16,7 @@ export type NarrationTextProps = {
   className?: string;
 };
 
+/** Story narration text with loading, slow and retry states. */
 export function NarrationText({ text, status, slow, onRetry, className }: NarrationTextProps) {
   const t = useTranslations('game.narrationText');
   const { play } = useSound();

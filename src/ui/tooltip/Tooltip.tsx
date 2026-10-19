@@ -8,6 +8,7 @@ export type TooltipProps = {
   children: ReactNode;
 };
 
+/** Short hint shown on hover and focus of its child. */
 export function Tooltip({ content, children }: TooltipProps) {
   return (
     <T.Provider delayDuration={300}>

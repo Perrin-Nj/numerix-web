@@ -16,6 +16,7 @@ import { Skeleton } from '@/ui/skeleton';
 import { ScreenState } from '@/game/screen-state';
 import { appConfig } from '@/config/app';
 
+/** Parent home: the children with consent, PIN and subscription status, and the add-child entry. */
 export function ParentHome() {
   const t = useTranslations('screens.parent.home');
   const router = useRouter();

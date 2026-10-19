@@ -50,6 +50,7 @@ const BEATS: Record<Outcome, Beat> = {
   },
 };
 
+/** Result bubble after an answer (good, close or retry), always soft and never red. */
 export function OutcomeBeat({ outcome, children, className, label }: OutcomeBeatProps) {
   const t = useTranslations('game.outcomeBeat');
   const { play } = useSound();

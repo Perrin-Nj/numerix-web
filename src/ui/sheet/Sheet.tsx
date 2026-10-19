@@ -20,6 +20,7 @@ const SIDE = {
   right: 'nx-rise inset-y-0 right-0 w-full max-w-sm border-l-2',
 } as const;
 
+/** Panel that slides in from a screen edge, for menus and forms. */
 export function Sheet({ open, onOpenChange, title, side = 'bottom', children }: SheetProps) {
   const t = useTranslations('ui.sheet');
   useOpenCloseSound(open);

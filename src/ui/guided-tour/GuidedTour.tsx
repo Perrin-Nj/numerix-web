@@ -20,6 +20,7 @@ export type GuidedTourProps = {
   onFinish: () => void;
 };
 
+/** Step-by-step highlight tour (driver.js) that reports close and finish. */
 export function GuidedTour({ steps, open, onClose, onFinish }: GuidedTourProps) {
   const t = useTranslations('ui.guidedTour');
   const reduced = useReducedMotion();

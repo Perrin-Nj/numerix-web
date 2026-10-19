@@ -88,4 +88,5 @@ function ChoiceButtonBase({ value, index, state, onSelect, shortcut }: ChoiceBut
   );
 }
 
+/** Memoized answer button for choice questions, with selected and result states. */
 export const ChoiceButton = memo(ChoiceButtonBase);

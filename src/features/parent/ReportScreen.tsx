@@ -8,6 +8,7 @@ import { Skeleton } from '@/ui/skeleton';
 import { StatTile } from '@/ui/stat-tile';
 import { ScreenState } from '@/game/screen-state';
 
+/** Progress report of one child: days, sessions, growth and stuck skills. */
 export function ReportScreen({ childId }: { childId: string }) {
   const t = useTranslations('screens.parent.report');
   const format = useFormatter();

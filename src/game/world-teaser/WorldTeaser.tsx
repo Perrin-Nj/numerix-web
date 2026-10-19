@@ -39,4 +39,5 @@ function WorldTeaserBase({ world, onOpen }: WorldTeaserProps) {
   );
 }
 
+/** Memoized teaser tile of a world with its scene art and an open action. */
 export const WorldTeaser = memo(WorldTeaserBase);
