@@ -11,7 +11,8 @@ PORT="${ADMIN_PORT:-3100}"
 export ADMIN_URL="http://localhost:$PORT"
 pids=()
 started_api=0
-cleanup() { for p in "${pids[@]}"; do kill "$p" 2>/dev/null; done; [ "$started_api" = 1 ] && taskkill //F //IM api-admin.exe >/dev/null 2>&1; }  # only the API this script started
+# next start runs as a child of npx, so killing the wrapper leaves the server (and the test's output pipe) open: stop the listener by port
+cleanup() { for p in "${pids[@]}"; do kill "$p" 2>/dev/null; done; pid=$(netstat -ano 2>/dev/null | grep ":$PORT " | grep LISTENING | awk '{print $5}' | head -1); [ -n "$pid" ] && taskkill //PID "$pid" //T //F >/dev/null 2>&1; [ "$started_api" = 1 ] && taskkill //F //IM api-admin.exe >/dev/null 2>&1; }  # only the API this script started
 trap cleanup EXIT
 
 npx tsc --noEmit && echo "PASS typecheck" || { echo "FAIL typecheck"; exit 1; }
@@ -22,6 +23,9 @@ if ! curl -sf -o /dev/null -H "Authorization: Bearer $ADMIN_API_TOKEN" "$PLATFOR
   [ -x "$API_DIR/bin/api.exe" ] || (cd "$API_DIR" && PATH="$PATH:/c/Program Files/Go/bin" go build -o bin/api.exe ./cmd/api)
   started_api=1
   cp "$API_DIR/bin/api.exe" "$API_DIR/bin/api-admin.exe"
+  rm -f "$API_DIR"/data/admin-test.db*  # a fresh database per run
+  # the questions smoke needs the real question bank (quests, questions, assets): load it before the API starts
+  (cd "$API_DIR" && PATH="$PATH:/c/Program Files/Go/bin" go run ./cmd/seed --db ./data/admin-test.db --exclude _examples > /tmp/admin-seed.log 2>&1) || { tail -5 /tmp/admin-seed.log; echo "FAIL content seed"; exit 1; }
   (cd "$API_DIR" && PORT="${PLATFORM_API_URL##*:}" env -u ADMIN_API_TOKEN APP_ENV=development DB_PATH=./data/admin-test.db ./bin/api-admin.exe > /tmp/admin-platform.log 2>&1 &)
   for _ in $(seq 1 40); do curl -sf -o /dev/null -H "Authorization: Bearer $ADMIN_API_TOKEN" "$PLATFORM_API_URL/admin/v1/overview" && break; sleep 0.5; done
   node ../scripts/seed-dev.mjs "$PLATFORM_API_URL/v1" > /dev/null || echo "seed failed"  # a parent with two children, through the real endpoints
