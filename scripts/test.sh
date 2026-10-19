@@ -42,7 +42,7 @@ ensure_api() {
   local db="./data/test-$API_PORT.db"
   rm -f "$dir"/data/test-$API_PORT.db*  # a fresh database per run, so no test depends on old data
   cp "$dir/bin/api.exe" "$dir/bin/api-web-$API_PORT.exe" 2>/dev/null  # own copy, so other tools that kill api.exe by name leave this one alone
-  (cd "$dir" && PORT=$API_PORT APP_ENV=development DB_PATH=$db FEATURE_WELCOME_GIFT=true ./bin/api-web-$API_PORT.exe >/dev/null 2>&1 &)
+  (cd "$dir" && PORT=$API_PORT APP_ENV=development DB_PATH=$db FEATURE_WELCOME_GIFT=true TRUST_PROXY=true ./bin/api-web-$API_PORT.exe >/dev/null 2>&1 &)
   STARTED+=($API_PORT)
   for _ in $(seq 1 20); do up "$API_HEALTH" && break; sleep 0.5; done
   up "$API_HEALTH" || { echo "[api] could not start on :$API_PORT"; FAILS=$((FAILS+1)); return; }
@@ -82,11 +82,13 @@ case "$MODE" in
   errors) ensure_app; warm; run errors node scripts/ui-error-checks.mjs "$BASE" ;;
   mobile) ensure_app; warm; run mobile node scripts/mobile-audit.mjs "$BASE" ;;
   play)   SEED_CONTENT=1 ensure_app; warm; run play node scripts/play-checks.mjs "$BASE" ;;
+  qa)     SEED_CONTENT=1 ensure_app; warm; run bank node scripts/qa/bank-audit.mjs; run apifuzz node scripts/qa/api-fuzz.mjs "http://localhost:$API_PORT/v1"; run sweep node scripts/qa/sweep.mjs "$BASE"; run regress-ui node scripts/qa/regress-ui.mjs "$BASE" ;;
   live)   LIVE="${LIVE_URL:-https://numerix-web-snowy.vercel.app}"
           run flows node scripts/flows.mjs "$LIVE"; NX_GIFT=0 run ui node scripts/ui-checks.mjs "$LIVE"; run errors node scripts/ui-error-checks.mjs "$LIVE" ;;
   all)    run contract node scripts/api-inventory.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs
           run sounds node scripts/check-sounds.mjs; run visual node scripts/check-method-visual.mjs; run variants node scripts/check-sound-variants.mjs
-          ensure_app; warm; run flows node scripts/flows.mjs "$BASE"; run ui node scripts/ui-checks.mjs "$BASE"; run errors node scripts/ui-error-checks.mjs "$BASE"; run mobile node scripts/mobile-audit.mjs "$BASE" ;;
+          ensure_app; warm; run flows node scripts/flows.mjs "$BASE"; run ui node scripts/ui-checks.mjs "$BASE"; run errors node scripts/ui-error-checks.mjs "$BASE"; run mobile node scripts/mobile-audit.mjs "$BASE"
+          SEED_CONTENT=1 ensure_app; run bank node scripts/qa/bank-audit.mjs; run apifuzz node scripts/qa/api-fuzz.mjs "http://localhost:$API_PORT/v1"; run sweep node scripts/qa/sweep.mjs "$BASE"; run regress-ui node scripts/qa/regress-ui.mjs "$BASE" ;;
   *)      echo "unknown mode: $MODE"; exit 2 ;;
 esac
 

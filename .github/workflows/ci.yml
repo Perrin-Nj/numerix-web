@@ -28,3 +28,32 @@ jobs:
       - run: pnpm lint
       - run: pnpm build
       - run: pnpm exec storybook build -o storybook-static --disable-telemetry
+
+  suite:
+    # Every regression test runs here, always: the full scripts/test.sh run against a freshly built and seeded Go API.
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.API_REPO || github.repository_owner }}/numerix-api
+          path: numerix-api
+          token: ${{ secrets.API_REPO_TOKEN || github.token }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: numerix-api/go.mod
+      - run: pnpm install --frozen-lockfile
+      - run: npm install --prefix scripts/qa
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm check
+      - name: Full suite (fresh DB, cmd/seed content, own ports)
+        run: |
+          mkdir -p ../Services && ln -sfn "$GITHUB_WORKSPACE/numerix-api" ../numerix-api
+          API_PORT=8130 APP_PORT=3130 bash scripts/test.sh all | tee suite.log
+          ! grep -E "FAIL|FAILED" suite.log
