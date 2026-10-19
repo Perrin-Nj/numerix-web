@@ -61,6 +61,7 @@ const KNOWN = new Set([
   'rate_limited',
   'internal_error',
   'not_found',
+  'no_question_available',
 ]);
 
 const DUST = [8, 22, 38, 54, 70, 86];

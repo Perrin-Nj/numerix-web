@@ -52,4 +52,29 @@ Only transform and opacity; every animation under 600 ms except the mascot idle;
 
 1. First screenshots (360 px): world cards showed "0 pour cent" on every card and the real photos were missing (the API sets no `hero`, only `scenes`). Fixed: hide empty progress, fall back to the first scene photo.
 2. First question screenshots: the question text was cut off behind the cards and keypad because it scrolled inside the story region; the photo stage took 38 percent of the height. Fixed: the question stays in view above free inputs, the stage shrinks to 28 percent (cards) or 20 percent (keypad, ordering, matching), ordering only draws the next free slot.
-3. See the final section of this file for the numbers and what the last pass changed.
+3. Played every world with four children at once (`scripts/play-all.mjs`, 360 px screenshot per input kind and per graph kind). Found and fixed:
+   - the 12 new worlds had no outcome captions or art (console error `MISSING_MESSAGE`): one neutral animation drawn with the world emoji plus neutral captions, and item names for the counting picture;
+   - a plain "reste" in a statement ("combien lui reste-t-il") opened the quotient and remainder keypad: only "avec reste" and "with remainder" do now;
+   - grids were cut off by the stage and bars printed their value above the bar, which gave the answer away: grid cells now have a fixed size that fits (about 200 px high), the stage is 34 percent for a graph, bars show only the axis;
+   - backend answers `409 no_question_available` when a quest has no question for the child's grade (it showed a generic error): a clear message now; the journey still lists such quests (backend limit, see below);
+   - ordering and matching now fit a 360x740 phone with the keypad-sized inputs; the keypad keys are 44 px high.
+4. Re-run: all 20 worlds played, kinds met: choice, keypad, match, order, truefalse and the visuals bars, clock, dice, fraction, grid, number line, pictograph. No console error, no failed request except rate limiting from running four children at once.
+
+## Numbers (production build, throttled: 4x CPU, 4G, 360 px, second visit to the app shell)
+
+| Screen | LCP | Images |
+|---|---|---|
+| /play/home | 1.0 s | 3 files, 70 KB |
+| /play/worlds (20 worlds) | 2.5 s | 18 files, 357 KB (480 px variants, lazy below the fold) |
+| world page | 0.3 s | 4 files, 132 KB |
+
+Run `node scripts/play-perf.mjs <base>` to measure again. Before this phase the map was drawn art with no files, so there is no image baseline; the cost of the photos is the figures above.
+
+## Known limits
+
+- `estimate` questions have no range in the contract, so they use the keypad, not the slider.
+- The API sets no `hero` yet (only `scenes`); the first scene stands in for it.
+- The journey lists quests that have no question for the child's grade (`409 no_question_available` on the first beat). The app explains it; the backend should mark such nodes locked or leave them out.
+- The grid origin is inferred (see Decisions); the bank should say which convention a grid uses.
+- The twelve newer worlds share one neutral outcome animation.
+- Drag in ordering has not been tried on a real touch device, only with pointer events in Chromium; tap and arrow keys cover it.

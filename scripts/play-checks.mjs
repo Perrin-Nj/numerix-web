@@ -23,6 +23,10 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(`${page.url().replace(BASE, '')} ${e.message.slice(0, 160)}`));
 page.on('console', (m) => m.type() === 'error' && !/Failed to load resource/.test(m.text()) && errors.push(`${page.url().replace(BASE, '')} ${m.text().slice(0, 160)}`));
 let fails = 0;
+const badResp = [];
+page.on('response', async (r) => {
+  if (r.status() >= 400 && r.url().includes('/api/v1')) badResp.push(`${r.status()} ${r.request().method()} ${r.url().replace(BASE, '').slice(0, 70)} ${(await r.text().catch(() => '')).slice(0, 80)}`);
+});
 async function check(name, fn) {
   try {
     await fn();
@@ -35,7 +39,7 @@ async function check(name, fn) {
 const T = { timeout: 15000 };
 
 await parentLogin(page, BASE);
-await kidEnter(page, BASE, 'Zoé', '1234');
+await kidEnter(page, BASE, 'Noé', '4321');
 
 await check('world map shows every world with a photo and no horizontal scroll', async () => {
   await page.goto(`${BASE}/play/worlds`, { waitUntil: 'networkidle' });
@@ -77,15 +81,16 @@ await check('a reduced-motion child gets no parallax movement', async () => {
 // Plays quests until each input kind has been answered once
 const kinds = new Set();
 const seenVisual = new Set();
+// The kind of input waiting for an answer; null while the question loads or the outcome is on screen
 async function detect() {
   return page.evaluate(() => {
-    const q = (s) => document.querySelector(s);
-    if (q('[role=group][aria-label="Clavier numérique"]')) return 'keypad';
-    if (q('ol[aria-label="Ton ordre"]')) return 'order';
-    if (q('ul[aria-label="Cartes de gauche"]')) return 'match';
-    const b = [...document.querySelectorAll('main button[data-state]')];
-    if (b.length === 2 && b.every((x) => /^(Vrai|Faux)/.test(x.innerText.trim()))) return 'truefalse';
-    return b.length >= 2 ? 'choice' : null;
+    const q = (x) => document.querySelector(x);
+    if (q('[role=group][aria-label="Clavier numérique"]')) return q('[role=group][aria-label="Clavier numérique"] button:not([disabled])') ? 'keypad' : null;
+    if (q('ol[aria-label="Ton ordre"]')) return q('[role=group][aria-label="Cartes à placer"] button') ? 'order' : null;
+    if (q('ul[aria-label="Cartes de gauche"]')) return q('ul[aria-label="Cartes de gauche"] button:not([disabled])') ? 'match' : null;
+    const idle = [...document.querySelectorAll('main button[data-state=idle]')];
+    if (!idle.length) return null;
+    return idle.length === 2 && idle.every((b) => /^(Vrai|Faux)$/.test(b.innerText.trim())) ? 'truefalse' : 'choice';
   });
 }
 async function playChapter(world, skillId) {
@@ -99,7 +104,8 @@ async function playChapter(world, skillId) {
   );
   if (s.status >= 300) throw new Error(`start ${world}/${skillId}: ${s.status}`);
   await page.goto(`${BASE}/play/session/${s.json.id}`, { waitUntil: 'domcontentloaded' });
-  for (let step = 0; step < 40 && !/\/done/.test(page.url()); step++) {
+  const deadline = Date.now() + 60000;
+  while (Date.now() < deadline && !/\/done/.test(page.url())) {
     await page.waitForTimeout(200);
     const cont = page.getByRole('button', { name: /^(continuer|terminer|suite)$/i });
     if ((await cont.count()) && (await cont.first().isEnabled())) {
@@ -131,7 +137,8 @@ async function playChapter(world, skillId) {
   }
   if (!/\/done/.test(page.url())) {
     await page.evaluate((id) => fetch(`/api/v1/sessions/${id}/finish`, { method: 'POST', headers: { 'x-nx-mode': 'child' } }), s.json.id);
-    throw new Error(`chapter ${world}/${skillId} did not finish in 40 steps`);
+    const seen = (await page.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(0, 160);
+    throw new Error(`chapter ${world}/${skillId} did not finish in 60 s (screen: ${seen}; last failed calls: ${badResp.slice(-3).join(' | ')})`);
   }
 }
 await check('chapters of nature and meteo play through (cards, keypad, true/false, order, match, graphs)', async () => {

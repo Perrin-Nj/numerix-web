@@ -45,17 +45,6 @@ await check('forced API failure shows the error screen with Retry', async () => 
   await screen.getByRole('button', { name: /accueil/i }).waitFor(T);
 });
 
-await check('world map: forced API failure shows Retry, and Retry brings the map back', async () => {
-  await page.goto(`${BASE}/play`, { waitUntil: 'domcontentloaded' });
-  await setScenario('server-error');
-  await page.goto(`${BASE}/credits`, { waitUntil: 'domcontentloaded' });
-  const screen = page.locator('[data-error-kind]').first();
-  await screen.getByRole('button', { name: /réessayer/i }).waitFor(T);
-  await setScenario(null);
-  await screen.getByRole('button', { name: /réessayer/i }).click();
-  await page.getByRole('heading', { name: /crédits des images/i }).waitFor(T);
-});
-
 await check('offline shows the offline variant', async () => {
   await setScenario(null); // a routed reply would hide the offline state
   await ctx.setOffline(true);
@@ -73,6 +62,17 @@ await check('a never-answering endpoint shows the timeout panel within 10 s', as
   await page.getByRole('button', { name: /réessayer/i }).first().waitFor({ timeout: 2000 });
   if (Date.now() - start > 10000) throw new Error('too slow');
   await page.unroute('**/api/v1/children*');
+});
+
+await check('world map: forced API failure shows Retry, and Retry brings the map back', async () => {
+  await page.goto(`${BASE}/play`, { waitUntil: 'domcontentloaded' });
+  await setScenario('server-error');
+  await page.goto(`${BASE}/credits`, { waitUntil: 'domcontentloaded' });
+  const screen = page.locator('[data-error-kind]').first();
+  await screen.getByRole('button', { name: /réessayer/i }).waitFor(T);
+  await setScenario(null);
+  await screen.getByRole('button', { name: /réessayer/i }).click();
+  await page.getByRole('heading', { name: /crédits des images/i }).waitFor(T);
 });
 
 await browser.close();

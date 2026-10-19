@@ -531,6 +531,10 @@
   },
   "errors": {
     "ok": "OK",
+    "no_question_available": {
+      "title": "No question here yet",
+      "description": "This quest has no question for your level yet. Pick another quest or another world."
+    },
     "unauthorized": {
       "title": "Your session ended",
       "description": "Log in again to continue.",

@@ -47,18 +47,17 @@ function Bars({ data }: { data: D }) {
   return (
     <Frame title={txt(data.title as Loc)} label={label}>
       <div className="relative flex h-28 items-end gap-2 border-b-2 border-line-strong px-1">
-        {[0.5, 1].map((g) => (
+        {[0.25, 0.5, 0.75, 1].map((g) => (
           <span key={g} className="absolute inset-x-0 border-t border-dashed border-line" style={{ bottom: `${g * 100}%` }}>
-            <span className="absolute -top-2 start-0 bg-elevated pe-1 text-xs text-muted">{Math.round(max * g)}</span>
+            <span className="absolute -top-2 start-0 bg-elevated pe-1 text-xs text-muted">{Math.round(max * g * 10) / 10}</span>
           </span>
         ))}
         {bars.map((b, i) => (
           <div key={i} className="relative flex h-full min-w-0 flex-1 flex-col items-center justify-end">
-            <span className="text-sm font-bold">{num(b.value)}</span>
             <span
               className="w-full max-w-12 origin-bottom rounded-t-md bg-brand"
               style={{
-                height: `${(num(b.value) / max) * 85}%`,
+                height: `${(num(b.value) / max) * 100}%`,
                 transform: on || reduced ? 'scaleY(1)' : 'scaleY(0)',
                 transition: reduced ? 'none' : `transform 500ms var(--ease-out) ${i * 60}ms`,
               }}

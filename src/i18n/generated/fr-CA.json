@@ -531,6 +531,10 @@
   },
   "errors": {
     "ok": "D'accord",
+    "no_question_available": {
+      "title": "Pas encore de question ici",
+      "description": "Cette quête n’a pas encore de question pour ton niveau. Choisis une autre quête ou un autre monde."
+    },
     "unauthorized": {
       "title": "Ta session est terminée",
       "description": "Connecte-toi de nouveau pour continuer.",

@@ -54,7 +54,9 @@ export function OutcomeSheet({ right, line, detail, explain, hero, glow = 0, con
             <span className="nx-hero-glow shrink-0" style={{ '--glow': Math.min(glow, 3) } as React.CSSProperties}>
               <HumanAvatar seed={hero} size={56} mood={right ? 'happy' : 'sad'} />
             </span>
-            <Mascot pose={right ? 'cheer' : 'think'} size="sm" decorative />
+            <span data-outcome-mascot={right ? 'happy' : 'sad'}>
+              <Mascot pose={right ? 'cheer' : 'think'} size="sm" decorative />
+            </span>
             <p className="min-w-0 flex-1 font-display text-lg font-bold text-fg">{line}</p>
           </div>
           {(detail || explain) && (

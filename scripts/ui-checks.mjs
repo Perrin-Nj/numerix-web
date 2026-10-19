@@ -267,14 +267,14 @@ await check('wrong answer: sad mascot and a risk simulation, then encouragement'
   await page.getByRole('button', { name: new RegExp(`(^|\\D)${wrongLabel}(\\D|$)`) }).first().click();
   // the story consequence plays first; the sheet (with the reaction) and the how-to picture follow it
   await page.getByRole('button', { name: /passer l.animation/i }).first().waitFor({ timeout: 25000 });
-  await page.locator('[data-reaction="sad"]').first().waitFor({ timeout: 8000 });
+  await page.locator('[data-outcome-mascot="sad"]').first().waitFor({ timeout: 8000 });
 });
 await check('right answer: happy mascot and a success simulation', async () => {
   await page.getByRole('button', { name: /continuer/i }).first().click({ timeout: 25000 });
   await answerCorrectly();
   // the story consequence plays first; the sheet (with the reaction) and the how-to picture follow it
   await page.getByRole('button', { name: /passer l.animation/i }).first().waitFor({ timeout: 25000 });
-  await page.locator('[data-reaction="happy"]').first().waitFor({ timeout: 8000 });
+  await page.locator('[data-outcome-mascot="happy"]').first().waitFor({ timeout: 8000 });
 });
 await check('outcome: one stage image, sheet within 1.5 s, Continue inside a 360x740 screen', async () => {
   await page.setViewportSize({ width: 360, height: 740 });

@@ -578,6 +578,17 @@ These are needed before launch (see the BE items) and are only sketched so teams
 | `POST /auth/password/check {password}` | CR-7 | 204 or 403 `invalid_credentials` for the parent gate, rate limited, does not rotate tokens. |
 | `GET /account/export` | BE-37 | Parent level export (same format as the child export, one document per child plus the account and subscription history). |
 
+### 3.14 Question bank, pictures, credits and hints
+
+How the kid app uses the question bank. Question kinds and their answers are in the `Question` and `AnswerValue` schemas; the web screens are described in `docs/PLAY_UX.md`.
+
+- `GET /assets/{file}` (public): a picture. The app asks `/assets/a_<id>-<w>.webp` and Next rewrites it to `<API>/assets/...`, so the browser and the CDN see `Cache-Control: public, max-age=31536000, immutable` and the strong `ETag` (304 on `If-None-Match`). Unknown or unapproved files are 404.
+- `GET /credits` (public): attributions of the images in use, printed on the `/credits` page of the web app (also linked from the child's Me screen).
+- `POST /sessions/{sessionId}/beats/{beatId}/hint`: the written hint of a curated question. 404 when `hint_available` is false, 409 `beat_answered` after the answer. The app asks for it only when the child taps "Give me a hint".
+- A beat of a curated question is `ready` at once; `question.media[]` holds `scene` and `object` pictures (`MediaRef`: `lqip`, `color`, `srcset`). The app shows `lqip` and `color` first, then the sharp file.
+- `AnswerResult.explain` and `feedback` are shown in the answer sheet after the answer, never before.
+- The app asks for the next beat as soon as an answer is graded and keeps it until the child taps Continue, so the API may see `POST /sessions/{id}/beats` before the child is ready (it is the same call as before, only earlier).
+
 ## 4. Error catalogue
 
 Every error is `application/problem+json` (RFC 9457):

@@ -31,5 +31,11 @@
     "creditsLink": {
       "label": "Crédits des images"
     }
+  },
+  "errors": {
+    "no_question_available": {
+      "title": "Pas encore de question ici",
+      "description": "Cette quête n’a pas encore de question pour ton niveau. Choisis une autre quête ou un autre monde."
+    }
   }
 }
