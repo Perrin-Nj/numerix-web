@@ -7,6 +7,7 @@ import { QuestCard } from '@/game/quest-card';
 import { Skeleton } from '@/ui/skeleton';
 import { ScreenState } from '@/game/screen-state';
 
+/** Daily quest page. */
 export function QuestScreen() {
   const t = useTranslations('screens.play.quest');
   const status = useSessionStatus();

@@ -33,6 +33,7 @@ function LiveCard({ world, childId, locked, suggested, priority, onSelect }: { w
   );
 }
 
+/** World map: one photo card per world, with lock and progress ring. */
 export function WorldsScreen() {
   const t = useTranslations('screens.play.worlds');
   const router = useRouter();

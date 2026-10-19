@@ -179,9 +179,23 @@ r = await api('GET', `/children/${nora.id}/collection`, { mode: 'child' });
 ok('collection readable', r.status === 200);
 
 // ── Pages render for a logged-in child
-for (const path of ['/play/home', '/play/feed', '/play/worlds', '/play/collection', '/play/challenges', '/play/quest', '/play/me']) {
+for (const path of ['/play/home', '/play/feed', '/play/worlds', '/play/collection', '/play/challenges', '/play/quest', '/play/me', '/play/journey/ocean', '/credits']) {
   r = await call('GET', path, { headers: { accept: 'text/html' } });
   ok(`page ${path}`, r.status === 200);
+}
+
+// ── Pictures and credits (CR-16, CR-17): public, immutable, rewritten from /assets
+r = await api('GET', '/credits', { mode: 'child' });
+ok('credits list answers (items array)', r.status === 200 && Array.isArray(r.json?.items), r.text.slice(0, 100));
+r = await call('GET', '/assets/a_00000000000000000000.webp');
+ok('unknown asset is a 404 through the /assets rewrite', r.status === 404, String(r.status));
+const wl = await api('GET', '/worlds', { mode: 'child' });
+ok('worlds carry scenes and an accent colour', wl.status === 200 && wl.json.items.length >= 8 && wl.json.items.every((w) => /^#[0-9a-fA-F]{6}$/.test(w.accent_color) && Array.isArray(w.scenes ?? [])));
+const withPic = wl.json.items.find((w) => (w.hero ?? w.scenes?.[0])?.srcset?.length);
+if (withPic) {
+  const pic = withPic.hero ?? withPic.scenes[0];
+  r = await call('GET', pic.srcset[0].url);
+  ok('a world photo comes back as immutable webp', r.status === 200 && r.headers.get('content-type') === 'image/webp' && /immutable/.test(r.headers.get('cache-control') ?? ''), `${r.status} ${r.headers.get('cache-control')}`);
 }
 
 // ── Cleanup so reruns stay tidy

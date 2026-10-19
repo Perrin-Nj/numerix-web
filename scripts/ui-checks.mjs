@@ -331,6 +331,21 @@ await check('map keeps progress: the played world shows a finished node', async 
   const txt = (await page.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ');
   if (!/(réussi|terminé|maîtrisé)/i.test(txt)) throw new Error(`no finished node: ${txt.slice(0, 300)}`);
 });
+await check('world map: cards open a world page with a hero and quests on a path', async () => {
+  await page.goto(`${BASE}/play/worlds`, { waitUntil: 'networkidle' });
+  const n = await page.locator('[data-world]').count();
+  if (n < 8) throw new Error(`only ${n} world cards`);
+  await page.locator('[data-world="nature"]').click();
+  await page.waitForURL('**/play/journey/nature', { timeout: 15000 });
+  await page.getByRole('heading', { name: /nature/i, level: 1 }).waitFor({ timeout: 15000 });
+  await page.locator('ol button[data-state]').first().waitFor({ timeout: 15000 });
+});
+await check('credits page opens from Me', async () => {
+  await page.goto(`${BASE}/play/me`, { waitUntil: 'networkidle' });
+  await page.getByRole('link', { name: /crédits des images/i }).click();
+  await page.waitForURL('**/credits', { timeout: 15000 });
+  await page.getByRole('heading', { name: /crédits des images/i }).waitFor({ timeout: 15000 });
+});
 await check('cards: the welcome gift card is in the collection', async () => {
   if (!GIFT) return;
   await page.goto(`${BASE}/play/collection`, { waitUntil: 'networkidle' });

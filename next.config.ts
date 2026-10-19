@@ -11,6 +11,8 @@ const imageHosts = (process.env.IMAGE_HOSTS ?? '').split(',').map((h) => h.trim(
 const apiBase = (process.env.API_URL ?? 'http://localhost:8081/v1').replace(/\/$/, '');
 
 const nextConfig: NextConfig = {
+  // A second copy of the app (another port, another API) needs its own build folder
+  distDir: process.env.NX_DIST ?? '.next',
   async rewrites() {
     return [{ source: '/assets/:path*', destination: `${apiBase}/assets/:path*` }];
   },

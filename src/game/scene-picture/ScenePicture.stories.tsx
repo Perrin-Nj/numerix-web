@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { ScenePicture } from './ScenePicture';
+import { mockMedia } from '@/game/media-image';
 import { WORLD_IDS } from '@/data/api/types';
 
 const meta = {
@@ -59,3 +60,5 @@ export const ReducedMotion: Story = { globals: { motion: 'reduced' } };
 export const TVScale: Story = { globals: { display: 'tv' } };
 export const French: Story = { globals: { locale: 'fr-CA' } };
 export const English: Story = { globals: { locale: 'en-CA' } };
+
+export const WithSprite: Story = { args: { world: 'cuisine', numbers: [6, 7], sprite: mockMedia('#e0a458', 'Cookie', 256, 256) } };

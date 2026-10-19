@@ -3,7 +3,7 @@ import { ViewTransition, type ReactNode } from 'react';
 import { cn } from '@/shared/cn';
 import { useParallax } from '@/platform/motion';
 import type { World } from '@/data/api/types';
-import { MediaImage } from '@/game/media-image';
+import { MediaImage, heroOf } from '@/game/media-image';
 import { WorldBackdrop } from '@/game/world-card';
 
 export type WorldHeroProps = {
@@ -26,8 +26,8 @@ export function WorldHero({ world, top, guide, className }: WorldHeroProps) {
     <header className={cn('relative isolate overflow-hidden rounded-b-2xl bg-sunken text-white', className)}>
       <ViewTransition name={`world-${world.id}`} share="auto">
         <div ref={parallax} className="absolute -inset-x-6 -inset-y-8" style={{ transform: 'translate3d(var(--px,0px),var(--py,0px),0)' }}>
-          {world.hero ? (
-            <MediaImage media={world.hero} alt="" priority sizes="(min-width: 768px) 672px, 100vw" />
+          {heroOf(world) ? (
+            <MediaImage media={heroOf(world)!} alt="" priority sizes="(min-width: 768px) 672px, 100vw" />
           ) : (
             <WorldBackdrop world={world.id} accent={world.accent_color} />
           )}

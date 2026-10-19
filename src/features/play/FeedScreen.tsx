@@ -29,6 +29,7 @@ function LoadingCard() {
   );
 }
 
+/** Endless discover feed of story cards. */
 export function FeedScreen() {
   const t = useTranslations('screens.play.feed');
   const qc = useQueryClient();

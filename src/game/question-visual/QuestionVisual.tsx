@@ -46,7 +46,7 @@ function Bars({ data }: { data: D }) {
   const label = `${txt(data.title as Loc)} ${bars.map((b) => t('barItem', { label: txt(b.label), value: num(b.value) })).join(', ')}`;
   return (
     <Frame title={txt(data.title as Loc)} label={label}>
-      <div className="relative flex h-36 items-end gap-2 border-b-2 border-line-strong px-1">
+      <div className="relative flex h-28 items-end gap-2 border-b-2 border-line-strong px-1">
         {[0.5, 1].map((g) => (
           <span key={g} className="absolute inset-x-0 border-t border-dashed border-line" style={{ bottom: `${g * 100}%` }}>
             <span className="absolute -top-2 start-0 bg-elevated pe-1 text-xs text-muted">{Math.round(max * g)}</span>
@@ -146,24 +146,29 @@ function Clock({ data }: { data: D }) {
 
 function NumberLineV({ data }: { data: D }) {
   const t = useTranslations('game.questionVisual');
+  const nf = new Intl.NumberFormat(useLocale(), { maximumFractionDigits: 3 });
   const min = num(data.min);
   const max = num(data.max, 10);
-  const step = Math.max(num(data.step, 1), (max - min) / 40);
-  const labels = (data.labels as number[] | undefined) ?? [min, max];
-  const arrow = typeof data.arrow === 'number' ? data.arrow : null;
-  const x = (v: number) => 20 + (280 * (v - min)) / Math.max(max - min, 1);
-  const ticks: number[] = [];
-  for (let v = min; v <= max + 1e-9; v += step) ticks.push(v);
+  const span = Math.max(max - min, 1e-9);
+  // 0.1 steps drift in floating point: count the steps and round each tick instead of adding up
+  const step = Math.max(num(data.step, 1), span / 60);
+  const count = Math.round(span / step);
+  const round = (v: number) => Math.round(v * 1e6) / 1e6;
+  const labels = ((data.labels as number[] | undefined) ?? [min, max]).map(round);
+  const arrow = typeof data.arrow === 'number' ? round(data.arrow) : null;
+  const x = (v: number) => 20 + (280 * (v - min)) / span;
+  const ticks = Array.from({ length: count + 1 }, (_, i) => round(min + i * step));
+  const major = (v: number) => labels.includes(v);
   return (
-    <Frame label={t('numberline', { min, max })}>
+    <Frame label={t('numberline', { min: nf.format(min), max: nf.format(max) })}>
       <svg viewBox="0 0 320 90" className="w-full">
         <line x1={20} y1={50} x2={300} y2={50} strokeWidth="3" strokeLinecap="round" className="stroke-fg" />
         {ticks.map((v) => (
-          <line key={v} x1={x(v)} y1={labels.includes(v) ? 42 : 45} x2={x(v)} y2={labels.includes(v) ? 58 : 55} strokeWidth={labels.includes(v) ? 3 : 1.5} className="stroke-muted" />
+          <line key={v} x1={x(v)} y1={major(v) ? 42 : 45} x2={x(v)} y2={major(v) ? 58 : 55} strokeWidth={major(v) ? 3 : 1.5} className="stroke-muted" />
         ))}
         {labels.map((v) => (
           <text key={v} x={x(v)} y={78} textAnchor="middle" fontSize="13" className="fill-fg">
-            {v}
+            {nf.format(v)}
           </text>
         ))}
         {arrow !== null && (
@@ -179,26 +184,69 @@ function NumberLineV({ data }: { data: D }) {
   );
 }
 
+/**
+ * Grids come in two conventions in the bank. 1-based (a coordinate reaches `cols` or `rows`, or none is 0 and none
+ * is 0-based-only): x from the left, y from the BOTTOM, with axis numbers. 0-based (any coordinate is 0): column and
+ * row counted from the top left, no axis numbers. Labels shrink to fit their cell.
+ */
+export function gridConvention(cells: { x: number; y: number }[]): 'oneBased' | 'zeroBased' {
+  return cells.some((c) => c.x === 0 || c.y === 0) ? 'zeroBased' : 'oneBased';
+}
+
 function Grid({ data }: { data: D }) {
   const txt = useTxt();
   const t = useTranslations('game.questionVisual');
   const cols = Math.max(1, Math.min(10, num(data.cols, 4)));
   const rows = Math.max(1, Math.min(10, num(data.rows, 4)));
   const cells = (data.cells as { x: number; y: number; label: Loc }[] | undefined) ?? [];
-  const at = (x: number, y: number) => cells.find((c) => c.x === x && c.y === y);
+  const one = gridConvention(cells) === 'oneBased';
+  const at = (col: number, row: number) => (one ? cells.find((c) => c.x === col + 1 && c.y === rows - row) : cells.find((c) => c.x === col && c.y === row));
+  const counts = new Map<string, number>();
+  for (const c of cells) counts.set(txt(c.label), (counts.get(txt(c.label)) ?? 0) + 1);
+  const summary = [...counts].map(([l, n]) => (n > 1 ? `${l} x${n}` : l)).join(', ');
+  // Cell size in px: as large as the stage allows (about 200 px high, 280 px wide), never below 22
+  const cell = Math.max(22, Math.min(40, Math.floor(200 / rows), Math.floor(260 / cols)));
+  const cellW = cell;
+  const font = (s: string) => Math.max(9, Math.min(16, (cellW - 6) / Math.max(s.length * 0.58, 1.6)));
   return (
-    <Frame label={t('grid', { cols, rows })}>
-      <div className="mx-auto grid max-w-72 gap-0.5" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-        {Array.from({ length: rows * cols }, (_, i) => {
-          const x = i % cols;
-          const y = Math.floor(i / cols);
-          const c = at(x, y);
-          return (
-            <span key={i} className={cn('flex aspect-square items-center justify-center rounded-sm border border-line-strong text-sm font-bold', c ? 'bg-brand text-brand-fg' : 'bg-bg')}>
-              {c ? txt(c.label) : ''}
-            </span>
-          );
-        })}
+    <Frame label={`${t('grid', { cols, rows })}. ${summary}`}>
+      <div className="mx-auto flex w-fit gap-1">
+        {one && (
+          <div className="flex flex-col pe-0.5 text-xs font-semibold text-muted" style={{ rowGap: 2 }}>
+            {Array.from({ length: rows }, (_, r) => (
+              <span key={r} className="flex items-center" style={{ height: cell }}>
+                {rows - r}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="min-w-0">
+          <div className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${cols}, ${cell}px)`, gridAutoRows: `${cell}px` }}>
+            {Array.from({ length: rows * cols }, (_, i) => {
+              const col = i % cols;
+              const row = Math.floor(i / cols);
+              const c = at(col, row);
+              const label = c ? txt(c.label) : '';
+              return (
+                <span
+                  key={i}
+                  title={label || undefined}
+                  className={cn('flex items-center justify-center overflow-hidden rounded-sm border border-line-strong text-center font-bold leading-none', c ? 'bg-brand text-brand-fg' : 'bg-bg')}
+                  style={label ? { fontSize: font(label) } : undefined}
+                >
+                  {label}
+                </span>
+              );
+            })}
+          </div>
+          {one && (
+            <div className="mt-0.5 grid text-center text-xs font-semibold text-muted" style={{ gridTemplateColumns: `repeat(${cols}, ${cell}px)`, columnGap: 2 }}>
+              {Array.from({ length: cols }, (_, k) => (
+                <span key={k}>{k + 1}</span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </Frame>
   );

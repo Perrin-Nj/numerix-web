@@ -39,7 +39,7 @@ const measure = () =>
     return out;
   });
 
-const routes = ['/', '/play/home', '/play/feed', '/play/worlds', '/play/journey/nature', '/play/collection', '/play/challenges', '/play/me', '/parent/login'];
+const routes = ['/', '/play/home', '/play/feed', '/play/worlds', '/play/journey/nature', '/play/collection', '/play/challenges', '/play/me', '/credits', '/parent/login'];
 for (const route of routes) {
   await page.goto(`${BASE}${route}`, { waitUntil: 'networkidle', timeout: 90000 }).catch(() => {});
   await page.waitForTimeout(900);

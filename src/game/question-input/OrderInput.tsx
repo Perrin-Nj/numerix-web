@@ -68,9 +68,11 @@ export function OrderInput({ question, phase, chosen, outcome, onSubmit }: Input
       <ol aria-label={t('yourOrder')} className="m-0 flex list-none flex-col gap-1.5 p-0">
         {cards.map((_, slot) => {
           const id = shownIds[slot];
+          // Only the next free place is drawn: the list grows as cards are placed, which keeps the screen short
+          if (!id && slot > shownIds.length) return null;
           if (!id) {
             return (
-              <li key={`s${slot}`} aria-label={t('emptySlot', { n: slot + 1 })} className="flex min-h-12 items-center gap-3 rounded-md border-2 border-dashed border-line px-3 text-muted">
+              <li key={`s${slot}`} aria-label={t('emptySlot', { n: slot + 1 })} className="flex min-h-11 items-center gap-3 rounded-md border-2 border-dashed border-line px-3 text-muted">
                 <span aria-hidden className="flex size-8 items-center justify-center rounded-full border-2 border-line text-base font-bold">
                   {slot + 1}
                 </span>

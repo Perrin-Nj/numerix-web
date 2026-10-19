@@ -34,9 +34,9 @@ export function inputKind(q: Question): InputKind {
   return 'keypad';
 }
 
-/** True when the statement asks for a quotient and a remainder. */
+/** True when the statement asks for a quotient and a remainder. Only the explicit phrases count: a plain "reste" is an everyday verb ("combien lui reste-t-il"). */
 export function wantsRemainder(q: Question): boolean {
-  return /\b(avec reste|with remainder|remainder|reste)\b/i.test(`${q.math_text} ${q.prompt ?? ''}`);
+  return /\b(avec reste|with remainder)\b/i.test(`${q.math_text} ${q.prompt ?? ''}`);
 }
 
 /** Style of the submit row, shared by every input that needs a "Check" button. */

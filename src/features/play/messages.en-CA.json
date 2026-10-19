@@ -2,34 +2,76 @@
   "screens": {
     "play": {
       "story": {
-        "hint": "Give me a hint",
-        "hintError": "The hint did not arrive.",
-        "hintRetry": "Tap the button to try again."
+        "exit": {
+          "label": "Leave the game",
+          "title": "Leave this story?",
+          "text": "Your story will be put away. You can start another one whenever you like.",
+          "confirm": "Leave the game",
+          "stay": "Keep playing"
+        },
+        "tapToHear": "Tap to hear the story"
       },
-      "worlds": {
-        "guide": "Where do we go today? Pick a world.",
-        "lockedTitle": "This world is asleep",
-        "lockedText": "A grown-up can open it in the parent area. Pick another world for now.",
-        "lockedOk": "Got it"
+      "home": {
+        "menu": {
+          "label": "Game menu",
+          "challenges": "Challenges",
+          "challengesHint": "Take one on",
+          "discover": "Discover",
+          "discoverHint": "A feed that never ends",
+          "worlds": "Worlds",
+          "worldsHint": "Pick your adventure",
+          "cards": "Cards",
+          "cardsHint": "Your collection",
+          "progress": "My progress",
+          "progressHint": "Your streak and steps",
+          "quest": "Daily quest",
+          "questHint": "A chapter to revisit"
+        }
       },
-      "journey": {
-        "guide": "Pick a quest on the path, or press Play and I will choose for you.",
-        "empty": "No quest is ready in this world yet. Try another world while we get it ready."
+      "challenges": {
+        "title": "Challenges",
+        "intro": "Pick a challenge, take it on by playing, and win a card that is all yours."
+      },
+      "celebrate": {
+        "title": "Challenge done!"
+      },
+      "me": {
+        "voice": {
+          "title": "Voice and help",
+          "voice": "Read aloud",
+          "voiceHint": "Stories and hints can be heard.",
+          "vibration": "Gentle buzz",
+          "vibrationHint": "A short buzz when you answer, on phones that can.",
+          "hints": "Little nudges",
+          "hintsHint": "A gentle hint when you think for a while.",
+          "delay": "Hint after",
+          "delayUnit": "{n} s",
+          "volume": "Hint volume",
+          "low": "Soft",
+          "medium": "Medium",
+          "normal": "Normal",
+          "test": "Test the voice",
+          "sample": "Hello! I am your voice for the stories. Ready to go?",
+          "using": "Chosen voice: {name}",
+          "noVoice": "No voice found on this device for this language. Ask a grown-up to add a voice in the device settings (Windows: Settings, Time and language, Speech; or open the app in Microsoft Edge, which has natural voices).",
+          "tapToHear": "Tap the screen to hear it."
+        },
+        "account": {
+          "title": "Who is playing?",
+          "hint": "Switch player, or sign the device out. When a grown-up signs out, everything the device remembered is erased.",
+          "switch": "Switch player",
+          "signOut": "Sign the device out (grown-up)"
+        },
+        "language": {
+          "title": "Language",
+          "label": "App language",
+          "locked": "A grown-up chose the app language. Ask them if you want to change it."
+        }
+      },
+      "done": {
+        "noCard": "No card this time. You need at least {pct}% right answers to win it. Play this chapter again, you can do it!",
+        "missed": "You found {right} right answer{right, plural, one {} other {s}} out of {total}. Not quite yet, and that is fine: we learn by trying. Come back later and we will do it together. You need {pct}% right answers to win the card."
       }
-    },
-    "credits": {
-      "title": "Picture credits",
-      "intro": "Thanks to the photographers and artists whose pictures make our worlds.",
-      "empty": "No credits to show yet.",
-      "back": "Back",
-      "licence": "Licence: {licence}",
-      "source": "Source",
-      "licenceLink": "Licence terms"
-    }
-  },
-  "game": {
-    "creditsLink": {
-      "label": "Picture credits"
     }
   }
 }

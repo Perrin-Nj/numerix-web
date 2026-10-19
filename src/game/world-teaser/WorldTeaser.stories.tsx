@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { WorldTeaser } from './WorldTeaser';
+import { mockMedia } from '@/game/media-image';
 
 const meta = {
   title: 'game/WorldTeaser',
@@ -55,3 +56,7 @@ export const WithoutHook: Story = {
   },
 };
 export const TVScale: Story = { globals: { display: 'tv' } };
+
+export const WithPhoto: Story = {
+  args: { world: { id: 'ocean', name: 'Océan', tagline: '', image_url: '', accent_color: '#1d7fb8', hook: 'Compte les poissons du récif.', skill_count: 8, scenes: [mockMedia('#1d7fb8', 'Reef', 480, 480)] } },
+};

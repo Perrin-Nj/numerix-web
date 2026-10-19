@@ -12,6 +12,7 @@ import { Skeleton } from '@/ui/skeleton';
 import { ScreenState } from '@/game/screen-state';
 import { WORLD_IDS, type World, type WorldId } from '@/data/api/types';
 
+/** World page: parallax photo header, owl guide and the quests on a winding path. */
 export function JourneyScreen({ world }: { world: string }) {
   const t = useTranslations('screens.play.journey');
   const tw = useTranslations('worlds');

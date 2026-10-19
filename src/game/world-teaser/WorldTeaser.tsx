@@ -6,7 +6,7 @@ import { useSound } from '@/platform/audio';
 import type { World } from '@/data/api/types';
 import { WORLD_BG } from '@/game/illustration-frame';
 import { WorldScene } from '@/game/world-scene';
-import { MediaImage } from '@/game/media-image';
+import { MediaImage, heroOf } from '@/game/media-image';
 import { Icon } from '@/ui/icon';
 
 export type WorldTeaserProps = { world: World; onOpen: (world: World) => void };
@@ -27,7 +27,7 @@ function WorldTeaserBase({ world, onOpen }: WorldTeaserProps) {
         aria-hidden
         className={cn('size-20 shrink-0 overflow-hidden rounded-md transition-transform duration-[var(--dur-3)] ease-[var(--ease-spring)] group-hover:scale-110 group-focus-visible:scale-110', WORLD_BG[world.id])}
       >
-        {world.hero ? <MediaImage media={world.hero} alt="" sizes="80px" /> : <WorldScene world={world.id} variant="tile" />}
+        {heroOf(world) ? <MediaImage media={heroOf(world)!} alt="" sizes="80px" /> : <WorldScene world={world.id} variant="tile" />}
       </span>
       <span className="flex flex-1 flex-col gap-1">
         <span className="font-display text-xl font-bold">{world.name}</span>

@@ -82,3 +82,4 @@ export const TVScale: Story = {
   ],
 };
 export const Miss: Story = { args: { state: 'miss' } };
+export const FifthCard: Story = { args: { value: 'Cinquième', index: 4 } };

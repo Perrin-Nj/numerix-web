@@ -122,6 +122,7 @@ function VoicePanel() {
   );
 }
 
+/** The child's own page: progress, voice and help settings, who is playing, credits link. */
 export function MeScreen() {
   const t = useTranslations('screens.play.me');
   const router = useRouter();

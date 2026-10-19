@@ -6,6 +6,7 @@ import { NarrationText } from '@/game/narration-text';
 import { ChoiceButton } from '@/game/choice-button';
 import { OutcomeBeat } from '@/game/outcome-beat';
 import { Button } from '@/ui/button';
+import { QuestionInput } from '@/game/question-input';
 import type { AnswerValue } from '@/data/api/types';
 
 const VALUES: AnswerValue[] = [12, 14, 16, 18];
@@ -79,3 +80,12 @@ export const TV: Story = {
   globals: { display: 'tv', viewport: { value: 'tv' } },
 };
 export const ChoicesHidden: Story = { args: { choicesHidden: true } };
+
+export const FreeInputKeypad: Story = {
+  args: {
+    choicesFree: true,
+    compactStage: true,
+    choices: <QuestionInput question={{ math_text: '6 + 7 = ?', kind: 'numeric', choices: [] }} phase="question" chosen={null} outcome={null} onSubmit={() => {}} />,
+  },
+  globals: { viewport: { value: 'phone' } },
+};

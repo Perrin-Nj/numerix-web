@@ -49,6 +49,21 @@
           "streak": "Chaque jour où tu finis un chapitre, ta flamme grandit.",
           "worldsTitle": "Tes mondes",
           "worlds": "Choisis le monde que tu aimes : nature, espace, cuisine et plus encore."
+        },
+        "menu": {
+          "label": "Menu de jeu",
+          "challenges": "Défis",
+          "challengesHint": "Relève-en un",
+          "discover": "Découvrir",
+          "discoverHint": "Un fil sans fin",
+          "worlds": "Mondes",
+          "worldsHint": "Choisis ton aventure",
+          "cards": "Cartes",
+          "cardsHint": "Ta collection",
+          "progress": "Mes progrès",
+          "progressHint": "Ta série et tes pas",
+          "quest": "Défi du jour",
+          "questHint": "Un chapitre à retrouver"
         }
       },
       "feed": {
@@ -91,7 +106,38 @@
         "growth": "Ta progression",
         "growthLine": "Chapitres terminés cette semaine : {now} (avant : {before}).",
         "skillsLine": "Nouvelles compétences : {now} (avant : {before}).",
-        "grownUps": "Espace des adultes"
+        "grownUps": "Espace des adultes",
+        "voice": {
+          "title": "Voix et aide",
+          "voice": "Lire à voix haute",
+          "voiceHint": "Les histoires et les indices se font entendre.",
+          "vibration": "Petite vibration",
+          "vibrationHint": "Une courte vibration quand tu réponds, sur les téléphones qui peuvent.",
+          "hints": "Petits coups de pouce",
+          "hintsHint": "Un indice doux quand tu réfléchis longtemps.",
+          "delay": "Indice après",
+          "delayUnit": "{n} s",
+          "volume": "Volume des indices",
+          "low": "Doux",
+          "medium": "Moyen",
+          "normal": "Normal",
+          "test": "Tester la voix",
+          "sample": "Bonjour ! Je suis ta voix pour les histoires. On y va ?",
+          "using": "Voix choisie : {name}",
+          "noVoice": "Aucune voix trouvée sur cet appareil pour cette langue. Demande à un adulte d'ajouter une voix dans les réglages de l'appareil (Windows : Paramètres, Heure et langue, Voix ; ou ouvre l'appli dans Microsoft Edge qui offre des voix naturelles).",
+          "tapToHear": "Touche l'écran pour entendre."
+        },
+        "account": {
+          "title": "Qui joue ?",
+          "hint": "Change de joueur, ou déconnecte l'appareil. Quand un adulte se déconnecte, tout ce que l'appareil retenait est effacé.",
+          "switch": "Changer de joueur",
+          "signOut": "Déconnecter l'appareil (adulte)"
+        },
+        "language": {
+          "title": "Langue",
+          "label": "Langue de l'appli",
+          "locked": "Un adulte a choisi la langue de l'appli. Demande-lui si tu veux la changer."
+        }
       },
       "story": {
         "pause": "Faire une pause",
@@ -113,9 +159,28 @@
           "curious": "Oh, un détour intéressant !",
           "amazed": "Waouh, personne ne l’avait vu venir !"
         },
+        "exit": {
+          "label": "Quitter la partie",
+          "title": "Quitter cette histoire ?",
+          "text": "Ton histoire sera rangée. Tu pourras en commencer une autre quand tu veux.",
+          "confirm": "Quitter la partie",
+          "stay": "Continuer à jouer"
+        },
+        "tapToHear": "Touche pour écouter l'histoire",
         "hint": "Donne-moi un indice",
         "hintError": "L’indice n’est pas arrivé.",
         "hintRetry": "Touche le bouton pour réessayer."
+      },
+      "challenges": {
+        "title": "Défis",
+        "intro": "Choisis un défi, relève-le en jouant, et gagne une carte rien qu'à toi."
+      },
+      "celebrate": {
+        "title": "Défi réussi !"
+      },
+      "done": {
+        "noCard": "Pas de carte cette fois. Il faut au moins {pct} % de bonnes réponses pour la gagner. Rejoue ce chapitre, tu vas y arriver !",
+        "missed": "Tu as trouvé {right} bonne{right, plural, one {} other {s}} réponse{right, plural, one {} other {s}} sur {total}. Ce n'est pas encore ça, et c'est normal : on apprend en essayant. Reviens plus tard, on le refera ensemble. Il faut {pct} % de bonnes réponses pour gagner la carte."
       }
     },
     "parentGate": {
@@ -806,6 +871,16 @@
             "0": "Une pièce peut rester coincée quand on compte mal. Regarde, le cavalier a un autre chemin.",
             "1": "On a vu le piège. Il y a toujours une autre route, tu y es presque."
           }
+        },
+        "generic": {
+          "good": {
+            "0": "Voilà, ça marche ! Bien compté.",
+            "1": "Bravo : cette partie de l’histoire brille."
+          },
+          "bad": {
+            "0": "Un petit détour. Regarde l’image, puis tu pourras réessayer.",
+            "1": "Pas cette fois, et c’est normal. On apprend en essayant."
+          }
         }
       }
     },
@@ -886,7 +961,19 @@
         "construction": "{n, plural, one {brique} other {briques}}",
         "medecine": "{n, plural, one {pilule} other {pilules}}",
         "science": "{n, plural, one {cristal} other {cristaux}}",
-        "echecs": "{n, plural, one {pion} other {pions}}"
+        "echecs": "{n, plural, one {pion} other {pions}}",
+        "ocean": "{n, plural, one {poisson} other {poissons}}",
+        "dinosaures": "{n, plural, one {œuf} other {œufs}}",
+        "animaux": "{n, plural, one {empreinte} other {empreintes}}",
+        "musique": "{n, plural, one {note} other {notes}}",
+        "transport": "{n, plural, one {auto} other {autos}}",
+        "pirates": "{n, plural, one {pièce} other {pièces}}",
+        "marche": "{n, plural, one {pomme} other {pommes}}",
+        "meteo": "{n, plural, one {rayon} other {rayons}}",
+        "robots": "{n, plural, one {engrenage} other {engrenages}}",
+        "arts": "{n, plural, one {pinceau} other {pinceaux}}",
+        "hiver": "{n, plural, one {flocon} other {flocons}}",
+        "jeux": "{n, plural, one {dé} other {dés}}"
       },
       "alt": {
         "add": "{a} {ia} et {b} {ib}, à réunir.",

@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/shared/cn';
 import { useSound, type SoundName } from '@/platform/audio';
 import type { WorldId } from '@/data/api/types';
-import { SCENES } from './sims';
+import { SCENES, isLegacyWorld } from './sims';
 
 export const SIM_MS = 3000;
 
@@ -52,6 +52,8 @@ export function OutcomeSim({ world, good, playing = true, onDone, variant, showC
   const uid = useId();
   const v = variant ?? ((Array.from(uid).reduce((n, c) => n + c.charCodeAt(0), 0) % 2) as 0 | 1);
   const outcome = good ? 'good' : 'bad';
+  // Worlds without their own animation share one set of captions
+  const capWorld = isLegacyWorld(world) ? world : 'generic';
   const runKey = `${world}-${outcome}`;
   const [skipped, setSkipped] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -83,11 +85,11 @@ export function OutcomeSim({ world, good, playing = true, onDone, variant, showC
         className="nx-sim-root block w-full overflow-hidden rounded-lg border-2 border-line shadow-2"
         data-skip={still ? '' : undefined}
       >
-        <svg key={runKey} viewBox="0 0 320 180" role="img" aria-label={t(`caption.${world}.${outcome}.${v}`)} className="block aspect-[16/9] w-full">
+        <svg key={runKey} viewBox="0 0 320 180" role="img" aria-label={t(`caption.${capWorld}.${outcome}.${v}`)} className="block aspect-[16/9] w-full">
           {SCENES[world][outcome]}
         </svg>
       </button>
-      <figcaption aria-hidden={!showCaption} className={cn('mt-2 text-center font-display text-lg text-fg transition-opacity duration-300', !showCaption && 'opacity-0')}>{t(`caption.${world}.${outcome}.${v}`)}</figcaption>
+      <figcaption aria-hidden={!showCaption} className={cn('mt-2 text-center font-display text-lg text-fg transition-opacity duration-300', !showCaption && 'opacity-0')}>{t(`caption.${capWorld}.${outcome}.${v}`)}</figcaption>
     </figure>
   );
 }

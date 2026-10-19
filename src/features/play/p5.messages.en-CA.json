@@ -1,0 +1,35 @@
+{
+  "screens": {
+    "play": {
+      "story": {
+        "hint": "Give me a hint",
+        "hintError": "The hint did not arrive.",
+        "hintRetry": "Tap the button to try again."
+      },
+      "worlds": {
+        "guide": "Where do we go today? Pick a world.",
+        "lockedTitle": "This world is asleep",
+        "lockedText": "A grown-up can open it in the parent area. Pick another world for now.",
+        "lockedOk": "Got it"
+      },
+      "journey": {
+        "guide": "Pick a quest on the path, or press Play and I will choose for you.",
+        "empty": "No quest is ready in this world yet. Try another world while we get it ready."
+      }
+    },
+    "credits": {
+      "title": "Picture credits",
+      "intro": "Thanks to the photographers and artists whose pictures make our worlds.",
+      "empty": "No credits to show yet.",
+      "back": "Back",
+      "licence": "Licence: {licence}",
+      "source": "Source",
+      "licenceLink": "Licence terms"
+    }
+  },
+  "game": {
+    "creditsLink": {
+      "label": "Picture credits"
+    }
+  }
+}

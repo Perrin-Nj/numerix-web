@@ -82,6 +82,16 @@
             "0": "A piece can get stuck when we count wrong. Look, the knight has another path.",
             "1": "We saw the trap. There is always another route, you are close."
           }
+        },
+        "generic": {
+          "good": {
+            "0": "There it is, it works! Great counting.",
+            "1": "Well done: that part of the story shines."
+          },
+          "bad": {
+            "0": "A small detour. Look at the picture, then you can try again.",
+            "1": "Not this time, and that is fine. We learn by trying."
+          }
         }
       }
     }

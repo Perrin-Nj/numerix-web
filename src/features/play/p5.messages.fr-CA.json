@@ -1,0 +1,35 @@
+{
+  "screens": {
+    "play": {
+      "story": {
+        "hint": "Donne-moi un indice",
+        "hintError": "L’indice n’est pas arrivé.",
+        "hintRetry": "Touche le bouton pour réessayer."
+      },
+      "worlds": {
+        "guide": "On va où aujourd’hui ? Choisis un monde.",
+        "lockedTitle": "Ce monde dort encore",
+        "lockedText": "Un adulte peut l’ouvrir dans l’espace parent. Choisis un autre monde pour l’instant.",
+        "lockedOk": "Compris"
+      },
+      "journey": {
+        "guide": "Choisis une quête sur le chemin, ou touche Jouer et je choisis pour toi.",
+        "empty": "Aucune quête n’est prête dans ce monde. Essaie un autre monde pendant qu’on la prépare."
+      }
+    },
+    "credits": {
+      "title": "Crédits des images",
+      "intro": "Merci aux photographes et aux artistes dont les images font vivre nos mondes.",
+      "empty": "Aucun crédit à afficher pour l’instant.",
+      "back": "Retour",
+      "licence": "Licence : {licence}",
+      "source": "Source",
+      "licenceLink": "Conditions de la licence"
+    }
+  },
+  "game": {
+    "creditsLink": {
+      "label": "Crédits des images"
+    }
+  }
+}

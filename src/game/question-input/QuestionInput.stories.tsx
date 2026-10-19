@@ -118,3 +118,12 @@ export const Helpers: Story = {
     await expect(within(canvasElement).getByText('[["c","a","b"],"keypad","choice"]')).toBeInTheDocument();
   },
 };
+
+export const RestIsJustAWord: Story = {
+  args: { ...args, question: { ...base, kind: 'numeric', math_text: '8 120 - 3 905 = ?', prompt: 'Combien de km lui reste-t-il à faire ?' } },
+  render: (a) => <Host question={a.question} correct={(v) => v === 4215} />,
+  play: async ({ canvasElement }) => {
+    // one field only: no "Il reste" box
+    await expect(within(canvasElement).queryByRole('button', { name: 'Il reste' })).toBeNull();
+  },
+};

@@ -82,6 +82,16 @@
             "0": "Une pièce peut rester coincée quand on compte mal. Regarde, le cavalier a un autre chemin.",
             "1": "On a vu le piège. Il y a toujours une autre route, tu y es presque."
           }
+        },
+        "generic": {
+          "good": {
+            "0": "Voilà, ça marche ! Bien compté.",
+            "1": "Bravo : cette partie de l’histoire brille."
+          },
+          "bad": {
+            "0": "Un petit détour. Regarde l’image, puis tu pourras réessayer.",
+            "1": "Pas cette fois, et c’est normal. On apprend en essayant."
+          }
         }
       }
     }

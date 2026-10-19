@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { JourneyPath } from './JourneyPath';
+import { mockMedia } from '@/game/media-image';
 import type { JourneyNode, NodeState } from '@/data/api/types';
 
 const STATES: NodeState[] = [
@@ -58,4 +59,8 @@ export const Empty: Story = { args: { nodes: [], currentSkillId: null } };
 export const Phone: Story = { globals: { viewport: { value: 'phone' } } };
 export const TVScale: Story = {
   globals: { display: 'tv', viewport: { value: 'tv' } },
+};
+
+export const WithScenePhotos: Story = {
+  args: { scenes: [mockMedia('#1d7fb8', 'Reef', 480, 480), mockMedia('#2e8b57', 'Forest', 480, 480), mockMedia('#d9822b', 'Oven', 480, 480)] },
 };

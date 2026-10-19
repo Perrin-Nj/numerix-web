@@ -9,7 +9,19 @@
         "construction": "{n, plural, one {brick} other {bricks}}",
         "medecine": "{n, plural, one {pill} other {pills}}",
         "science": "{n, plural, one {crystal} other {crystals}}",
-        "echecs": "{n, plural, one {pawn} other {pawns}}"
+        "echecs": "{n, plural, one {pawn} other {pawns}}",
+        "ocean": "{n, plural, one {fish} other {fish}}",
+        "dinosaures": "{n, plural, one {egg} other {eggs}}",
+        "animaux": "{n, plural, one {paw print} other {paw prints}}",
+        "musique": "{n, plural, one {note} other {notes}}",
+        "transport": "{n, plural, one {car} other {cars}}",
+        "pirates": "{n, plural, one {coin} other {coins}}",
+        "marche": "{n, plural, one {apple} other {apples}}",
+        "meteo": "{n, plural, one {sunbeam} other {sunbeams}}",
+        "robots": "{n, plural, one {gear} other {gears}}",
+        "arts": "{n, plural, one {brush} other {brushes}}",
+        "hiver": "{n, plural, one {snowflake} other {snowflakes}}",
+        "jeux": "{n, plural, one {die} other {dice}}"
       },
       "alt": {
         "add": "{a} {ia} and {b} {ib}, to put together.",

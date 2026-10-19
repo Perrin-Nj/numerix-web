@@ -438,10 +438,13 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
         choicesHidden={sheetVisible}
         choicesFree
         compactStage={compact}
+        mediumStage={Boolean(q?.kind)}
+        visualStage={Boolean(q?.visual) && !sheetVisible}
         illustration={
           <IllustrationFrame
             world={world}
             media={sceneMedia}
+            fill
             mood={mood}
             alt={t('illustration')}
             stageKey={s.beat && outcomeStage ? (showHow ? `how-${s.beat.id}` : `sim-${s.beat.id}`) : `scene-${s.beat?.id ?? ''}`}

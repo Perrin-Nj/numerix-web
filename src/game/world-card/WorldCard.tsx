@@ -5,7 +5,7 @@ import { cn } from '@/shared/cn';
 import { useSound } from '@/platform/audio';
 import { useParallax, useTilt } from '@/platform/motion';
 import type { World } from '@/data/api/types';
-import { MediaImage } from '@/game/media-image';
+import { MediaImage, heroOf } from '@/game/media-image';
 import { Mascot } from '@/game/mascot';
 import { Icon } from '@/ui/icon';
 import { WorldBackdrop } from './WorldBackdrop';
@@ -56,8 +56,9 @@ function WorldCardBase({ world, locked = false, progress = null, suggested = fal
   const { play } = useSound();
   const parallax = useParallax<HTMLSpanElement>(8);
   const tilt = useTilt<HTMLButtonElement>(4);
-  const pct = progress == null ? null : Math.round(progress * 100);
-  const sub = locked ? t('locked') : pct === null ? world.tagline : t('progress', { pct });
+  // Nothing is said about a path that has not been started: no "0 percent" on every card
+  const pct = progress == null || progress <= 0 ? null : Math.round(progress * 100);
+  const sub = locked ? t('locked') : pct === null ? world.hook || world.tagline : t('progress', { pct });
 
   return (
     <button
@@ -78,8 +79,8 @@ function WorldCardBase({ world, locked = false, progress = null, suggested = fal
     >
       <ViewTransition name={`world-${world.id}`} share="auto">
         <span ref={parallax} className="absolute -inset-3 block" style={{ transform: 'translate3d(var(--px,0px),var(--py,0px),0)' }}>
-          {world.hero ? (
-            <MediaImage media={world.hero} alt="" priority={priority} sizes="(min-width: 1024px) 22vw, (min-width: 640px) 33vw, 50vw" />
+          {heroOf(world) ? (
+            <MediaImage media={heroOf(world)!} alt="" priority={priority} sizes="(min-width: 1024px) 22vw, (min-width: 640px) 33vw, 50vw" />
           ) : (
             <WorldBackdrop world={world.id} accent={world.accent_color} />
           )}
@@ -108,4 +109,5 @@ function WorldCardBase({ world, locked = false, progress = null, suggested = fal
   );
 }
 
+/** A world of the map (memoised). */
 export const WorldCard = memo(WorldCardBase);

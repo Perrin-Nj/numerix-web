@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { JourneyNode } from './JourneyNode';
+import { mockMedia } from '@/game/media-image';
 import type { JourneyNode as Data, NodeState } from '@/data/api/types';
 
 const node = (state: NodeState, level = 0): Data => ({
@@ -51,3 +52,9 @@ export const AllStates: Story = {
   ),
 };
 export const TVScale: Story = { ...AllStates, globals: { display: 'tv' } };
+
+const thumb = mockMedia('#1d7fb8', 'Reef', 480, 480);
+const quest = { id: 'ocean.recif', name: 'Les poissons du récif', goal: 'Compter des poissons par groupes' };
+export const WithPhoto: Story = { args: { node: { ...node('available'), quest }, thumb } };
+export const WithPhotoLocked: Story = { args: { node: { ...node('locked'), quest }, thumb } };
+export const WithPhotoMastered: Story = { args: { node: { ...node('mastered', 2), quest }, thumb } };

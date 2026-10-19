@@ -60,6 +60,8 @@ export type IllustrationFrameProps = {
   src?: string | null;
   /** Photo of the question's scene (server MediaRef). Full when alone, a soft backdrop under a stage or picture. */
   media?: MediaRef | null;
+  /** Fill the parent's height instead of keeping a 16:9 shape (the play screen sizes the stage itself). */
+  fill?: boolean;
   alt: string;
   mood?: IllustrationMood;
   /** Drawn over the scene, e.g. a ScenePicture. The frame keeps its alt. */
@@ -75,12 +77,12 @@ export type IllustrationFrameProps = {
   className?: string;
 };
 
-export function IllustrationFrame({ world, src, media, alt, mood = 'idle', picture, stage, stageKey, children, className }: IllustrationFrameProps) {
+export function IllustrationFrame({ world, src, media, fill, alt, mood = 'idle', picture, stage, stageKey, children, className }: IllustrationFrameProps) {
   return (
     <div
       className={cn(
         'relative w-full overflow-hidden rounded-lg shadow-2',
-        stage ? 'h-full min-h-40' : 'aspect-[16/9] max-h-[30dvh] lg:aspect-[4/3] lg:max-h-none',
+        stage || fill ? 'h-full min-h-28' : 'aspect-[16/9] max-h-[30dvh] lg:aspect-[4/3] lg:max-h-none',
         WORLD_BG[world],
         className,
       )}

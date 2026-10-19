@@ -22,6 +22,11 @@ export function widest(media: MediaRef): string {
   return sorted[0]?.url ?? '';
 }
 
+/** The picture that stands for a world: its hero, else the first scene (a hero is only set once art is approved). */
+export function heroOf(world: { hero?: MediaRef; scenes?: MediaRef[] }): MediaRef | undefined {
+  return world.hero ?? world.scenes?.[0];
+}
+
 export function toSrcSet(media: MediaRef): string {
   return media.srcset.map((s) => `${s.url} ${s.w}w`).join(', ');
 }
@@ -84,4 +89,5 @@ function MediaImageBase({ media, sizes = '100vw', priority = false, alt, fit = '
   );
 }
 
+/** Responsive server image with colour, blurred preview and fade-in. */
 export const MediaImage = memo(MediaImageBase);

@@ -21,3 +21,4 @@ nul
 .vercel-env-pull.tmp
 smoke-shots/
 smoke-error-shots/
+.next-*/

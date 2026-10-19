@@ -35,3 +35,11 @@ export const ReducedMotion: Story = { globals: { motion: 'reduced' } };
 export const TVScale: Story = { globals: { display: 'tv' } };
 export const French: Story = { globals: { locale: 'fr-CA' } };
 export const English: Story = { globals: { locale: 'en-CA' } };
+export const WrongWithExplanation: Story = {
+  args: {
+    right: false,
+    line: 'Pas encore, on réfléchit ensemble.',
+    detail: 'Presque ! Compte les deux plaques encore une fois.',
+    explain: '8 + 7 = 8 + 2 + 5, donc 10 + 5.',
+  },
+};

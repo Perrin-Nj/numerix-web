@@ -7,7 +7,7 @@ import { useSpokenLine } from '@/platform/speech/useSpokenLine';
 import { useRouter } from 'next/navigation';
 import { getSession, keys, useEngagement, useSessionStatus, useWorlds } from '@/data/hooks';
 import { useReducedMotion } from '@/platform/motion';
-import { MediaImage } from '@/game/media-image';
+import { MediaImage, heroOf } from '@/game/media-image';
 import { useStartChapter } from './useStartChapter';
 import { ChapterComplete } from '@/game/chapter-complete';
 import { MascotBubble } from '@/game/mascot-bubble';
@@ -24,6 +24,7 @@ function readRewards(sessionId: string): Reward[] {
   }
 }
 
+/** End of a chapter: world photo, confetti on a win, the rewards one by one, then next chapter or home. */
 export function DoneScreen({ sessionId }: { sessionId: string }) {
   const router = useRouter();
   const status = useSessionStatus();
@@ -32,7 +33,8 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
   const engagement = useEngagement(childId);
   const worlds = useWorlds();
   const reduced = useReducedMotion();
-  const hero = worlds.data?.find((w) => w.id === session.data?.world)?.hero;
+  const w = worlds.data?.find((x) => x.id === session.data?.world);
+  const hero = w ? heroOf(w) : undefined;
   const { begin, dialog } = useStartChapter(childId);
   const rewards = useMemo(() => readRewards(sessionId), [sessionId]);
   const pick = usePickLine();

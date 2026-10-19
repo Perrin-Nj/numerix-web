@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { IllustrationFrame } from './IllustrationFrame';
+import { mockMedia } from '@/game/media-image';
 import { WORLD_IDS } from '@/data/api/types';
 
 const meta = {
@@ -46,4 +47,10 @@ export const English: Story = { args: { alt: 'A forest clearing' }, globals: { l
 export const StageSwap: Story = {
   args: { stage: <span className="text-6xl">🌱🌱🌱</span>, stageKey: 'scene' },
   decorators: [(Story) => <div className="h-56"><Story /></div>],
+};
+
+export const WithScenePhoto: Story = { args: { media: mockMedia('#4aa3df', 'Ocean') } };
+export const PhotoAsSoftBackdrop: Story = {
+  args: { media: mockMedia('#4aa3df', 'Ocean'), stage: <p className="font-display text-2xl">6 + 7</p>, fill: true },
+  decorators: [(Story) => <div className="h-48"><Story /></div>],
 };

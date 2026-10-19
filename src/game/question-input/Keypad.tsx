@@ -16,7 +16,7 @@ export function parseEntry(text: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-const KEY = 'lift flex min-h-12 items-center justify-center rounded-md border-2 border-line bg-elevated font-display text-2xl font-bold text-fg shadow-1 disabled:pointer-events-none disabled:opacity-60';
+const KEY = 'lift flex min-h-11 items-center justify-center rounded-md border-2 border-line bg-elevated font-display text-2xl font-bold text-fg shadow-1 disabled:pointer-events-none disabled:opacity-60';
 
 /** Big keypad for numeric answers: digits, minus, decimal comma, erase. Physical keyboard works too. */
 export function Keypad({ question, phase, chosen, outcome, onSubmit }: InputProps) {

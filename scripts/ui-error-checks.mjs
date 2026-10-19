@@ -45,6 +45,17 @@ await check('forced API failure shows the error screen with Retry', async () => 
   await screen.getByRole('button', { name: /accueil/i }).waitFor(T);
 });
 
+await check('world map: forced API failure shows Retry, and Retry brings the map back', async () => {
+  await page.goto(`${BASE}/play`, { waitUntil: 'domcontentloaded' });
+  await setScenario('server-error');
+  await page.goto(`${BASE}/credits`, { waitUntil: 'domcontentloaded' });
+  const screen = page.locator('[data-error-kind]').first();
+  await screen.getByRole('button', { name: /réessayer/i }).waitFor(T);
+  await setScenario(null);
+  await screen.getByRole('button', { name: /réessayer/i }).click();
+  await page.getByRole('heading', { name: /crédits des images/i }).waitFor(T);
+});
+
 await check('offline shows the offline variant', async () => {
   await setScenario(null); // a routed reply would hide the offline state
   await ctx.setOffline(true);

@@ -461,9 +461,49 @@ const echecs: SimScene = {
   ),
 };
 
-// The twelve newer worlds replay the nearest original animation
+/** The eight original worlds have their own drawn animation; the others share this neutral one, drawn with their emoji. */
+export const LEGACY_WORLDS = ['construction', 'nature', 'espace', 'cuisine', 'sport', 'medecine', 'science', 'echecs'] as const;
+export const isLegacyWorld = (w: WorldId) => (LEGACY_WORLDS as readonly string[]).includes(w);
+
+function generic(emoji: string): SimScene {
+  return {
+    good: (
+      <>
+        <Bg sky="#fef3c7" gy={130} ground="#86efac" />
+        <Em x={160} y={112} size={64} cls="nx-float">
+          {emoji}
+        </Em>
+        <Em x={96} y={70} size={22} cls="nx-twinkle">
+          ✨
+        </Em>
+        <Em x={226} y={64} size={22} cls="nx-twinkle" style={del(300)}>
+          ✨
+        </Em>
+        <Em x={200} y={150} size={18} cls="nx-twinkle" style={del(600)}>
+          ⭐
+        </Em>
+      </>
+    ),
+    bad: (
+      <>
+        <Bg sky="#e0e7ff" gy={130} ground="#cbd5e1" />
+        <Em x={160} y={116} size={56} cls="nx-wobble">
+          {emoji}
+        </Em>
+        <Em x={232} y={56} size={26} cls="nx-float">
+          ☁️
+        </Em>
+        <Em x={92} y={150} size={16} cls="nx-twinkle">
+          ·
+        </Em>
+      </>
+    ),
+  };
+}
+
 export const SCENES: Record<WorldId, SimScene> = {
   construction, nature, espace, cuisine, sport, medecine, science, echecs,
-  ocean: nature, dinosaures: nature, animaux: nature, musique: echecs, transport: construction, pirates: espace,
-  marche: cuisine, meteo: science, robots: science, arts: echecs, hiver: sport, jeux: echecs,
+  ocean: generic('🐠'), dinosaures: generic('🦕'), animaux: generic('🦊'), musique: generic('🎵'), transport: generic('🚂'),
+  pirates: generic('🏴‍☠️'), marche: generic('🛒'), meteo: generic('⛅'), robots: generic('🤖'), arts: generic('🎨'),
+  hiver: generic('⛄'), jeux: generic('🎲'),
 };

@@ -49,6 +49,21 @@
           "streak": "Each day you finish a chapter, your flame grows.",
           "worldsTitle": "Your worlds",
           "worlds": "Pick the world you love: nature, space, cooking and more."
+        },
+        "menu": {
+          "label": "Game menu",
+          "challenges": "Challenges",
+          "challengesHint": "Take one on",
+          "discover": "Discover",
+          "discoverHint": "A feed that never ends",
+          "worlds": "Worlds",
+          "worldsHint": "Pick your adventure",
+          "cards": "Cards",
+          "cardsHint": "Your collection",
+          "progress": "My progress",
+          "progressHint": "Your streak and steps",
+          "quest": "Daily quest",
+          "questHint": "A chapter to revisit"
         }
       },
       "feed": {
@@ -91,7 +106,38 @@
         "growth": "Your growth",
         "growthLine": "Chapters finished this week: {now} (before: {before}).",
         "skillsLine": "New skills: {now} (before: {before}).",
-        "grownUps": "Grown-ups area"
+        "grownUps": "Grown-ups area",
+        "voice": {
+          "title": "Voice and help",
+          "voice": "Read aloud",
+          "voiceHint": "Stories and hints can be heard.",
+          "vibration": "Gentle buzz",
+          "vibrationHint": "A short buzz when you answer, on phones that can.",
+          "hints": "Little nudges",
+          "hintsHint": "A gentle hint when you think for a while.",
+          "delay": "Hint after",
+          "delayUnit": "{n} s",
+          "volume": "Hint volume",
+          "low": "Soft",
+          "medium": "Medium",
+          "normal": "Normal",
+          "test": "Test the voice",
+          "sample": "Hello! I am your voice for the stories. Ready to go?",
+          "using": "Chosen voice: {name}",
+          "noVoice": "No voice found on this device for this language. Ask a grown-up to add a voice in the device settings (Windows: Settings, Time and language, Speech; or open the app in Microsoft Edge, which has natural voices).",
+          "tapToHear": "Tap the screen to hear it."
+        },
+        "account": {
+          "title": "Who is playing?",
+          "hint": "Switch player, or sign the device out. When a grown-up signs out, everything the device remembered is erased.",
+          "switch": "Switch player",
+          "signOut": "Sign the device out (grown-up)"
+        },
+        "language": {
+          "title": "Language",
+          "label": "App language",
+          "locked": "A grown-up chose the app language. Ask them if you want to change it."
+        }
       },
       "story": {
         "pause": "Take a break",
@@ -113,9 +159,28 @@
           "curious": "Ooh, an interesting detour!",
           "amazed": "Wow, nobody saw that coming!"
         },
+        "exit": {
+          "label": "Leave the game",
+          "title": "Leave this story?",
+          "text": "Your story will be put away. You can start another one whenever you like.",
+          "confirm": "Leave the game",
+          "stay": "Keep playing"
+        },
+        "tapToHear": "Tap to hear the story",
         "hint": "Give me a hint",
         "hintError": "The hint did not arrive.",
         "hintRetry": "Tap the button to try again."
+      },
+      "challenges": {
+        "title": "Challenges",
+        "intro": "Pick a challenge, take it on by playing, and win a card that is all yours."
+      },
+      "celebrate": {
+        "title": "Challenge done!"
+      },
+      "done": {
+        "noCard": "No card this time. You need at least {pct}% right answers to win it. Play this chapter again, you can do it!",
+        "missed": "You found {right} right answer{right, plural, one {} other {s}} out of {total}. Not quite yet, and that is fine: we learn by trying. Come back later and we will do it together. You need {pct}% right answers to win the card."
       }
     },
     "parentGate": {
@@ -806,6 +871,16 @@
             "0": "A piece can get stuck when we count wrong. Look, the knight has another path.",
             "1": "We saw the trap. There is always another route, you are close."
           }
+        },
+        "generic": {
+          "good": {
+            "0": "There it is, it works! Great counting.",
+            "1": "Well done: that part of the story shines."
+          },
+          "bad": {
+            "0": "A small detour. Look at the picture, then you can try again.",
+            "1": "Not this time, and that is fine. We learn by trying."
+          }
         }
       }
     },
@@ -886,7 +961,19 @@
         "construction": "{n, plural, one {brick} other {bricks}}",
         "medecine": "{n, plural, one {pill} other {pills}}",
         "science": "{n, plural, one {crystal} other {crystals}}",
-        "echecs": "{n, plural, one {pawn} other {pawns}}"
+        "echecs": "{n, plural, one {pawn} other {pawns}}",
+        "ocean": "{n, plural, one {fish} other {fish}}",
+        "dinosaures": "{n, plural, one {egg} other {eggs}}",
+        "animaux": "{n, plural, one {paw print} other {paw prints}}",
+        "musique": "{n, plural, one {note} other {notes}}",
+        "transport": "{n, plural, one {car} other {cars}}",
+        "pirates": "{n, plural, one {coin} other {coins}}",
+        "marche": "{n, plural, one {apple} other {apples}}",
+        "meteo": "{n, plural, one {sunbeam} other {sunbeams}}",
+        "robots": "{n, plural, one {gear} other {gears}}",
+        "arts": "{n, plural, one {brush} other {brushes}}",
+        "hiver": "{n, plural, one {snowflake} other {snowflakes}}",
+        "jeux": "{n, plural, one {die} other {dice}}"
       },
       "alt": {
         "add": "{a} {ia} and {b} {ib}, to put together.",
