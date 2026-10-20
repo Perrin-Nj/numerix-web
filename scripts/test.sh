@@ -7,6 +7,7 @@
 #   bash scripts/test.sh ui         browser checks (kid door, feed, chapter, theme, exit, map...)
 #   bash scripts/test.sh errors     error screens: 404, API failure, offline, never-answering endpoint
 #   bash scripts/test.sh mobile     phone layout audit (overflow, touch targets, text size)
+#   bash scripts/test.sh feed       Discover feed: paging, no repeat, reshuffle, video in view, reduced motion, offline retry, memory
 #   bash scripts/test.sh play       world map, journeys, every question kind, credits (seeded question bank)
 #   API_PORT=8083 APP_PORT=3101 bash scripts/test.sh ui     same, on other ports (never touches 3000 and 8081)
 #   bash scripts/test.sh contract   openapi vs frontend calls vs backend guide (no servers needed)
@@ -47,6 +48,7 @@ ensure_api() {
   for _ in $(seq 1 20); do up "$API_HEALTH" && break; sleep 0.5; done
   up "$API_HEALTH" || { echo "[api] could not start on :$API_PORT"; FAILS=$((FAILS+1)); return; }
   if [ -n "${SEED_CONTENT:-}" ]; then (cd "$dir" && PATH="$PATH:/c/Program Files/Go/bin" go run ./cmd/seed --db "$db" --exclude _examples >/dev/null 2>&1) || { echo "[api] content seed failed"; FAILS=$((FAILS+1)); }; fi
+  (cd "$dir" && PATH="$PATH:/c/Program Files/Go/bin" go run ./cmd/feedseed --db "$db" >/dev/null 2>&1) || echo "[api] feed media seed failed"  # the 200 Discover items
   node scripts/seed-dev.mjs "http://localhost:$API_PORT/v1" >/dev/null 2>&1 || echo "[api] seed failed"
 }
 
@@ -81,13 +83,15 @@ case "$MODE" in
   ui)     ensure_app; warm; run ui node scripts/ui-checks.mjs "$BASE" ;;
   errors) ensure_app; warm; run errors node scripts/ui-error-checks.mjs "$BASE" ;;
   mobile) ensure_app; warm; run mobile node scripts/mobile-audit.mjs "$BASE" ;;
+  images) ensure_app; warm; run images node scripts/check-images.mjs "$BASE" ;;
+  feed)   ensure_app; warm; run feed node scripts/feed-suite.mjs "$BASE" ;;
   play)   SEED_CONTENT=1 ensure_app; warm; run play node scripts/play-checks.mjs "$BASE" ;;
   qa)     SEED_CONTENT=1 ensure_app; warm; run bank node scripts/qa/bank-audit.mjs; run apifuzz node scripts/qa/api-fuzz.mjs "http://localhost:$API_PORT/v1"; run sweep node scripts/qa/sweep.mjs "$BASE"; run regress-ui node scripts/qa/regress-ui.mjs "$BASE" ;;
   live)   LIVE="${LIVE_URL:-https://numerix-web-snowy.vercel.app}"
           run flows node scripts/flows.mjs "$LIVE"; NX_GIFT=0 run ui node scripts/ui-checks.mjs "$LIVE"; run errors node scripts/ui-error-checks.mjs "$LIVE" ;;
   all)    run contract node scripts/api-inventory.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs
           run sounds node scripts/check-sounds.mjs; run visual node scripts/check-method-visual.mjs; run variants node scripts/check-sound-variants.mjs
-          ensure_app; warm; run flows node scripts/flows.mjs "$BASE"; run ui node scripts/ui-checks.mjs "$BASE"; run errors node scripts/ui-error-checks.mjs "$BASE"; run mobile node scripts/mobile-audit.mjs "$BASE"
+          ensure_app; warm; run flows node scripts/flows.mjs "$BASE"; run ui node scripts/ui-checks.mjs "$BASE"; run errors node scripts/ui-error-checks.mjs "$BASE"; run mobile node scripts/mobile-audit.mjs "$BASE"; run feed node scripts/feed-suite.mjs "$BASE"; run images node scripts/check-images.mjs "$BASE"
           SEED_CONTENT=1 ensure_app; run bank node scripts/qa/bank-audit.mjs; run apifuzz node scripts/qa/api-fuzz.mjs "http://localhost:$API_PORT/v1"; run sweep node scripts/qa/sweep.mjs "$BASE"; run regress-ui node scripts/qa/regress-ui.mjs "$BASE" ;;
   *)      echo "unknown mode: $MODE"; exit 2 ;;
 esac

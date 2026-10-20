@@ -775,6 +775,26 @@
         "sleepy": "Numa the owl is sleepy"
       }
     },
+    "mediaCard": {
+      "kind": {
+        "photo": "Photo",
+        "animation": "Animation",
+        "video": "Video"
+      },
+      "play": "Play the video",
+      "pause": "Pause",
+      "soundOn": "Turn sound on",
+      "soundOff": "Turn sound off",
+      "captionsOn": "Hide captions",
+      "captionsOff": "Show captions",
+      "mediaError": "This media does not load.",
+      "retry": "Try again",
+      "reveal": "See the answer",
+      "answer": "Answer",
+      "questionLabel": "Little question",
+      "credit": "Credit",
+      "sped": "This video is sped up."
+    },
     "methodVisual": {
       "replay": "Watch again",
       "step": "Step {n} of {total}"

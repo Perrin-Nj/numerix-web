@@ -14,7 +14,7 @@ const base: FeedItem = {
   text: 'Un petit renard partage ses noisettes avec ses amis, une par une, jusqu’au coucher du soleil.',
   ai_generated: true,
   generated_by: 'story',
-  author: { name: 'Pip', emoji: '🦊' },
+  author: { name: 'Numa' },
   liked: false,
   saved: false,
   cta: { label: 'Vivre cette histoire', world: 'nature' },

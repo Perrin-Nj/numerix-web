@@ -3,10 +3,11 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { reportError } from '@/platform/errors/bridge';
-import type { AnswerValue, FeedItem, FeedPage } from '@/data/api/types';
-import { answerFeedPuzzle, reactToFeedItem, useFeed, useSessionStatus } from '@/data/hooks';
+import type { AnswerValue, DiscoverItem, DiscoverPage, FeedItem } from '@/data/api/types';
+import { answerFeedPuzzle, reactToFeedItem, useDiscover, useSessionStatus } from '@/data/hooks';
 import { useStartChapter } from './useStartChapter';
 import { FeedCard } from '@/game/feed-card';
+import { MediaCard } from '@/game/media-card';
 import { Button } from '@/ui/button';
 import { InlineError } from '@/ui/inline-error';
 import { Skeleton } from '@/ui/skeleton';
@@ -14,34 +15,42 @@ import { ScreenState } from '@/game/screen-state';
 import { SnapFeed } from '@/ui/snap-feed';
 
 type Reaction = { liked: boolean; saved: boolean };
-type Cache = InfiniteData<FeedPage, string | undefined>;
+type Cache = InfiniteData<DiscoverPage, string | undefined>;
 
 const CARD_H = 'min-h-[calc(100dvh-7rem)]';
+/** Cards this far from the one on screen stay mounted; the others are replaced by an empty box of the same height. */
+const WINDOW = 3;
+const FALLBACK_HEIGHT = 620;
 
 function LoadingCard() {
   return (
-    <div className={`flex ${CARD_H} flex-col gap-4 rounded-lg border-2 border-line bg-elevated p-4`}>
-      <Skeleton height={32} width="40%" />
-      <Skeleton className="min-h-40 flex-1" shape="block" />
-      <Skeleton height={28} width="70%" />
+    <div className={`flex ${CARD_H} flex-col gap-4 rounded-lg bg-elevated p-4 shadow-2`}>
+      <Skeleton className="aspect-[4/3] w-full" shape="block" />
+      <Skeleton height={32} width="60%" />
+      <Skeleton height={24} width="90%" />
       <Skeleton height={56} />
     </div>
   );
 }
 
-/** Endless discover feed of story cards. */
+/**
+ * The Discover feed: 200 real photos, animations and short captioned videos in a private random order, with a
+ * puzzle now and then. Endless: the next page is requested well before the end. Only the cards near the one on
+ * screen are mounted, so memory stays flat however far the child scrolls.
+ */
 export function FeedScreen() {
   const t = useTranslations('screens.play.feed');
   const qc = useQueryClient();
   const status = useSessionStatus();
   const childId = status.data?.childId ?? null;
-  const feed = useFeed(childId);
+  const feed = useDiscover(childId);
   const { begin, dialog } = useStartChapter(childId);
   const [active, setActive] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const lastActive = useRef(0);
+  const [heights] = useState(() => new Map<string, number>()); // measured card heights, so a far card keeps its place in the scroll
 
-  // Page index is part of the key: the endless feed can repeat item ids across pages.
+  // Page index is part of the key: the endless feed repeats items after a full pass.
   const entries = useMemo(
     () => (feed.data?.pages ?? []).flatMap((page, p) => page.items.map((item) => ({ key: `${p}-${item.id}`, item }))),
     [feed.data],
@@ -54,31 +63,30 @@ export function FeedScreen() {
       if (i !== lastActive.current) {
         lastActive.current = i;
         setActive(i);
-        setScrolled(true); // no sound here: the feed scrolls silently
+        setScrolled(true); // the feed scrolls silently
       }
-      // Second-to-last card in view: ask for more, the feed never ends.
-      if (i >= total - 2 && hasNextPage && !isFetchingNextPage) void fetchNextPage();
+      // Preload: ask for the next page while five cards are still ahead
+      if (i >= total - 5 && hasNextPage && !isFetchingNextPage) void fetchNextPage();
     },
     [total, hasNextPage, isFetchingNextPage, fetchNextPage],
   );
 
   const patch = useCallback(
     (id: string, next: Reaction) =>
-      qc.setQueryData<Cache>(['feed', childId ?? ''], (d) =>
+      qc.setQueryData<Cache>(['discover', childId ?? ''], (d) =>
         d && { ...d, pages: d.pages.map((pg) => ({ ...pg, items: pg.items.map((it) => (it.id === id ? { ...it, ...next } : it)) })) },
       ),
     [qc, childId],
   );
 
-  const onReact = useCallback(
-    async (item: FeedItem, next: Reaction) => {
+  const react = useCallback(
+    async (id: string, before: Reaction, next: Reaction) => {
       if (!childId) return;
-      const before = { liked: item.liked, saved: item.saved };
-      patch(item.id, next);
+      patch(id, next);
       try {
-        await reactToFeedItem(childId, item.id, next);
+        await reactToFeedItem(childId, id, next);
       } catch (e) {
-        patch(item.id, before);
+        patch(id, before);
         reportError(e);
       }
     },
@@ -88,8 +96,7 @@ export function FeedScreen() {
   const onAnswer = useCallback(
     async (item: FeedItem, answer: AnswerValue) => {
       try {
-        const res = await answerFeedPuzzle(childId ?? '', item.id, answer);
-        return res;
+        return await answerFeedPuzzle(childId ?? '', item.id, answer);
       } catch (e) {
         reportError(e);
         throw e;
@@ -106,6 +113,25 @@ export function FeedScreen() {
   );
 
   const loading = status.isLoading || feed.isLoading;
+
+  function card(item: DiscoverItem, key: string, near: boolean) {
+    if (item.media) {
+      return (
+        <MediaCard
+          media={item.media}
+          liked={item.liked}
+          saved={item.saved}
+          near={near}
+          onReact={(next) => void react(item.id, { liked: item.liked, saved: item.saved }, next)}
+        />
+      );
+    }
+    if (item.puzzle_item) {
+      const fi = { ...item.puzzle_item, liked: item.liked, saved: item.saved };
+      return <FeedCard key={key} item={fi} active={near} onReact={(it, next) => void react(it.id, { liked: it.liked, saved: it.saved }, next)} onAnswer={onAnswer} onCta={onCta} />;
+    }
+    return null;
+  }
 
   return (
     <main className="relative mx-auto w-full max-w-2xl px-4 pt-2">
@@ -124,14 +150,23 @@ export function FeedScreen() {
       {!loading && feed.data && total === 0 && <p className="py-10 text-center font-display text-xl text-muted">{t('empty')}</p>}
       {total > 0 && (
         <>
-          <SnapFeed
-            ariaLabel={t('label')}
-            scroll="page"
-            onActiveChange={onActiveChange}
-          >
-            {entries.map(({ key, item }, i) => (
-              <FeedCard key={key} item={item} active={i === active} onReact={onReact} onAnswer={onAnswer} onCta={onCta} />
-            ))}
+          <SnapFeed ariaLabel={t('label')} scroll="page" onActiveChange={onActiveChange}>
+            {entries.map(({ key, item }, i) => {
+              const near = Math.abs(i - active) <= WINDOW;
+              if (!near) {
+                return <div key={key} aria-hidden style={{ height: heights.get(key) ?? FALLBACK_HEIGHT }} />;
+              }
+              return (
+                <div
+                  key={key}
+                  ref={(el) => {
+                    if (el) heights.set(key, el.offsetHeight);
+                  }}
+                >
+                  {card(item, key, Math.abs(i - active) <= 1)}
+                </div>
+              );
+            })}
             {isFetchingNextPage && <LoadingCard key="loading-more" />}
             {feed.isFetchNextPageError && !isFetchingNextPage && (
               <div key="more-error" className={`flex ${CARD_H} flex-col items-start justify-center gap-3`}>

@@ -14,7 +14,11 @@ const nextConfig: NextConfig = {
   // A second copy of the app (another port, another API) needs its own build folder
   distDir: process.env.NX_DIST ?? '.next',
   async rewrites() {
-    return [{ source: '/assets/:path*', destination: `${apiBase}/assets/:path*` }];
+    return [
+      { source: '/assets/:path*', destination: `${apiBase}/assets/:path*` },
+      // Discover photos, clips and captions: the same immutable headers and Range support reach the browser
+      { source: '/feed-media/:path*', destination: `${apiBase}/feed-media/:path*` },
+    ];
   },
   allowedDevOrigins: ['192.168.68.55'],
   images: { remotePatterns: imageHosts.map((hostname) => ({ protocol: 'https' as const, hostname })) },

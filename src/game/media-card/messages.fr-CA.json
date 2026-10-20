@@ -1,0 +1,16 @@
+{ "game": { "mediaCard": {
+  "kind": { "photo": "Photo", "animation": "Animation", "video": "Vidéo" },
+  "play": "Lancer la vidéo",
+  "pause": "Mettre en pause",
+  "soundOn": "Mettre le son",
+  "soundOff": "Couper le son",
+  "captionsOn": "Cacher les sous-titres",
+  "captionsOff": "Afficher les sous-titres",
+  "mediaError": "Ce média ne se charge pas.",
+  "retry": "Réessayer",
+  "reveal": "Voir la réponse",
+  "answer": "Réponse",
+  "questionLabel": "Petite question",
+  "credit": "Crédit",
+  "sped": "Cette vidéo est accélérée."
+} } }

@@ -21,8 +21,8 @@ function ReactionBarBase({ liked, saved, onChange, disabled, className }: Reacti
 
   const btn = (on: boolean) =>
     cn(
-      'lift relative flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-full border px-4 font-display text-base font-semibold disabled:opacity-60',
-      on ? 'border-brand bg-brand-soft text-brand' : 'border-line bg-elevated text-fg',
+      'lift relative flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-full px-4 font-display text-base font-semibold shadow-1 disabled:opacity-60',
+      on ? 'bg-brand-soft text-brand-strong' : 'bg-sunken text-fg',
     );
   const icon = (name: IconName, on: boolean) => (
     <Icon name={name} size={26} className={cn(on && 'fill-current')} />

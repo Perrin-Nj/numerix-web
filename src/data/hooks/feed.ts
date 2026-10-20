@@ -32,3 +32,17 @@ export function reactToFeedItem(childId: string, itemId: string, state: { liked:
 export function answerFeedPuzzle(childId: string, itemId: string, answer: AnswerValue) {
   return unwrap(api.POST('/children/{childId}/feed/{itemId}/answer', { params: { path: { childId, itemId } }, body: { answer } }));
 }
+
+// ───────── Discover: 200 curated photos, animations and short videos (BE-80) ─────────
+/** Cursor-paginated Discover feed, 12 items a page. The cursor is opaque; the feed never ends. */
+export function useDiscover(childId: string | null) {
+  return useInfiniteQuery({
+    queryKey: ['discover', childId ?? ''],
+    enabled: Boolean(childId),
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) =>
+      unwrap(api.GET('/children/{childId}/discover', { params: { path: { childId: childId! }, query: { cursor: pageParam, limit: 12 } } })),
+    getNextPageParam: (last) => last.next_cursor,
+    staleTime: Infinity,
+  });
+}

@@ -158,11 +158,11 @@ await check('theme switch changes the page theme', async () => {
   await page.waitForTimeout(300);
   if ((await get()) === before) throw new Error('theme did not change');
 });
-await check('discover feed: cards, AI label, endless loading, like', async () => {
+await check('discover feed: real media cards, endless loading, like', async () => {
   await page.getByRole('button', { name: /découvrir/i }).first().click();
   await page.waitForURL('**/play/feed', T);
-  await page.getByText(/généré par ia/i).first().waitFor(T);
-  const count = () => page.getByText(/généré par ia/i).count();
+  await page.locator('article[data-media]').first().waitFor(T);
+  const count = () => page.locator('main ul > li').count(); // windowed feed: far cards are empty boxes, but the list keeps growing
   const first = await count();
   await page.mouse.move(210, 400);
   for (let i = 0; i < 6; i++) {
@@ -338,7 +338,7 @@ await check('world map: cards open a world page with a hero and quests on a path
   await page.goto(`${BASE}/play/worlds`, { waitUntil: 'networkidle' });
   const n = await page.locator('[data-world]').count();
   if (n < 8) throw new Error(`only ${n} world cards`);
-  await page.locator('[data-world="nature"]').click();
+  await page.locator('[data-world="nature"]').first().click(); // the card, not the scene inside it
   await page.waitForURL('**/play/journey/nature', { timeout: 15000 });
   await page.getByRole('heading', { name: /nature/i, level: 1 }).waitFor({ timeout: 15000 });
   await page.locator('ol button[data-state]').first().waitFor({ timeout: 15000 });

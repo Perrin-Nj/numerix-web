@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   Bookmark,
+  Captions,
   BookOpen,
   Check,
   ChevronLeft,
@@ -49,6 +50,7 @@ const REGISTRY = {
   star: Star,
   flame: Flame,
   sparkles: Sparkles,
+  captions: Captions,
   volume: Volume2,
   'volume-off': VolumeX,
   settings: Settings,

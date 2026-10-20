@@ -48,3 +48,6 @@ export const WORLD_IDS: WorldId[] = [
 
 export type FeedItem = S['FeedItem'];
 export type FeedPage = S['FeedPage'];
+export type MediaItem = S['MediaItem'];
+export type DiscoverItem = S['DiscoverItem'];
+export type DiscoverPage = S['DiscoverPage'];

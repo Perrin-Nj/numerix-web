@@ -6,6 +6,7 @@ import { AiBadge } from '@/game/ai-badge';
 import { ChoiceButton, type ChoiceState } from '@/game/choice-button';
 import { IllustrationFrame } from '@/game/illustration-frame';
 import { WorldScene } from '@/game/world-scene';
+import { Mascot } from '@/game/mascot';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { NarrationText } from '@/game/narration-text';
 import { OutcomeBeat } from '@/game/outcome-beat';
@@ -42,9 +43,7 @@ function FeedCardBase({ item, onReact, onAnswer, onCta, active = false }: FeedCa
 
   const author = item.author?.name ? (
     <p className="flex items-center gap-2 text-sm font-semibold text-muted">
-      <span aria-hidden className="flex size-8 items-center justify-center rounded-full bg-brand-soft text-lg">
-        {item.author.emoji}
-      </span>
+      <Mascot pose="think" size="sm" decorative />
       {t('author', { name: item.author.name })}
     </p>
   ) : null;
@@ -53,7 +52,7 @@ function FeedCardBase({ item, onReact, onAnswer, onCta, active = false }: FeedCa
     <article
       data-active={active}
       aria-label={item.title}
-      className="flex min-h-[calc(100dvh-7rem)] flex-col justify-between gap-4 rounded-lg border-2 border-line bg-elevated p-4 shadow-1 md:p-6"
+      className="flex min-h-[calc(100dvh-7rem)] flex-col justify-between gap-4 rounded-lg bg-elevated p-4 shadow-2 md:p-6"
     >
       <header className="flex items-center justify-between gap-3">
         <span className="font-display text-base font-bold text-muted">{t(`kind.${item.kind}`)}</span>

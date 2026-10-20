@@ -449,6 +449,22 @@ Caller: feed screen `/play/feed` (`useFeed`, infinite query, page size 5). Query
 ```
 `kind`: `story_short | fun_fact | puzzle | challenge`. A puzzle item has `puzzle: {math_text, choices[4]}` and never its answer. `next_cursor` is always set (the feed never ends). Items must not repeat within 40 consecutive items. Text lengths: story 35 to 60 words, fact 20 to 40, challenge 15 to 30. The first name of the child may appear in text; no other personal data. Status: 200; 403 `consent_missing`; 404.
 
+#### `GET /children/{childId}/discover`
+Caller: feed screen `/play/feed` (`useDiscover`, infinite query, page size 12). Query `cursor` (opaque), `limit` (1 to 12, default 12). Child token. 422 for a cursor the server did not issue for this child.
+```json
+{ "items": [ { "id": "m-honeycomb", "kind": "photo", "liked": false, "saved": false,
+    "media": { "id": "honeycomb", "media_kind": "photo", "title": "Un rayon de miel", "caption": "Les alvéoles...", "alt": "...",
+      "question": { "prompt": "...", "answer": "..." }, "world": "nature", "topic": "shapes", "grade_min": 2,
+      "src": "/feed-media/honeycomb-9d6893db.webp", "src_small": "/feed-media/honeycomb-s-3fe3c0ba.webp", "width": 960, "height": 720, "lqip": "data:image/webp;base64,...",
+      "source_url": "https://...", "creator": "...", "licence": "CC0 1.0", "attribution": "..." } },
+  { "id": "feed-2", "kind": "puzzle", "liked": false, "saved": false, "puzzle_item": { "...a FeedItem..." } } ],
+  "next_cursor": "NzguM2E...", "cycle": 0, "cycle_size": 200 }
+```
+200 curated items (110 photos, 40 animations, 50 videos), texts in the request language, never generated, never user made. The order is a private shuffle per child: every eligible item (`grade_min <= grade + 1`) is shown once before any repeat, then a new shuffle (`cycle` + 1). Never more than two videos in a row; every 8th slot is a puzzle (a regular feed item: like, save and answer use the feed operations). Videos carry `captions[]` (fr-CA and en-CA WebVTT) and `poster`; `has_audio` is true for 3 clips and they start muted. Media URLs are relative (`MEDIA_BASE_URL`, default `/feed-media`); Next rewrites them to the API. Likes and saves use `PUT .../feed/m-<id>/reaction` (unknown `m-` ids are 404). No outbound link: `source_url` is data for the credits, not a link in the child area. Details: numerix-api/docs/FEED_MEDIA.md.
+
+#### `GET /feed-media/{file}`
+Public (the file name is a content hash, the files are curated and contain no one's data). Photos (webp), clips (mp4), captions (vtt). `ETag`, `Cache-Control: public, max-age=31536000, immutable`, `Accept-Ranges: bytes`; `If-None-Match` gives 304; `Range` gives 206 (416 when out of range) so a video starts before it is loaded. Same-origin through the Next rewrite `/feed-media/*`.
+
 #### `PUT /children/{childId}/feed/{itemId}/reaction`
 Caller: like and save buttons (`reactToFeedItem`). Body `{ "liked": true, "saved": false }`, response 200 with the stored state. Private to the child. Both false deletes the record. Idempotent. If this like completed a challenge (`feed_fan`), the response also carries `rewards: [{type: card_earned, card}]` so the app can celebrate at once (the local state does it from its queue).
 

@@ -611,6 +611,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/children/{childId}/discover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        /**
+         * The Discover feed, 200 real-world photos, animations and short educational videos in a private random order (BE-80)
+         * @description An endless, cursor paginated feed built from a curated set of 200 items (photos with a fun fact, short
+         *     animations, short captioned videos), each tied to maths in real life or to a wonder fact. The order is random
+         *     per child and never repeats an item until every item suited to the child's grade has been shown; then the
+         *     order is reshuffled (`cycle` grows). No more than two videos follow each other. About one slot in eight is a
+         *     puzzle (`kind: puzzle`, a regular `FeedItem`) so likes, saves and answers keep using the feed operations.
+         *     The cursor is opaque: pass `next_cursor` back unchanged; a cursor the server did not issue is a 422.
+         *     Items are curated by Numerix (never AI generated, never user generated) with source, creator and licence.
+         */
+        get: operations["getDiscover"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feed-media/{file}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One Discover media file, with HTTP Range for video (BE-81)
+         * @description Files are named `<id>-<8 hex of the content hash>.<ext>` so the bytes behind a URL never change:
+         *     `Cache-Control: public, max-age=31536000, immutable`, a strong `ETag`, 304 for `If-None-Match`, and
+         *     `Range` support (206 and `Accept-Ranges: bytes`) so a browser can start a video before it is downloaded.
+         *     Types: webp and jpg images, mp4 and webm video, `text/vtt` captions. In the web app this path is rewritten
+         *     from `/feed-media/*` like `/assets/*`.
+         */
+        get: operations["getFeedMedia"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/children/{childId}/feed/{itemId}/reaction": {
         parameters: {
             query?: never;
@@ -2229,6 +2281,79 @@ export interface components {
                 skill_id?: components["schemas"]["SkillId"];
             } | null;
         };
+        /** @description One curated Discover item (a real photo, a short animation or a short captioned video). Texts are in the language of the request. */
+        MediaItem: {
+            /** @description Slug, stable. The item id used for reactions is `m-<id>`. */
+            id: string;
+            /** @enum {string} */
+            media_kind: "photo" | "animation" | "video";
+            title: string;
+            /** @description The fun fact */
+            caption: string;
+            /** @description What the picture shows */
+            alt: string;
+            /** @description Optional micro question. The child taps to reveal the answer; it is not graded and not stored. */
+            question?: {
+                prompt: string;
+                answer: string;
+            };
+            world: components["schemas"]["WorldId"];
+            /** @description counting, symmetry, patterns, shapes, fractions, measurement, time, multiplication, geometry, space, nature */
+            topic: string;
+            tags: string[];
+            /** @description Lowest school year the item is meant for (shown from one year below). */
+            grade_min: number;
+            /** @description Set for animation and video. */
+            duration_ms?: number;
+            /** @description Photo 960 px webp */
+            src: string;
+            /** @description Photo 480 px webp (data saver and small screens). */
+            src_small?: string;
+            /** @description Poster image of an animation or video (webp). */
+            poster?: string;
+            width: number;
+            height: number;
+            /** @description Tiny blurred placeholder as a data URI (blur-up). */
+            lqip: string;
+            /** @description True when the video has a sound track. Videos start muted. */
+            has_audio?: boolean;
+            /** @description WebVTT tracks of a video, fr-CA and en-CA. Captions describe what is shown. */
+            captions?: {
+                /** @example fr-CA */
+                lang: string;
+                label: string;
+                src: string;
+            }[];
+            /** @description Set when the clip is a slow zoom on a photo; the UI labels it. */
+            motion_note?: string;
+            /** @description Page of the original work. */
+            source_url: string;
+            creator: string;
+            /** @example CC BY 4.0 */
+            licence: string;
+            licence_url?: string;
+            /** @description Credit line */
+            attribution: string;
+        };
+        DiscoverItem: {
+            /** @description `m-<slug>` for media, `feed-<n>` for a puzzle. */
+            id: string;
+            /** @enum {string} */
+            kind: "photo" | "animation" | "video" | "puzzle";
+            liked: boolean;
+            saved: boolean;
+            media?: components["schemas"]["MediaItem"];
+            puzzle_item?: components["schemas"]["FeedItem"];
+        };
+        DiscoverPage: {
+            items: components["schemas"]["DiscoverItem"][];
+            /** @description Opaque. Always set; the feed does not end. */
+            next_cursor: string;
+            /** @description How many full passes over the items were completed before this page starts. */
+            cycle: number;
+            /** @description How many media items fit the child's grade (one pass). */
+            cycle_size: number;
+        };
         FeedPage: {
             items: components["schemas"]["FeedItem"][];
             /** @description Always set; the feed never ends */
@@ -3495,6 +3620,101 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    getDiscover: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: {
+                /** @description fr-CA or en-CA. The app forwards the NEXT_LOCALE cookie, else the browser header. Default fr-CA. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path: {
+                childId: components["parameters"]["ChildId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of Discover items */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoverPage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    getFeedMedia: {
+        parameters: {
+            query?: never;
+            header?: {
+                "If-None-Match"?: string;
+                Range?: string;
+                "If-Range"?: string;
+            };
+            path: {
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The whole file */
+            200: {
+                headers: {
+                    ETag?: string;
+                    "Cache-Control"?: string;
+                    "Accept-Ranges"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description A byte range of the file */
+            206: {
+                headers: {
+                    ETag?: string;
+                    "Content-Range"?: string;
+                    "Accept-Ranges"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description Not modified */
+            304: {
+                headers: {
+                    ETag?: string;
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+            /** @description Range not satisfiable */
+            416: {
+                headers: {
+                    "Content-Range"?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             429: components["responses"]["RateLimited"];
             500: components["responses"]["ServerError"];
         };
