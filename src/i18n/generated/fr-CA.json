@@ -531,6 +531,13 @@
       "licenceLink": "Conditions de la licence"
     }
   },
+  "maintenance": {
+    "title": "Numerix fait un petit entretien",
+    "text": "Certaines choses peuvent être un peu lentes un moment.",
+    "blockedTitle": "Numa fait une petite pause",
+    "blockedText": "Nous mettons tout au point. Reviens bientôt.",
+    "blockedHint": "Cette page se réveille toute seule quand nous sommes prêts."
+  },
   "errors": {
     "ok": "D'accord",
     "no_question_available": {

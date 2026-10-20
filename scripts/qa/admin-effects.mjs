@@ -55,10 +55,10 @@ try {
   ok('music: toggle shown by default', (await toggle.count()) === 1);
 
   // ── child switch is saved in the backend settings ──
-  await toggle.click();
+  await toggle.evaluate((el) => el.click()); // a first-visit tour or gift may overlay the corner
   await page.waitForTimeout(800);
   ok('child turns music off: backend settings music.enabled=false', (await settings()).music?.enabled === false);
-  await toggle.click();
+  await toggle.evaluate((el) => el.click()); // a first-visit tour or gift may overlay the corner
   await page.waitForTimeout(800);
   ok('child turns music on again: backend music.enabled=true', (await settings()).music?.enabled === true);
 

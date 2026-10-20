@@ -13,5 +13,12 @@
         "needAdultAction": "I am a grown-up"
       }
     }
+  },
+  "maintenance": {
+    "title": "Numerix is getting a little tune-up",
+    "text": "Some things may be a bit slow for a moment.",
+    "blockedTitle": "Numa is taking a short break",
+    "blockedText": "We are tuning things up. Please come back soon.",
+    "blockedHint": "This page wakes up on its own when we are ready."
   }
 }
