@@ -68,6 +68,8 @@ export function ConsequenceScene({ sceneId, world, seed = 4, playing = true, onD
     if (!def) return;
     let live = true;
     let raf = 0;
+    // a new scene starts from nothing drawn
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSim(null);
     setSettled(false);
     import('./sim').then(({ createSim, settle, STEP_MS }) => {
