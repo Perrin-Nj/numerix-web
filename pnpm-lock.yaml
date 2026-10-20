@@ -32,6 +32,9 @@ importers:
       lucide-react:
         specifier: ^1.55.0
         version: 1.55.0(@types/react@19.3.0)(react@19.3.0)
+      matter-js:
+        specifier: 0.20.0
+        version: 0.20.0
       motion:
         specifier: 14.0.0
         version: 14.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -87,6 +90,9 @@ importers:
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
+      '@types/matter-js':
+        specifier: 0.20.0
+        version: 0.20.0
       '@types/node':
         specifier: ^20
         version: 20.19.43
@@ -2382,6 +2388,9 @@ packages:
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
 
+  '@types/matter-js@0.20.0':
+    resolution: {integrity: sha512-jOroeU1wEoizJ3rUnhS2HWzqbQrMHEmShTPUf8sbAghuZCAEQT7y3ojXAzrcQOWYkP93KhegDZI4gvMu5odfWw==}
+
   '@types/mdx@2.0.14':
     resolution: {integrity: sha512-T48PeuJtvLosNTPVhfnIp3i/n3a4g4Bad7YCq5k64D4u7NwDrAotikQ+5+sjtUvBmxCMlbo3dVL+C2dP0rWHzg==}
 
@@ -3803,6 +3812,9 @@ packages:
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
+
+  matter-js@0.20.0:
+    resolution: {integrity: sha512-iC9fYR7zVT3HppNnsFsp9XOoQdQN2tUyfaKg4CHLH8bN+j6GT4Gw7IH2rP0tflAebrHFw730RR3DkVSZRX8hwA==}
 
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
@@ -6746,6 +6758,8 @@ snapshots:
 
   '@types/json5@0.0.29': {}
 
+  '@types/matter-js@0.20.0': {}
+
   '@types/mdx@2.0.14': {}
 
   '@types/node@20.19.43':
@@ -8307,6 +8321,8 @@ snapshots:
       semver: 7.8.5
 
   math-intrinsics@1.1.0: {}
+
+  matter-js@0.20.0: {}
 
   merge2@1.4.1: {}
 

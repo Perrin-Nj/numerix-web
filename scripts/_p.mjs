@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 360, height: 740 } });
+const page = await ctx.newPage();
+await page.addInitScript(() => { window.__loaf = []; try { new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__loaf.push({ d: Math.round(e.duration), blocking: Math.round(e.blockingDuration), render: Math.round(e.renderStart ? e.startTime + e.duration - e.renderStart : 0), scripts: (e.scripts || []).map((x) => `${x.invokerType}:${x.sourceFunctionName || x.invoker}:${Math.round(x.duration)}:${(x.sourceURL||'').split('/').pop().slice(0,30)}`) }))).observe({ type: 'long-animation-frame', buffered: true }); } catch (e) { window.__loaf.push(String(e)); } window.__f = []; let last = 0; const loop = (t) => { if (document.querySelector('[data-scene] [data-kind]')) { if (last) window.__f.push([Math.round(t - last), document.querySelectorAll('[data-kind]').length]); last = t; } requestAnimationFrame(loop); }; requestAnimationFrame(loop); });
+const cdp = await ctx.newCDPSession(page); await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+await page.goto(`http://localhost:6220/iframe.html?id=game-consequencescene--${process.argv[2]}&viewMode=story`, { waitUntil: 'networkidle' });
+await page.waitForFunction(() => document.querySelector('[data-scene][data-settled]'), null, { timeout: 60000 });
+const f = await page.evaluate(() => window.__f);
+console.log(f.map((x,i)=>[i,x[0]]).filter((x)=>x[1]>34).join(' | '), 'steps>8ms:', (await page.evaluate(()=>window.__st)).map((v,i)=>[i,v]).filter((x)=>x[1]>8).join(' | '));
+console.log(JSON.stringify((await page.evaluate(() => window.__loaf)).filter((e)=>e.d>300 || typeof e==='string')));
+await b.close();

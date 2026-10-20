@@ -1,0 +1,65 @@
+{
+  "game": {
+    "consequence": {
+      "skip": "Skip the animation",
+      "caption": {
+        "tower": {
+          "ok": "Every block lands and the tower stands.",
+          "ko": "One block too many: the tower sways and it falls."
+        },
+        "bridge": {
+          "ok": "The plank is long enough: the bridge closes.",
+          "ko": "The plank is too short: the gap stays open."
+        },
+        "scale": {
+          "ok": "Both sides weigh the same: the scale balances.",
+          "ko": "One side is heavier: the scale tips."
+        },
+        "jug": {
+          "ok": "The water stops right on the line.",
+          "ko": "Too much water: the jug overflows."
+        },
+        "shelf": {
+          "ok": "Every piece fits in its spot.",
+          "ko": "One piece too many: it bounces off the shelf."
+        },
+        "collide": {
+          "ok": "The push is just right: the block stops in the zone.",
+          "ko": "The push is off: the block misses the zone."
+        }
+      },
+      "numbers": {
+        "tower": {
+          "ok": "{right} blocks: the tower stands.",
+          "over": "{given} blocks instead of {right}: the tower falls.",
+          "under": "{given} blocks instead of {right}: the tower stays too short."
+        },
+        "bridge": {
+          "ok": "A plank of {right}: the bridge closes.",
+          "over": "A plank of {given} instead of {right}: the gap stays open.",
+          "under": "A plank of {given} instead of {right}: the gap stays open."
+        },
+        "scale": {
+          "ok": "{right} on each side: the scale balances.",
+          "over": "{right} against {given}: the scale tips.",
+          "under": "{right} against {given}: the scale tips."
+        },
+        "jug": {
+          "ok": "{right}: the water stops right on the line.",
+          "over": "{given} instead of {right}: the jug overflows.",
+          "under": "{given} instead of {right}: the water stays under the line."
+        },
+        "shelf": {
+          "ok": "{right} pieces: every one fits.",
+          "over": "{given} pieces for {right} spots: the extra ones roll off.",
+          "under": "{given} pieces for {right} spots: a spot stays empty."
+        },
+        "collide": {
+          "ok": "A push of {right}: the block stops in the zone.",
+          "over": "A push of {given} instead of {right}: the block goes too far.",
+          "under": "A push of {given} instead of {right}: the block stops short."
+        }
+      }
+    }
+  }
+}

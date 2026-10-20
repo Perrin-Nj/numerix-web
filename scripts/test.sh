@@ -2,6 +2,7 @@
 # One entry point for every automated check. One line per check, nothing else.
 #   bash scripts/test.sh            all local checks (state, sounds, flows, ui)
 #   bash scripts/test.sh state      pure node checks (spoken, voices, coach, scene, cards)
+#   bash scripts/test.sh consequence  consequence scenes: library, picker, physics, then 360/1280 render, axe, reduced motion (Storybook on 6220)
 #   bash scripts/test.sh arch       layer arrows and documentation coverage
 #   bash scripts/test.sh flows      HTTP flows through the app
 #   bash scripts/test.sh ui         browser checks (kid door, feed, chapter, theme, exit, map...)
@@ -79,7 +80,10 @@ warm() {
 }
 
 case "$MODE" in
-  state)  run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run voiceplay node scripts/check-voice-play.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs; run music node scripts/check-music.mjs ;;
+  state)  run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run voiceplay node scripts/check-voice-play.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs; run music node scripts/check-music.mjs; run consequence node scripts/check-consequence.mjs ;;
+  consequence) # scenes at 360 and 1280, axe, reduced motion; needs Storybook (own port 6220, started and stopped here)
+          SBP="${STORYBOOK_PORT:-6220}"; up "http://localhost:$SBP/iframe.html" || { pnpm gen:messages >/dev/null 2>&1; pnpm exec storybook dev -p "$SBP" --ci --no-open >/dev/null 2>&1 & STARTED+=($SBP); for _ in $(seq 1 90); do up "http://localhost:$SBP/iframe.html" && break; sleep 1; done; }
+          run consequence node scripts/check-consequence.mjs; run consequence-ui node scripts/check-consequence-ui.mjs "http://localhost:$SBP" ;;
   contract) run contract node scripts/api-inventory.mjs ;;
   arch)   run architecture node scripts/check-architecture.mjs; run docs node scripts/check-docs.mjs ;;
   sounds) run sounds node scripts/check-sounds.mjs; run visual node scripts/check-method-visual.mjs; run variants node scripts/check-sound-variants.mjs ;;
@@ -95,7 +99,7 @@ case "$MODE" in
   qa)     SEED_CONTENT=1 ensure_app; warm; run bank node scripts/qa/bank-audit.mjs; run apifuzz node scripts/qa/api-fuzz.mjs "http://localhost:$API_PORT/v1"; run sweep node scripts/qa/sweep.mjs "$BASE"; run regress-ui node scripts/qa/regress-ui.mjs "$BASE"; run regress-strict node scripts/qa/regress-strict.mjs "$BASE"; run extra node scripts/qa/extra.mjs "$BASE"; run linkcheck node scripts/qa/linkcheck.mjs "$BASE" ;;
   live)   LIVE="${LIVE_URL:-https://numerix-web-snowy.vercel.app}"
           run flows node scripts/flows.mjs "$LIVE"; NX_GIFT=0 run ui node scripts/ui-checks.mjs "$LIVE"; run errors node scripts/ui-error-checks.mjs "$LIVE" ;;
-  all)    run contract node scripts/api-inventory.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run voiceplay node scripts/check-voice-play.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs; run music node scripts/check-music.mjs
+  all)    run contract node scripts/api-inventory.mjs; run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run voiceplay node scripts/check-voice-play.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs; run music node scripts/check-music.mjs; run consequence node scripts/check-consequence.mjs
           run sounds node scripts/check-sounds.mjs; run visual node scripts/check-method-visual.mjs; run variants node scripts/check-sound-variants.mjs
           SEED_CONTENT=1 ensure_app; warm; run flows node scripts/flows.mjs "$BASE"; run ui node scripts/ui-checks.mjs "$BASE"; run errors node scripts/ui-error-checks.mjs "$BASE"; run nav node scripts/qa/nav-audit.mjs "$BASE"; run mobile node scripts/mobile-audit.mjs "$BASE"; run feed node scripts/feed-suite.mjs "$BASE"; run images node scripts/check-images.mjs "$BASE"
           SEED_CONTENT=1 ensure_app; run bank node scripts/qa/bank-audit.mjs; run apifuzz node scripts/qa/api-fuzz.mjs "http://localhost:$API_PORT/v1"; run sweep node scripts/qa/sweep.mjs "$BASE"; run regress-ui node scripts/qa/regress-ui.mjs "$BASE"; run regress-strict node scripts/qa/regress-strict.mjs "$BASE"; run extra node scripts/qa/extra.mjs "$BASE"; run linkcheck node scripts/qa/linkcheck.mjs "$BASE" ;;

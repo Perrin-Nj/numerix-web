@@ -22,3 +22,5 @@ nul
 smoke-shots/
 smoke-error-shots/
 .next-*/
+qa-shots/
+sb.log

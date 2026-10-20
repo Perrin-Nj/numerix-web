@@ -1,0 +1,65 @@
+{
+  "game": {
+    "consequence": {
+      "skip": "Passer l'animation",
+      "caption": {
+        "tower": {
+          "ok": "Chaque bloc se pose et la tour tient debout.",
+          "ko": "Un bloc de trop : la tour vacille et il tombe."
+        },
+        "bridge": {
+          "ok": "La planche est assez longue : le pont se referme.",
+          "ko": "La planche est trop courte : le trou reste ouvert."
+        },
+        "scale": {
+          "ok": "Les deux côtés pèsent pareil : la balance est en équilibre.",
+          "ko": "Un côté est plus lourd : la balance penche."
+        },
+        "jug": {
+          "ok": "L'eau s'arrête juste sur le trait.",
+          "ko": "Trop d'eau : la cruche déborde."
+        },
+        "shelf": {
+          "ok": "Chaque pièce entre à sa place.",
+          "ko": "Une pièce de trop : elle rebondit hors de l'étagère."
+        },
+        "collide": {
+          "ok": "La poussée est juste : le bloc s'arrête dans la zone.",
+          "ko": "La poussée est ratée : le bloc rate la zone."
+        }
+      },
+      "numbers": {
+        "tower": {
+          "ok": "{right} blocs : la tour tient debout.",
+          "over": "{given} blocs au lieu de {right} : la tour tombe.",
+          "under": "{given} blocs au lieu de {right} : la tour reste trop basse."
+        },
+        "bridge": {
+          "ok": "Une planche de {right} : le pont se referme.",
+          "over": "Une planche de {given} au lieu de {right} : le trou reste ouvert.",
+          "under": "Une planche de {given} au lieu de {right} : le trou reste ouvert."
+        },
+        "scale": {
+          "ok": "{right} de chaque côté : la balance est en équilibre.",
+          "over": "{right} contre {given} : la balance penche.",
+          "under": "{right} contre {given} : la balance penche."
+        },
+        "jug": {
+          "ok": "{right} : l'eau s'arrête juste sur le trait.",
+          "over": "{given} au lieu de {right} : la cruche déborde.",
+          "under": "{given} au lieu de {right} : l'eau reste sous le trait."
+        },
+        "shelf": {
+          "ok": "{right} pièces : toutes entrent.",
+          "over": "{given} pièces pour {right} places : les pièces de trop roulent dehors.",
+          "under": "{given} pièces pour {right} places : une place reste vide."
+        },
+        "collide": {
+          "ok": "Une poussée de {right} : le bloc s'arrête dans la zone.",
+          "over": "Une poussée de {given} au lieu de {right} : le bloc va trop loin.",
+          "under": "Une poussée de {given} au lieu de {right} : le bloc s'arrête trop tôt."
+        }
+      }
+    }
+  }
+}
