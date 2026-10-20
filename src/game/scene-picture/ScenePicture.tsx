@@ -93,7 +93,7 @@ function Pile({ g, emoji, cell, start }: { g: Group; emoji: Glyph; cell: number;
   return (
     <div className="flex flex-wrap items-start justify-center gap-[1.5cqw]" style={cellStyle(cell)}>
       {Array.from({ length: g.tens }, (_, b) => (
-        <div key={b} className="grid grid-cols-5 gap-[0.05em] rounded-[0.3em] border-2 border-line bg-elevated/70 p-[0.15em]">
+        <div key={b} className="grid grid-cols-5 gap-[0.05em] rounded-[0.3em] bg-elevated/70 shadow-1 p-[0.15em]">
           {Array.from({ length: 10 }, (_, k) => (
             <Item key={k} emoji={emoji} i={i++} n={g.total} />
           ))}

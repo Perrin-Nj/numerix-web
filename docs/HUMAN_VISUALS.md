@@ -42,6 +42,13 @@ Buttons:
 
 Sources of photos: Wikimedia Commons API (licence read from `extmetadata`: CC0, public domain, CC BY 2.0 to 4.0; SA, NC, ND, GFDL rejected) and the existing Openverse and Pexels picks. Filters reject titles that name people, brands, weapons, artwork, drawings, museum catalogue items.
 
+## Numbers
+
+84 object photos (36 cutouts, 48 square tiles): CC0 23, public domain 31, CC BY 30 (credited). 4.0 MB of WebP (256 and 512 px). 20 world heroes bundled in `public/worlds` (1.8 MB), 33 object photos bundled in `public/objects` (0.35 MB). 575 questions that had no picture got a real scene photo of their world; 22 more got an object photo from their text. 75 sprites and about 220 rejected candidate files were removed from the seed (6 MB).
+
 ## Limits
 
-See the final report of the change: automatic picking needs a human look at the contact sheet; a few objects use the nearest honest photo or none.
+- Picking is automatic plus a human look at contact sheets: some objects are a nearby honest photo (sun is a solar flare, sauropod and T. rex are small museum skeletons, coin is euro coins). Objects without a clean photo were dropped, so 21 questions show the world's bundled object photos instead of their own.
+- Photos on a plain background are cut out by flood fill; busy edges can keep a faint halo.
+- A rejected pick is remembered in `tools/assets/objects-reject.json`; run `objects.mjs --redo slug` to replace one.
+- `scripts/gen-icons.mjs` still draws the app icon from an emoji (not shown in play screens).
