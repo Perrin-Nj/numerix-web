@@ -88,6 +88,36 @@ try {
   check('config round trip', u.status === 200 && v.data?.card_threshold_pct === next.card_threshold_pct, u.status);
   await call('config', 'PUT', cfg.data);
 
+  // Runtime config store through the proxy: list, validation, save, history, rollback, public copy.
+  const lst = await call('appconfig');
+  const names = (lst.data?.namespaces ?? []).map((n) => n.name);
+  check('appconfig lists every namespace', lst.status === 200 && ['platform', 'music', 'voice', 'scenes', 'feed', 'maintenance'].every((n) => names.includes(n)), lst.status);
+  check('appconfig env view never shows a secret value', lst.status === 200 && lst.data.env.every((e) => !e.secret || e.value === undefined), lst.status);
+  const m0 = await call('appconfig/music');
+  check('music config returns defaults and version', m0.status === 200 && typeof m0.data?.version === 'number' && Array.isArray(m0.data?.value?.tracks), m0.status);
+  u = await call('appconfig/music', 'PUT', { value: { ...m0.data.value, default_volume: 101 } });
+  check('music config rejects volume 101 (422)', u.status === 422, u.status);
+  const vol = m0.data.value.default_volume === 33 ? 34 : 33;
+  u = await call('appconfig/music', 'PUT', { value: { ...m0.data.value, default_volume: vol }, expected_version: m0.data.version });
+  check('music config saves a new version', u.status === 200 && u.data.version === m0.data.version + 1, u.status);
+  u = await call('appconfig/music', 'PUT', { value: m0.data.value, expected_version: m0.data.version });
+  check('stale expected_version answers 409', u.status === 409, u.status);
+  const hv = await call('appconfig/music/versions');
+  check('history lists who and when', hv.status === 200 && hv.data.items[0]?.actor && hv.data.items[0]?.at, hv.status);
+  u = await call('appconfig/music/rollback', 'POST', {});
+  v = await call('appconfig/music');
+  check('rollback restores the previous value', u.status === 200 && v.data.value.default_volume === m0.data.value.default_volume, u.status);
+  if (process.env.PLATFORM_API_URL) {
+    const pub = await fetch(process.env.PLATFORM_API_URL.replace(/\/$/, '') + '/v1/config/public');
+    const pj = await pub.json();
+    check('public config is served without auth and cached', pub.status === 200 && /max-age/.test(pub.headers.get('cache-control') ?? '') && pj.music?.default_volume === m0.data.value.default_volume, pub.status);
+  }
+
+  for (const p of ['config', 'music', 'voice', 'scenes', 'feed', 'maintenance']) {
+    const pg = await fetch(`${base}/${p}`, { headers: { cookie }, redirect: 'manual' });
+    check(`page /${p} renders`, pg.status === 200, pg.status);
+  }
+
   const au = await call('audit');
   check('audit returns data', au.status === 200 && au.data.items?.length > 0, au.status);
 

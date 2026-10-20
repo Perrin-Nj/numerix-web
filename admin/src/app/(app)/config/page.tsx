@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { useAct, useApi, useDraft } from '@/lib/hooks';
 import { useT } from '@/lib/i18n';
-import type { PlatformConfig } from '@/lib/types';
+import type { AICfg, CopyCfg, EnvItem, PlatformConfig } from '@/lib/types';
+import { ConfigEditor } from '@/components/cfgeditor';
 import { Badge, Button, Card, ConfirmDialog, DataState, Input, PageTitle, Select, Switch, type ConfirmSpec } from '@/components/ui';
 
 export default function ConfigPage() {
@@ -62,6 +63,12 @@ export default function ConfigPage() {
                   </Select>
                 </div>
               </Card>
+              <Card>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Input label={t('config.daily_goal_default') + mark('daily_goal_default')} type="number" min={1} max={5} value={d.daily_goal_default ?? 1} onChange={(e) => patch({ daily_goal_default: Number(e.target.value) })} />
+                  <Switch label={t('config.welcome_gift')} hint={t('config.welcome_gift_hint')} checked={!!d.welcome_gift} onChange={(v) => patch({ welcome_gift: v })} />
+                </div>
+              </Card>
               <Card title={t('config.features') + mark('features')}>
                 {Object.keys(d.features ?? {}).length === 0 && <p className="text-sm text-muted">{t('config.no_flags')}</p>}
                 <div className="grid gap-x-8 sm:grid-cols-2">
@@ -95,6 +102,57 @@ export default function ConfigPage() {
         }}
       </DataState>
       <ConfirmDialog spec={confirm} onClose={() => setConfirm(null)} />
+      <ConfigEditor<AICfg> section ns="ai" title={t('config.ai_title')} sub="">
+        {(d, patch) => (
+          <>
+            <Switch label={t('config.ai_draft')} checked={d.draft_enabled} onChange={(v) => patch({ draft_enabled: v })} />
+            <Switch label={t('config.ai_narrator')} checked={d.narrator_enabled} onChange={(v) => patch({ narrator_enabled: v })} />
+          </>
+        )}
+      </ConfigEditor>
+      <ConfigEditor<CopyCfg> section ns="copy" title={t('config.copy_title')} sub="">
+        {(d, patch) => (
+          <div className="space-y-4">
+            {(['home_tip', 'feed_empty', 'session_done'] as const).map((k) => (
+              <div key={k} className="grid gap-3 sm:grid-cols-2">
+                <Input label={`${t(`config.copy_${k}`)} (FR)`} value={d[k].fr} maxLength={200} onChange={(e) => patch({ [k]: { ...d[k], fr: e.target.value } })} />
+                <Input label={`${t(`config.copy_${k}`)} (EN)`} value={d[k].en} maxLength={200} onChange={(e) => patch({ [k]: { ...d[k], en: e.target.value } })} />
+              </div>
+            ))}
+          </div>
+        )}
+      </ConfigEditor>
+      <EnvPanel />
     </>
+  );
+}
+
+/** Settings that stay in the server environment: shown read only, secrets only as set / not set. */
+function EnvPanel() {
+  const t = useT();
+  const q = useApi<{ env: EnvItem[] }>('appconfig');
+  return (
+    <div className="mt-8">
+      <h2 className="font-display text-xl font-bold">{t('cfg.env_title')}</h2>
+      <p className="mb-3 text-sm text-muted">{t('cfg.env_sub')}</p>
+      <DataState q={q}>
+        {(d) => (
+          <Card>
+            <ul className="grid gap-x-8 sm:grid-cols-2">
+              {d.env.map((e) => (
+                <li key={e.key} className="flex items-center justify-between gap-3 py-1.5 text-sm">
+                  <code className="break-all">{e.key}</code>
+                  <span className="flex items-center gap-2">
+                    {e.value && <span className="max-w-40 truncate text-muted">{e.value}</span>}
+                    {e.secret && <Badge>{t('cfg.env_secret')}</Badge>}
+                    <Badge tone={e.set ? 'ok' : 'neutral'}>{e.set ? t('cfg.env_set') : t('cfg.env_unset')}</Badge>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
+      </DataState>
+    </div>
   );
 }

@@ -1,5 +1,6 @@
 import type { Key } from './fr';
 import { cen } from './content-en';
+import { acen } from './appcfg-en';
 
 export const en: Record<Key, string> = {
   'nav.overview': 'Overview',
@@ -272,4 +273,5 @@ export const en: Record<Key, string> = {
   'audit.target': 'Target',
   'audit.detail': 'Detail',
   ...cen,
+  ...acen,
 };

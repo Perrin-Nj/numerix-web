@@ -1,4 +1,5 @@
 import { cfr } from './content-fr';
+import { acfr } from './appcfg-fr';
 
 export const fr = {
   'nav.overview': 'Vue d’ensemble',
@@ -271,6 +272,7 @@ export const fr = {
   'audit.target': 'Cible',
   'audit.detail': 'Détail',
   ...cfr,
+  ...acfr,
 } as const;
 
 export type Key = keyof typeof fr;
