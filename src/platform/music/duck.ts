@@ -8,7 +8,9 @@ export function setDucked(v: boolean) {
   ducked = v;
   subs.forEach((f) => f(v));
 }
+/** True while a voice clip is playing. */
 export const isDucked = () => ducked;
+/** Subscribe to duck changes; returns the unsubscribe function. */
 export function onDuck(f: Fn) {
   subs.add(f);
   return () => void subs.delete(f);

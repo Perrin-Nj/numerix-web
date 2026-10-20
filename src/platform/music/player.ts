@@ -6,6 +6,7 @@ const DUCK = 0.3; // fraction of the volume left under a voice
 const CROSS = 4; // seconds of cross-fade between tracks
 const LOOPS = 2; // loops of one track before the next one
 
+/** One looping track at a time, rotating through the list with cross-fades; owns its own AudioContext. */
 export class MusicPlayer {
   private tracks: MusicFile[];
   private base: string;
