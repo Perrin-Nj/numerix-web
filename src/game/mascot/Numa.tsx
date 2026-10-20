@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
-import { animate } from 'motion/mini';
+import type { animate as animateFn } from 'motion/mini';
+
+type Animate = typeof animateFn;
 
 export type NumaPose = 'idle' | 'wave' | 'think' | 'cheer' | 'sad' | 'sleepy';
 export type NumaProps = {
@@ -105,6 +107,18 @@ export default function Numa({ pose, look, speaking, reduced }: NumaProps) {
   useEffect(() => {
     const root = ref.current;
     if (reduced || !root) return;
+    // motion loads after first paint, so the mascot never delays the page
+    let off = false;
+    let stop: (() => void) | undefined;
+    void import('motion/mini').then(({ animate }) => {
+      if (!off) stop = start(root, animate);
+    });
+    return () => {
+      off = true;
+      stop?.();
+    };
+
+    function start(root: NonNullable<typeof ref.current>, animate: Animate) {
     const stops: Array<() => void> = [];
     const timers: number[] = [];
     const el = (k: string) => root.querySelectorAll<SVGElement>(`[data-p="${k}"]`);
@@ -168,6 +182,7 @@ export default function Numa({ pose, look, speaking, reduced }: NumaProps) {
       stops.forEach((s) => s());
       setDart({ x: 0, y: 0 });
     };
+    }
   }, [pose, speaking, reduced]);
 
   const id = (n: string) => `${n}${uid}`;

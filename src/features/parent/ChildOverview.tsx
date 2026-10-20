@@ -64,8 +64,8 @@ export function ChildOverview({ childId }: { childId: string }) {
     <ParentPage title={t('title')} backHref="/parent" wide>
       <Card tone="brand">
         <CardBody>
-          <div className="flex flex-wrap items-center gap-4">
-            {child && <Avatar avatarId={child.avatar_id} name={child.display_name} size="lg" />}
+          <div className="flex min-h-20 flex-wrap items-center gap-4">
+            {child ? <Avatar avatarId={child.avatar_id} name={child.display_name} size="lg" /> : <span aria-hidden className="size-20 shrink-0" />}
             <div className="min-w-0 flex-1">
               {child && (
                 <>
@@ -97,6 +97,26 @@ export function ChildOverview({ childId }: { childId: string }) {
           growth.data && <GrowthPanel growth={growth.data} />
         )}
 
+        <Panel title={t('stuck.title')} icon="alert">
+          {(progress.isLoading || progress.error) && (
+            <ScreenState isLoading={progress.isLoading} error={progress.error} onRetry={() => void progress.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card h-[200px]" />}>
+              {null}
+            </ScreenState>
+          )}
+          {progress.data && progress.data.misconceptions.length === 0 && <EmptyState icon="check" title={t('stuck.none')} />}
+          {progress.data && progress.data.misconceptions.length > 0 && (
+            <ul className="flex flex-col gap-3">
+              {progress.data.misconceptions.map((m) => (
+                <li key={m.code} className="rounded-md border-2 border-line bg-sunken p-3">
+                  <p className="font-display font-semibold">{m.description}</p>
+                  <p className="text-sm text-muted">{t('stuck.skills', { count: m.skill_ids.length })}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+
+        {/* after the stuck-skills panel: late challenges fill the empty column instead of pushing it aside (CLS) */}
         {challenges.data && challenges.data.length > 0 && (
           <Panel title={tc('title')} icon="trophy">
             <ul className="flex flex-col gap-3">
@@ -121,25 +141,6 @@ export function ChildOverview({ childId }: { childId: string }) {
             </ul>
           </Panel>
         )}
-
-        <Panel title={t('stuck.title')} icon="alert">
-          {(progress.isLoading || progress.error) && (
-            <ScreenState isLoading={progress.isLoading} error={progress.error} onRetry={() => void progress.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card h-[200px]" />}>
-              {null}
-            </ScreenState>
-          )}
-          {progress.data && progress.data.misconceptions.length === 0 && <EmptyState icon="check" title={t('stuck.none')} />}
-          {progress.data && progress.data.misconceptions.length > 0 && (
-            <ul className="flex flex-col gap-3">
-              {progress.data.misconceptions.map((m) => (
-                <li key={m.code} className="rounded-md border-2 border-line bg-sunken p-3">
-                  <p className="font-display font-semibold">{m.description}</p>
-                  <p className="text-sm text-muted">{t('stuck.skills', { count: m.skill_ids.length })}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
 
         <Panel title={t('sessions.title')} icon="book" className="lg:col-span-2">
           {(sessions.isLoading || sessions.error) && (

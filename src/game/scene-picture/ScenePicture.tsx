@@ -78,7 +78,7 @@ function Item({ emoji, i, n, gone }: { emoji: Glyph; i: number; n: number; gone?
         <span className="inline-block size-[1em] overflow-hidden rounded-[22%] align-middle shadow-1">
           {typeof emoji === 'string' ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={`/objects/${emoji}-256.webp`} alt="" draggable={false} className="size-full object-cover" />
+            <img src={`/objects/${emoji}-256.webp`} alt="" draggable={false} loading="lazy" decoding="async" className="size-full object-cover" />
           ) : (
             <MediaImage media={emoji} alt="" fit="cover" sizes="64px" />
           )}

@@ -8,7 +8,10 @@ import { appConfig } from '@/config/app';
 /** The parent's subscription status as a badge. With `href` it links to the manage screen. */
 export function SubscriptionPill({ variant = 'menu', href = '/parent/subscription' }: { variant?: SubscriptionBadgeProps['variant']; href?: string | null }) {
   const sub = useSubscription(appConfig.features.subscriptionUi);
-  if (!appConfig.features.subscriptionUi || !sub.data) return null;
+  if (!appConfig.features.subscriptionUi) return null;
+  // Holds the badge's place while it loads, so the header buttons and the title do not jump (CLS)
+  if (sub.isPending) return <span aria-hidden className="inline-block h-11 w-12 sm:w-60" />;
+  if (!sub.data) return null;
   const s = sub.data;
   const badge = (
     <SubscriptionBadge

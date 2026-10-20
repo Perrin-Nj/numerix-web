@@ -1,6 +1,5 @@
 'use client';
-import type { ReactNode } from 'react';
-import { Tooltip as T } from 'radix-ui';
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
 
 export type TooltipProps = {
   content: ReactNode;
@@ -8,21 +7,13 @@ export type TooltipProps = {
   children: ReactNode;
 };
 
-/** Short hint shown on hover and focus of its child. */
+/**
+ * Short hint on hover of its child. Uses the native `title` hint: the Radix tooltip cost about 30 KB of JavaScript on
+ * every route for a hint touch screens never show. Every icon button also carries an aria-label, so nothing is lost
+ * for screen readers. shortcut: unstyled hint, upgrade to a lazy Radix tooltip if a designed hint is needed.
+ */
 export function Tooltip({ content, children }: TooltipProps) {
-  return (
-    <T.Provider delayDuration={300}>
-      <T.Root>
-        <T.Trigger asChild>{children}</T.Trigger>
-        <T.Portal>
-          <T.Content
-            sideOffset={6}
-            className="nx-pop z-50 max-w-64 rounded-md border border-line bg-elevated px-3 py-2 text-sm text-fg shadow-2"
-          >
-            {content}
-          </T.Content>
-        </T.Portal>
-      </T.Root>
-    </T.Provider>
-  );
+  if (typeof content !== 'string' || !isValidElement(children)) return <>{children}</>;
+  const child = children as ReactElement<{ title?: string }>;
+  return cloneElement(child, { title: child.props.title ?? content });
 }

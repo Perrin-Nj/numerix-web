@@ -5,7 +5,7 @@
    - Everything that changes state (answers, sessions, auth) is never cached or queued: grading needs the server. */
 importScripts('/push-sw.js'); // push and notificationclick handlers (V4, BE-26)
 
-const VERSION = 'nx-v1';
+const VERSION = 'nx-v2'; // bumped: old caches (pages, data) are dropped on activate
 const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
 const DATA = `${VERSION}-data`;
@@ -35,7 +35,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
-  if (event.data === 'CLEAR_DATA') caches.delete(DATA);
+  if (event.data === 'CLEAR_DATA') { caches.delete(DATA); caches.delete(PAGES); } // cached pages hold a signed-in child or parent's screens
 });
 
 async function networkFirst(request, cacheName) {
