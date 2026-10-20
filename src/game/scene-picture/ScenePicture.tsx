@@ -4,47 +4,42 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/shared/cn';
 import type { MediaRef, WorldId } from '@/data/api/types';
 import { MediaImage } from '@/game/media-image';
-import { HumanAvatar } from '@/game/human-avatar';
 import { layoutFor, type Group, type Layout } from './layout';
 
-/** The world's object: two looks so the second group differs from the first. */
+/** Bundled real-object photos (public/objects) a world counts when the question brings none: two looks so the second group differs from the first. */
 export const ITEMS: Record<WorldId, [string, string]> = {
-  nature: ['🌱', '🍃'],
-  espace: ['⭐', '✨'],
-  cuisine: ['🥚', '🥚'],
-  sport: ['⚽', '🏀'],
-  construction: ['🧱', '🧱'],
-  medecine: ['💊', '🩹'],
-  science: ['💎', '🔹'],
-  echecs: ['♟️', '♙'],
-  ocean: ['🐟', '🐚'],
-  dinosaures: ['🥚', '🦴'],
-  animaux: ['🐾', '🍎'],
-  musique: ['🎵', '🎶'],
-  transport: ['🚗', '🚌'],
-  pirates: ['🪙', '💎'],
-  marche: ['🍎', '🍊'],
-  meteo: ['☀️', '💧'],
-  robots: ['⚙️', '🔩'],
-  arts: ['🎨', '🖌️'],
-  hiver: ['❄️', '⛄'],
-  jeux: ['🎲', '🧩'],
+  nature: ['acorn', 'pinecone'],
+  espace: ['ringed-planet', 'rocket'],
+  cuisine: ['cookie', 'red-apple'],
+  sport: ['soccer-ball', 'tennis'],
+  construction: ['hammer', 'wrench'],
+  medecine: ['tangerine', 'red-apple'],
+  science: ['pebble', 'thermometer'],
+  echecs: ['chess-pawn', 'game-die'],
+  ocean: ['shell', 'tropical-fish'],
+  dinosaures: ['t-rex', 'sauropod'],
+  animaux: ['rabbit', 'turtle'],
+  musique: ['drum', 'trumpet'],
+  transport: ['bus', 'sailboat'],
+  pirates: ['coin', 'sailboat'],
+  marche: ['red-apple', 'banana'],
+  meteo: ['umbrella', 'snowflake'],
+  robots: ['robot', 'wrench'],
+  arts: ['pencil', 'artist-palette'],
+  hiver: ['snowflake', 'pinecone'],
+  jeux: ['game-die', 'puzzle-piece'],
 };
 
 export type ScenePictureProps = {
   world: WorldId;
   skillId: string;
   numbers: number[];
-  /** Hero name: a Peeps person stands beside the objects. */
-  hero?: string;
-  /** 0 to 3 right answers in a row: a growing glow around the hero, never a score. */
-  glow?: number;
-  /** Server sprite (3D emoji) drawn instead of the world emoji. */
+  /** Server photo of the real object to count (media role "object"). */
   sprite?: MediaRef;
   className?: string;
 };
 
-type Glyph = string | MediaRef;
+type Glyph = string | MediaRef; // a string is the slug of a bundled object photo
 
 type Tr = (key: string, values?: Record<string, string | number>) => string;
 
@@ -80,13 +75,14 @@ function Item({ emoji, i, n, gone }: { emoji: Glyph; i: number; n: number; gone?
           gone && 'opacity-40 grayscale after:absolute after:inset-x-0 after:top-1/2 after:h-[0.07em] after:-rotate-[35deg] after:bg-fg',
         )}
       >
-        {typeof emoji === 'string' ? (
-          emoji
-        ) : (
-          <span className="inline-block size-[1em] align-middle">
-            <MediaImage media={emoji} alt="" fit="contain" sizes="64px" />
-          </span>
-        )}
+        <span className="inline-block size-[1em] overflow-hidden rounded-[22%] align-middle shadow-1">
+          {typeof emoji === 'string' ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={`/objects/${emoji}-256.webp`} alt="" draggable={false} className="size-full object-cover" />
+          ) : (
+            <MediaImage media={emoji} alt="" fit="cover" sizes="64px" />
+          )}
+        </span>
       </span>
     </span>
   );
@@ -138,8 +134,8 @@ function NumberLine({ value, max }: { value: number; max: number }) {
   );
 }
 
-/** Drawn scene of a world with counted objects for a skill; uses the hero art when given. */
-export function ScenePicture({ world, skillId, numbers, hero, glow = 0, sprite, className }: ScenePictureProps) {
+/** Counted real objects (photos) for a skill. */
+export function ScenePicture({ world, skillId, numbers, sprite, className }: ScenePictureProps) {
   const t = useTranslations('game.scenePicture');
   const [w1, w2] = ITEMS[world];
   const e1: Glyph = sprite ?? w1;
@@ -196,7 +192,7 @@ export function ScenePicture({ world, skillId, numbers, hero, glow = 0, sprite, 
                 <Item key={k} emoji={e1} i={i++} n={l.total} />
               ))}
             </div>
-            <span className="text-[1.6em] leading-none">🥣</span>
+            <span aria-hidden className="mt-[0.1em] block h-[0.5em] w-full rounded-full bg-sunken shadow-1" />
           </div>
         ))}
         {l.rem > 0 && (
@@ -213,11 +209,6 @@ export function ScenePicture({ world, skillId, numbers, hero, glow = 0, sprite, 
   }
   return (
     <div role="img" aria-label={alt} className={cn('flex w-full items-center gap-2', className)}>
-      {hero && (
-        <span aria-hidden className="nx-hero-glow shrink-0" style={{ '--glow': Math.min(glow, 3) } as CSSProperties}>
-          <HumanAvatar seed={hero} size={52} />
-        </span>
-      )}
       <div className="min-w-0 flex-1 [container-type:inline-size]">
         <div key={key} aria-hidden className="flex items-center justify-center">
           {body}

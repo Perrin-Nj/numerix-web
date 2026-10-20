@@ -110,8 +110,8 @@ function JourneyNodeBase({ node, accent, current = false, thumb, onSelect }: Jou
           </span>
         )}
         {state === 'mastered' && (
-          <span aria-hidden className="nx-sparkle absolute -right-2 -top-2 text-lg">
-            ✨
+          <span aria-hidden className="nx-sparkle absolute -right-2 -top-2 text-warning">
+            <Icon name="sparkles" size={20} />
           </span>
         )}
         {state === 'needs_review' && !photo && (

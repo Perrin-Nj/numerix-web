@@ -20,8 +20,6 @@ export function WelcomeScreen() {
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <span className="nx-float absolute -start-16 top-24 size-56 rounded-full bg-brand-soft opacity-80 blur-2xl" />
         <span className="nx-float absolute -end-20 bottom-24 size-64 rounded-full bg-info-soft opacity-80 blur-2xl [animation-delay:-1.6s]" />
-        <span className="nx-twinkle absolute end-10 top-40 text-2xl text-brand/60" style={{ '--i': 1 } as React.CSSProperties}>✦</span>
-        <span className="nx-twinkle absolute start-8 bottom-40 text-xl text-brand/50" style={{ '--i': 3 } as React.CSSProperties}>✦</span>
       </div>
       <div className="fixed end-3 top-3 z-20">
         <ThemeToggle variant="icon" />

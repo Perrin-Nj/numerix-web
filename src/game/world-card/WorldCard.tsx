@@ -72,7 +72,7 @@ function WorldCardBase({ world, locked = false, progress = null, suggested = fal
       }}
       style={{ transform: 'perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))' } as CSSProperties}
       className={cn(
-        'lift group relative block aspect-[4/5] min-h-11 w-full overflow-hidden rounded-lg border-2 border-line bg-sunken text-start text-white shadow-2 will-change-transform',
+        'lift group relative block aspect-[4/5] min-h-11 w-full overflow-hidden rounded-lg bg-sunken text-start text-white shadow-2 will-change-transform',
         suggested && 'ring-4 ring-brand/70',
         className,
       )}

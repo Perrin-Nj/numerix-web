@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { MascotBubble } from './MascotBubble';
 import type { MascotConfig, MascotPose } from '@/game/mascot';
 
-const on: MascotConfig = { enabled: true, kind: 'emoji', emoji: '🦊', src: '' };
+const on: MascotConfig = { enabled: true, kind: 'owl', src: '' };
 const off: MascotConfig = { ...on, enabled: false };
 const poses: MascotPose[] = ['greet', 'cheer', 'think', 'rest', 'curious', 'amazed'];
 

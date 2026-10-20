@@ -16,7 +16,6 @@ export type ChallengeView = {
   status: 'available' | 'active' | 'done';
   /** Short text such as "Une carte rare". */
   rewardLabel: string;
-  emoji: string;
 };
 
 export type ChallengeCardProps = ChallengeView & {
@@ -33,7 +32,6 @@ function ChallengeCardBase({
   progress,
   status,
   rewardLabel,
-  emoji,
   onAccept,
   onClaim,
   className,
@@ -53,11 +51,11 @@ function ChallengeCardBase({
         <span
           aria-hidden
           className={cn(
-            'flex size-14 shrink-0 items-center justify-center rounded-full bg-brand-soft text-3xl',
+            'flex size-14 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand',
             status === 'available' && 'nx-wobble',
           )}
         >
-          {emoji}
+          <Icon name={done ? 'check' : 'flame'} size={28} />
         </span>
         <div className="flex min-w-0 flex-1 flex-col">
           <h3 className="font-display text-xl font-bold">{title}</h3>

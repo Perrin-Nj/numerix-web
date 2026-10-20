@@ -25,19 +25,7 @@ export type Art = {
   corner: number; // postcard stamp corner or gift bow variant
 };
 
-/** At least 8 motifs per world. */
-export const WORLD_MOTIFS: Record<string, readonly string[]> = {
-  nature: ['🌳', '🦊', '🍎', '🦋', '🍄', '🌻', '🐝', '🐿️'],
-  espace: ['🚀', '🪐', '🌙', '⭐', '🛸', '☄️', '🌍', '🔭'],
-  cuisine: ['🍳', '🥕', '🍞', '🧁', '🍕', '🥖', '🍓', '🥄'],
-  sport: ['⚽', '🏀', '🥅', '🏆', '🎾', '🏃', '🥇', '🚴'],
-  construction: ['🏗️', '🧱', '🔨', '🏠', '🌉', '🚧', '⚙️', '📐'],
-  medecine: ['🩺', '💊', '🩹', '❤️', '🧪', '🏥', '🌡️', '🧬'],
-  science: ['🔬', '⚗️', '🔭', '💡', '🧲', '🌋', '🌈', '🧫'],
-  echecs: ['♟️', '♞', '♜', '♛', '♚', '🏰', '👑', '♝'],
-};
 const WORLD_HUE: Record<string, number> = { nature: 130, espace: 250, cuisine: 25, sport: 200, construction: 40, medecine: 170, science: 280, echecs: 340 };
-export const EMBLEMS = ['🔥', '🚀', '🔑', '🧭', '🏆', '🎯', '👣', '⭐', '🛡️', '⚡', '🗝️', '🧗'] as const;
 
 function seedOf(s: string): number {
   let h = 0x811c9dc5;
@@ -70,11 +58,9 @@ export function sourceOf(id: string): CardSource {
 export function artFor(id: string, world: string, source: CardSource = 'chapter'): Art {
   const family = familyOf(source);
   const r = rng(seedOf(`${family}|${world}|${id}`));
-  const pool = WORLD_MOTIFS[world] ?? WORLD_MOTIFS.nature;
   const baseHue = WORLD_HUE[world] ?? 130;
   const hue = family === 'postcard' ? (baseHue + r.int(61) - 30 + 360) % 360 : r.int(360);
   const hue2 = (hue + 40 + r.int(120)) % 360;
-  const glyph = (g: string, size: number): Glyph => ({ g, x: Math.round(r.range(10, 90)), y: Math.round(r.range(14, 70)), size: Math.round(size), rot: r.int(41) - 20 });
   const art: Omit<Art, 'signature'> = {
     family,
     shape: family === 'postcard' ? 'postcard' : family === 'present' ? 'present' : r.next() < 0.5 ? 'round' : 'shield',
@@ -92,14 +78,8 @@ export function artFor(id: string, world: string, source: CardSource = 'chapter'
     corner: r.int(4),
   };
   if (family === 'postcard') {
-    // Pick 4 to 6 distinct motifs from the world pool, random layout, then one hero.
-    const bag = [...pool];
-    const n = 4 + r.int(3);
-    for (let i = 0; i < n && bag.length; i++) art.glyphs.push(glyph(bag.splice(r.int(bag.length), 1)[0], r.range(9, 17)));
-    art.hero = { ...glyph(pool[r.int(pool.length)], r.range(26, 36)), x: Math.round(r.range(30, 70)), y: Math.round(r.range(58, 78)) };
     for (let i = 0, m = 5 + r.int(4); i < m; i++) art.stars.push({ x: Math.round(r.range(6, 94)), y: Math.round(r.range(6, 40)), r: Math.round(r.range(8, 22)) / 10 });
   } else if (family === 'badge') {
-    art.hero = { g: EMBLEMS[r.int(EMBLEMS.length)], x: 50, y: 50, size: 40, rot: 0 };
     for (let i = 0, m = 4 + r.int(5); i < m; i++) art.stars.push({ x: Math.round(r.range(8, 92)), y: Math.round(r.range(8, 92)), r: Math.round(r.range(8, 20)) / 10 });
   } else {
     for (let i = 0, m = 16 + r.int(8); i < m; i++)

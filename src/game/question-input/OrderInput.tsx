@@ -87,7 +87,7 @@ export function OrderInput({ question, phase, chosen, outcome, onSubmit }: Input
                 else rows.current.delete(id);
               }}
               className={cn(
-                'flex min-h-12 items-center gap-1 rounded-md border-2 ps-1 font-display text-lg font-semibold transition-shadow',
+                'flex min-h-12 items-center gap-1 rounded-md border ps-1 font-display text-lg font-semibold transition-shadow',
                 CHOICE_STATE[state === 'idle' ? 'selected' : state],
                 dragging === id && 'shadow-3',
               )}
@@ -123,7 +123,7 @@ export function OrderInput({ question, phase, chosen, outcome, onSubmit }: Input
               key={c.id}
               type="button"
               onClick={() => place(c.id)}
-              className={cn('lift min-h-12 rounded-md border-2 px-3 font-display text-lg font-semibold', CHOICE_STATE.idle)}
+              className={cn('lift min-h-12 rounded-md border px-3 font-display text-lg font-semibold', CHOICE_STATE.idle)}
             >
               {c.text}
             </button>

@@ -1,2 +1,2 @@
-export { Mascot, emojiAdapter } from './Mascot';
-export type { MascotProps, MascotAdapter, MascotPose, MascotSize, MascotConfig } from './Mascot';
+export { Mascot } from './Mascot';
+export type { MascotProps, MascotPose, MascotSize, MascotConfig } from './Mascot';

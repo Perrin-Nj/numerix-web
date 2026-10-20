@@ -22,8 +22,8 @@ const SPARKS = [['-60px', '-34px'], ['58px', '-38px'], ['-36px', '30px'], ['40px
 const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 
 export const CHOICE_STATE: Record<ChoiceState, string> = {
-  idle: 'border-line bg-elevated text-fg shadow-1',
-  selected: 'nx-pop border-brand bg-brand-soft text-fg ring-4 ring-brand/30',
+  idle: 'border-transparent bg-elevated text-fg shadow-2',
+  selected: 'nx-pop border-brand bg-brand-soft text-fg ring-2 ring-brand/40',
   locked: 'border-line bg-sunken text-muted',
   success: 'nx-choice-right relative border-success bg-elevated text-fg',
   // Warm amber tint, no shake and no dimming: never red, never a punishment. The sheet below explains.
@@ -62,7 +62,7 @@ function ChoiceButtonBase({ value, index, state, onSelect, shortcut }: ChoiceBut
       }}
       className={cn(
         // 3.75rem = 60px, 90px at TV scale (html font-size scales)
-        'lift relative flex min-h-[3.75rem] w-full items-center gap-2 rounded-md border-2 px-3 py-3 sm:gap-4 sm:px-4 text-start font-display text-xl font-semibold disabled:pointer-events-none',
+        'lift relative flex min-h-[3.75rem] w-full items-center gap-2 rounded-md border px-3 py-3 sm:gap-4 sm:px-4 text-start font-display text-xl font-semibold disabled:pointer-events-none',
         CHOICE_STATE[state],
       )}
     >
@@ -81,7 +81,7 @@ function ChoiceButtonBase({ value, index, state, onSelect, shortcut }: ChoiceBut
         !reduced &&
         SPARKS.map(([dx, dy], i) => (
           <span key={i} aria-hidden className="nx-spark" style={{ '--dx': dx, '--dy': dy } as CSSProperties}>
-            ✨
+            <Icon name="sparkles" size={16} />
           </span>
         ))}
     </button>

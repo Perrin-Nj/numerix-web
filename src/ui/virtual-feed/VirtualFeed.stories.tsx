@@ -27,7 +27,7 @@ const makeEntries = (from: number, count: number): Entry[] =>
     };
   });
 
-const on: MascotConfig = { enabled: true, kind: 'emoji', emoji: '🦊', src: '' };
+const on: MascotConfig = { enabled: true, kind: 'owl', src: '' };
 const off: MascotConfig = { ...on, enabled: false };
 
 function Row({ entry, mascot }: { entry: Entry; mascot?: MascotConfig }) {

@@ -21,7 +21,7 @@ function Figure({ value }: { value: number }) {
 }
 
 const LINK =
-  'inline-flex min-h-12 items-center gap-2 rounded-md border-2 border-line bg-elevated px-4 font-display font-semibold shadow-[var(--shadow-press-neutral)] transition-[transform,box-shadow] duration-[var(--dur-1)] hover:-translate-y-px active:translate-y-[3px] active:shadow-none';
+  'inline-flex min-h-12 items-center gap-2 rounded-md bg-brand-soft px-4 font-display font-semibold text-brand-strong shadow-[var(--shadow-press-neutral)] transition-[transform,filter] duration-[var(--dur-1)] hover:brightness-95 active:scale-[0.97]';
 
 function GrowthPanel({ growth }: { growth: Growth }) {
   const t = useTranslations('screens.parent.overview.growth');
@@ -103,8 +103,8 @@ export function ChildOverview({ childId }: { childId: string }) {
               {challenges.data.map((c) => (
                 <li key={c.id} className="rounded-md border-2 border-line bg-sunken p-3">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                    <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-elevated text-xl shadow-1">
-                      {c.emoji}
+                    <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-elevated text-brand shadow-1">
+                      <Icon name="flame" size={20} />
                     </span>
                     <p className="min-w-[9rem] flex-1 font-display font-semibold">{c.title}</p>
                     <Chip tone={c.status === 'done' ? 'success' : c.status === 'active' ? 'info' : 'neutral'} icon={c.status === 'done' ? 'check' : undefined}>

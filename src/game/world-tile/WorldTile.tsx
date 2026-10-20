@@ -25,9 +25,9 @@ function WorldTileBase({ world, selected = false, onSelect, size = 'md' }: World
         onSelect(world);
       }}
       className={cn(
-        'lift group relative flex flex-col items-center justify-end overflow-hidden rounded-lg border-4 text-white shadow-2',
+        'lift group relative flex flex-col items-center justify-end overflow-hidden rounded-lg text-white shadow-2 ring-4 ring-inset',
         WORLD_BG[world.id],
-        selected ? 'border-fg' : 'border-transparent',
+        selected ? 'ring-fg' : 'ring-transparent',
         size === 'lg' ? 'aspect-square w-full max-w-48' : 'aspect-square w-full max-w-32',
       )}
     >

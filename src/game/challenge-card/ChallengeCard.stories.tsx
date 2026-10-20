@@ -19,7 +19,6 @@ const meta = {
     progress: 0,
     status: 'available',
     rewardLabel: 'Une carte rare',
-    emoji: '📚',
     onAccept: fn(),
     onClaim: fn(),
   },

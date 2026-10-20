@@ -6,9 +6,6 @@ import { Icon } from '@/ui/icon';
 
 export type DailyGoalRingProps = { done: number; target: number; className?: string };
 
-const R = 44;
-const C = 2 * Math.PI * R;
-
 /** Ring that fills as the child completes the daily goal (done of target). */
 export function DailyGoalRing({ done, target, className }: DailyGoalRingProps) {
   const t = useTranslations('game.dailyGoalRing');
@@ -27,21 +24,15 @@ export function DailyGoalRing({ done, target, className }: DailyGoalRingProps) {
       aria-label={met ? t('met') : t('label', { done, target })}
       className={cn('relative inline-flex size-28 items-center justify-center', 'nx-pop', met && 'nx-heart', className)}
     >
-      <svg viewBox="0 0 100 100" className="size-full -rotate-90" aria-hidden>
-        <circle cx="50" cy="50" r={R} fill="none" strokeWidth="10" className="stroke-sunken" />
-        <circle
-          cx="50"
-          cy="50"
-          r={R}
-          fill="none"
-          strokeWidth="10"
-          strokeLinecap="round"
-          strokeDasharray={C}
-          strokeDashoffset={C * (1 - ratio)}
-          className={cn(met ? 'stroke-success' : 'stroke-brand')}
-          style={{ transition: 'stroke-dashoffset var(--dur-4) var(--ease-out)' }}
-        />
-      </svg>
+      <span
+        aria-hidden
+        className="absolute inset-0 rounded-full transition-[background] duration-[var(--dur-4)] motion-reduce:transition-none"
+        style={{
+          background: `conic-gradient(${met ? 'var(--success)' : 'var(--brand)'} ${ratio * 360}deg, var(--bg-sunken, rgb(0 0 0 / 0.08)) 0)`,
+          WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px))',
+          mask: 'radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px))',
+        }}
+      />
       <span aria-hidden className="absolute inset-0 flex flex-col items-center justify-center font-display font-bold text-fg">
         {met ? (
           <Icon name="check" size={36} className="text-success" />

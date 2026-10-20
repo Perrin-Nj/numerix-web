@@ -27,7 +27,7 @@ export function TrueFalse({ question, phase, chosen, outcome, onSubmit }: InputP
               onSubmit(v);
             }}
             className={cn(
-              'lift flex min-h-[4.5rem] items-center justify-center gap-2 rounded-md border-2 px-3 font-display text-2xl font-bold disabled:pointer-events-none',
+              'lift flex min-h-[4.5rem] items-center justify-center gap-2 rounded-md border px-3 font-display text-2xl font-bold disabled:pointer-events-none',
               CHOICE_STATE[state],
             )}
           >

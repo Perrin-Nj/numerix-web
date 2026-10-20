@@ -66,7 +66,7 @@ function Demo({ mascot, startOpen }: { mascot: MascotConfig; startOpen: boolean 
   );
 }
 
-const on: MascotConfig = { enabled: true, kind: 'emoji', emoji: '🦊', src: '' };
+const on: MascotConfig = { enabled: true, kind: 'owl', src: '' };
 const off: MascotConfig = { ...on, enabled: false };
 
 const meta = {

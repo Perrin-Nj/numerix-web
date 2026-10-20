@@ -65,7 +65,7 @@ export function NotificationCenterBell({ reminders, enabled = true, className }:
                 type="button"
                 onClick={() => n.markRead(item.id)}
                 className={cn(
-                  'flex w-full flex-col gap-1 rounded-lg border-2 p-3 text-left text-fg',
+                  'flex w-full flex-col gap-1 rounded-lg border p-3 text-left text-fg',
                   item.read ? 'border-line bg-elevated' : 'border-brand bg-brand-soft',
                 )}
               >

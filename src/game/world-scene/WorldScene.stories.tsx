@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'No sound, no text (decorative svg, the parent names it). Layers drift slowly; motion stops under reduced motion. Moods: success glow and sparkles, detour side path, surprise swirl.',
+          'No sound, no text (decorative real photo from /worlds, the parent names it). Moods are a soft light over the photo: success glow, detour warm edge, surprise pale halo. Never a drawing.',
       },
     },
   }, // sounds-note

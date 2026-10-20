@@ -6,7 +6,9 @@ import { useReducedMotion } from '@/platform/motion';
 import type { StoryCard as StoryCardData } from '@/data/api/types';
 import { IllustrationFrame } from '@/game/illustration-frame';
 import { artFor, sourceOf, type Art } from './art';
-import { BadgeArt, PostcardArt, PresentArt, metalGradient } from './CardArt';
+import { metalGradient } from './CardArt';
+import { WorldScene } from '@/game/world-scene';
+import { Icon } from '@/ui/icon';
 import { cardStyleFor, type CardSource } from './card-style';
 
 export type StoryCardProps = {
@@ -20,7 +22,7 @@ export type StoryCardProps = {
 const FACE = '[grid-area:1/1] [backface-visibility:hidden] [-webkit-backface-visibility:hidden]';
 const NOTCH = 'polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px)';
 const SHIELD = 'polygon(50% 0,100% 12%,100% 58%,50% 100%,0 58%,0 12%)';
-const HAND = "'Segoe Script','Bradley Hand','Comic Sans MS',cursive";
+const HAND = "'Segoe Script','Bradley Hand',Georgia,serif";
 const hsl = (h: number, s: number, l: number, a = 1) => `hsl(${h} ${s}% ${l}% / ${a})`;
 
 /** Parallax layer: moves with the pointer, deeper layers move more and sit closer to the viewer. */
@@ -42,10 +44,9 @@ function Sparkles({ art, reduced, n = 5, color = '#fff6c8' }: { art: Art; reduce
         <span
           key={i}
           aria-hidden
-          className={cn('pointer-events-none absolute leading-none', !reduced && 'nx-twinkle')}
-          style={{ left: `${s.x}%`, top: `${s.y}%`, color, fontSize: `${8 + s.r * 6}px`, animationDelay: `${i * 0.43}s`, animationIterationCount: 'infinite' }}
+          className={cn('pointer-events-none absolute bg-current', !reduced && 'nx-twinkle')}
+          style={{ left: `${s.x}%`, top: `${s.y}%`, color, width: `${8 + s.r * 6}px`, height: `${8 + s.r * 6}px`, clipPath: 'polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)', animationDelay: `${i * 0.43}s`, animationIterationCount: 'infinite' }}
         >
-          ✦
         </span>
       ))}
     </>
@@ -103,15 +104,10 @@ function PostcardFront({ art, title, date, rarity, reduced, image }: Parts) {
       <span aria-hidden className="absolute -top-2 start-6 z-10 h-4 w-12 -rotate-6 bg-amber-200/80 shadow-1" />
       <span aria-hidden className="absolute -top-2 end-6 z-10 h-4 w-10 rotate-3 bg-amber-200/80 shadow-1" />
       <span className="relative mt-1 block aspect-[5/6] overflow-hidden rounded-sm" style={{ boxShadow: 'inset 0 0 0 2px rgb(0 0 0 / 0.15)' }}>
-        {image ?? (
-          <Layer depth={5} className="-inset-[7%]">
-            <PostcardArt art={art} />
-          </Layer>
-        )}
+        {image}
         <Sparkles art={art} reduced={reduced} />
         <Layer depth={14} className={corner}>
           <span className="flex size-11 flex-col items-center justify-center bg-[#fbf3e2] text-[0.6rem] font-bold uppercase leading-none shadow-2 [outline:3px_dotted_#c9b78b] [outline-offset:-3px]">
-            <span className="text-lg leading-none">{art.hero.g}</span>
             {rarity}
           </span>
         </Layer>
@@ -128,7 +124,7 @@ function PostcardFront({ art, title, date, rarity, reduced, image }: Parts) {
   );
 }
 
-function PostcardBack({ title, date, rarity, art }: Parts) {
+function PostcardBack({ title, date, rarity }: Parts) {
   return (
     <span
       className={cn(FACE, 'relative flex flex-col justify-between gap-3 rounded-md p-4 text-stone-900 ')}
@@ -139,7 +135,6 @@ function PostcardBack({ title, date, rarity, art }: Parts) {
       }}
     >
       <span className="ms-auto flex size-12 flex-col items-center justify-center bg-[#fbf3e2] text-[0.6rem] font-bold uppercase [outline:3px_dotted_#c9b78b] [outline-offset:-3px]">
-        <span className="text-xl">{art.hero.g}</span>
         {rarity}
       </span>
       <span className="text-2xl font-bold leading-snug" style={{ fontFamily: HAND }}>
@@ -162,16 +157,7 @@ function BadgeFront({ art, title, date, reduced, image }: Parts) {
       <span className="relative block aspect-square w-full" style={{ clipPath: clip, background: metalGradient(art.metal) }}>
         <Layer depth={6} className="inset-[7%]">
           <span className="block size-full overflow-hidden" style={{ clipPath: clip, width: '100%', height: '100%' }}>
-            {image ?? <BadgeArt art={art} spin={!reduced} />}
-          </span>
-        </Layer>
-        <Layer depth={16} className="inset-0 flex items-center justify-center">
-          <span
-            aria-hidden
-            className="text-6xl leading-none"
-            style={{ textShadow: '0 -2px 0 rgb(255 255 255 / 0.55), 0 3px 3px rgb(0 0 0 / 0.55)', filter: 'drop-shadow(0 4px 6px rgb(0 0 0 / 0.4))' }}
-          >
-            {art.hero.g}
+            {image}
           </span>
         </Layer>
         <Sparkles art={art} reduced={reduced} n={4} />
@@ -199,7 +185,6 @@ function BadgeBack({ art, title, date, rarity }: Parts) {
         className="m-[7%] flex size-[86%] flex-col items-center justify-center gap-1 p-6 text-center"
         style={{ clipPath: clip, background: `radial-gradient(circle, ${hsl(art.hue, 70, 32)}, ${hsl(art.hue, 75, 18)})` }}
       >
-        <span className="text-4xl">{art.hero.g}</span>
         <span className="font-display text-lg font-bold leading-tight">{title}</span>
         <span className="text-xs">{date}</span>
         <span className="text-[0.65rem] font-bold uppercase tracking-widest">{rarity}</span>
@@ -221,11 +206,7 @@ function PresentFront({ art, title, date, hue, angle, reduced, image, gift }: Pa
       }}
     >
       <span className="relative block aspect-[5/6] overflow-hidden rounded-sm" style={{ boxShadow: '0 0 0 2px #7a4f00' }}>
-        {image ?? (
-          <Layer depth={5} className="-inset-[6%]">
-            <PresentArt art={art} />
-          </Layer>
-        )}
+        {image}
         <Sparkles art={art} reduced={reduced} n={4} color="#fff" />
       </span>
       <span className="mt-2 flex flex-col gap-0.5 text-center">
@@ -244,7 +225,7 @@ function PresentBack({ title, date, giftBack }: Parts) {
       className={cn(FACE, 'relative flex flex-col items-center justify-center gap-3 overflow-hidden border-2 p-6 text-center text-white ')}
       style={{ clipPath: NOTCH, borderColor: '#f6c945', backgroundImage: 'linear-gradient(135deg,#5a1f3a,#2b1a52)', boxShadow: 'inset 0 0 0 4px #f6c945' }}
     >
-      <span className="text-5xl">🎁</span>
+      <Icon name="gift" size={56} />
       <span className="font-display text-xl font-bold">{title}</span>
       <span className="text-base">{giftBack}</span>
       <span className="text-sm">{date}</span>
@@ -274,7 +255,7 @@ function StoryCardBase({ card, onOpen, variant = 'tile', source }: StoryCardProp
     hue: style.hue,
     angle: style.foilAngle,
     reduced,
-    image: card.image_url ? <IllustrationFrame world={card.world} src={card.image_url} alt="" className="size-full" /> : null,
+    image: card.image_url ? <IllustrationFrame world={card.world} src={card.image_url} alt="" className="size-full" /> : <WorldScene world={card.world} variant="hero" />,
     gift: t('banner.gift'),
     giftBack: t('giftBack'),
   };

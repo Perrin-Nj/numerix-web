@@ -34,7 +34,7 @@ export function Select({ options, value, onValueChange, placeholder, label, disa
       >
         <S.Trigger
           aria-labelledby={labelId}
-          className="flex min-h-12 w-full items-center justify-between gap-2 rounded-md border-2 border-line-input bg-elevated px-4 text-left text-base text-fg data-[placeholder]:text-muted disabled:opacity-50"
+          className="flex min-h-12 w-full items-center justify-between gap-2 rounded-md border border-line-input bg-elevated px-4 text-left text-base text-fg data-[placeholder]:text-muted disabled:opacity-50"
         >
           <S.Value placeholder={placeholder} />
           <S.Icon>

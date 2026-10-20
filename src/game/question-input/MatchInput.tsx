@@ -48,7 +48,7 @@ export function MatchInput({ question, phase, chosen, outcome, onSubmit }: Input
           aria-pressed={n > 0 || selected}
           onClick={() => (side === 0 ? tapLeft(id) : tapRight(id))}
           className={cn(
-            'lift flex min-h-12 w-full items-center gap-2 rounded-md border-2 px-2 py-1 text-start font-display text-lg font-semibold disabled:pointer-events-none',
+            'lift flex min-h-12 w-full items-center gap-2 rounded-md border px-2 py-1 text-start font-display text-lg font-semibold disabled:pointer-events-none',
             n > 0 ? CHOICE_STATE[state === 'idle' ? 'selected' : state] : selected ? 'border-brand bg-brand-soft ring-4 ring-brand/30' : CHOICE_STATE.idle,
           )}
         >

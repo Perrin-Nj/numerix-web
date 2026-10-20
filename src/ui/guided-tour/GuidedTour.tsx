@@ -46,6 +46,14 @@ export function GuidedTour({ steps, open, onClose, onFinish }: GuidedTourProps) 
     let disposed = false;
     let finished = false;
     let instance: { destroy: () => void } | undefined;
+    // A step without a target makes driver stand in a dummy div and put button-only aria attributes on it (axe: aria-allowed-attr)
+    const ATTRS = ['aria-haspopup', 'aria-expanded', 'aria-controls'];
+    const clean = () => {
+      const el = document.getElementById('driver-dummy-element');
+      if (el) for (const a of ATTRS) el.removeAttribute(a);
+    };
+    const mo = new MutationObserver(clean);
+    mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ATTRS });
 
     void import('driver.js').then(({ driver }) => {
       if (disposed) return;
@@ -102,6 +110,7 @@ export function GuidedTour({ steps, open, onClose, onFinish }: GuidedTourProps) 
 
     return () => {
       disposed = true;
+      mo.disconnect();
       instance?.destroy();
     };
   }, [open, reduced, next, back, skip, done, progress]);

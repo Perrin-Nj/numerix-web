@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Mascot, type MascotConfig, type MascotPose, type MascotSize } from './Mascot';
 
-const owl: MascotConfig = { enabled: true, kind: 'owl', emoji: '🦊' };
-const emoji: MascotConfig = { ...owl, kind: 'emoji' };
+const owl: MascotConfig = { enabled: true, kind: 'owl' };
+
 const off: MascotConfig = { ...owl, enabled: false };
 const six: MascotPose[] = ['idle', 'wave', 'think', 'cheer', 'sad', 'sleepy'];
 const old: MascotPose[] = ['greet', 'rest', 'curious', 'amazed', 'happy'];
@@ -87,5 +87,4 @@ export const Disabled: Story = {
     </div>
   ),
 };
-export const EmojiFallback: Story = { args: { config: emoji, pose: 'greet', size: 'md' } };
 export const UnimplementedKindFallsBack: Story = { args: { config: { ...owl, kind: 'rive' }, size: 'md' } };

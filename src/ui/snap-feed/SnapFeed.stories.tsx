@@ -4,7 +4,7 @@ import { SnapFeed } from './SnapFeed';
 import { Button } from '@/ui/button';
 import { Mascot, type MascotConfig } from '@/game/mascot';
 
-const on: MascotConfig = { enabled: true, kind: 'emoji', emoji: '🦊', src: '' };
+const on: MascotConfig = { enabled: true, kind: 'owl', src: '' };
 const off: MascotConfig = { ...on, enabled: false };
 
 const worlds = [

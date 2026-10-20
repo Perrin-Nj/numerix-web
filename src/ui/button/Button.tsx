@@ -4,19 +4,19 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/cn';
 import { useSound, type SoundName } from '@/platform/audio';
 
-// Tactile: every filled variant sits on a hard "ledge" shadow and sinks into it when pressed (no layout shift).
+// Soft and modern: solid or gently graded fill, light shadow, no outline or ledge. Pressed = a touch smaller and flatter.
 const button = cva(
-  'relative inline-flex select-none items-center justify-center gap-2 rounded-md font-display font-semibold transition-[transform,box-shadow,background-color,border-color,filter] duration-[var(--dur-1)] ease-[var(--ease-out)] hover:-translate-y-px disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none',
+  'relative inline-flex select-none items-center justify-center gap-2 rounded-md font-display font-semibold transition-[transform,box-shadow,background-color,filter] duration-[var(--dur-1)] ease-[var(--ease-out)] focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none',
   {
     variants: {
       variant: {
         primary:
-          'nx-shine overflow-hidden bg-brand [background-image:var(--brand-grad)] text-brand-fg shadow-[var(--shadow-press),var(--shadow-inset)] hover:brightness-110 active:translate-y-1 active:scale-[0.98] active:shadow-[0_0_0_0_transparent]',
+          'nx-shine overflow-hidden bg-brand [background-image:var(--brand-grad)] text-brand-fg shadow-[var(--shadow-press)] hover:brightness-110 hover:shadow-2 active:scale-[0.97] active:brightness-95 active:shadow-1',
         secondary:
-          'border-2 border-line bg-elevated text-fg shadow-[var(--shadow-press-neutral)] hover:border-line-strong active:translate-y-[3px] active:scale-[0.98] active:shadow-[0_0_0_0_transparent]',
+          'bg-brand-soft text-brand-strong shadow-[var(--shadow-press-neutral)] hover:brightness-95 active:scale-[0.97] active:brightness-90',
         ghost: 'bg-transparent text-fg hover:bg-sunken active:bg-brand-soft',
         danger:
-          'bg-danger text-brand-fg shadow-[var(--shadow-press-danger),var(--shadow-inset)] hover:brightness-110 active:translate-y-1 active:scale-[0.98] active:shadow-[0_0_0_0_transparent]',
+          'bg-danger text-brand-fg shadow-[var(--shadow-press-danger)] hover:brightness-110 active:scale-[0.97] active:brightness-95',
       },
       size: {
         sm: 'min-h-11 px-3 text-sm',

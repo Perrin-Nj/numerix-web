@@ -19,7 +19,7 @@
   --beat-success: #2fbf8a;
   --beat-detour: #f4a62a;
   --beat-surprise: #5aa9ff;
-  --shadow-press: 0 4px 0 0 color-mix(in srgb, var(--brand) 55%, black);
+  --shadow-press: 0 2px 8px color-mix(in srgb, var(--brand) 35%, transparent);
   --shadow-1: 0 1px 2px rgb(31 27 46 / 0.08), 0 2px 6px rgb(31 27 46 / 0.06);
   --shadow-2: 0 4px 14px rgb(31 27 46 / 0.12);
   --shadow-3: 0 12px 32px rgb(31 27 46 / 0.18);
@@ -34,8 +34,8 @@
   --border-strong: #cdbfa6;
   --border-input: #8a7f6c;
   --page-glow: radial-gradient(60rem 28rem at 50% -8rem, #ebe8ff 0%, transparent 70%);
-  --shadow-press-neutral: 0 3px 0 0 var(--border-strong);
-  --shadow-press-danger: 0 4px 0 0 color-mix(in srgb, var(--danger) 55%, black);
+  --shadow-press-neutral: 0 1px 3px rgb(31 27 46 / 0.14);
+  --shadow-press-danger: 0 2px 8px color-mix(in srgb, var(--danger) 35%, transparent);
   --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.55);
 
   --world-nature: #3fa34d;
@@ -91,7 +91,7 @@
   --warning: #f2b84b;
   --danger: #ff8a80;
   --focus-ring: #8fb0ff;
-  --shadow-press: 0 4px 0 0 color-mix(in srgb, var(--brand) 45%, black);
+  --shadow-press: 0 2px 8px color-mix(in srgb, var(--brand) 45%, transparent);
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.5);
   --shadow-2: 0 4px 14px rgb(0 0 0 / 0.5);
   --shadow-3: 0 12px 32px rgb(0 0 0 / 0.6);
@@ -104,7 +104,7 @@
   --border-strong: #463e63;
   --border-input: #7a7399;
   --page-glow: radial-gradient(60rem 28rem at 50% -8rem, #2a2450 0%, transparent 70%);
-  --shadow-press-neutral: 0 3px 0 0 var(--border-strong);
+  --shadow-press-neutral: 0 1px 3px rgb(0 0 0 / 0.5);
   --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.06);
 }
 
@@ -126,7 +126,7 @@
   --beat-success: #3dff9b;
   --beat-detour: #ffd23d;
   --beat-surprise: #66d9ff;
-  --shadow-press: 0 4px 0 0 #ffffff;
+  --shadow-press: 0 0 0 2px #ffffff;
   --shadow-1: none;
   --shadow-2: none;
   --shadow-3: none;
@@ -139,8 +139,8 @@
   --border-strong: #ffffff;
   --border-input: #ffffff;
   --page-glow: none;
-  --shadow-press-neutral: 0 3px 0 0 #ffffff;
-  --shadow-press-danger: 0 4px 0 0 #ffffff;
+  --shadow-press-neutral: 0 0 0 2px #ffffff;
+  --shadow-press-danger: 0 0 0 2px #ffffff;
   --shadow-inset: none;
 }
 
@@ -172,7 +172,7 @@
     --shadow-1: 0 1px 2px rgb(0 0 0 / 0.5);
     --shadow-2: 0 4px 14px rgb(0 0 0 / 0.5);
     --shadow-3: 0 12px 32px rgb(0 0 0 / 0.6);
-    --shadow-press: 0 4px 0 0 color-mix(in srgb, var(--brand) 45%, black);
+    --shadow-press: 0 2px 8px color-mix(in srgb, var(--brand) 45%, transparent);
     --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.06);
   }
 }

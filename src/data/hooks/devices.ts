@@ -90,14 +90,14 @@ export function useAddPasskey() {
 
 /**
  * Opens the app on a known device (POST /auth/device, BE-64). The proxy turns the answer into the session
- * cookies. Resolves to false when this browser is not known (401), which is the normal case, not an error.
+ * cookies. Resolves to false when this browser is not known (204 from the proxy, or 401), which is the normal case, not an error.
  */
 export function useDeviceLogin() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (): Promise<boolean> => {
       const { response } = await api.POST('/auth/device');
-      return response.ok;
+      return response.ok && response.status !== 204;
     },
     meta: { handled: true },
     onSuccess: (opened) => {

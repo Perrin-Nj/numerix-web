@@ -21,7 +21,7 @@ function ReactionBarBase({ liked, saved, onChange, disabled, className }: Reacti
 
   const btn = (on: boolean) =>
     cn(
-      'lift relative flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-full border-2 px-4 font-display text-base font-semibold disabled:opacity-60',
+      'lift relative flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-full border px-4 font-display text-base font-semibold disabled:opacity-60',
       on ? 'border-brand bg-brand-soft text-brand' : 'border-line bg-elevated text-fg',
     );
   const icon = (name: IconName, on: boolean) => (

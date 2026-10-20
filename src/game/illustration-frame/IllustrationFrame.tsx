@@ -5,29 +5,6 @@ import { WorldScene } from '@/game/world-scene';
 import type { MediaRef, WorldId } from '@/data/api/types';
 import { MediaImage } from '@/game/media-image';
 
-export const WORLD_EMOJI: Record<WorldId, string> = {
-  nature: '🌿',
-  espace: '🚀',
-  cuisine: '🍳',
-  sport: '⚽',
-  construction: '🏗️',
-  medecine: '🩺',
-  science: '🔬',
-  echecs: '♟️',
-  ocean: '🐠',
-  dinosaures: '🦕',
-  animaux: '🦊',
-  musique: '🎵',
-  transport: '🚂',
-  pirates: '🏴‍☠️',
-  marche: '🛒',
-  meteo: '⛅',
-  robots: '🤖',
-  arts: '🎨',
-  hiver: '⛄',
-  jeux: '🎲',
-};
-
 // Static class names so Tailwind can see them.
 export const WORLD_BG: Record<WorldId, string> = {
   nature: 'bg-world-nature',

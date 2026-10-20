@@ -6,7 +6,7 @@ import { Icon, type IconName } from '@/ui/icon';
 const panel = cva('rounded-lg text-fg', {
   variants: {
     tone: {
-      plain: 'border-2 border-line bg-elevated shadow-[var(--shadow-1),var(--shadow-inset)]',
+      plain: 'bg-elevated shadow-2',
       brand: 'border-2 border-brand bg-gradient-to-br from-brand-soft to-elevated',
       sunken: 'border-2 border-line bg-sunken',
     },

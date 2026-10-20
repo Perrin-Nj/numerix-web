@@ -18,8 +18,9 @@
     "check:stories": "node scripts/check-stories.mjs",
     "check:copy": "node scripts/build-messages.mjs && node scripts/check-copy.mjs",
     "check:sounds": "node scripts/check-sounds.mjs",
+    "check:art": "node scripts/no-cartoon-check.mjs",
     "vercel:env": "node scripts/vercel-env.mjs",
-    "check": "pnpm check:stories && pnpm check:copy && pnpm check:sounds && pnpm typecheck && pnpm lint",
+    "check": "pnpm check:stories && pnpm check:copy && pnpm check:sounds && pnpm check:art && pnpm typecheck && pnpm lint",
     "smoke:errors": "node scripts/smoke-errors.mjs",
     "flows": "node scripts/flows.mjs",
     "ui-checks": "node scripts/ui-checks.mjs",
@@ -27,8 +28,6 @@
     "test": "bash scripts/test.sh"
   },
   "dependencies": {
-    "@dicebear/core": "^9.4.2",
-    "@dicebear/open-peeps": "^9.4.2",
     "@hookform/resolvers": "^5.9.1",
     "@tanstack/react-query": "^5.104.2",
     "@tanstack/react-virtual": "^3.14.17",

@@ -77,6 +77,8 @@ async function handle(req: NextRequest, ctx: Ctx) {
   const upstream = `${base}/${joined}${req.nextUrl.search}`;
   const mode = req.headers.get('x-nx-mode') === 'child' ? 'child' : 'parent';
   const jar = req.cookies;
+  // A browser that was never signed in has no device cookie: say so with 204 (not 401), so no red console error on every login screen
+  if (joined === 'auth/device' && !jar.get(DEVICE_COOKIE)?.value) return new NextResponse(null, { status: 204 });
   const isAuth = /^auth\/(login|register|refresh|device|passkeys\/login\/finish)$/.test(joined);
   const isChildToken = /^children\/[^/]+\/token$/.test(joined);
 

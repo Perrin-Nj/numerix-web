@@ -147,7 +147,7 @@ export function ProfilePicker() {
               <button
                 type="button"
                 onClick={() => choose(c)}
-                className="flex min-h-48 w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-xl border-2 border-line bg-elevated p-5 shadow-[var(--shadow-press-neutral)] transition-[transform,box-shadow,border-color] duration-[var(--dur-1)] ease-[var(--ease-out)] hover:-translate-y-0.5 hover:border-brand active:translate-y-[3px] active:scale-[0.98] active:shadow-none"
+                className="flex min-h-48 w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-xl bg-elevated p-5 shadow-2 transition-[transform,box-shadow] duration-[var(--dur-1)] ease-[var(--ease-out)] hover:-translate-y-0.5 hover:shadow-3 active:scale-[0.98]"
               >
                 <Avatar avatarId={c.avatar_id} name={c.display_name} size="lg" />
                 <span className="font-display text-2xl font-bold leading-tight">{c.display_name}</span>

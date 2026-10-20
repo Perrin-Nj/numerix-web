@@ -38,7 +38,6 @@ export function ChallengesScreen() {
                   progress={c.progress}
                   status={c.status}
                   rewardLabel={c.reward_label}
-                  emoji={c.emoji}
                   onAccept={(id) => accept.mutate(id)}
                 />
               </Reveal>

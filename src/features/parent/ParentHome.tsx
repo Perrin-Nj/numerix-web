@@ -97,7 +97,7 @@ export function ParentHome() {
                     )}
                     <Link
                       href={`/parent/children/${c.id}`}
-                      className="inline-flex min-h-12 items-center rounded-md border-2 border-line bg-elevated px-5 font-display font-semibold shadow-[var(--shadow-press-neutral)] transition-[transform,box-shadow] duration-[var(--dur-1)] hover:-translate-y-px active:translate-y-[3px] active:shadow-none"
+                      className="inline-flex min-h-12 items-center rounded-md bg-brand-soft px-5 font-display font-semibold text-brand-strong shadow-[var(--shadow-press-neutral)] transition-[transform,filter] duration-[var(--dur-1)] hover:brightness-95 active:scale-[0.97]"
                     >
                       {t('overview')}
                     </Link>

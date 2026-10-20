@@ -6,7 +6,7 @@
   padding: 1.25rem;
   color: var(--fg);
   background-color: var(--bg-elevated);
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-3);
   font-family: var(--font-sans);
@@ -52,9 +52,9 @@
   font-family: var(--font-display-family), ui-rounded, system-ui, sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--fg);
-  background-color: var(--bg-elevated);
-  border: 2px solid var(--border);
+  color: var(--brand-strong);
+  background-color: var(--brand-soft);
+  border: 0;
   border-radius: var(--radius-md);
 }
 .nx-tour .driver-popover-footer-btn:hover {

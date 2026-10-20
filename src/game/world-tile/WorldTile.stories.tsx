@@ -22,7 +22,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: 'Sound: `select`. Emoji scales on hover and focus.',
+        component: 'Sound: `select`. The photo zooms slightly on hover and focus.',
       },
     },
   }, // sounds-note

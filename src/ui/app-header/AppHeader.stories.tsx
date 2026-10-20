@@ -4,7 +4,7 @@ import { IconButton } from '@/ui/icon-button';
 import { Icon } from '@/ui/icon';
 import { Mascot, type MascotConfig } from '@/game/mascot';
 
-const on: MascotConfig = { enabled: true, kind: 'emoji', emoji: '🦊', src: '' };
+const on: MascotConfig = { enabled: true, kind: 'owl', src: '' };
 const off: MascotConfig = { ...on, enabled: false };
 
 const meta = {

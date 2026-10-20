@@ -48,7 +48,7 @@ function RadioCard({
   return (
     <label
       className={cn(
-        'lift relative flex cursor-pointer flex-col gap-2 rounded-lg border-2 bg-elevated p-4 text-fg has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand',
+        'lift relative flex cursor-pointer flex-col gap-2 rounded-lg border bg-elevated p-4 text-fg has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand',
         checked ? 'border-brand bg-brand-soft' : 'border-line',
         disabled && 'cursor-not-allowed opacity-60',
       )}

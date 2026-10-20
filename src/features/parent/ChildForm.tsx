@@ -104,7 +104,7 @@ export function ChildForm() {
                     aria-checked={field.value === id}
                     aria-label={id}
                     onClick={() => field.onChange(id)}
-                    className={`lift flex items-center justify-center rounded-lg border-4 p-1 ${field.value === id ? 'border-brand' : 'border-transparent'}`}
+                    className={`lift flex items-center justify-center rounded-lg p-1 ring-4 ring-inset ${field.value === id ? 'ring-brand' : 'ring-transparent'}`}
                   >
                     <Avatar avatarId={id} name={id} size="lg" />
                   </button>

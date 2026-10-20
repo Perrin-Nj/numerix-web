@@ -3,7 +3,7 @@ import { PageContainer } from './PageContainer';
 import { MascotBubble } from '@/game/mascot-bubble';
 import type { MascotConfig } from '@/game/mascot';
 
-const on: MascotConfig = { enabled: true, kind: 'emoji', emoji: '🦊', src: '' };
+const on: MascotConfig = { enabled: true, kind: 'owl', src: '' };
 const off: MascotConfig = { ...on, enabled: false };
 
 const Sample = () => (

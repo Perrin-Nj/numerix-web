@@ -21,7 +21,7 @@ function WorldTeaserBase({ world, onOpen }: WorldTeaserProps) {
         play('select');
         onOpen(world);
       }}
-      className="lift lift-tilt group flex w-full items-center gap-4 rounded-lg border-2 border-line bg-elevated p-3 text-start text-fg shadow-1"
+      className="lift lift-tilt group flex w-full items-center gap-4 rounded-lg bg-elevated p-3 text-start text-fg shadow-1"
     >
       <span
         aria-hidden

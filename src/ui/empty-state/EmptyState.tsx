@@ -18,7 +18,7 @@ export function EmptyState({ icon, title, description, action, size = 'compact',
   return (
     <div className={cn('flex flex-col items-center gap-3 text-center', size === 'page' ? 'py-16' : 'py-6', className)}>
       <span aria-hidden className="relative flex size-20 items-center justify-center rounded-full bg-brand-soft text-brand shadow-1">
-        <span className="nx-sparkle absolute -end-1 -top-1 text-lg">✦</span>
+        <span className="nx-sparkle absolute -end-1 -top-1 text-warning"><Icon name="sparkles" size={18} /></span>
         <Icon name={icon} size={36} />
       </span>
       <h3 className="font-display text-xl font-semibold text-fg">{title}</h3>

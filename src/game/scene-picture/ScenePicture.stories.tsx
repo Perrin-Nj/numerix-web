@@ -11,7 +11,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'No sound. Draws the real quantities with the world object. Items pop in one by one; motion stops under reduced motion. Groups cap at 60, tens are bundled.',
+          'No sound. Shows the real quantities with photos of real objects (rounded tiles). Items pop in one by one; motion stops under reduced motion. Groups cap at 60, tens are bundled.',
       },
     },
   }, // sounds-note
@@ -30,7 +30,6 @@ type Story = StoryObj<typeof meta>;
 export const Addition: Story = {};
 export const AdditionSmall: Story = { args: { world: 'espace', numbers: [4, 3] } };
 export const AdditionCapped: Story = { args: { world: 'cuisine', numbers: [95, 40] } };
-export const WithHero: Story = { args: { hero: 'Mira', glow: 2 } };
 export const Subtraction: Story = { args: { world: 'sport', skillId: 'ARI-SUB-A01', numbers: [24, 9] } };
 export const MissingAddend: Story = { args: { world: 'construction', skillId: 'ARI-OPE-A05', numbers: [12, 20] } };
 export const Multiplication: Story = { args: { world: 'medecine', skillId: 'ARI-OPE-A06a', numbers: [4, 7] } };

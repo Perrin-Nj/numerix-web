@@ -46,7 +46,7 @@ export function ThemeToggle({ variant = 'icon', className }: ThemeToggleProps) {
               setTheme(choice);
             }}
             className={cn(
-              'lift inline-flex min-h-12 items-center gap-2 rounded-md border-2 px-4 font-display font-semibold',
+              'lift inline-flex min-h-12 items-center gap-2 rounded-md border px-4 font-display font-semibold',
               on ? 'border-brand bg-brand-soft text-fg' : 'border-line bg-elevated text-fg',
             )}
           >

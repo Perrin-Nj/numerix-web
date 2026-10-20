@@ -35,7 +35,7 @@ function MenuTileBase({ icon, label, hint, badge, tone = 'brand', onSelect, clas
         onSelect();
       }}
       className={cn(
-        'lift lift-tilt group relative flex min-h-36 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-line bg-elevated p-4 text-center text-fg shadow-1',
+        'lift lift-tilt group relative flex min-h-36 w-full flex-col items-center justify-center gap-2 rounded-lg bg-elevated p-4 text-center text-fg shadow-1',
         TONE[tone].edge,
         className,
       )}

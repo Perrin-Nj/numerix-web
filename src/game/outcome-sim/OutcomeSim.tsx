@@ -4,7 +4,12 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/shared/cn';
 import { useSound, type SoundName } from '@/platform/audio';
 import type { WorldId } from '@/data/api/types';
-import { SCENES, isLegacyWorld } from './sims';
+import { WorldScene } from '@/game/world-scene';
+import { Mascot } from '@/game/mascot';
+
+// The eight first worlds have their own captions; the others share one set
+const LEGACY_WORLDS = ['construction', 'nature', 'espace', 'cuisine', 'sport', 'medecine', 'science', 'echecs'];
+const isLegacyWorld = (w: WorldId) => LEGACY_WORLDS.includes(w);
 
 export const SIM_MS = 3000;
 
@@ -83,12 +88,15 @@ export function OutcomeSim({ world, good, playing = true, onDone, variant, showC
         type="button"
         onClick={skip}
         aria-label={t('skip')}
-        className="nx-sim-root block w-full overflow-hidden rounded-lg border-2 border-line shadow-2"
+        className="block w-full overflow-hidden rounded-lg shadow-2"
         data-skip={still ? '' : undefined}
       >
-        <svg key={runKey} viewBox="0 0 320 180" role="img" aria-label={t(`caption.${capWorld}.${outcome}.${v}`)} className="block aspect-[16/9] w-full">
-          {SCENES[world][outcome]}
-        </svg>
+        <span key={runKey} role="img" aria-label={t(`caption.${capWorld}.${outcome}.${v}`)} className="relative block aspect-[16/9] w-full">
+          <WorldScene world={world} variant="hero" mood={good ? 'success' : 'detour'} />
+          <span aria-hidden className="absolute bottom-1 end-2">
+            <Mascot pose={good ? 'cheer' : 'think'} size="sm" decorative />
+          </span>
+        </span>
       </button>
       <figcaption aria-hidden={!showCaption} className={cn('mt-2 text-center font-display text-lg text-fg transition-opacity duration-300', !showCaption && 'opacity-0')}>{t(`caption.${capWorld}.${outcome}.${v}`)}</figcaption>
     </figure>

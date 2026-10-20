@@ -10,8 +10,8 @@ const iconButton = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-brand text-brand-fg shadow-press active:translate-y-1 active:shadow-none',
-        secondary: 'border-2 border-line bg-elevated text-fg',
+        primary: 'bg-brand text-brand-fg shadow-[var(--shadow-press)] active:scale-95',
+        secondary: 'bg-brand-soft text-brand-strong shadow-[var(--shadow-press-neutral)]',
         ghost: 'bg-transparent text-fg hover:bg-sunken',
         danger: 'bg-danger text-brand-fg',
       },

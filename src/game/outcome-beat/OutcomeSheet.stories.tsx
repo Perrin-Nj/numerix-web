@@ -17,7 +17,7 @@ const meta = {
   component: OutcomeSheet,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
-  args: { right: true, line: 'Bien joué !', hero: 'Mira', glow: 0, continueLabel: 'Continuer', canContinue: true, collapsed: false, onContinue: () => {}, onCollapsedChange: () => {} },
+  args: { right: true, line: 'Bien joué !', glow: 0, continueLabel: 'Continuer', canContinue: true, collapsed: false, onContinue: () => {}, onCollapsedChange: () => {} },
   render: (args) => <Frame {...args} />,
 } satisfies Meta<typeof OutcomeSheet>;
 export default meta;
@@ -25,7 +25,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Right: Story = {};
 export const RightStreak: Story = { args: { glow: 3 } };
-export const Wrong: Story = { args: { right: false, line: 'On y retourne ensemble.', hero: 'Cyrus' } };
+export const Wrong: Story = { args: { right: false, line: 'On y retourne ensemble.' } };
 export const Collapsed: Story = { args: { collapsed: true } };
 export const WaitingForText: Story = { args: { canContinue: false } };
 export const Phone: Story = { globals: { viewport: { value: 'phone' } } };

@@ -36,7 +36,6 @@ import { ScenePicture } from '@/game/scene-picture';
 import { useCoach } from '@/platform/coach/useCoach';
 import { NarrationText } from '@/game/narration-text';
 import { OutcomeBeat, OutcomeSheet } from '@/game/outcome-beat';
-import { HERO_BY_WORLD } from '@/game/human-avatar';
 import { getPrefs } from '@/platform/prefs/store';
 import { RewardBurst } from '@/game/reward-burst';
 import { StoryPanel } from '@/game/story-panel';
@@ -460,7 +459,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
               ) : s.beat && q?.visual ? (
                 <QuestionVisual visual={q.visual} />
               ) : s.beat && showCounting ? (
-                <ScenePicture world={world} skillId={s.beat.skill_id} numbers={nums} hero={HERO_BY_WORLD[world] ?? 'Mira'} glow={streak} sprite={sprite} />
+                <ScenePicture world={world} skillId={s.beat.skill_id} numbers={nums} sprite={sprite} />
               ) : undefined
             }
           />
@@ -540,6 +539,22 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
             </>
           ) : undefined
         }
+        sheet={
+          sheetVisible && s.outcome ? (
+        <OutcomeSheet
+          right={s.outcome === 'correct'}
+          line={mascotLine}
+          detail={s.feedback ?? undefined}
+          explain={s.explain ?? undefined}
+          glow={streak}
+          continueLabel={t('continue')}
+          canContinue={denReady}
+          onContinue={onContinue}
+          collapsed={collapsedFor === beatId}
+          onCollapsedChange={(c) => setCollapsedFor(c ? (beatId ?? null) : null)}
+        />
+          ) : undefined
+        }
         footer={
           answerError ? (
             <div className="flex flex-col items-start gap-3">
@@ -552,21 +567,6 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
         }
       />
 
-      {sheetVisible && s.outcome && (
-        <OutcomeSheet
-          right={s.outcome === 'correct'}
-          line={mascotLine}
-          detail={s.feedback ?? undefined}
-          explain={s.explain ?? undefined}
-          hero={HERO_BY_WORLD[world] ?? 'Mira'}
-          glow={streak}
-          continueLabel={t('continue')}
-          canContinue={denReady}
-          onContinue={onContinue}
-          collapsed={collapsedFor === beatId}
-          onCollapsedChange={(c) => setCollapsedFor(c ? (beatId ?? null) : null)}
-        />
-      )}
 
       {s.phase === 'rewards' && s.rewards[s.rewardIndex] && (
         <div className="fixed inset-0 z-30 flex items-center justify-center bg-bg/80 p-4">
