@@ -147,7 +147,7 @@ await check('chapters of nature and meteo play through (cards, keypad, true/fals
       async ([c, w]) => (await (await fetch(`/api/v1/children/${c}/journey?world=${w}`, { headers: { 'x-nx-mode': 'child' } })).json()).nodes,
       [(await (await page.request.get(`${BASE}/api/session`)).json()).childId, world],
     );
-    for (const n of nodes.slice(0, 3)) await playChapter(world, n.skill_id);
+    for (const n of nodes.filter((x) => x.state !== 'locked').slice(0, 3)) await playChapter(world, n.skill_id);
   }
   const need = ['choice', 'keypad'];
   const missing = need.filter((k) => !kinds.has(k));

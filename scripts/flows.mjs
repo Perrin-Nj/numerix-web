@@ -78,7 +78,7 @@ ok('own PIN accepted, child cookie set, token hidden', r.status === 200 && jar.h
 
 // Two chapters in two worlds: each is its own story, every answer is solved from the question itself
 const scenes = [];
-for (const [world, skill] of [['nature', 'ARI-OPE-A06a'], ['espace', 'ARI-OPE-A07a']]) {
+for (const [world, skill] of [['nature', 'ARI-OPE-A02a'], ['espace', 'ARI-OPE-A02a']]) {
   r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world, kind: 'chapter', skill_id: skill }, headers: { 'idempotency-key': crypto.randomUUID() } });
   ok(`${world}: chapter starts after consent`, r.status === 201 && r.json.world === world);
   const sid = r.json?.id;
@@ -100,7 +100,7 @@ for (const [world, skill] of [['nature', 'ARI-OPE-A06a'], ['espace', 'ARI-OPE-A0
 }
 // Card threshold: 2 right answers out of 3 (67%) is below 70%, so no card
 {
-  r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'sport', kind: 'chapter', skill_id: 'ARI-OPE-A06a' }, headers: { 'idempotency-key': crypto.randomUUID() } });
+  r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'sport', kind: 'chapter', skill_id: 'ARI-OPE-A02a' }, headers: { 'idempotency-key': crypto.randomUUID() } });
   const sid = r.json?.id;
   let last;
   for (let i = 0; i < 3; i++) {
@@ -114,7 +114,7 @@ for (const [world, skill] of [['nature', 'ARI-OPE-A06a'], ['espace', 'ARI-OPE-A0
 }
 // After a wrong answer the next exercise is a different one, not a replay
 {
-  r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'nature', kind: 'chapter', skill_id: 'ARI-OPE-A06a' }, headers: { 'idempotency-key': crypto.randomUUID() } });
+  r = await api('POST', `/children/${nora.id}/sessions`, { mode: 'child', body: { world: 'nature', kind: 'chapter', skill_id: 'ARI-OPE-A02a' }, headers: { 'idempotency-key': crypto.randomUUID() } });
   const sid = r.json?.id;
   r = await api('POST', `/sessions/${sid}/beats`, { mode: 'child', headers: { 'idempotency-key': crypto.randomUUID() } });
   const first = r.json;
