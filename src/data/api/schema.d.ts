@@ -155,7 +155,12 @@ export interface paths {
          * @description The child token may read (never change) sound and read-aloud so play follows the parent's choices.
          */
         get: operations["getChildSettings"];
-        /** Replace a child's play settings */
+        /**
+         * Replace a child's play settings
+         * @description A parent replaces everything. A child token may change only its own `music.enabled`, `music.volume` and
+         *     `voice.human_enabled`; every other field in the body is ignored and the stored value is kept. While
+         *     `music.parent_locked` is true the server keeps `music.enabled` false whoever asks.
+         */
         put: operations["updateChildSettings"];
         post?: never;
         delete?: never;
@@ -872,6 +877,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/config/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin-controlled app configuration (music defaults, voice, scenes, feature flags, maintenance banner, kid-visible copy)
+         * @description No auth, no personal data. Edited by admins at runtime; the server caches it and answers
+         *     `Cache-Control: public, max-age=60`. `version` changes whenever anything changes. The client uses it
+         *     minimally: music defaults, feature flags and the maintenance banner. Any field it does not know is ignored.
+         */
+        get: operations["getPublicConfig"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/push/subscribe": {
         parameters: {
             query?: never;
@@ -1551,7 +1578,16 @@ export interface components {
          *       ],
          *       "read_aloud": true,
          *       "sound": true,
-         *       "kid_can_change_language": true
+         *       "kid_can_change_language": true,
+         *       "music": {
+         *         "enabled": true,
+         *         "volume": 30,
+         *         "parent_locked": false
+         *       },
+         *       "voice": {
+         *         "human_enabled": true,
+         *         "computer_voice": false
+         *       }
          *     }
          */
         ChildSettings: {
@@ -1572,6 +1608,36 @@ export interface components {
              * @default true
              */
             kid_can_change_language: boolean;
+            music?: components["schemas"]["MusicSettings"];
+            voice?: components["schemas"]["VoiceSettings"];
+        };
+        /** @description Background music. Optional on write (an omitted block keeps the stored one); always present on read. */
+        MusicSettings: {
+            /**
+             * @description The child toggle. Always false while parent_locked is true.
+             * @default true
+             */
+            enabled: boolean;
+            /** @default 30 */
+            volume: number;
+            /**
+             * @description Parent switch: music stays off and the child cannot turn it on. Only a parent token can change it.
+             * @default false
+             */
+            parent_locked: boolean;
+        };
+        /** @description Read-aloud voice. Optional on write (an omitted block keeps the stored one); always present on read. */
+        VoiceSettings: {
+            /**
+             * @description Play the recorded human clip when one exists
+             * @default true
+             */
+            human_enabled: boolean;
+            /**
+             * @description Parent opt-in to the browser computer voice when no human clip exists. Only a parent token can change it.
+             * @default false
+             */
+            computer_voice: boolean;
         };
         Device: {
             /** Format: uuid */
@@ -1738,6 +1804,66 @@ export interface components {
                 [key: string]: boolean;
             };
         };
+        BilingualText: {
+            fr: string;
+            en: string;
+        };
+        AppPublicConfig: {
+            /** @description Sum of the versions of every config document; changes on any edit */
+            version: number;
+            music: {
+                enabled: boolean;
+                default_volume: number;
+                /** @description Enabled tracks only */
+                tracks: {
+                    id: string;
+                    title: components["schemas"]["BilingualText"];
+                }[];
+            };
+            voice: {
+                human_enabled_default: boolean;
+                computer_voice_allowed: boolean;
+                /** @description Enabled recorded lines managed by the admin (the static voice manifest stays the base) */
+                clips: {
+                    line_id: string;
+                    /** @enum {string} */
+                    locale: "fr-CA" | "en-CA";
+                    url: string;
+                    enabled: boolean;
+                }[];
+            };
+            scenes: {
+                /** @description false: play the plain animation, no simulation */
+                physics_enabled: boolean;
+                families: {
+                    [key: string]: {
+                        enabled: boolean;
+                        disabled_variants: string[];
+                    };
+                };
+            };
+            features: {
+                [key: string]: boolean;
+            };
+            welcome_gift: boolean;
+            feed: {
+                discover_enabled: boolean;
+                family_board_visible: boolean;
+            };
+            maintenance: {
+                enabled: boolean;
+                /** @enum {string} */
+                level: "info" | "warning" | "critical";
+                message: components["schemas"]["BilingualText"];
+                /** @description true: game requests answer 503 maintenance */
+                block_play: boolean;
+            };
+            copy: {
+                home_tip: components["schemas"]["BilingualText"];
+                feed_empty: components["schemas"]["BilingualText"];
+                session_done: components["schemas"]["BilingualText"];
+            };
+        };
         World: {
             id: components["schemas"]["WorldId"];
             /** @example Échecs */
@@ -1836,6 +1962,8 @@ export interface components {
             /** @description Open (unanswered) beat, if any */
             current_beat?: components["schemas"]["Beat"] | null;
             story_title?: string | null;
+            /** @description Scene ids the client showed most recently in this session (oldest first, 30 at most), as last sent on an answer. A reload keeps the no-repeat rule by reading this back. */
+            variant_history?: string[];
             /** Format: date-time */
             started_at: string;
             /** Format: date-time */
@@ -1990,6 +2118,7 @@ export interface components {
          *         "text": null,
          *         "illustration_url": null
          *       },
+         *       "scene_key": "mult_div",
          *       "created_at": "2026-10-12T14:00:00Z"
          *     }
          */
@@ -2002,13 +2131,23 @@ export interface components {
             skill_id: components["schemas"]["SkillId"];
             question: components["schemas"]["Question"];
             scene: components["schemas"]["Narration"];
+            scene_key?: components["schemas"]["SceneKey"];
             /** Format: date-time */
             created_at?: string;
         };
+        /**
+         * @description Hint for the client to pick a consequence scene. It is the topic family (number, add_sub, mult_div, fractions,
+         *     measure, geometry, data, time). On an `AnswerResult` for a typical error it is `<family>:<misconception id>`.
+         *     Stable for a given question and answer; never shown to the child.
+         * @example mult_div:MIS-MUL-001
+         */
+        SceneKey: string;
         AnswerRequest: {
             answer: components["schemas"]["AnswerValue"];
             /** @description Used by mastery tracking only. Never displayed, never a timer. */
             response_time_ms?: number;
+            /** @description Optional. The client's recent scene ids, oldest first. The server stores them on the session (last 30 kept) and returns them as `session.variant_history`, so a reload cannot reset the no-repeat rule. An omitted field leaves the stored list unchanged. */
+            variant_history?: string[];
         };
         /**
          * @description Verdict of the deterministic engine. Selects the story beat. The client
@@ -2103,6 +2242,7 @@ export interface components {
             misconception?: string | null;
             /** @description Curated questions only: the kind message written for the matched common error, when there is one. */
             feedback?: string | null;
+            scene_key?: components["schemas"]["SceneKey"];
             denouement: components["schemas"]["Narration"];
             session: components["schemas"]["Session"];
             rewards?: components["schemas"]["Reward"][];
@@ -4071,6 +4211,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlatformPublic"];
+                };
+            };
+            429: components["responses"]["RateLimited"];
+            500: components["responses"]["ServerError"];
+        };
+    };
+    getPublicConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Public config */
+            200: {
+                headers: {
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppPublicConfig"];
                 };
             };
             429: components["responses"]["RateLimited"];
