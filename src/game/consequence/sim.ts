@@ -164,7 +164,7 @@ function scale(c: Ctx, good: boolean, n: number): Built {
   place(-1, cl);
   place(1, cr);
   // the counterweight of a real balance acts like a torsion spring: it brings the beam back to level, more load on one side tips it
-  const K = Number(process.env.SCALE_K ?? 1);
+  const K = 1;
   return { verdict: () => Math.abs(beam.angle) < 0.05, drive: { from: 0, run: () => { beam.torque += -K * beam.angle - 1.2 * K * beam.angularVelocity; } }, busy: () => items.some((i) => !i.live) };
 }
 
@@ -177,15 +177,26 @@ function jug(c: Ctx, good: boolean): Built {
   wall('jr', JUG.right + 1.5, (JUG.top + JUG.bottom) / 2, 3, JUG.bottom - JUG.top);
   const N = good ? JUG_GOOD : Math.round(JUG_GOOD * 2.3);
   const drops: Piece[] = [];
+  const born: number[] = [];
+  let tick = 0;
   for (let i = 0; i < N; i++) {
     const p = c.ball(`w${i}`, 'water', JUG.x + ((i % 5) - 2) * 3.4 + (c.rnd() - 0.5) * 0.4, 6 - Math.floor(i / 5) * 0, JUG.r, { friction: 0.01, frictionStatic: 0, frictionAir: 0.004, restitution: 0.05, density: 0.001 });
     c.spawn(p, 6 + Math.floor(i / 5) * 12 + (i % 5) * 2);
+    born.push(6 + Math.floor(i / 5) * 12 + (i % 5) * 2);
     drops.push(p);
   }
   c.decor('mark', 'zone', JUG.x, JUG.bottom - JUG_MARK, JUG.right - JUG.left + 6, 0.5);
   c.decor('jug', 'glass', JUG.x, (JUG.top + JUG.bottom) / 2 + 0.5, JUG.right - JUG.left + 3, JUG.bottom - JUG.top + 2);
   const outside = () => drops.filter((d) => d.live && d.part && (d.part.position.x / S < JUG.left || d.part.position.x / S > JUG.right)).length;
-  return { verdict: () => outside() === 0, busy: () => drops.some((d) => !d.live) };
+  // water has no angle of repose: above the rim a heap of discs would stand, so the surface slumps sideways (a small push away from the jet)
+  const slump = () => {
+    tick++;
+    drops.forEach((d, i) => {
+      const b = d.part!;
+      if (d.live && tick - born[i] > 45 && b.position.y / S < JUG.top - 0.5 && b.speed < 0.8) Body.applyForce(b, b.position, { x: Math.sign(b.position.x / S - JUG.x || 1) * b.mass * 0.0006, y: 0 });
+    });
+  };
+  return { verdict: () => outside() === 0, busy: () => drops.some((d) => !d.live), drive: { from: 0, run: slump } };
 }
 const JUG_MARK = 19.5;
 

@@ -34,17 +34,24 @@ export const CollideWrong: Story = { args: { sceneId: 'time.collide.ko', world: 
 export const CollideRight: Story = { args: { sceneId: 'time.collide.ok', world: 'sport' } };
 export const Still: Story = { args: { playing: false } };
 
-/** Every scene of the library as its finished picture (the grid the QA screenshots use). */
-export const Library: Story = {
+/** The 12 scenes of one family, simulated to rest (the grids the QA screenshots use). */
+const library = (family: (typeof FAMILIES)[number]): Story => ({
   parameters: { layout: 'padded' },
-  decorators: [(Story) => <div className="max-w-none"><Story /></div>],
   render: () => (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" data-library="">
-      {SCENES.map((s) => (
+      {SCENES.filter((s) => s.family === family).map((s) => (
         <div key={s.id} className="h-56">
           <ConsequenceScene sceneId={s.id} world="construction" playing={false} seed={4 + FAMILIES.indexOf(s.family)} />
         </div>
       ))}
     </div>
   ),
-};
+});
+export const LibraryNumber = library('number');
+export const LibraryAddsub = library('addsub');
+export const LibraryMultdiv = library('multdiv');
+export const LibraryFractions = library('fractions');
+export const LibraryMeasure = library('measure');
+export const LibraryGeometry = library('geometry');
+export const LibraryData = library('data');
+export const LibraryTime = library('time');
