@@ -24,7 +24,7 @@ const police = () => {
   // flat vector art: inline svg >= 80px not a lucide icon, svg/dicebear images
   for (const s of document.querySelectorAll('svg')) {
     const r = s.getBoundingClientRect();
-    if (r.width >= 80 && r.height >= 80 && !/lucide/.test(s.getAttribute('class') ?? '')) out.push(['flat-vector-svg', 'P1', `${Math.round(r.width)}x${Math.round(r.height)} ${desc(s)} ${s.closest('[aria-label],[data-testid]')?.getAttribute('aria-label') ?? ''}`]);
+    if (r.width >= 80 && r.height >= 80 && !/lucide/.test(s.getAttribute('class') ?? '') && !s.closest('[data-mascot],.driver-overlay')) out.push(['flat-vector-svg', 'P1', `${Math.round(r.width)}x${Math.round(r.height)} ${desc(s)} ${s.closest('[aria-label],[data-testid]')?.getAttribute('aria-label') ?? ''}`]);
   }
   for (const i of document.querySelectorAll('img')) {
     const r = i.getBoundingClientRect();
@@ -68,17 +68,17 @@ for (const [vp, [width, height]] of Object.entries(VPS)) {
   const page = await ctx.newPage();
   let cur = { errors: [], failed: [], js: 0, img: 0 };
   page.on('pageerror', (e) => cur.errors.push(`pageerror ${e.message.slice(0, 160)}`));
-  page.on('console', (m) => m.type() === 'error' && cur.errors.push(`console ${m.text().slice(0, 160)}`));
+  page.on('console', (m) => m.type() === 'error' && !(cur.own404 && m.location().url === cur.own404) && cur.errors.push(`console ${m.text().slice(0, 120)} @ ${m.location().url.replace(BASE, '')}`));
   page.on('requestfailed', (r) => !/aborted/i.test(r.failure()?.errorText ?? '') && cur.failed.push(`FAILED ${r.url().slice(0, 90)} ${r.failure()?.errorText}`));
   page.on('response', async (r) => {
     const u = r.url(), ct = r.headers()['content-type'] ?? '';
-    if (r.status() >= 400) cur.failed.push(`${r.status()} ${r.request().method()} ${u.replace(BASE, '').slice(0, 90)}`);
+    if (r.status() >= 400 && !(cur.own404 && u === cur.own404)) cur.failed.push(`${r.status()} ${r.request().method()} ${u.replace(BASE, '').slice(0, 90)}`);
     const len = Number(r.headers()['content-length'] ?? 0) || (await r.body().then((b) => b.length, () => 0));
     if (/javascript/.test(ct)) cur.js += len;
     else if (/^(image|video)/.test(ct) || /\.(png|jpe?g|webp|avif|gif|mp4|webm)(\?|$)/.test(u)) cur.img += len;
   });
   const visit = async (name, url, act) => {
-    cur = { errors: [], failed: [], js: 0, img: 0 };
+    cur = { errors: [], failed: [], js: 0, img: 0, own404: name === '404' ? BASE + url : null }; // the 404 page's own HTTP 404 is expected, any other 404 is a defect
     const t0 = Date.now();
     await page.goto(`${BASE}${url}`, { waitUntil: 'networkidle', timeout: 45000 }).catch((e) => cur.errors.push(`nav ${e.message.slice(0, 80)}`));
     if (act) await act().catch(() => {});
