@@ -110,11 +110,11 @@ function VoicePanel() {
           </>
         )}
         <div className="flex flex-wrap items-center gap-3">
-          <Button variant="secondary" iconLeft={<Icon name="volume" />} disabled={!sp.supported || !prefs.voice} onClick={() => sp.speak(t('sample'))}>
+          <Button variant="secondary" iconLeft={<Icon name="volume" />} disabled={!prefs.voice} onClick={() => sp.speak(t('sample'))}>
             {t('test')}
           </Button>
           <p className="text-sm text-muted" aria-live="polite">
-            {!sp.supported || (sp.voicesLoaded && !sp.voiceLabel) ? t('noVoice') : sp.voiceLabel ? t('using', { name: sp.voiceLabel }) : null}
+            {!prefs.computerVoice ? null : !sp.supported || (sp.voicesLoaded && !sp.voiceLabel) ? t('noVoice') : sp.voiceLabel ? t('using', { name: sp.voiceLabel }) : null}
           </p>
         </div>
       </div>

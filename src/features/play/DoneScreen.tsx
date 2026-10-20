@@ -41,9 +41,8 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
   const noCard = !rewards.some((r) => r.type === 'card_earned');
   const [appreciation] = useState(() => pick(noCard ? 'appreciation.miss' : 'appreciation.pass'));
   const lang = useLocale();
-  // The appreciation is spoken. Only a device with no voice for this language shows it as text.
-  const voice = useSpokenLine(appreciation, { lang });
-  const mute = !voice.supported || (voice.voicesLoaded && !voice.voiceLabel);
+  // Spoken when a human clip exists; the caption is always shown, also while the voice speaks
+  useSpokenLine(appreciation, { lang });
 
   // Light celebration when the chapter ends well (not under reduced motion)
   const celebrate = session.isSuccess && !noCard && !reduced;
@@ -75,7 +74,7 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
           <MediaImage media={hero} alt="" sizes="(min-width: 512px) 512px, 100vw" priority />
         </div>
       )}
-      <MascotBubble pose={noCard ? 'think' : 'cheer'}>{mute ? appreciation : ' '}</MascotBubble>
+      <MascotBubble pose={noCard ? 'think' : 'cheer'}>{appreciation}</MascotBubble>
       <ChapterComplete
         title={session.data?.story_title ?? undefined}
         rewards={rewards}
