@@ -1,0 +1,11 @@
+{ "game": { "consequence": {
+  "skip": "Skip the animation",
+  "caption": {
+    "tower": { "ok": "Every block lands and the tower stands.", "ko": "One block too many: the tower sways and it falls." },
+    "bridge": { "ok": "The plank is long enough: the bridge closes.", "ko": "The plank is too short: the gap stays open." },
+    "scale": { "ok": "Both sides weigh the same: the scale balances.", "ko": "One side is heavier: the scale tips." },
+    "jug": { "ok": "The water stops right on the line.", "ko": "Too much water: the jug overflows." },
+    "shelf": { "ok": "Every piece fits in its spot.", "ko": "One piece too many: it bounces off the shelf." },
+    "collide": { "ok": "The push is just right: the block stops in the zone.", "ko": "The push is off: the block misses the zone." }
+  }
+} } }

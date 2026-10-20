@@ -30,7 +30,7 @@ import { QuestionSwap } from '@/game/question-swap';
 import { QuestionVisual } from '@/game/question-visual';
 import { LessonProgress } from '@/game/lesson-progress';
 import { IllustrationFrame } from '@/game/illustration-frame';
-import { OutcomeSim } from '@/game/outcome-sim';
+import { ConsequenceScene, useConsequence } from '@/game/consequence';
 import { MethodVisual } from '@/game/method-visual';
 import { ScenePicture } from '@/game/scene-picture';
 import { useCoach } from '@/platform/coach/useCoach';
@@ -396,6 +396,16 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const questionText = q?.prompt ?? q?.math_text ?? '';
   const denReady = s.denouementStatus === 'ready' || s.denouementStatus === 'fallback';
   const outcomeStage = s.phase === 'outcome' && !!s.outcome;
+  // Scene of the consequence: never the same twice in a row, all variants before reuse (history kept per session, server list merged)
+  const sceneId = useConsequence({
+    sessionId,
+    beatId: outcomeStage ? beatId : undefined,
+    outcome: s.outcome,
+    skillId: s.beat?.skill_id,
+    visualKind: q?.visual?.kind,
+    sceneKey: (s.beat as { scene_key?: string | null } | null)?.scene_key,
+    serverHistory: (s.session as { variant_history?: string[] | null } | null)?.variant_history,
+  });
   const sheetVisible = outcomeStage && step >= 2;
   // After the short story consequence, the stage shows how to solve it: the same picture for right and wrong answers
   const showHow = outcomeStage && step >= 2 && Boolean(s.methodVisual);
@@ -453,7 +463,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                 <MethodVisual visual={s.methodVisual} />
               ) : s.beat && outcomeStage ? (
                 <div className="relative flex size-full items-center justify-center">
-                  <OutcomeSim world={world} good={s.outcome === 'correct'} showCaption={step >= 1} onDone={skipAhead} />
+                  {sceneId && <ConsequenceScene sceneId={sceneId} world={world} seed={3 + (nums.reduce((a, b) => a + b, 0) % 4)} showCaption={step >= 1} onDone={skipAhead} />}
                   {s.outcome !== 'correct' && !reduced && step >= 1 && <Dust />}
                 </div>
               ) : s.beat && q?.visual ? (

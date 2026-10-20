@@ -729,6 +729,35 @@
       "next": "Chapitre suivant",
       "back": "Retour à mon chemin"
     },
+    "consequence": {
+      "skip": "Passer l'animation",
+      "caption": {
+        "tower": {
+          "ok": "Chaque bloc se pose et la tour tient debout.",
+          "ko": "Un bloc de trop : la tour vacille et il tombe."
+        },
+        "bridge": {
+          "ok": "La planche est assez longue : le pont se referme.",
+          "ko": "La planche est trop courte : le trou reste ouvert."
+        },
+        "scale": {
+          "ok": "Les deux côtés pèsent pareil : la balance est en équilibre.",
+          "ko": "Un côté est plus lourd : la balance penche."
+        },
+        "jug": {
+          "ok": "L'eau s'arrête juste sur le trait.",
+          "ko": "Trop d'eau : la cruche déborde."
+        },
+        "shelf": {
+          "ok": "Chaque pièce entre à sa place.",
+          "ko": "Une pièce de trop : elle rebondit hors de l'étagère."
+        },
+        "collide": {
+          "ok": "La poussée est juste : le bloc s'arrête dans la zone.",
+          "ko": "La poussée est ratée : le bloc rate la zone."
+        }
+      }
+    },
     "continueCard": {
       "region": "Ton histoire",
       "resume": "Ton chapitre t'attend",
