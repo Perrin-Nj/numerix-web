@@ -1,38 +1,49 @@
 # QA report (living)
 
-Round 1, 2026-10-19. Target: working tree of `feat/human-visuals` (no builder commits yet, equals main 2a45d05 plus uncommitted edits), web build on :3130, API on :8130, scratch DB `scripts/qa/out/qa.db` seeded with all 1229 questions.
+Round 2, 2026-10-20. NOT SIGNED OFF (see Open). Target: clean checkout of `release/candidate` (01aaff8) + numerix-api main (0e2bd4c), built and seeded fresh (1229 questions, 202 assets, 200 feed items), own ports 18140 (API) and 13140 (web), `QA_FRESH=1` refuses a busy port. Branch with the round-2 harness changes: `qa/round2` (bdd121e and later) in the QA worktree.
 Rule: a defect is CLOSED only when its regression test exists, is in the always-run set (`bash scripts/test.sh all`, CI job `suite`) and is listed in `docs/REGRESSION_INDEX.md`.
 
-Evidence root: `scripts/qa/out/` (sweep.json, shots/{m360,t768,d1280}/*.png, contact-*.png, sprites.png, bank.txt, load1.log, load2.log, gotest.log). Re-run: `node scripts/qa/stack.mjs`, `node scripts/qa/sweep.mjs`, `node scripts/qa/analyze.mjs`.
+## Run results (candidate)
+| Suite | Result |
+|---|---|
+| `pnpm check` | 0 errors (4 unused-import warnings in scripts/qa) |
+| `go test -count=3 ./...` | 1446 passed, 22 packages |
+| seed `--validate-only`, feedseed `--validate-only` | valid: 20 worlds, 89 quests, 1229 questions, 202 assets; 200 feed items |
+| test.sh all: contract, state, flows, ui, errors, mobile, feed | all pass |
+| test.sh play (every question kind, credits) and images | all pass |
+| bank-audit | 0 P0/P1; 4 questions with only 2 distractors (P2) |
+| api-fuzz (141 calls) | all pass, 0 x 5xx |
+| sweep, 63 page loads (21 routes x 3 viewports), axe-core 4.10.2 | P0 0, P1 0, P2 only (see below) |
+| regress-ui QA-A-001 (7 viewports x 4 worlds) | 28/28 pass |
+| load 50 rps x 30 s, twice, fresh seeded DB | answer p95 1.7 / 1.7 ms, beats 3.7 / 3.7 ms, start 1.7 / 1.7 ms, health 0 ms; 0 x 5xx, 0 x 429 |
+| extra: fr/en on every route, logout, credits links, panel | pass except the two items below |
 
-## Green
-- `go test -count=3 ./...`: 1098 passed, 20 packages.
-- Load 50 rps x 30 s, twice, fresh seeded DB: answer p95 4.4 / 3.2 ms, beats 13.7 / 18.2 ms, start 2.6 / 1.7 ms, health 2.1 / 4.2 ms, 0 x 5xx, 0 x 429.
-- API fuzz: 141 calls, 0 x 5xx, auth boundaries (no token, garbage token, child vs parent token, other family) all correct, login brute force and register per-IP limits return 429.
-- Bank mechanical audit, 1229 questions: 0 wrong answers, 0 distractor = answer, 0 missing fr/en, 0 leaks.
-
-## Defects
-
-| Id | Sev | Owner | Title | Repro / evidence | Regression test |
+## Open
+| Id | Sev | Owner | Title | Repro | Test |
 |---|---|---|---|---|---|
-| QA-A-001 | P0 | A | Feedback sheet covers the question and the answers after answering | Any chapter, answer once. 12/12 cases overlap (360, 768, 1280 x nature, espace, cuisine, sport). Owner reported it too. `node scripts/qa/regress-ui.mjs` | regress-ui.mjs (fails now) |
-| QA-A-002 | P1 | A | Emoji used as content and icons in kid screens | Challenges/parent child page icons (sun, target, feet, heart, books, puzzle, compass), feed avatars (fox, owl), feed item emoji (soccer, tomato, runner, builder, carrot, onion, cook, astronaut), home squirrel. `shots/m360/play-feed.png`, `play-home.png`, `play-challenges.png` | sweep.mjs kind `emoji` (fails now) |
-| QA-A-003 | P1 | A | Flat vector illustrations remain | Inline SVG art >= 80 px: home 152x161 (`shots/m360/home.png`, also offline, 404), play-home "Ton histoire" 96 px and daily goal ring 112 px, play-feed cards "La porte à chiffres", "La tour qui comptait à l'envers", "Le casse-tête de Lumi", "Trois d'affilée", "Zéro, le pousseur" (292x164) | sweep.mjs kind `flat-vector-svg` (fails now) |
-| QA-A-004 | P1 | A | Heavy button borders | 4 px avatar picker buttons (`parent-child-new`), 2 px on world tiles (`play-worlds`, `play-home`), feed Garder/J'aime and answer buttons, theme toggle, play-me settings, parent buttons (Ajouter un enfant, Gérer l'abonnement, Je suis un adulte), tour popover. 400+ hits | sweep.mjs kind `heavy-button-border` (fails now) |
-| QA-A-005 | P1 | A | axe serious: aria-prohibited-attr on decorative wrappers | `.pointer-events-none` on 51 page loads, `.inset-x-0` home, `.z-[60]` play-home/worlds/feed | sweep.mjs `axe-*` |
-| QA-A-006 | P1 | A | axe critical: aria-allowed-attr on `#driver-dummy-element` (tour) and color-contrast on home subtitle | play-home, home | sweep.mjs `axe-*` |
-| QA-A-007 | P1 | A | console error "Failed to load resource 404" on /404 and /parent/login | `shots/m360/404.png`; find the missing asset (likely icon/manifest) | sweep.mjs `console-error` |
-| QA-C-001 | P1 | content | 54 questions show a Fluent-style 3D emoji sprite (role `object`, cow, pig, carrot, rocket, whale, owl...) instead of a photo; 52 of them are absent from `seed/assets/credits.json` so no licence or attribution is served | `scripts/qa/out/sprites.png`, `node scripts/qa/bank-audit.mjs` | bank-audit.mjs asset check (P1, fails now) |
-| QA-C-002 | P2 | content | No fr/en alt text in the credits data for any of the 118 credited photos; 423 of 1229 questions have no media at all | bank-audit.mjs | bank-audit.mjs (P2 reported, not failing) |
-| QA-BE-001 | P1 | backend | `POST /auth/register` accepts a 2 MB password (201): no password or body size cap, argon2 on a 2 MB input is a cheap DoS | `node scripts/qa/api-fuzz.mjs` check "2MB body refused" | api-fuzz.mjs (fails now) |
-| QA-BE-002 | P2 | backend | Validation runs before auth: `POST /children/{id}/sessions` with no token and `{}` body returns 422, expected 401 | api-fuzz.mjs "no token POST" | api-fuzz.mjs (fails now) |
-| QA-BE-003 | P2 | backend | Replaying `POST /children/{id}/sessions` with the same Idempotency-Key returns 429 once the per-child limiter trips instead of the stored result | api-fuzz.mjs "idempotent replay" | api-fuzz.mjs (fails now) |
-| QA-W-001 | P2 | A/B | JS per route 0.8 to 1.6 MB decompressed (budget 600 KB): home 1.6 MB, parent 1.1 MB, play-me 1.1 MB | sweep.json `js` | sweep.mjs `js-bytes` (P2, reported) |
+| QA-A-008 | P1 | A | Feedback sheet still hides the tail of the question on a 360x740 phone without scrolling (about 15% of questions: sport, dinosaurs, robots; earlier ocean, pirates). QA-A-001 passes only because its check scrolls to the bottom first. Owner's original bug, reduced but not gone | `node scripts/qa/regress-strict.mjs <base>`: 3 of 20 cases fail. Screenshots `scripts/qa/out/review/m360-feedback-ocean.png`, `-pirates.png` | regress-strict.mjs (fails) |
+| QA-BE-004 | P1 | backend | `POST /children/{id}/sessions` with an explicit `skill_id` starts a chapter that is locked by prerequisites (only grade lock and bank size are checked in `PlayableFor`). 10 of 93 locked nodes started. The planner path never serves them. A forged client can skip the path | `node scripts/qa/extra.mjs <base>` "quest locks". Note: flows and play suites rely on this, so they need a prerequisite-satisfied fixture when fixed | extra.mjs (fails) |
+| QA-BE-005 | P1 | backend/A | Passkey registration with a Chrome virtual authenticator fails: UI shows "Impossible d'ajouter la clé d'accès". Root cause not triaged (RP id/origin config for the test host, or a real bug). Login button hint passes | `node scripts/qa/extra.mjs <base>` "passkey registers" | extra.mjs (fails) |
 
-Sweep totals on the current tree: 63 page loads (21 routes x 3 viewports), P0 0, P1 607, P2 482 (mostly emoji, border and axe repeats, counted per viewport). No horizontal scroll, no broken image, no failed request, no 5xx found.
+## P2 (not blocking)
+- QA-W-001 JS per route 840 KB to 1.2 MB decompressed (budget 600 KB; zod about 100 KB). `sweep.mjs` kind `js-bytes`.
+- Voice-unavailable toast ("Pas de voix pour lire à voix haute") sits on the answer keypad at 360x740 until closed.
+- World page hero repeats the title ("Nature / Nature"). Desktop 1280 shows a narrow phone column with large empty margins.
+- axe moderate: heading-order (quest title, collection, challenges), `landmark-one-main` on 30 loads (offline, 404, parent pages), region, unique landmark on feed flag article. CLS above 0.1 on parent-subscription, parent-child, parent-settings, play-me, parent-account, parent-report.
+- Feed: cycloid animation is a thin black line on white (looks like a placeholder); 29 CC BY credits are on the card only, no credits page for feed items (known). Contract lacks maxLength 128 on password and a 413 response (known).
+- Content (60-question hand re-solve, seed 20261020, `node scripts/qa/sample.mjs 60`): 60 of 60 answers, distractors and explanations correct, 0 mismatches. Wording: `meteo.pluie.003` hint says "Compare les deux barres" but the question has no chart; `sport.relais.012` uses "x" not the multiplication sign; `echecs.parcours.001` cell x:1 on a 5-column grid with story "colonne 1": check the drawn grid is 1-based; 4 questions have only 2 common errors (`animaux.zoo.006`, `cuisine.tablee.001`, `cuisine.tablee.002` and one more).
+- Question bank types in seed: 12 kinds (choice, numeric, truefalse, order, match, estimate, word, visual and variants); all input kinds pass `test.sh play`.
 
-## Not yet covered (honest gaps)
-- 60-question hand re-solve: sample printed in `scripts/qa/out/bank.txt`, not yet judged (mechanical checks only).
-- Not automated yet: offline/retry, 401 recovery, passkey panel, fr/en switch on every route, all 12 UI question kinds (existing `play-checks.mjs` covers kinds; run it via `test.sh play`), feed 200 items and infinite scroll (no feed branch committed yet), quest lock states in UI.
-- Builder branches: `feat/media-feed` does not exist yet; `feat/human-visuals` has no commits. Re-run on `release/candidate` from a clean checkout.
-- Test runs share one working tree with the builders, so a build may mix states; the final run must come from a clean checkout.
+## Visual review against the owner's bar (screenshots read at 360, 768, 1280)
+Sheets: `scripts/qa/out/review/sheet-{m360,t768,d1280}-{core,parent,question,feedback,feed}.png`.
+- Home, world map, world pages: real photographs (forest, shuttle, bread, football, treehouse, chess), owl Numa only, no emoji, no cartoon art, no heavy borders. Pass.
+- Question screens (8 worlds): a photo per question, calm cards, soft buttons. Pass, except QA-A-008 and the toast above. Some photos only loosely match the topic (clay-coloured rock under the biscuits).
+- Feedback states: soft green, blue and amber cards with Numa, no red, no shake. Pass visually.
+- Feed (14 cards at 360): photos, silent animations, captioned videos, credit line on every card, like and save, question reveal. Pass; the Numa mini-story card is text plus photo, labelled AI.
+- Parent area: letter avatars instead of cartoon faces, soft pills, no heavy borders. Pass.
+- Admin questions: no admin UI exists in the web app (API only, `docs/ADMIN_API.md`), nothing to review.
+Rating: professional and photographic, playful through Numa and colour; the desktop layout is the weakest part.
+
+## Not covered
+- Admin UI (none). Real-device iOS and Android, real TTS voice, real passkey hardware.
+- The first-visit tour covers the home screenshots; captured after "Passer la visite" in suites only.

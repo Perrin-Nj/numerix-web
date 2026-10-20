@@ -72,7 +72,7 @@ for (const w of worlds.slice(0, 8)) {
     const b = await call('POST', `/sessions/${s.json.id}/beats`, { token: T.child, headers: { 'idempotency-key': crypto.randomUUID() } });
     if (b.status !== 200 && b.status !== 201) { if (!(b.status === 409 || b.status === 422)) ok(`${w} beat ${i}`, false, `${b.status} ${b.text.slice(0, 80)}`); break; }
     served++; const q = b.json.question; kinds.add(q.kind ?? q.type ?? q.input ?? 'n/a');
-    const key = q.id ?? b.json.question_id ?? q.math_text + q.prompt; if (seen.has(key)) ok(`no repeat for child: ${key}`, false, `${w} again`); seen.set(key, w);
+    const key = q.id ?? b.json.question_id ?? q.math_text + q.prompt + JSON.stringify(q.visual ?? ''); if (seen.has(key)) ok(`no repeat for child: ${key}`, false, `${w} again`); seen.set(key, w);
     if (/correct|answer_value|solution/.test(JSON.stringify(q))) ok(`${w} beat ${i}: no answer leak in question`, false, Object.keys(q).join(','));
     let ans; try { ans = solve(q.math_text); } catch { ans = q.choices?.[0]; }
     const a = await call('POST', `/sessions/${s.json.id}/beats/${b.json.id}/answer`, { token: T.child, body: { answer: ans }, headers: { 'idempotency-key': crypto.randomUUID() } });
