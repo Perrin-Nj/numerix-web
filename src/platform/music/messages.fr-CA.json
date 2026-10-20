@@ -1,0 +1,19 @@
+{
+  "music": {
+    "toggleOn": "Couper la musique",
+    "toggleOff": "Mettre la musique",
+    "switch": "Musique douce pendant que je joue",
+    "switchHint": "Une musique de fond tranquille. Tu peux l'arrêter quand tu veux.",
+    "volume": "Volume de la musique",
+    "low": "Doux",
+    "medium": "Moyen",
+    "parentLock": "Permettre la musique de fond",
+    "parentLockHint": "Si c'est désactivé, la musique reste coupée pour tous les enfants sur cet appareil.",
+    "creditsTitle": "Musique",
+    "creditsIntro": "Des pièces calmes jouées pendant que les enfants apprennent.",
+    "by": "par {artist}",
+    "licence": "Licence : {licence}",
+    "source": "Source",
+    "licenceLink": "Texte de la licence"
+  }
+}

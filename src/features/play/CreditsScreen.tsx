@@ -6,10 +6,12 @@ import { ScreenState } from '@/game/screen-state';
 import { Button } from '@/ui/button';
 import { Icon } from '@/ui/icon';
 import { Skeleton } from '@/ui/skeleton';
+import { TRACKS } from '@/platform/music/tracks';
 
 /** Photo and sprite attributions from GET /credits. Public page: no sign-in needed. */
 export function CreditsScreen() {
   const t = useTranslations('screens.credits');
+  const tm = useTranslations('music');
   const router = useRouter();
   const credits = useCredits();
   const items = credits.data ?? [];
@@ -54,6 +56,22 @@ export function CreditsScreen() {
           ))}
         </ul>
       </ScreenState>
+      <section aria-labelledby="music-credits" className="mt-8">
+        <h2 id="music-credits" className="font-display text-2xl font-bold">{tm('creditsTitle')}</h2>
+        <p className="mb-3 mt-1 text-muted">{tm('creditsIntro')}</p>
+        <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2">
+          {TRACKS.map((c) => (
+            <li key={c.id} className="flex flex-col gap-1 rounded-lg border-2 border-line bg-elevated p-3 text-sm">
+              <p className="font-semibold text-fg">{c.title} <span className="font-normal text-muted">{tm('by', { artist: c.artist })}</span></p>
+              <p className="text-muted">{tm('licence', { licence: c.licence })}</p>
+              <p className="flex flex-wrap gap-x-3">
+                <a className="inline-flex min-h-11 min-w-11 items-center justify-center font-semibold text-brand underline underline-offset-4" href={c.source_url} target="_blank" rel="noopener noreferrer">{tm('source')}</a>
+                <a className="inline-flex min-h-11 min-w-11 items-center justify-center font-semibold text-brand underline underline-offset-4" href={c.licence_url} target="_blank" rel="noopener noreferrer">{tm('licenceLink')}</a>
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
     </main>
   );
 }

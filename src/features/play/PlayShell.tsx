@@ -4,6 +4,8 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAudioSettings } from '@/platform/audio';
 import { useChildSettings, useSessionStatus } from '@/data/hooks';
+import { MusicController } from '@/platform/music/MusicController';
+import { MusicToggle } from './MusicToggle';
 import { OfflineBanner } from '@/features/common/OfflineBanner';
 import { BottomNav } from '@/ui/bottom-nav';
 
@@ -28,6 +30,8 @@ export function PlayShell({ children }: { children: ReactNode }) {
   return (
     <>
       <OfflineBanner />
+      <MusicController />
+      <MusicToggle lifted={showNav} />
       <div className={showNav ? 'pb-24' : undefined}>{children}</div>
       {showNav && (
         <BottomNav

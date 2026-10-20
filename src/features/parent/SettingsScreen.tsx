@@ -17,10 +17,13 @@ import { Select } from '@/ui/select';
 import { Skeleton } from '@/ui/skeleton';
 import { ScreenState } from '@/game/screen-state';
 import { Switch } from '@/ui/switch';
+import { usePrefs } from '@/platform/prefs/store';
 
 /** Per-child settings: goal, time limit, sound, read aloud, languages, worlds, data export and deletion. */
 export function SettingsScreen({ childId }: { childId: string }) {
   const t = useTranslations('screens.parent.settings');
+  const tm = useTranslations('music');
+  const prefs = usePrefs();
   const tw = useTranslations('worlds');
   const router = useRouter();
   const { notify } = useNotify();
@@ -82,6 +85,7 @@ export function SettingsScreen({ childId }: { childId: string }) {
                 options={[0, 15, 30, 45, 60].map((n) => ({ value: String(n), label: n === 0 ? t('noLimit') : t('limitOption', { count: n }) }))}
               />
               <Switch checked={draft.sound} onCheckedChange={(v) => setDraft({ ...draft, sound: v })} label={t('sound')} />
+              <Switch checked={!prefs.musicLocked} onCheckedChange={(v) => prefs.set({ musicLocked: !v })} label={tm('parentLock')} description={tm('parentLockHint')} />
               <Switch
                 checked={draft.read_aloud}
                 onCheckedChange={(v) => setDraft({ ...draft, read_aloud: v })}

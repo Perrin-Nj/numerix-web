@@ -12,6 +12,10 @@ export type Prefs = {
   rate: number;
   /** Short buzz on answers where the device allows it. */
   vibration: boolean;
+  /** Calm background music: the child's switch, its gain 0..1, and the parent's lock (this device only). */
+  music: boolean;
+  musicVolume: number;
+  musicLocked: boolean;
 };
 type State = Prefs & { set: (p: Partial<Prefs>) => void };
 
@@ -19,7 +23,7 @@ type State = Prefs & { set: (p: Partial<Prefs>) => void };
  * Starting values for the kid's preferences: voice and hints on, hint delay 30 s at volume 0.5, speech rate
  * 0.95, no vibration. Also used to reset on full sign out.
  */
-export const DEFAULT_PREFS: Prefs = { voice: true, hints: true, hintDelaySec: 30, hintVolume: 0.5, voiceName: null, rate: 0.95, vibration: false };
+export const DEFAULT_PREFS: Prefs = { voice: true, hints: true, hintDelaySec: 30, hintVolume: 0.5, voiceName: null, rate: 0.95, vibration: false, music: true, musicVolume: 0.35, musicLocked: false };
 
 /**
  * Persisted store (localStorage key nx:prefs:v1) of voice, hint and vibration preferences. Use the hook in
@@ -29,7 +33,7 @@ export const usePrefs = create<State>()(
   persist((set) => ({ ...DEFAULT_PREFS, set: (p) => set(p) }), {
     name: 'nx:prefs:v1',
     storage: createJSONStorage(() => localStorage),
-    partialize: ({ voice, hints, hintDelaySec, hintVolume, voiceName, rate, vibration }) => ({ voice, hints, hintDelaySec, hintVolume, voiceName, rate, vibration }),
+    partialize: ({ voice, hints, hintDelaySec, hintVolume, voiceName, rate, vibration, music, musicVolume, musicLocked }) => ({ voice, hints, hintDelaySec, hintVolume, voiceName, rate, vibration, music, musicVolume, musicLocked }),
   }),
 );
 

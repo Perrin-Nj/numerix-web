@@ -83,9 +83,26 @@ function VoicePanel() {
   const t = useTranslations('screens.play.me.voice');
   const prefs = usePrefs();
   const sp = useSpeaker();
+  const tm = useTranslations('music');
   return (
     <Panel title={t('title')}>
       <div className="flex flex-col gap-4">
+        {!prefs.musicLocked && (
+          <>
+            <Switch label={tm('switch')} description={tm('switchHint')} checked={prefs.music} onCheckedChange={(music) => prefs.set({ music })} />
+            {prefs.music && (
+              <Choice
+                label={tm('volume')}
+                value={prefs.musicVolume}
+                options={[
+                  { value: 0.2, label: tm('low') },
+                  { value: 0.35, label: tm('medium') },
+                ]}
+                onChange={(musicVolume) => prefs.set({ musicVolume })}
+              />
+            )}
+          </>
+        )}
         <Switch label={t('vibration')} description={t('vibrationHint')} checked={prefs.vibration} onCheckedChange={(vibration) => prefs.set({ vibration })} />
         <Switch label={t('voice')} description={t('voiceHint')} checked={prefs.voice} onCheckedChange={(voice) => prefs.set({ voice })} />
         <Switch label={t('hints')} description={t('hintsHint')} checked={prefs.hints} onCheckedChange={(hints) => prefs.set({ hints })} />
