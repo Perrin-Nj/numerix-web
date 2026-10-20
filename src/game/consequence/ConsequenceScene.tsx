@@ -195,12 +195,12 @@ export function ConsequenceScene({ sceneId, world, amount, playing = true, onDon
               </filter>
             </svg>
           )}
-          {/* floor, props and objects; then the liquid (one soft filter merges its discs into one body of water); then the glass in front */}
-          {sim?.pieces.map((p, i) => (p.kind === 'water' || p.kind === 'glass' ? null : piece(p, i)))}
+          {/* floor, props and objects; then the liquid (one soft filter merges its discs into one body of water); then the glass and the marks in front */}
+          {sim?.pieces.map((p, i) => (p.kind === 'water' || p.kind === 'glass' || p.kind === 'zone' ? null : piece(p, i)))}
           <span className="absolute inset-0 block" style={{ filter: `url(#${goo})` }}>
             {sim?.pieces.map((p, i) => (p.kind === 'water' ? piece(p, i) : null))}
           </span>
-          {sim?.pieces.map((p, i) => (p.kind === 'glass' ? piece(p, i) : null))}
+          {sim?.pieces.map((p, i) => (p.kind === 'glass' || p.kind === 'zone' ? piece(p, i) : null))}
         </span>
         <span aria-hidden className="absolute bottom-1 end-2">
           <Mascot pose={pose} size="sm" decorative />

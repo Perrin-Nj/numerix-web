@@ -53,7 +53,7 @@ async function open(width, id, { reduced = false, locale, throttle = 0 } = {}) {
   return { ctx, page, errors };
 }
 const settled = (page, n = 1) => page.waitForFunction((n) => document.querySelectorAll('[data-scene][data-settled]').length >= n, n, { timeout: 60000 });
-const finals = (page) => page.$$eval('[data-scene]', (stages) => stages.map((s) => [s.dataset.scene, [...s.children].map((c) => c.style.transform).join('|')]));
+const finals = (page) => page.$$eval('[data-scene]', (stages) => stages.map((s) => [s.dataset.scene, [...s.querySelectorAll('[data-kind]')].map((c) => c.style.transform).join('|')]));
 
 for (const width of [360, 1280]) {
   await check(`${width}px: 96 scenes come to rest, no console error, every piece on stage, axe`, async () => {
@@ -65,7 +65,7 @@ for (const width of [360, 1280]) {
       const off = await page.$$eval('[data-scene]', (stages) =>
         stages.flatMap((s) => {
           const r = s.getBoundingClientRect();
-          return [...s.children]
+          return [...s.querySelectorAll('[data-kind]')]
             .filter((c) => c.querySelector('img') && c.style.display !== 'none')
             .filter((c) => {
               const b = c.getBoundingClientRect();
@@ -90,8 +90,8 @@ for (const width of [360, 1280]) {
   await check(`${width}px motion: moves, rests on the reduced-motion picture, tap skips`, async () => {
     for (const id of ['tower-wrong', 'bridge-wrong', 'scale-wrong', 'jug-wrong', 'shelf-wrong', 'collide-wrong', 'tower-right', 'jug-right']) {
       const m = await open(width, id);
+      const t1 = await finals(m.page); // the first picture, before anything else is loaded
       const r = await open(width, id, { reduced: true });
-      const t1 = await finals(m.page);
       if (SHOTS && width === 1280) await m.page.screenshot({ path: `${SHOTS}/${id}-mid.png` });
       await settled(r.page);
       const [b] = await finals(r.page);

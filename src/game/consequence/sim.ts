@@ -14,7 +14,7 @@ const MIN_FRAMES = 40;
 
 export type Kind = 'photo' | 'wood' | 'stone' | 'chasm' | 'glass' | 'water' | 'zone';
 export type Pose = { x: number; y: number; r: number };
-export type Piece = { id: string; kind: Kind; slot?: 0 | 1; round?: boolean; w: number; h: number; part?: Matter.Body; fixed?: Pose; live: boolean };
+export type Piece = { id: string; kind: Kind; slot?: 0 | 1; round?: boolean; w: number; h: number; part?: Matter.Body; fixed?: Pose; live: boolean; /** Part of a compound body: where it sits relative to the body's centre of mass at rest. */ off?: { dx: number; dy: number } };
 export type Sim = {
   pieces: Piece[];
   frame: number;
@@ -154,7 +154,8 @@ function scale(c: Ctx, good: boolean, A: Amount): Built {
   const inR = Bodies.rectangle(c.u(px + 5.2), c.u(py - 2.4), c.u(1.2), c.u(3.2), { density: 0.001 });
   const beam = Body.create({ parts: [top, keel, lipL, lipR, inL, inR], friction: 0.7, frictionStatic: 1, restitution: 0.05, frictionAir: 0.04, sleepThreshold: Infinity });
   Composite.add(c.engine.world, beam);
-  const mk = (id: string, kind: Kind, b: Matter.Body, w: number, h: number) => c.pieces.push({ id, kind, w, h, part: b, live: true });
+  // parts of a compound body do not move on their own in matter: they are drawn from the body's position and angle
+  const mk = (id: string, kind: Kind, b: Matter.Body, w: number, h: number) => c.pieces.push({ id, kind, w, h, part: b, live: true, off: { dx: (b.position.x - beam.position.x) / S, dy: (b.position.y - beam.position.y) / S } });
   mk('beam', 'wood', top, 2 * half, 2.4);
   mk('keel', 'stone', keel, 2, 12);
   mk('lipL', 'wood', lipL, 1.2, 3.2);
@@ -213,7 +214,8 @@ function jug(c: Ctx, good: boolean, A: Amount): Built {
   wall('jr', JUG.right + 1.5, (JUG.top + JUG.bottom) / 2, 3, JUG.bottom - JUG.top);
   // the line is the right amount; the water poured is the child's: more or less in proportion, never within a row of the line
   const step = Math.max(10, Math.round((JUG_GOOD * Math.abs(A.b - A.a) * 1.5) / A.a));
-  const N = good ? JUG_GOOD : clamp(JUG_GOOD + (A.over ? step : -step), 12, 72);
+  // too much always means more than the jug holds (62 discs fill it to the rim), so it spills
+  const N = good ? JUG_GOOD : A.over ? clamp(Math.max(JUG_GOOD + step, 66), 66, 80) : clamp(JUG_GOOD - step, 12, 22);
   const drops: Piece[] = [];
   const born: number[] = [];
   let tick = 0;
@@ -344,6 +346,12 @@ export function createSim(rig: Rig, good: boolean, amount: Amount, sceneKey = ''
     pose(p) {
       if (p.fixed) return p.fixed;
       if (!p.live || !p.part) return null;
+      if (p.off) {
+        const par = p.part.parent;
+        const cos = Math.cos(par.angle);
+        const sin = Math.sin(par.angle);
+        return { x: par.position.x / S + p.off.dx * cos - p.off.dy * sin, y: par.position.y / S + p.off.dx * sin + p.off.dy * cos, r: par.angle };
+      }
       return { x: p.part.position.x / S, y: p.part.position.y / S, r: p.part.angle };
     },
     energy,
