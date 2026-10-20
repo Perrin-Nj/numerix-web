@@ -3,6 +3,7 @@ import type { cfr } from './content-fr';
 export const cen: Record<keyof typeof cfr, string> = {
   'nav.questions': 'Questions',
   'nav.media': 'Media',
+  'nav.voice': 'Voices',
   'q.sub': 'Question bank: coverage, bilingual editing, publishing and history.',
   'q.coverage': 'Coverage by world',
   'q.coverage_legend': 'Solid bar: published. Light bar: draft or in review. The target is 12 to 15 per quest; below target minus 2 the world is not ready.',

@@ -15,6 +15,7 @@ const nav: { href: string; label: Key }[] = [
   { href: '/children', label: 'nav.children' },
   { href: '/questions', label: 'nav.questions' },
   { href: '/media', label: 'nav.media' },
+  { href: '/voice', label: 'nav.voice' },
   { href: '/plans', label: 'nav.plans' },
   { href: '/config', label: 'nav.config' },
   { href: '/notifications', label: 'nav.notifications' },

@@ -15,6 +15,7 @@ started_api=0
 cleanup() { for p in "${pids[@]}"; do kill "$p" 2>/dev/null; done; pid=$(netstat -ano 2>/dev/null | grep ":$PORT " | grep LISTENING | awk '{print $5}' | head -1); [ -n "$pid" ] && taskkill //PID "$pid" //T //F >/dev/null 2>&1; [ "$started_api" = 1 ] && taskkill //F //IM api-admin.exe >/dev/null 2>&1; }  # only the API this script started
 trap cleanup EXIT
 
+node scripts/check-voice-dsp.mjs >/dev/null 2>&1 && echo "PASS voice dsp" || { echo "FAIL voice dsp"; exit 1; }
 npx tsc --noEmit && echo "PASS typecheck" || { echo "FAIL typecheck"; exit 1; }
 npx eslint && echo "PASS lint" || { echo "FAIL lint"; exit 1; }
 

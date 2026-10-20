@@ -49,3 +49,7 @@ ADMIN_URL=http://localhost:3100 ADMIN_PASSWORD=... node scripts/smoke.mjs   # sm
 ## Platform contract gaps (applied on the current page only)
 
 The platform has no server filter for: parents by plan, children by grade or activity, audit by text or action. These filters run on the loaded page until the API supports them. The per-parent notification list reads the latest 100 notifications and keeps the ones for that parent. Method toggles: a disabled method is simply removed from the list, at least one must stay.
+
+## Voice recorder (`/voice`)
+
+Pick a line from `numerix-api/seed/voice/script.json`, record with the microphone, silence is trimmed and loudness normalised (RMS -20 dBFS, peak under -1 dBFS), preview, tick talent consent and keep the release text. The platform has no voice upload yet, so "Download export" writes `voice-export-<date>.json` (schema 1: `clips[]` with `line_id`, `lang` fr-CA|en-CA, `text`, `speaker`, `consent`, base64 WAV). In the frontend repo run `node scripts/import-voice-export.mjs <file>` to fill `public/voice/` (manifest and `credits.json`). Clips without consent are refused.

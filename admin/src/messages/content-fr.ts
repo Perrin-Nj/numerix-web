@@ -2,6 +2,7 @@
 export const cfr = {
   'nav.questions': 'Questions',
   'nav.media': 'Médias',
+  'nav.voice': 'Voix',
   'q.sub': 'Banque de questions: couverture, édition bilingue, publication et historique.',
   'q.coverage': 'Couverture par monde',
   'q.coverage_legend': 'Barre pleine: publiées. Barre claire: en brouillon ou en révision. La cible est de 12 à 15 par quête; sous la cible moins 2, le monde n’est pas prêt.',
