@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/shared/cn';
 import { useReducedMotion } from '@/platform/motion';
 import { useSound, type SoundName } from '@/platform/audio';
@@ -9,6 +9,7 @@ import { Mascot, type MascotPose } from '@/game/mascot';
 import { ITEMS } from '@/game/scene-picture';
 import { SCENE_BY_ID, SKIN } from './catalog';
 import type { Rig } from './catalog';
+import { amountOf, type Amount } from './amounts';
 import type { Piece, Sim } from './sim';
 
 const SOUND: Record<Rig, { ok: SoundName; ko: SoundName }> = {
@@ -36,8 +37,8 @@ export type ConsequenceSceneProps = {
   /** Scene id from the picker, e.g. "addsub.tower.ko". */
   sceneId: string;
   world: WorldId;
-  /** Varies the set-up (how many pieces, which side). Same number, same picture. */
-  seed?: number;
+  /** The right amount and the child's wrong one (see amountOf). Same numbers, same picture. */
+  amount?: Amount;
   /** False draws the finished picture, no sound. */
   playing?: boolean;
   /** Fires when everything came to rest (at once under reduced motion) or the child taps to skip. */
@@ -51,8 +52,9 @@ export type ConsequenceSceneProps = {
  * constraints on a fixed 1/60 s step, and the outcome comes out of it. The loop stops when everything is at rest.
  * Reduced motion runs the same simulation without drawing and shows the resting picture. Numa reacts bottom right.
  */
-export function ConsequenceScene({ sceneId, world, seed = 4, playing = true, onDone, showCaption = true, className }: ConsequenceSceneProps) {
+export function ConsequenceScene({ sceneId, world, amount, playing = true, onDone, showCaption = true, className }: ConsequenceSceneProps) {
   const t = useTranslations('game.consequence');
+  const locale = useLocale();
   const def = SCENE_BY_ID.get(sceneId);
   const reduced = useReducedMotion();
   const { play } = useSound();
@@ -74,7 +76,7 @@ export function ConsequenceScene({ sceneId, world, seed = 4, playing = true, onD
     setSettled(false);
     import('./sim').then(({ createSim, settle, STEP_MS }) => {
       if (!live) return;
-      const s = createSim(def.rig, def.good, seed, def.id);
+      const s = createSim(def.rig, def.good, amount ?? amountOf(), def.id);
       setSim(s);
       // ask again here: the hook reads the setting after the first paint and no motion may start at all under reduced motion
       const calm = !playing || reduced || window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduced';
@@ -134,11 +136,17 @@ export function ConsequenceScene({ sceneId, world, seed = 4, playing = true, onD
       live = false;
       cancelAnimationFrame(raf);
     };
-  }, [def, seed, playing, reduced, play]);
+  }, [def, amount, playing, reduced, play]);
   if (!def) return null;
-  const caption = t(`caption.${def.rig}.${def.good ? 'ok' : 'ko'}`);
+  const A = amount ?? amountOf();
+  const fmt = (n: number | null) => (n === null ? '' : new Intl.NumberFormat(locale).format(Math.abs(n)));
+  // with real numbers the caption names them; without (a word answer) it says what the picture shows
+  const caption =
+    A.right !== null && (def.good || A.given !== null)
+      ? t(`numbers.${def.rig}.${def.good ? 'ok' : A.over && def.rig !== 'bridge' ? 'over' : 'under'}`, { right: fmt(A.right), given: fmt(A.given) })
+      : t(`caption.${def.rig}.${def.good ? 'ok' : 'ko'}`);
   const skin = SKIN[def.family];
-  const slug = (slot: 0 | 1 = 0) => (slot === 0 ? skin[0] : seed % 2 === 0 ? ITEMS[world][0] : skin[1]);
+  const slug = (slot: 0 | 1 = 0) => (slot === 0 ? skin[0] : A.a % 2 === 0 ? ITEMS[world][0] : skin[1]);
   const pose: MascotPose = !settled ? 'curious' : sim && sim.verdict() ? 'cheer' : 'think';
   return (
     <figure className={cn('flex size-full flex-col items-center justify-center gap-1', className)}>

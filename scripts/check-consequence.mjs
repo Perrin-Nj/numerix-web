@@ -65,7 +65,9 @@ for (const mode of ['mixed', 'sameTopic']) {
   for (let i = 0; i < 200; i++) {
     const fam = mode === 'sameTopic' ? 'addsub' : FAMILIES[Math.floor(rnd() * FAMILIES.length)];
     const good = rnd() < 0.5;
-    const s = pickScene(fam, good, hist, 'session-1');
+    const over = !good && rnd() < 0.5;
+    const s = pickScene(fam, good, hist, 'session-1', over);
+    assert.ok(!(over && s.rig === 'bridge'), 'a too-big wrong answer never gets the bridge');
     assert.notEqual(s.id, hist[hist.length - 1], `repeat at ${i}`);
     const prev = SCENE_BY_ID.get(hist[hist.length - 1]); if (prev?.rig === s.rig && prev.good === s.good) rigRepeats++;
     hist.push(s.id);

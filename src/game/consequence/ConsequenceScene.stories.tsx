@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { ConsequenceScene } from './ConsequenceScene';
 import { FAMILIES, SCENES } from './catalog';
+import { amountOf, rightAmount } from './amounts';
 
 const meta = {
   title: 'game/ConsequenceScene',
@@ -20,13 +21,13 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const TowerWrong: Story = {};
-export const TowerRight: Story = { args: { sceneId: 'addsub.tower.ok' } };
+export const TowerWrong: Story = { args: { amount: amountOf(42, 47) } };
+export const TowerRight: Story = { args: { sceneId: 'addsub.tower.ok', amount: rightAmount(42) } };
 export const BridgeWrong: Story = { args: { sceneId: 'multdiv.bridge.ko', world: 'nature' } };
 export const BridgeRight: Story = { args: { sceneId: 'multdiv.bridge.ok', world: 'nature' } };
-export const ScaleWrong: Story = { args: { sceneId: 'fractions.scale.ko', world: 'cuisine' } };
+export const ScaleWrong: Story = { args: { sceneId: 'fractions.scale.ko', world: 'cuisine', amount: amountOf(5, 3) } };
 export const ScaleRight: Story = { args: { sceneId: 'fractions.scale.ok', world: 'cuisine' } };
-export const JugWrong: Story = { args: { sceneId: 'measure.jug.ko', world: 'science' } };
+export const JugWrong: Story = { args: { sceneId: 'measure.jug.ko', world: 'science', amount: amountOf(250, 400) } };
 export const JugRight: Story = { args: { sceneId: 'measure.jug.ok', world: 'science' } };
 export const ShelfWrong: Story = { args: { sceneId: 'geometry.shelf.ko', world: 'robots' } };
 export const ShelfRight: Story = { args: { sceneId: 'geometry.shelf.ok', world: 'robots' } };
@@ -41,7 +42,7 @@ const library = (family: (typeof FAMILIES)[number]): Story => ({
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" data-library="">
       {SCENES.filter((s) => s.family === family).map((s) => (
         <div key={s.id} className="h-56">
-          <ConsequenceScene sceneId={s.id} world="construction" playing={false} seed={4 + FAMILIES.indexOf(s.family)} />
+          <ConsequenceScene sceneId={s.id} world="construction" playing={false} amount={s.good ? rightAmount(6) : amountOf(6, FAMILIES.indexOf(s.family) % 2 ? 4 : 9, FAMILIES.indexOf(s.family))} />
         </div>
       ))}
     </div>

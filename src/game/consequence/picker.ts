@@ -10,8 +10,11 @@ const hash = (s: string) => {
   return h >>> 0;
 };
 
-export function pickScene(family: Family, good: boolean, history: readonly string[], seed: string): SceneDef {
-  const pool = SCENES.filter((s) => s.family === family && s.good === good);
+/** A bridge cannot show "too much" (a longer plank still bridges), so a wrong answer above the right one never gets the bridge. */
+export const allowed = (s: SceneDef, over?: boolean | null) => !(over && !s.good && s.rig === 'bridge');
+
+export function pickScene(family: Family, good: boolean, history: readonly string[], seed: string, over?: boolean | null): SceneDef {
+  const pool = SCENES.filter((s) => s.family === family && s.good === good && allowed(s, over));
   // scenes of this pool shown since the pool was last used up
   let used = new Set<string>();
   for (const id of history) {

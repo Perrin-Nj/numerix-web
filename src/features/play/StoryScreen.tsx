@@ -397,13 +397,15 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const denReady = s.denouementStatus === 'ready' || s.denouementStatus === 'fallback';
   const outcomeStage = s.phase === 'outcome' && !!s.outcome;
   // Scene of the consequence: never the same twice in a row, all variants before reuse (history kept per session, server list merged)
-  const sceneId = useConsequence({
+  const consequence = useConsequence({
     sessionId,
     beatId: outcomeStage ? beatId : undefined,
     outcome: s.outcome,
     skillId: s.beat?.skill_id,
     visualKind: q?.visual?.kind,
     sceneKey: (s.beat as { scene_key?: string | null } | null)?.scene_key,
+    correct: s.correctAnswer,
+    chosen: s.chosen,
     serverHistory: (s.session as { variant_history?: string[] | null } | null)?.variant_history,
   });
   const sheetVisible = outcomeStage && step >= 2;
@@ -463,7 +465,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                 <MethodVisual visual={s.methodVisual} />
               ) : s.beat && outcomeStage ? (
                 <div className="relative flex size-full items-center justify-center">
-                  {sceneId && <ConsequenceScene sceneId={sceneId} world={world} seed={3 + (nums.reduce((a, b) => a + b, 0) % 4)} showCaption={step >= 1} onDone={skipAhead} />}
+                  {consequence && <ConsequenceScene sceneId={consequence.sceneId} amount={consequence.amount} world={world} showCaption={step >= 1} onDone={skipAhead} />}
                   {s.outcome !== 'correct' && !reduced && step >= 1 && <Dust />}
                 </div>
               ) : s.beat && q?.visual ? (
