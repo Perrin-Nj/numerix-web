@@ -5,12 +5,15 @@ const NATURAL = /natural|neural|online|google|microsoft/i;
 const FEMALE = /denise|eloise|hortense|julie|amelie|chantal|sylvie|clara|caroline|linda|natasha|libby|sonia|aria|jenny|samantha|zira|google fran[cç]ais|female|femme/i;
 const MALE = /paul|claude|henri|antoine|mark|david|daniel|guy|thomas|fred|(?<!fe)male/i;
 const norm = (l: string) => l.toLowerCase().replace('_', '-');
+const canon = (l: string) => (norm(l).startsWith('en') ? 'en-ca' : 'fr-ca');
 
 /** Higher is better; -1 means wrong language. */
 export function scoreVoice(v: VoiceLike, lang: string, preferredName?: string | null): number {
-  const want = norm(lang);
+  const want = canon(lang);
   const have = norm(v.lang);
   if (have.split('-')[0] !== want.split('-')[0]) return -1;
+  // Canadian locale only (fr-CA, en-CA); a parent can still pick another region by name
+  if (have !== want && !(preferredName && v.name === preferredName)) return -1;
   return (
     100 +
     (preferredName && v.name === preferredName ? 200 : 0) +
