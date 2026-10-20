@@ -20,6 +20,17 @@ const nextConfig: NextConfig = {
       { source: '/feed-media/:path*', destination: `${apiBase}/feed-media/:path*` },
     ];
   },
+  // Old links, typed URLs and locale-prefixed guesses land on the real screens, never a dead end
+  async redirects() {
+    const L = ':locale(fr|en|fr-CA|en-CA|fr-ca|en-ca)';
+    const to = (source: string, destination: string) => ({ source, destination, permanent: true });
+    return [
+      ...['/feed', '/feeds', '/discover', '/play/feeds', '/play/discover', `/${L}/feed`, `/${L}/feeds`, `/${L}/discover`].map((s) => to(s, '/play/feed')),
+      to(`/${L}/play/:path*`, '/play/:path*'),
+      to(`/${L}/parent/:path*`, '/parent/:path*'),
+      to(`/${L}`, '/'),
+    ];
+  },
   allowedDevOrigins: ['192.168.68.55'],
   images: { remotePatterns: imageHosts.map((hostname) => ({ protocol: 'https' as const, hostname })) },
   // ADR 0002: Cache Components is off. The app is cookie-authenticated and client driven;
