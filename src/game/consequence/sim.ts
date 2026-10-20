@@ -4,7 +4,7 @@
 import Matter from 'matter-js';
 import type { Rig } from './catalog.ts';
 
-const { Engine, Bodies, Body, Composite, Constraint } = Matter;
+const { Engine, Bodies, Body, Composite, Constraint, Sleeping } = Matter;
 export const S = 4;
 export const STEP_MS = 1000 / 60;
 const FLOOR = 48;
@@ -47,7 +47,7 @@ type Ctl = { at: number; run(): void };
 type Ctx = ReturnType<typeof context>;
 
 function context(seed: number) {
-  const engine = Engine.create({ positionIterations: 10, velocityIterations: 8, constraintIterations: 8 });
+  const engine = Engine.create({ positionIterations: 10, velocityIterations: 8, constraintIterations: 8, enableSleeping: true });
   const pieces: Piece[] = [];
   const ctls: Ctl[] = [];
   const rnd = rng(seed);
@@ -71,12 +71,15 @@ function context(seed: number) {
     if (p.part) Composite.remove(engine.world, p.part);
     ctls.push({ at, run: () => { p.live = true; if (p.part) Composite.add(engine.world, p.part); } });
   };
-  const ground = () => {
+  const ground = (gap?: [number, number]) => {
     decor('floor', 'wood', 50, FLOOR + 4.1, 100, 8.3);
     const st = { isStatic: true, friction: 0.8 };
     // invisible: floor slab, side walls so nothing leaves the picture
+    const slabs = gap
+      ? [Bodies.rectangle(u((gap[0] - 10) / 2), u(FLOOR + 4.1), u(gap[0] + 10), u(8.3), st), Bodies.rectangle(u((gap[1] + 110) / 2), u(FLOOR + 4.1), u(110 - gap[1]), u(8.3), st)]
+      : [Bodies.rectangle(u(50), u(FLOOR + 4.1), u(120), u(8.3), st)];
     Composite.add(engine.world, [
-      Bodies.rectangle(u(50), u(FLOOR + 4.1), u(120), u(8.3), st),
+      ...slabs,
       Bodies.rectangle(u(-3), u(30), u(6), u(120), st),
       Bodies.rectangle(u(103), u(30), u(6), u(120), st),
     ]);
@@ -117,7 +120,7 @@ function bridge(c: Ctx, good: boolean, n: number): Built {
   return {
     verdict: () => walker.part!.position.x / S > 66 && walker.part!.position.y / S < 46,
     // the child's marble is pushed along by turning it, so it only crosses if there is something to roll on
-    drive: { from: 75, run: () => reach() && Body.setAngularVelocity(walker.part!, 0.1) },
+    drive: { from: 75, run: () => reach() && (Sleeping.set(walker.part!, false), Body.setAngularVelocity(walker.part!, 0.1)) },
     busy: reach,
   };
 }
@@ -135,7 +138,7 @@ function scale(c: Ctx, good: boolean, n: number): Built {
   const lipR = Bodies.rectangle(c.u(px + half - 0.6), c.u(py - 2.4), c.u(1.2), c.u(3.2), { density: 0.001 });
   const inL = Bodies.rectangle(c.u(px - 5.2), c.u(py - 2.4), c.u(1.2), c.u(3.2), { density: 0.001 });
   const inR = Bodies.rectangle(c.u(px + 5.2), c.u(py - 2.4), c.u(1.2), c.u(3.2), { density: 0.001 });
-  const beam = Body.create({ parts: [top, keel, lipL, lipR, inL, inR], friction: 0.7, frictionStatic: 1, restitution: 0.05, frictionAir: 0.04 });
+  const beam = Body.create({ parts: [top, keel, lipL, lipR, inL, inR], friction: 0.7, frictionStatic: 1, restitution: 0.05, frictionAir: 0.04, sleepThreshold: Infinity });
   Composite.add(c.engine.world, beam);
   const mk = (id: string, kind: Kind, b: Matter.Body, w: number, h: number) => c.pieces.push({ id, kind, w, h, part: b, live: true });
   mk('beam', 'wood', top, 2 * half, 2.4);
@@ -182,7 +185,7 @@ function jug(c: Ctx, good: boolean): Built {
   const born: number[] = [];
   let tick = 0;
   for (let i = 0; i < N; i++) {
-    const p = c.ball(`w${i}`, 'water', JUG.x + ((i % 5) - 2) * 3.4 + (c.rnd() - 0.5) * 0.4, 6 - Math.floor(i / 5) * 0, JUG.r, { friction: 0.01, frictionStatic: 0, frictionAir: 0.004, restitution: 0.05, density: 0.001 });
+    const p = c.ball(`w${i}`, 'water', JUG.x + ((i % 5) - 2) * 3.4 + (c.rnd() - 0.5) * 0.4, 6 - Math.floor(i / 5) * 0, JUG.r, { friction: 0.01, frictionStatic: 0, frictionAir: 0.02, restitution: 0.05, density: 0.001, sleepThreshold: 20 });
     c.spawn(p, 6 + Math.floor(i / 5) * 12 + (i % 5) * 2);
     born.push(6 + Math.floor(i / 5) * 12 + (i % 5) * 2);
     drops.push(p);
@@ -195,7 +198,9 @@ function jug(c: Ctx, good: boolean): Built {
     tick++;
     drops.forEach((d, i) => {
       const b = d.part!;
-      if (d.live && tick - born[i] > 45 && b.position.y / S < JUG.top - 0.5 && b.speed < 0.8) Body.applyForce(b, b.position, { x: Math.sign(b.position.x / S - JUG.x || 1) * b.mass * 0.0006, y: 0 });
+      // the last bits of sloshing die out: the liquid turns viscous after 3.5 s so the scene always comes to rest
+      if (tick > 220) b.frictionAir = 0.3;
+      else if (d.live && tick - born[i] > 45 && b.position.y / S < JUG.top - 0.5 && b.speed < 0.8) Body.applyForce(b, b.position, { x: Math.sign(b.position.x / S - JUG.x || 1) * b.mass * 0.0006, y: 0 });
     });
   };
   return { verdict: () => outside() === 0, busy: () => drops.some((d) => !d.live), drive: { from: 0, run: slump } };
@@ -233,14 +238,14 @@ function collide(c: Ctx, good: boolean, n: number): Built {
   const block = c.box('block', 'photo', 48, FLOOR - 4.05, 8, 8, { friction: 0.05, frictionStatic: 0.1, frictionAir: 0.03, restitution: 0.2 }, 0);
   const ballP = c.ball('ball', 'photo', 10, FLOOR - 4.05, 4, { friction: 0, frictionStatic: 0, frictionAir: 0.01, restitution: 0.2, density: 0.002 }, 1);
   const v = good ? COLLIDE.good : n % 2 === 0 ? COLLIDE.short : COLLIDE.long;
-  c.ctls.push({ at: 2, run: () => Body.setVelocity(ballP.part!, { x: v, y: 0 }) });
+  c.ctls.push({ at: 2, run: () => { Sleeping.set(ballP.part!, false); Body.setVelocity(ballP.part!, { x: v, y: 0 }); } });
   return { verdict: () => { const x = block.part!.position.x / S; return x > zone.x - zone.w / 2 + 1 && x < zone.x + zone.w / 2 - 1; } };
 }
 
 export function createSim(rig: Rig, good: boolean, n: number, sceneKey = ''): Sim {
   const nn = clamp(Math.round(n), 3, 6);
   const c = context(hash(`${sceneKey}|${rig}|${good}|${nn}`));
-  c.ground();
+  c.ground(rig === 'bridge' ? [34, 66] : undefined); // the bridge gap has no floor under it
   const built: Built =
     rig === 'tower' ? tower(c, good, nn) : rig === 'bridge' ? bridge(c, good, nn) : rig === 'scale' ? scale(c, good, nn) : rig === 'jug' ? jug(c, good) : rig === 'shelf' ? shelf(c, good, nn) : collide(c, good, nn);
   const ctls = c.ctls;
@@ -276,7 +281,7 @@ export function createSim(rig: Rig, good: boolean, n: number, sceneKey = ''): Si
       frame++;
       measure();
       const busy = ctls.some((t) => t.at >= frame) || (built.busy?.() ?? false) || (drive ? frame < drive.from : false);
-      calm = !busy && moved < 0.03 ? calm + 1 : 0;
+      calm = !busy && moved < 0.05 ? calm + 1 : (calm > 0 ? calm - 1 : 0);
     },
     get settled() {
       return frame >= MAX_FRAMES || (frame >= MIN_FRAMES && calm >= 30);

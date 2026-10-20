@@ -32,7 +32,7 @@ for (const s of SCENES) for (const n of [3, 4, 5, 6]) {
     assert.deepEqual(a.pieces.map((p) => a.pose(p)), b.pieces.map((p) => b.pose(p)), `${s.id} not repeatable`);
   }
 }
-assert.ok(capped < SCENES.length * 4 * 0.4, `${capped} scenes never came to rest`);
+assert.equal(capped, 0, `${capped} runs never came to rest before the 7 s cap`);
 console.log(`     worst single physics step ${worstStep.toFixed(1)} ms on this machine; ${capped} of ${SCENES.length * 4} runs cut at 7 s`);
 
 // picker: 200 simulated answers over random families, never the same scene twice in a row, and each pool cycles fully before reuse
