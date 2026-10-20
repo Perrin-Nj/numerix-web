@@ -1,0 +1,72 @@
+[
+  {
+    "id": "morning",
+    "file": "morning.webm",
+    "title": "Morning",
+    "artist": "Kevin MacLeod",
+    "licence": "CC BY 4.0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300003",
+    "bytes": 386617
+  },
+  {
+    "id": "avec-soin",
+    "file": "avec-soin.webm",
+    "title": "Avec Soin",
+    "artist": "Kevin MacLeod",
+    "licence": "CC BY 4.0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100860",
+    "bytes": 347903
+  },
+  {
+    "id": "facile",
+    "file": "facile.webm",
+    "title": "Facile",
+    "artist": "Kevin MacLeod",
+    "licence": "CC BY 4.0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100858",
+    "bytes": 342687
+  },
+  {
+    "id": "water-lily",
+    "file": "water-lily.webm",
+    "title": "Water Lily",
+    "artist": "Kevin MacLeod",
+    "licence": "CC BY 4.0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400035",
+    "bytes": 277425
+  },
+  {
+    "id": "reawakening",
+    "file": "reawakening.webm",
+    "title": "Reawakening",
+    "artist": "Kevin MacLeod",
+    "licence": "CC BY 4.0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400017",
+    "bytes": 357110
+  },
+  {
+    "id": "enchanted-journey",
+    "file": "enchanted-journey.webm",
+    "title": "Enchanted Journey",
+    "artist": "Kevin MacLeod",
+    "licence": "CC BY 4.0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100799",
+    "bytes": 349614
+  },
+  {
+    "id": "clear-air",
+    "file": "clear-air.webm",
+    "title": "Clear Air",
+    "artist": "Kevin MacLeod",
+    "licence": "CC BY 4.0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100626",
+    "bytes": 331938
+  }
+]
