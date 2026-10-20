@@ -240,6 +240,14 @@ async function startChapter() {
   return question();
 }
 await check('the story is read aloud by the French woman voice, in French', async () => {
+  // R3: the computer voice is a parent opt-in kept in the child's backend settings; the parent turns it on, then the story reloads
+  await page.evaluate(async () => {
+    const id = (await (await fetch('/api/session')).json()).childId;
+    const h = { 'x-nx-mode': 'parent', 'content-type': 'application/json' };
+    const cur = await (await fetch(`/api/v1/children/${id}/settings`, { headers: h })).json();
+    await fetch(`/api/v1/children/${id}/settings`, { method: 'PUT', headers: h, body: JSON.stringify({ ...cur, voice: { ...cur.voice, computer_voice: true } }) });
+  });
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.__spoken.some((x) => x.voice?.includes('Sylvie') && /graine|Combien|Mira|forêt|\d/.test(x.text)), null, { timeout: 25000 });
   const bad = await page.evaluate(() => window.__spoken.filter((x) => x.lang?.startsWith('en') || x.voice?.includes('Guy')).length);
   if (bad) throw new Error(`${bad} utterances used a wrong-language or male voice`);
