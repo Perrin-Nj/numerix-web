@@ -10,6 +10,7 @@ import { useServerPrefsSync } from './useServerPrefs';
 import { MaintenanceBanner, MaintenanceBlock, useMaintenance } from '@/features/common/Maintenance';
 import { OfflineBanner } from '@/features/common/OfflineBanner';
 import { BottomNav } from '@/ui/bottom-nav';
+import { FEED_RETAP } from '@/data/hooks';
 
 /** Frame for child screens. The story screen gets no navigation at all. */
 export function PlayShell({ children }: { children: ReactNode }) {
@@ -47,7 +48,7 @@ export function PlayShell({ children }: { children: ReactNode }) {
           items={[
             { href: '/play/home', label: t('home'), icon: 'home', active: is('/play/home') },
             { href: '/play/worlds', label: t('worlds'), icon: 'map', active: is('/play/worlds') || is('/play/journey') },
-            ...(discoverOn ? [{ href: '/play/feed', label: t('discover'), icon: 'sparkles' as const, active: is('/play/feed') }] : []),
+            ...(discoverOn ? [{ href: '/play/feed', label: t('discover'), icon: 'sparkles' as const, active: is('/play/feed'), onSelect: () => window.dispatchEvent(new Event(FEED_RETAP)) }] : []),
             { href: '/play/collection', label: t('cards'), icon: 'star', active: is('/play/collection') },
             { href: '/play/me', label: t('me'), icon: 'user', active: is('/play/me') },
           ]}
