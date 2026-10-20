@@ -309,6 +309,129 @@ paths:
               schema: { $ref: '#/components/schemas/PlatformConfig' }
         '422': { $ref: '#/components/responses/ValidationError' }
 
+  /appconfig:
+    get:
+      tags: [Config]
+      operationId: adminListAppConfig
+      summary: Every runtime-config namespace with its version, plus the environment-only settings (read-only)
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: Namespaces and env view
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                required: [namespaces, env]
+                properties:
+                  namespaces: { type: array, items: { type: object, additionalProperties: true } }
+                  env: { type: array, items: { type: object, additionalProperties: true } }
+
+  /appconfig/{ns}:
+    parameters:
+      - { name: ns, in: path, required: true, schema: { type: string, example: music } }
+    get:
+      tags: [Config]
+      operationId: adminGetAppConfig
+      summary: One namespace - current value, version and built-in defaults
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: The document
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AppConfigDoc' }
+    put:
+      tags: [Config]
+      operationId: adminPutAppConfig
+      summary: Replace a namespace (validated; optimistic version check)
+      description: Audited as `appconfig.set` with the actor from `x-admin-actor`. 409 `version_conflict` when `expected_version` is stale.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [value]
+              properties:
+                value: { type: object, additionalProperties: true }
+                expected_version: { type: integer, minimum: 0 }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { description: 'version_conflict', content: { application/problem+json: { schema: { type: object, additionalProperties: true } } } }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: The saved document
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AppConfigDoc' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /appconfig/{ns}/versions:
+    parameters:
+      - { name: ns, in: path, required: true, schema: { type: string } }
+    get:
+      tags: [Config]
+      operationId: adminAppConfigVersions
+      summary: History of a namespace, newest first
+      parameters:
+        - { name: limit, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: Versions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: { type: array, items: { type: object, additionalProperties: true } }
+
+  /appconfig/{ns}/rollback:
+    parameters:
+      - { name: ns, in: path, required: true, schema: { type: string } }
+    post:
+      tags: [Config]
+      operationId: adminRollbackAppConfig
+      summary: Save the previous (or a chosen) version as a new version
+      description: Audited as `appconfig.rollback`. 409 `nothing_to_roll_back` when there is no earlier version.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_version: { type: integer, minimum: 1 }
+      responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { description: 'nothing_to_roll_back', content: { application/problem+json: { schema: { type: object, additionalProperties: true } } } }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '200':
+          description: The new current document
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AppConfigDoc' }
+
   /notifications:
     get:
       tags: [Notifications]
@@ -936,6 +1059,17 @@ components:
           schema: { $ref: '#/components/schemas/Problem' }
 
   schemas:
+    AppConfigDoc:
+      type: object
+      additionalProperties: true
+      required: [name, version, value]
+      properties:
+        name: { type: string }
+        version: { type: integer }
+        updated_at: { type: string }
+        updated_by: { type: string }
+        value: { type: object, additionalProperties: true }
+        defaults: { type: object, additionalProperties: true }
     Problem:
       type: object
       required: [type, title, status]

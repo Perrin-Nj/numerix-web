@@ -532,6 +532,9 @@ Newest first, up to 100 items (add `cursor` pagination past that). Kinds: `play_
 #### `POST /notifications/{notificationId}/read`
 Caller: tapping a notification (`useMarkNotificationRead`). Response 204. Idempotent. Status: 204; 404.
 
+#### `GET /config/public`
+Caller: the player app (`usePublicConfig`): cached 60 s on the server (`Cache-Control: public, max-age=60`) and in TanStack Query. No auth, no personal data. Response `AppPublicConfig` (openapi.yaml): music (enabled, default volume, tracks), voice (human default, computer voice allowed, clips), scenes (physics switch, families, disabled variants), feature flags, welcome gift, feed switches, maintenance (enabled, level, bilingual message, block_play) and kid-visible copy. The client treats a failed call as "nothing customised" and never blocks play on it, except `maintenance.block_play` which the server also enforces (503 `maintenance`).
+
 #### `GET /platform/public`
 Caller: parent app for the paywall text and reminders (`usePlatformPublic`, cached 5 minutes). **Public**, no token.
 ```json
@@ -868,6 +871,21 @@ Caller: admin config screen. Response: `PlatformConfig` (section 11).
 
 #### `PUT /admin/v1/config`
 Caller: admin config screen, save (the unpaid policy change asks for confirmation first). Body: any subset of the config keys; each key is validated (limits in section 11), unknown keys are rejected with 422. Response: the full config. Audit `config.update` with `key=value` pairs.
+
+#### `GET /admin/v1/appconfig`
+Caller: admin Config screen. Response: `{namespaces: [{name, version, updated_at, updated_by}], env: [{key, set, secret, value?}]}`. Secrets only show whether they are set.
+
+#### `GET /admin/v1/appconfig/{ns}`
+Caller: every admin config editor (music, voice, scenes, feed, maintenance, copy, platform). Response: `{name, version, updated_at, updated_by, value, defaults}`. 404 for an unknown namespace.
+
+#### `PUT /admin/v1/appconfig/{ns}`
+Caller: config editor save. Body `{value, expected_version?}`. Validated per namespace; 422 on a bad value, 409 `version_conflict` when `expected_version` is stale. Audit `appconfig.set` with the `x-admin-actor` name.
+
+#### `GET /admin/v1/appconfig/{ns}/versions`
+Caller: config editor history. Query `limit` 1 to 200 (default 50). Response `{items}`, newest first.
+
+#### `POST /admin/v1/appconfig/{ns}/rollback`
+Caller: config editor, Roll back. Body `{to_version?}`; saves the earlier value as a new version. 409 `nothing_to_roll_back`. Audit `appconfig.rollback`.
 
 #### `GET /admin/v1/notifications`
 Caller: admin notifications screen and the per-parent notification list (the app reads the latest 100 and filters by parent). Rows are grouped: a broadcast is one row with `recipients`; a single notification is its own row with `parent_id`. Newest first.
