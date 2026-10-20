@@ -109,8 +109,8 @@
         "grownUps": "Espace des adultes",
         "voice": {
           "title": "Voix et aide",
-          "voice": "Lire à voix haute",
-          "voiceHint": "Les histoires et les indices se font entendre.",
+          "voice": "Voix de Numa",
+          "voiceHint": "Numa parle quand elle a un enregistrement. Le texte reste toujours affiché.",
           "vibration": "Petite vibration",
           "vibrationHint": "Une courte vibration quand tu réponds, sur les téléphones qui peuvent.",
           "hints": "Petits coups de pouce",
@@ -323,7 +323,9 @@
         "limitOption": "{count} minutes",
         "sound": "Sons",
         "readAloud": "Lecture à voix haute",
-        "readAloudHint": "Les histoires sont lues à voix haute si l'appareil a une voix dans cette langue.",
+        "readAloudHint": "Numa lit à voix haute quand un enregistrement existe. Le texte reste toujours affiché.",
+        "computerVoice": "Voix d'ordinateur",
+        "computerVoiceHint": "Sans enregistrement, l'appareil peut lire le texte avec une voix d'ordinateur, en français canadien seulement. Désactivé au départ. Réglage de cet appareil.",
         "worlds": "Mondes disponibles",
         "worldsHint": "Au moins un monde doit rester actif.",
         "save": "Enregistrer",
@@ -1150,7 +1152,7 @@
         "Tiens, un petit chemin inconnu.",
         "Mes moustaches frétillent, il y a un secret.",
         "Et si on regardait de plus près ?",
-        "Je suis curieux de voir la suite."
+        "Je suis curieuse de voir la suite."
       ],
       "amazed": [
         "Oh là là, quel tour inattendu !",
@@ -1169,24 +1171,24 @@
         "Chaque essai t'apprend quelque chose.",
         "Respire, et regarde encore une fois.",
         "Pas de souci, on repart sur un autre sentier.",
-        "Tu es plus fort que tu ne le crois.",
+        "Tu as plus de force que tu ne le crois.",
         "Un petit pas, et puis un autre.",
         "Ici, on a le droit de chercher.",
         "Je crois en toi, vraiment."
       ],
       "welcome": [
-        "Salut, content de te revoir !",
+        "Salut, contente de te revoir !",
         "Bienvenue, l'aventure t'attendait.",
-        "Coucou ! Prêt pour une nouvelle histoire ?",
+        "Coucou ! On part pour une nouvelle histoire ?",
         "Te voilà, j'avais gardé ta place.",
         "Bonjour, explorateur !",
         "Installe-toi, on a plein de choses à découvrir.",
-        "Ravi que tu sois là.",
+        "Ravie que tu sois là.",
         "Hé {name}, quelle bonne surprise de te voir !",
-        "Salut {name}, content de te revoir !",
+        "Salut {name}, contente de te revoir !",
         "{name}, ton aventure t'attendait.",
         "Te voilà, {name} ! J'avais gardé ta place.",
-        "Bonjour {name}, prêt pour une nouvelle histoire ?"
+        "Bonjour {name}, on part pour une nouvelle histoire ?"
       ],
       "exit": [
         "Ton histoire t'attend, reviens quand tu veux.",

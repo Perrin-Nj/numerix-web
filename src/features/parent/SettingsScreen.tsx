@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { usePrefs } from '@/platform/prefs/store';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { exportChild, useChildren, useChildSettings, useDeleteChild, useUpdateSettings } from '@/data/hooks';
@@ -21,6 +22,8 @@ import { Switch } from '@/ui/switch';
 /** Per-child settings: goal, time limit, sound, read aloud, languages, worlds, data export and deletion. */
 export function SettingsScreen({ childId }: { childId: string }) {
   const t = useTranslations('screens.parent.settings');
+  const computerVoice = usePrefs((p) => p.computerVoice);
+  const setPrefs = usePrefs((p) => p.set);
   const tw = useTranslations('worlds');
   const router = useRouter();
   const { notify } = useNotify();
@@ -88,6 +91,7 @@ export function SettingsScreen({ childId }: { childId: string }) {
                 label={t('readAloud')}
                 description={t('readAloudHint')}
               />
+              <Switch checked={computerVoice} onCheckedChange={(v) => setPrefs({ computerVoice: v })} label={t('computerVoice')} description={t('computerVoiceHint')} />
               <Switch
                 checked={draft.kid_can_change_language !== false}
                 onCheckedChange={(v) => setDraft({ ...draft, kid_can_change_language: v })}

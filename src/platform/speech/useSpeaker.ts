@@ -5,6 +5,8 @@ import { useAudioSettings } from '@/platform/audio';
 import { getPrefs, usePrefs } from '@/platform/prefs/store';
 import { pickVoice } from './voices';
 import { spokenText } from './spoken';
+import { getManifest, loadManifest } from './manifest';
+import { planLine } from './plan';
 
 const supported = () => typeof window !== 'undefined' && 'speechSynthesis' in window;
 
@@ -55,7 +57,7 @@ function subUnlock(cb: () => void) {
   };
 }
 
-export type SpeakOpts = { lang?: string; volume?: number; rate?: number; onEnd?: () => void };
+export type SpeakOpts = { lang?: string; /** Id of the recorded line (seed/voice/script.json). Without a clip the line is captions only. */ lineId?: string; volume?: number; rate?: number; onEnd?: () => void };
 
 /** Best-voice speech that respects prefs.voice and the global sound toggle. */
 export function useSpeaker(defaultLang?: string) {
@@ -72,33 +74,72 @@ export function useSpeaker(defaultLang?: string) {
   const list = useSyncExternalStore(subVoices, getVoices, () => noVoices);
   // false on the server and during hydration, the real answer right after, so the markup matches
   const speechSupported = useSyncExternalStore(noSubscribe, supported, () => false);
+  useEffect(() => {
+    void loadManifest();
+  }, []);
   const unlocked = useSyncExternalStore(subUnlock, () => unlockedFlag, () => false);
   const [speaking, setSpeaking] = useState(false);
   const [pending, setPending] = useState(false);
   const queued = useRef<{ text: string; o: SpeakOpts } | null>(null); // only the last utterance waits for the gesture
+  const clip = useRef<HTMLAudioElement | null>(null);
   const keep = useRef<SpeechSynthesisUtterance | null>(null); // Chrome drops utterances that get garbage collected
 
   const cancel = useCallback(() => {
     if (supported()) window.speechSynthesis.cancel();
     keep.current = null;
+    clip.current?.pause();
+    clip.current = null;
     queued.current = null;
     setPending(false);
     setSpeaking(false);
   }, []);
   useEffect(() => cancel, [cancel]);
   useEffect(() => {
-    if ((!prefs.voice || !soundOn) && supported()) window.speechSynthesis.cancel(); // end events reset `speaking`
+    if (!prefs.voice || !soundOn) {
+      clip.current?.pause();
+      if (supported()) window.speechSynthesis.cancel(); // end events reset `speaking`
+    }
   }, [prefs.voice, soundOn]);
 
   const speakRef = useRef<(text: string, o?: SpeakOpts) => boolean>(() => false);
   const speak = useCallback(
     (text: string, o: SpeakOpts = {}): boolean => {
       const p = getPrefs();
-      if (!text || !p.voice || !soundOn || !supported()) return false;
+      if (!text || !p.voice || !soundOn) return false;
+      const l = o.lang ?? lang;
+      const manifest = getManifest();
+      if (!manifest) {
+        // first line before the manifest is in: wait for it once, then decide
+        void loadManifest().then(() => speakRef.current(text, o));
+        return false;
+      }
+      const plan = planLine({ lineId: o.lineId ?? `t:${text.trim()}`, lang: l, manifest, prefs: p, soundOn, ttsSupported: supported() });
+      if (plan.kind === 'captions') return false; // the caption is on screen; no sound, no error
       if (!unlockedFlag) {
         queued.current = { text, o };
         setPending(true);
         return false;
+      }
+      if (plan.kind === 'clip') {
+        queued.current = null;
+        setPending(false);
+        clip.current?.pause();
+        if (supported()) window.speechSynthesis.cancel();
+        const a = new Audio(plan.url);
+        a.volume = Math.min(1, Math.max(0, o.volume ?? 1));
+        const end = () => {
+          if (clip.current === a) {
+            clip.current = null;
+            setSpeaking(false);
+          }
+          o.onEnd?.();
+        };
+        a.onended = end;
+        a.onerror = end; // a clip that fails to load degrades to captions silently
+        clip.current = a;
+        setSpeaking(true);
+        a.play().catch(end);
+        return true;
       }
       const all = window.speechSynthesis.getVoices();
       if (all.length === 0) {
@@ -108,7 +149,6 @@ export function useSpeaker(defaultLang?: string) {
       }
       queued.current = null;
       setPending(false);
-      const l = o.lang ?? lang;
       const v = pickVoice(all, l, p.voiceName);
       // A French line is only ever read by a French voice, an English line by an English voice.
       // No voice for the language: stay silent here; the Me screen tells the child why.

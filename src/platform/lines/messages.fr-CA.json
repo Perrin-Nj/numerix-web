@@ -29,7 +29,7 @@
         "Tiens, un petit chemin inconnu.",
         "Mes moustaches frétillent, il y a un secret.",
         "Et si on regardait de plus près ?",
-        "Je suis curieux de voir la suite."
+        "Je suis curieuse de voir la suite."
       ],
       "amazed": [
         "Oh là là, quel tour inattendu !",
@@ -48,24 +48,24 @@
         "Chaque essai t'apprend quelque chose.",
         "Respire, et regarde encore une fois.",
         "Pas de souci, on repart sur un autre sentier.",
-        "Tu es plus fort que tu ne le crois.",
+        "Tu as plus de force que tu ne le crois.",
         "Un petit pas, et puis un autre.",
         "Ici, on a le droit de chercher.",
         "Je crois en toi, vraiment."
       ],
       "welcome": [
-        "Salut, content de te revoir !",
+        "Salut, contente de te revoir !",
         "Bienvenue, l'aventure t'attendait.",
-        "Coucou ! Prêt pour une nouvelle histoire ?",
+        "Coucou ! On part pour une nouvelle histoire ?",
         "Te voilà, j'avais gardé ta place.",
         "Bonjour, explorateur !",
         "Installe-toi, on a plein de choses à découvrir.",
-        "Ravi que tu sois là.",
+        "Ravie que tu sois là.",
         "Hé {name}, quelle bonne surprise de te voir !",
-        "Salut {name}, content de te revoir !",
+        "Salut {name}, contente de te revoir !",
         "{name}, ton aventure t'attendait.",
         "Te voilà, {name} ! J'avais gardé ta place.",
-        "Bonjour {name}, prêt pour une nouvelle histoire ?"
+        "Bonjour {name}, on part pour une nouvelle histoire ?"
       ],
       "exit": [
         "Ton histoire t'attend, reviens quand tu veux.",

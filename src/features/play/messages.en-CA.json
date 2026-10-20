@@ -38,8 +38,8 @@
       "me": {
         "voice": {
           "title": "Voice and help",
-          "voice": "Read aloud",
-          "voiceHint": "Stories and hints can be heard.",
+          "voice": "Numa's voice",
+          "voiceHint": "Numa speaks when she has a recording. The text always stays on screen.",
           "vibration": "Gentle buzz",
           "vibrationHint": "A short buzz when you answer, on phones that can.",
           "hints": "Little nudges",
