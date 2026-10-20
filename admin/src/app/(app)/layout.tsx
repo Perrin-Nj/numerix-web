@@ -17,6 +17,11 @@ const nav: { href: string; label: Key }[] = [
   { href: '/media', label: 'nav.media' },
   { href: '/plans', label: 'nav.plans' },
   { href: '/config', label: 'nav.config' },
+  { href: '/music', label: 'nav.music' },
+  { href: '/voice', label: 'nav.voice' },
+  { href: '/scenes', label: 'nav.scenes' },
+  { href: '/feed', label: 'nav.feed' },
+  { href: '/maintenance', label: 'nav.maintenance' },
   { href: '/notifications', label: 'nav.notifications' },
   { href: '/audit', label: 'nav.audit' },
 ];

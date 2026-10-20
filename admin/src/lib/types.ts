@@ -60,6 +60,66 @@ export interface PlatformConfig {
   expiring_warning_days: number;
   default_locale: string;
   features: Record<string, boolean>;
+  daily_goal_default?: number;
+  welcome_gift?: boolean;
+}
+/** Runtime config documents (server: internal/appconfig). */
+export interface CfgDoc<T> {
+  name: string;
+  version: number;
+  updated_at: string;
+  updated_by: string;
+  value: T;
+  defaults: T;
+}
+export interface CfgVersion {
+  version: number;
+  action: 'set' | 'rollback' | 'migrate';
+  actor: string;
+  at: string;
+  old_value: unknown;
+  value: unknown;
+}
+export interface MusicCfg {
+  enabled: boolean;
+  default_volume: number;
+  tracks: { id: string; title: Bi; enabled: boolean }[];
+}
+export interface VoiceCfg {
+  human_enabled_default: boolean;
+  computer_voice_allowed: boolean;
+  clips: { line_id: string; locale: 'fr-CA' | 'en-CA'; url: string; enabled: boolean }[];
+}
+export interface ScenesCfg {
+  physics_enabled: boolean;
+  families: Record<string, { enabled: boolean; disabled_variants: string[] }>;
+}
+export interface FeedCfg {
+  discover_enabled: boolean;
+  hidden_item_ids: string[];
+  max_grade_stretch: number;
+  family_board_visible: boolean;
+}
+export interface MaintenanceCfg {
+  enabled: boolean;
+  level: 'info' | 'warning' | 'critical';
+  message: Bi;
+  block_play: boolean;
+}
+export interface AICfg {
+  draft_enabled: boolean;
+  narrator_enabled: boolean;
+}
+export interface CopyCfg {
+  home_tip: Bi;
+  feed_empty: Bi;
+  session_done: Bi;
+}
+export interface EnvItem {
+  key: string;
+  set: boolean;
+  secret: boolean;
+  value?: string;
 }
 export interface Bi {
   fr: string;
