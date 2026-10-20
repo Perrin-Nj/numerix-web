@@ -134,7 +134,7 @@ function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
           )}
 
           <a
-            className="text-sm text-muted underline underline-offset-4"
+            className="inline-flex min-h-11 items-center text-sm text-muted underline underline-offset-4"
             href="https://commons.wikimedia.org/wiki/File:Brown_gift_box_with_red_ribbon_and_bow.jpg"
             target="_blank"
             rel="noopener noreferrer"
