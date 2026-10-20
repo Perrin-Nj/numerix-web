@@ -1,5 +1,6 @@
 // The scene library: 8 topic families x 6 set-ups x (wrong, right) = 96 scenes, and how a beat finds its family. Pure.
-import { RIGS, type Rig } from './rigs.ts';
+export const RIGS = ['tower', 'bridge', 'scale', 'jug', 'shelf', 'collide'] as const;
+export type Rig = (typeof RIGS)[number];
 
 export const FAMILIES = ['number', 'addsub', 'multdiv', 'fractions', 'measure', 'geometry', 'data', 'time'] as const;
 export type Family = (typeof FAMILIES)[number];
