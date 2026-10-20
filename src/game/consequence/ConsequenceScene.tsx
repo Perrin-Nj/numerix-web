@@ -67,7 +67,9 @@ export function ConsequenceScene({ sceneId, world, seed = 4, playing = true, onD
   const animated = playing && !reduced;
   useEffect(() => {
     if (!def) return;
-    if (!animated) {
+    // the hook above reads the setting after the first paint, so ask again here: no motion must start at all
+    const calm = reduced || window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduced';
+    if (!playing || calm) {
       if (playing) done.current?.();
       return;
     }

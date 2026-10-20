@@ -98,7 +98,7 @@ function bridge(good: boolean, n: number): Body[] {
     });
     return bodies;
   }
-  const f = fall(-4, 54.4, { e: 0.12 });
+  const f = fall(-4, 53.4, { e: 0.12 });
   const spin = (t: number) => -14 * Math.min(1, t / Math.max(1, f.length * 0.8));
   const x = spring(12, 27 + (n % 3), { k: 40, c: 12 });
   const tip = spring(0, 0, { v0: 55, k: 220, c: 5 });

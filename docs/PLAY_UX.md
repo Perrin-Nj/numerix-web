@@ -78,3 +78,9 @@ Run `node scripts/play-perf.mjs <base>` to measure again. Before this phase the 
 - The grid origin is inferred (see Decisions); the bank should say which convention a grid uses.
 - The twelve newer worlds share one neutral outcome animation.
 - Drag in ordering has not been tried on a real touch device, only with pointer events in Chromium; tap and arrow keys cover it.
+
+## Consequence scenes (round 3, track F)
+
+After an answer the stage shows what happens, not a sentence: `src/game/consequence`. A tiny solver (`physics.ts`: gravity, bounce, damped spring, friction slide, 1D collision, thrown body; no dependency, under 2 KB) writes one frame list per object; `ConsequenceScene` plays it with Motion (`motion/mini`, WAAPI, no timer, no rAF of ours) and the last frame is the finished picture, which is also the reduced-motion picture (no animation starts). Six set-ups (tower, bridge, scale, jug, shelf, collide) each with a wrong and a right ending, for 8 topic families (number, addsub, multdiv, fractions, measure, geometry, data, time) = 96 scenes (`catalog.ts`). The family comes from the server hint `scene_key` ("family" or "family:misconception"), else the question picture, else the skill id. `picker.ts` is deterministic: never the same scene twice in a row, every scene of a pool (family and outcome) is used before any returns, a different set-up from the last one when possible. History is kept in sessionStorage per session and merged with `variant_history` when the server sends it (the longer list wins). Numbers of the question set how many pieces (3 to 6). Tests: `node scripts/check-consequence.mjs` (in `test.sh state`), `bash scripts/test.sh consequence` (360 and 1280 px, no console error, axe, reduced motion, skip).
+
+Limits: surfaces (wood, stone, glass, water) are lit gradients, not photographs; only the objects are real photos. Captions are per set-up and outcome, shared by the families. `OutcomeSim` is no longer used by the play screen.
