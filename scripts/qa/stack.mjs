@@ -29,6 +29,7 @@ if (!(await up(`http://localhost:${API_PORT}/v1/health`))) {
   for (let i = 0; i < 40 && !(await up(`http://localhost:${API_PORT}/v1/health`)); i++) await new Promise((r) => setTimeout(r, 500));
   const s = spawnSync('go', ['run', './cmd/seed', '--db', DB, '--exclude', '_examples'], { cwd: API_DIR, env, encoding: 'utf8' });
   console.log('seed:', (s.stdout + s.stderr).trim().split('\n').slice(-3).join(' | '));
+  console.log('feedseed:', (spawnSync('go', ['run', './cmd/feedseed', '--db', DB], { cwd: API_DIR, env, encoding: 'utf8' }).stdout ?? '').trim().slice(-120));
   spawnSync('node', ['scripts/seed-dev.mjs', `http://localhost:${API_PORT}/v1`], { cwd: FE, stdio: 'inherit' });
 }
 if (!(await up(`http://localhost:${WEB_PORT}/api/health`))) {

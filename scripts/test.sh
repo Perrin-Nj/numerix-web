@@ -37,6 +37,8 @@ run() { # name command...
 }
 
 ensure_api() {
+  # QA_FRESH=1: the first call must find the port free, so a run never tests another agent's server
+  if [ -n "${QA_FRESH:-}" ] && [ -z "${GA:-}" ]; then GA=1; if up "$API_HEALTH"; then echo "[api] FAIL port $API_PORT already in use"; FAILS=$((FAILS+1)); return; fi; fi
   up "$API_HEALTH" && return
   local dir="../numerix-api"
   [ -x "$dir/bin/api.exe" ] || (cd "$dir" && PATH="$PATH:/c/Program Files/Go/bin" go build -o bin/api.exe ./cmd/api) || { echo "[api] build failed"; FAILS=$((FAILS+1)); return; }
@@ -54,6 +56,7 @@ ensure_api() {
 
 ensure_app() {
   ensure_api
+  if [ -n "${QA_FRESH:-}" ] && [ -z "${GB:-}" ]; then GB=1; if up "$BASE/api/health"; then echo "[app] FAIL port $APP_PORT already in use"; FAILS=$((FAILS+1)); return; fi; fi
   up "$BASE/api/health" && return
   export NEXT_PUBLIC_FEATURE_WELCOME_GIFT=true NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI=true API_URL="http://localhost:$API_PORT/v1"
   # a second copy of the app gets its own build folder

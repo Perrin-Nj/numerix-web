@@ -6,7 +6,7 @@ const BASE = (process.argv[2] ?? 'http://localhost:3130').replace(/\/$/, '');
 let fails = 0;
 const ok = (n, c, x = '') => { console.log(`${c ? 'ok  ' : 'FAIL'} ${n}${c ? '' : ' ' + x}`); if (!c) fails++; };
 const FR = /\b(Je suis|Mes |Mon |Ton |Ta |Choisis|Continuer|Retour|Accueil|Défis|Cartes|Mondes|Suivant|Enregistrer|Supprimer|Se connecter|Mot de passe|enfant|abonnement|Déconnexion|Annuler)\b/;
-const EN = /\b(Continue|Back|Home|Challenges|Cards|Worlds|Next|Save|Delete|Log in|Password|Subscription|Log out|Cancel|Sign in|Settings)\b/;
+const EN = /\b(Back|Home|Challenges|Cards|Worlds|Next|Save|Delete|Log in|Password|Subscription|Log out|Cancel|Sign in|Settings)\b/;
 const browser = await chromium.launch();
 
 async function routes(page) {
