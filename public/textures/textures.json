@@ -1,0 +1,37 @@
+{
+ "wood": {
+  "title": "File:Weatherworn planks on top of wooden table.jpg",
+  "url": "https://commons.wikimedia.org/wiki/File:Weatherworn_planks_on_top_of_wooden_table.jpg",
+  "licence": "CC0",
+  "author": "W.carter",
+  "source": "https://commons.wikimedia.org/wiki/File:Weatherworn_planks_on_top_of_wooden_table.jpg"
+ },
+ "stone": {
+  "title": "File:Grey boulder seamless stone surface texture.jpg",
+  "url": "https://commons.wikimedia.org/wiki/File:Grey_boulder_seamless_stone_surface_texture.jpg",
+  "licence": "CC0",
+  "author": "Sisters.seamless",
+  "source": "https://commons.wikimedia.org/wiki/File:Grey_boulder_seamless_stone_surface_texture.jpg"
+ },
+ "glass": {
+  "title": "File:Opaque glass.jpg",
+  "url": "https://commons.wikimedia.org/wiki/File:Opaque_glass.jpg",
+  "licence": "Public domain",
+  "author": "Titus Tscharntke",
+  "source": "https://commons.wikimedia.org/wiki/File:Opaque_glass.jpg"
+ },
+ "water": {
+  "title": "File:Blue water ripple surface.jpg",
+  "url": "https://commons.wikimedia.org/wiki/File:Blue_water_ripple_surface.jpg",
+  "licence": "CC BY 2.0",
+  "author": "Nenad Stojkovic",
+  "source": "https://commons.wikimedia.org/wiki/File:Blue_water_ripple_surface.jpg"
+ },
+ "cloth": {
+  "title": "File:Book cover fabric - Flickr - Delany Dean.jpg",
+  "url": "https://commons.wikimedia.org/wiki/File:Book_cover_fabric_-_Flickr_-_Delany_Dean.jpg",
+  "licence": "CC BY 2.0",
+  "author": "Delany Dean from Sanford, FL, USA",
+  "source": "https://commons.wikimedia.org/wiki/File:Book_cover_fabric_-_Flickr_-_Delany_Dean.jpg"
+ }
+}

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/shared/cn';
 import { useReducedMotion } from '@/platform/motion';
@@ -21,16 +21,22 @@ const SOUND: Record<Rig, { ok: SoundName; ko: SoundName }> = {
   collide: { ok: 'chapter_complete', ko: 'pluck' },
 };
 
-// Surfaces are soft lit gradients in real wood, stone and water colours; the objects themselves are photographs.
-const SURFACE: Record<Exclude<Piece['kind'], 'photo'>, CSSProperties> = {
-  wood: { background: 'repeating-linear-gradient(92deg, rgb(255 255 255 / .05) 0 2px, rgb(0 0 0 / .05) 2px 5px), linear-gradient(180deg, #c89a68, #8d6137)', borderRadius: '.5cqw', boxShadow: '0 .6cqw 1.2cqw rgb(0 0 0 / .35), inset 0 .2cqw .3cqw rgb(255 255 255 / .35)' },
-  stone: { background: 'radial-gradient(circle at 30% 25%, rgb(255 255 255 / .25), transparent 55%), linear-gradient(180deg, #a9a49b, #6f6a62)', borderRadius: '.8cqw', boxShadow: 'inset 0 .3cqw .5cqw rgb(255 255 255 / .3), 0 .6cqw 1.2cqw rgb(0 0 0 / .3)' },
-  chasm: { background: 'linear-gradient(180deg, #2c2a27, #0d0c0a)', boxShadow: 'inset 0 1.4cqw 1.6cqw rgb(0 0 0 / .6)' },
-  glass: { background: 'linear-gradient(100deg, rgb(255 255 255 / .35), rgb(255 255 255 / .06) 40%, rgb(255 255 255 / .22))', border: '.35cqw solid rgb(255 255 255 / .7)', borderRadius: '1cqw 1cqw 2.4cqw 2.4cqw', boxShadow: '0 .6cqw 1.2cqw rgb(0 0 0 / .25)' },
-  water: { background: 'linear-gradient(180deg, rgb(120 190 235 / .85), rgb(40 120 190 / .9))', borderRadius: '.4cqw' },
+// Surfaces are real photographed textures (public/textures: wood, stone, glass, water, cloth; credits in public/LICENSES.md),
+// tinted and lit with a soft gradient. The objects themselves are photographs too.
+const lit = 'linear-gradient(180deg, rgb(255 255 255 / .2), rgb(0 0 0 / .26))';
+const SURFACE: Record<Exclude<Piece['kind'], 'photo'> | 'cloth', CSSProperties> = {
+  wood: { backgroundImage: `${lit}, url(/textures/wood.webp)`, backgroundSize: 'auto, 46cqw', backgroundColor: '#d8a468', backgroundBlendMode: 'normal, multiply', borderRadius: '.5cqw', boxShadow: '0 .6cqw 1.2cqw rgb(0 0 0 / .35), inset 0 .2cqw .3cqw rgb(255 255 255 / .35)' },
+  cloth: { backgroundImage: `${lit}, url(/textures/cloth.webp)`, backgroundSize: 'auto, 40cqw', backgroundColor: '#c9a15a', backgroundBlendMode: 'normal, multiply', borderRadius: '.5cqw', boxShadow: '0 .6cqw 1.2cqw rgb(0 0 0 / .3)' },
+  stone: { backgroundImage: `${lit}, url(/textures/stone.webp)`, backgroundSize: 'auto, 34cqw', backgroundColor: '#bdb8ae', backgroundBlendMode: 'normal, multiply', borderRadius: '.8cqw', boxShadow: 'inset 0 .3cqw .5cqw rgb(255 255 255 / .3), 0 .6cqw 1.2cqw rgb(0 0 0 / .3)' },
+  chasm: { backgroundImage: 'linear-gradient(180deg, #2c2a27, #0d0c0a), url(/textures/stone.webp)', backgroundSize: 'auto, 30cqw', backgroundBlendMode: 'multiply', boxShadow: 'inset 0 1.4cqw 1.6cqw rgb(0 0 0 / .6)' },
+  // glass lets the scene through: the photographed glass only adds its reflections to what is behind
+  glass: { backgroundImage: 'linear-gradient(100deg, rgb(255 255 255 / .3), rgb(255 255 255 / .05) 40%, rgb(255 255 255 / .2)), url(/textures/glass.webp)', backgroundSize: 'auto, cover', border: '.35cqw solid rgb(255 255 255 / .7)', borderRadius: '1cqw 1cqw 2.4cqw 2.4cqw', boxShadow: '0 .6cqw 1.2cqw rgb(0 0 0 / .25)', opacity: 0.55 },
+  water: { backgroundImage: 'radial-gradient(circle at 35% 30%, rgb(255 255 255 / .55), transparent 55%), url(/textures/water.webp)', backgroundSize: 'auto, 600%', backgroundColor: '#3a86c4', backgroundBlendMode: 'normal, multiply', borderRadius: '50%' },
   zone: { border: '.4cqw dashed rgb(255 255 255 / .85)', borderRadius: '.8cqw', background: 'rgb(255 255 255 / .12)' },
 };
 
+/** Drawn size: liquid discs are a little bigger than their bodies so the filter can merge them. */
+const dim = (p: Piece): [number, number] => (p.kind === 'water' ? [p.w * 1.35, p.h * 1.35] : [p.w, p.h]);
 const tf = (p: { x: number; y: number; r: number }, w: number, h: number) => `translate(${(p.x - w / 2).toFixed(2)}cqw, ${(p.y - h / 2).toFixed(2)}cqw) rotate(${p.r.toFixed(3)}rad)`;
 
 export type ConsequenceSceneProps = {
@@ -55,6 +61,7 @@ export type ConsequenceSceneProps = {
 export function ConsequenceScene({ sceneId, world, amount, playing = true, onDone, showCaption = true, className }: ConsequenceSceneProps) {
   const t = useTranslations('game.consequence');
   const locale = useLocale();
+  const goo = `nx-goo-${useId().replace(/:/g, '')}`;
   const def = SCENE_BY_ID.get(sceneId);
   const reduced = useReducedMotion();
   const { play } = useSound();
@@ -88,7 +95,7 @@ export function ConsequenceScene({ sceneId, world, amount, playing = true, onDon
           if (!pose) el.style.display = 'none';
           else {
             el.style.display = '';
-            el.style.transform = tf(pose, p.w, p.h);
+            el.style.transform = tf(pose, ...dim(p));
           }
         });
       const finish = () => {
@@ -147,6 +154,28 @@ export function ConsequenceScene({ sceneId, world, amount, playing = true, onDon
       : t(`caption.${def.rig}.${def.good ? 'ok' : 'ko'}`);
   const skin = SKIN[def.family];
   const slug = (slot: 0 | 1 = 0) => (slot === 0 ? skin[0] : A.a % 2 === 0 ? ITEMS[world][0] : skin[1]);
+  const piece = (p: Piece, i: number) => {
+    const [w, h] = dim(p);
+    const pz = sim!.pose(p);
+    const cloth = p.id === 'floor' && (def.family === 'number' || def.family === 'fractions');
+    const surf = p.kind === 'photo' ? { filter: 'drop-shadow(0 .5cqw .6cqw rgb(0 0 0 / .4))' } : { ...SURFACE[cloth ? 'cloth' : p.kind], ...(p.round && p.kind !== 'water' ? { borderRadius: '50%' } : null) };
+    return (
+      <span
+        key={p.id}
+        ref={(el) => {
+          els.current[i] = el;
+        }}
+        data-kind={p.kind}
+        className="absolute left-0 top-0 block will-change-transform"
+        style={{ width: `${w}cqw`, height: `${h}cqw`, display: pz ? undefined : 'none', transform: pz ? tf(pz, w, h) : undefined, ...surf }}
+      >
+        {p.kind === 'photo' && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={`/objects/${slug(p.slot)}-256.webp`} alt="" draggable={false} className={cn('size-full object-cover', p.round ? 'rounded-full' : 'rounded-[22%]')} />
+        )}
+      </span>
+    );
+  };
   const pose: MascotPose = !settled ? 'curious' : sim && sim.verdict() ? 'cheer' : 'think';
   return (
     <figure className={cn('flex size-full flex-col items-center justify-center gap-1', className)}>
@@ -158,26 +187,20 @@ export function ConsequenceScene({ sceneId, world, amount, playing = true, onDon
           className="absolute left-1/2 top-1/2 block -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg [container-type:inline-size]"
           style={{ width: 'min(100cqw, 177.78cqh)', aspectRatio: '16 / 9', background: `linear-gradient(180deg, rgb(20 20 20 / .1), rgb(20 20 20 / .35)), url(/worlds/${world}-480.webp) center / cover` }}
         >
-          {sim?.pieces.map((p, i) => {
-            const pz = sim.pose(p);
-            const surf = p.kind === 'photo' ? { filter: 'drop-shadow(0 .5cqw .6cqw rgb(0 0 0 / .4))' } : { ...SURFACE[p.kind], ...(p.round ? { borderRadius: '50%' } : null) };
-            return (
-              <span
-                key={p.id}
-                ref={(el) => {
-                  els.current[i] = el;
-                }}
-                data-kind={p.kind}
-                className="absolute left-0 top-0 block will-change-transform"
-                style={{ width: `${p.w}cqw`, height: `${p.h}cqw`, display: pz ? undefined : 'none', transform: pz ? tf(pz, p.w, p.h) : undefined, ...surf }}
-              >
-                {p.kind === 'photo' && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={`/objects/${slug(p.slot)}-256.webp`} alt="" draggable={false} className={cn('size-full object-cover', p.round ? 'rounded-full' : 'rounded-[22%]')} />
-                )}
-              </span>
-            );
-          })}
+          {sim && (
+            <svg width="0" height="0" aria-hidden className="absolute">
+              <filter id={goo} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+                <feGaussianBlur stdDeviation="2" />
+                <feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" />
+              </filter>
+            </svg>
+          )}
+          {/* floor, props and objects; then the liquid (one soft filter merges its discs into one body of water); then the glass in front */}
+          {sim?.pieces.map((p, i) => (p.kind === 'water' || p.kind === 'glass' ? null : piece(p, i)))}
+          <span className="absolute inset-0 block" style={{ filter: `url(#${goo})` }}>
+            {sim?.pieces.map((p, i) => (p.kind === 'water' ? piece(p, i) : null))}
+          </span>
+          {sim?.pieces.map((p, i) => (p.kind === 'glass' ? piece(p, i) : null))}
         </span>
         <span aria-hidden className="absolute bottom-1 end-2">
           <Mascot pose={pose} size="sm" decorative />
