@@ -20,7 +20,7 @@ npx tsc --noEmit && echo "PASS typecheck" || { echo "FAIL typecheck"; exit 1; }
 npx eslint && echo "PASS lint" || { echo "FAIL lint"; exit 1; }
 
 if ! curl -sf -o /dev/null -H "Authorization: Bearer $ADMIN_API_TOKEN" "$PLATFORM_API_URL/admin/v1/overview"; then
-  API_DIR="../../numerix-api"
+  API_DIR="${API_DIR:-../../numerix-api}"
   [ -x "$API_DIR/bin/api.exe" ] || (cd "$API_DIR" && PATH="$PATH:/c/Program Files/Go/bin" go build -o bin/api.exe ./cmd/api)
   started_api=1
   cp "$API_DIR/bin/api.exe" "$API_DIR/bin/api-admin.exe"

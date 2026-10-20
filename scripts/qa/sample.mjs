@@ -1,7 +1,7 @@
 // Prints a seeded random sample of N questions (default 60) in full, fr only, for hand re-solving. Usage: node scripts/qa/sample.mjs [n] [seed]
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-const SEED = resolve(import.meta.dirname, '../../../numerix-api/seed');
+const SEED = resolve(process.env.API_DIR ?? resolve(import.meta.dirname, '../../../numerix-api'), 'seed');
 const qs = [];
 for (const f of readdirSync(`${SEED}/questions`).filter((f) => f.endsWith('.json') && !/^(_examples|picks|rejected|sprites|credits)/.test(f))) for (const q of JSON.parse(readFileSync(`${SEED}/questions/${f}`, 'utf8')).questions ?? []) qs.push(q);
 let s = Number(process.argv[3] ?? 20261020); const rnd = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32);

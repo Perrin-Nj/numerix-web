@@ -6,7 +6,7 @@ import { createConnection } from 'node:net';
 import { resolve } from 'node:path';
 
 const API_PORT = 8081;
-const API_DIR = resolve(import.meta.dirname, '../../numerix-api');
+const API_DIR = process.env.API_DIR ?? resolve(import.meta.dirname, '../../numerix-api');
 const GO_BIN = process.env.GO_BIN ?? 'C:\Program Files\Go\bin';
 const EXE = resolve(API_DIR, process.platform === 'win32' ? 'bin/api.exe' : 'bin/api');
 const children = [];

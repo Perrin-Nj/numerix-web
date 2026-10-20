@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-const SEED = resolve(import.meta.dirname, '../../../numerix-api/seed');
+const SEED = resolve(process.env.API_DIR ?? resolve(import.meta.dirname, '../../../numerix-api'), 'seed');
 const sp = JSON.parse(readFileSync(`${SEED}/assets/sprites.json`, 'utf8'));
 const used = new Set(), ph = new Set();
 for (const w of JSON.parse(readFileSync(`${SEED}/assets/credits.json`, 'utf8')).photos) ph.add(w.id);

@@ -12,6 +12,7 @@
 #   bash scripts/test.sh feed       Discover feed: paging, no repeat, reshuffle, video in view, reduced motion, offline retry, memory
 #   bash scripts/test.sh play       world map, journeys, every question kind, credits (seeded question bank)
 #   API_PORT=8083 APP_PORT=3101 bash scripts/test.sh ui     same, on other ports (never touches 3000 and 8081)
+#   API_DIR=/path/to/numerix-api bash scripts/test.sh all   use any API checkout (default ../numerix-api)
 #   bash scripts/test.sh contract   openapi vs frontend calls vs backend guide (no servers needed)
 #   bash scripts/test.sh live      flows + ui against the deployed app (LIVE_URL, default numerix-web-snowy)
 set -u
@@ -42,7 +43,7 @@ ensure_api() {
   # QA_FRESH=1: the first call must find the port free, so a run never tests another agent's server
   if [ -n "${QA_FRESH:-}" ] && [ -z "${GA:-}" ]; then GA=1; if up "$API_HEALTH"; then echo "[api] FAIL port $API_PORT already in use"; FAILS=$((FAILS+1)); return; fi; fi
   up "$API_HEALTH" && return
-  local dir="../numerix-api"
+  local dir="${API_DIR:-../numerix-api}"  # API_DIR points at any numerix-api checkout/worktree
   [ -x "$dir/bin/api.exe" ] || (cd "$dir" && PATH="$PATH:/c/Program Files/Go/bin" go build -o bin/api.exe ./cmd/api) || { echo "[api] build failed"; FAILS=$((FAILS+1)); return; }
   local db="./data/test-$API_PORT.db"
   rm -f "$dir"/data/test-$API_PORT.db*  # a fresh database per run, so no test depends on old data

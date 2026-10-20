@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'public', 'music');
-const ff = process.env.FFMPEG ?? join(root, '..', '..', 'numerix-api', 'tools', 'voice', 'node_modules', 'ffmpeg-static', process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg');
+const ff = process.env.FFMPEG ?? join(process.env.API_DIR ?? join(root, '..', '..', 'numerix-api'), 'tools', 'voice', 'node_modules', 'ffmpeg-static', process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg');
 if (!existsSync(ff) && !process.env.FFMPEG) throw new Error('ffmpeg missing: npm i in numerix-api/tools/voice or set FFMPEG');
 const BASE = 'https://incompetech.com/music/royalty-free/mp3-royaltyfree/';
 const CAT = 'https://incompetech.com/music/royalty-free/pieces.json';

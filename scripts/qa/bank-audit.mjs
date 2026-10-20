@@ -3,7 +3,7 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const SEED = resolve(import.meta.dirname, '../../../numerix-api/seed');
+const SEED = resolve(process.env.API_DIR ?? resolve(import.meta.dirname, '../../../numerix-api'), 'seed');
 const qs = [];
 for (const f of readdirSync(`${SEED}/questions`).filter((f) => f.endsWith('.json') && !/^(_examples|picks|rejected|sprites|credits)/.test(f))) {
   const j = JSON.parse(readFileSync(`${SEED}/questions/${f}`, 'utf8'));
