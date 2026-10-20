@@ -248,6 +248,8 @@ await check('the story is read aloud by the French woman voice, in French', asyn
     await fetch(`/api/v1/children/${id}/settings`, { method: 'PUT', headers: h, body: JSON.stringify({ ...cur, voice: { ...cur.voice, computer_voice: true } }) });
   });
   await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(1500);
+  await page.mouse.click(5, 5); // speech waits for a first gesture
   await page.waitForFunction(() => window.__spoken.some((x) => x.voice?.includes('Sylvie') && /graine|Combien|Mira|forêt|\d/.test(x.text)), null, { timeout: 25000 });
   const bad = await page.evaluate(() => window.__spoken.filter((x) => x.lang?.startsWith('en') || x.voice?.includes('Guy')).length);
   if (bad) throw new Error(`${bad} utterances used a wrong-language or male voice`);
