@@ -136,7 +136,11 @@ function View({ variant, ...p }: ErrorViewProps & { variant: 'page' | 'panel' })
 
 /** Full page: route boundaries, 404. */
 export function ErrorScreen(props: ErrorViewProps) {
-  return <View variant="page" {...props} />;
+  return (
+    <main>
+      <View variant="page" {...props} />
+    </main>
+  );
 }
 
 /** Inline: one part of a screen failed, the shell around it stays usable. */

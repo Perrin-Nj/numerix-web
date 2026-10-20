@@ -56,12 +56,15 @@ export function ParentPage({ title, backHref, wide, children }: Props) {
         }
       />
       <OfflineBanner />
-      <PageContainer width={wide ? 'wide' : 'default'}>
-        <div className="flex flex-col gap-6 py-6">
-          {children}
-          <ParentFooter />
-        </div>
-      </PageContainer>
+      <main>
+        <PageContainer width={wide ? 'wide' : 'default'}>
+          {/* min height keeps the footer below the fold while content loads, so it never jumps */}
+          <div className="flex min-h-[calc(100dvh+3rem)] flex-col gap-6 py-6">
+            {children}
+            <ParentFooter />
+          </div>
+        </PageContainer>
+      </main>
     </>
   );
 }

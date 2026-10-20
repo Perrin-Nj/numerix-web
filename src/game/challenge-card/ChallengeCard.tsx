@@ -58,7 +58,7 @@ function ChallengeCardBase({
           <Icon name={done ? 'check' : 'flame'} size={28} />
         </span>
         <div className="flex min-w-0 flex-1 flex-col">
-          <h3 className="font-display text-xl font-bold">{title}</h3>
+          <h2 className="font-display text-xl font-bold">{title}</h2>
           <p className="text-base text-muted">{description}</p>
         </div>
         {done && (

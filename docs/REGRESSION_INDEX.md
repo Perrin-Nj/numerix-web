@@ -5,7 +5,7 @@ Every defect gets a test that fails before the fix and passes after. All tests b
 | Defect | Test | Route / endpoint | Added | State |
 |---|---|---|---|---|
 | QA-A-001 feedback sheet covers question (scrolled check) | `scripts/qa/regress-ui.mjs` | /play/session/[id], 7 viewports x 4 worlds | 2026-10-19 | closed, 28/28 pass |
-| QA-A-008 feedback sheet hides the question tail on a 360x740 phone, unscrolled | `scripts/qa/regress-strict.mjs` | /play/session/[id], 360 and 390 x 10 worlds | 2026-10-20 | OPEN, 3 of 20 fail |
+| QA-A-008 feedback sheet hides the question tail on a phone, unscrolled (question, caption and answers must be fully visible above the sheet, Continuer on screen) | `scripts/qa/regress-strict.mjs` (also fails if a toast covers the answers) | /play/session/[id], 360x740, 390x844, 768, 1280x720, 1366x768 x 20 worlds | 2026-10-20 | closed on fix/qa-round2; in `test.sh all` and `qa`, CI job `suite` |
 | QA-A-002 emoji art in kid screens | `scripts/qa/sweep.mjs` kind `emoji` | all routes | 2026-10-19 | closed, 0 hits |
 | QA-A-003 flat vector illustrations (Numa `[data-mascot]` and tour overlay exempt) | `scripts/qa/sweep.mjs` kinds `flat-vector-svg`, `svg-image-art` | all routes | 2026-10-19 | closed, 0 hits |
 | QA-A-004 heavy button borders (>= 2 px) | `scripts/qa/sweep.mjs` kind `heavy-button-border` | all routes | 2026-10-19 | closed, 0 hits |
@@ -19,6 +19,9 @@ Every defect gets a test that fails before the fix and passes after. All tests b
 | QA-BE-004 prerequisite-locked chapter starts with explicit skill_id | `scripts/qa/extra.mjs` "quest locks" | POST /v1/children/{id}/sessions | 2026-10-20 | OPEN, 10 of 93 start |
 | QA-BE-005 passkey registration fails with a virtual authenticator | `scripts/qa/extra.mjs` "passkey registers" | /parent/account, passkey endpoints | 2026-10-20 | OPEN |
 | i18n leakage fr/en on every route, logout, credits links | `scripts/qa/extra.mjs` | all routes | 2026-10-20 | passing |
-| QA-W-001 JS budget | `scripts/qa/sweep.mjs` kind `js-bytes` (P2, reported) | all routes | 2026-10-19 | reported |
+| QA-W-001 JS budget | `scripts/qa/sweep.mjs` kind `js-bytes` (P2, reported) | all routes | 2026-10-19 | reduced (zod out of client bundles), still above 600 KB; reported |
+| P2 voice toast over keypad | `scripts/qa/regress-strict.mjs` toast check | /play/session/[id] | 2026-10-20 | closed (toasts now at the top) |
+| P2 axe moderate: heading-order, landmark-one-main, region | `scripts/qa/sweep.mjs` kinds `axe-*` | play and parent routes, 404, offline | 2026-10-19 | closed on fix/qa-round2 |
+| P2 CLS above 0.1 on parent and play-me pages | `scripts/qa/sweep.mjs` kind `cls` | parent-*, play-me | 2026-10-19 | mostly closed, see QA_REPORT.md |
 
 Rule for new defects: add the check to `scripts/qa/*` first, see it fail, then hand to the owner.

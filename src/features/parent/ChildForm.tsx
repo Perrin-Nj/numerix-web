@@ -3,8 +3,7 @@ import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { rulesResolver } from '@/shared/form-resolver';
 import { useCreateChild } from '@/data/hooks';
 import { ParentPage } from './ParentPage';
 import { Avatar } from '@/game/avatar';
@@ -24,24 +23,23 @@ export function ChildForm() {
   const create = useCreateChild();
   const [usePin, setUsePin] = useState(false);
 
-  const schema = useMemo(
+  type Values = { display_name: string; grade: string; avatar_id: string; pin: string };
+  const resolver = useMemo(
     () =>
-      z.object({
-        display_name: z.string().trim().min(1, t('errors.name')).max(30, t('errors.nameLong')),
-        grade: z.string().min(1, t('errors.grade')),
-        avatar_id: z.string().min(1, t('errors.avatar')),
-        pin: z.string(),
+      rulesResolver<Values>({
+        display_name: (v) => (v.trim().length < 1 ? t('errors.name') : v.trim().length > 30 ? t('errors.nameLong') : null),
+        grade: (v) => (v.length ? null : t('errors.grade')),
+        avatar_id: (v) => (v.length ? null : t('errors.avatar')),
       }),
     [t],
   );
-  type Values = z.infer<typeof schema>;
   const {
     register,
     control,
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { display_name: '', grade: '', avatar_id: 'fox', pin: '' } });
+  } = useForm<Values>({ resolver, defaultValues: { display_name: '', grade: '', avatar_id: 'fox', pin: '' } });
 
   async function onSubmit(v: Values) {
     if (usePin && v.pin.length !== 4) {

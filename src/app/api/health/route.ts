@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { serverEnv } from '@/config/env';
+import { serverEnv } from '@/config/server-env';
 
 /**
  * Tells the browser which side is down when a request fails. If this answers, the app is reachable;

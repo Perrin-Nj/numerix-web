@@ -202,7 +202,7 @@ export function ManageSubscription() {
   return (
     <ParentPage title={t('title')} backHref="/parent">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
-        {subQ.isLoading && <Skeleton shape="block" height={140} />}
+        {subQ.isLoading && <Skeleton shape="block" className="h-[252px] sm:h-[188px]" />}
         {subQ.error && <ErrorPanel error={subQ.error} onRetry={() => void subQ.refetch()} />}
         {sub && (
           <>
@@ -215,7 +215,7 @@ export function ManageSubscription() {
 
             <Panel title={t('plans.title')}>
               {plansQ.error && <ErrorPanel error={plansQ.error} onRetry={() => void plansQ.refetch()} />}
-              {plansQ.isLoading && <Skeleton shape="block" height={200} />}
+              {plansQ.isLoading && <Skeleton shape="block" className="h-[640px] sm:h-[270px]" />}
               {plansQ.data && (
                 <fieldset className="grid gap-3 sm:grid-cols-3">
                   <legend className="sr-only">{t('plans.title')}</legend>

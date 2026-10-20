@@ -131,10 +131,11 @@ export function MeScreen() {
   const profile = useChildProfile(childId) ?? null;
   const engagement = useEngagement(childId);
   const growth = useGrowth(childId);
+  const settled = !engagement.isLoading && !growth.isLoading;
   const [gate, setGate] = useState<'parent' | 'logout' | null>(null);
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-6">
+    <main className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-6 lg:max-w-4xl">
       <header className="flex items-center gap-4">
         {profile && <Avatar avatarId={profile.avatar} name={profile.name} size="lg" />}
         <div>
@@ -161,6 +162,9 @@ export function MeScreen() {
           <GrowthLines g={growth.data} />
         </Panel>
       )}
+      {/* The settings panels wait for the stats above them, so nothing visible jumps down when those arrive */}
+      {settled && (
+        <>
       <LanguagePanel childId={childId} />
       <VoicePanel />
       <Panel title={t('account.title')}>
@@ -193,6 +197,8 @@ export function MeScreen() {
       <div className="mt-4 flex justify-center">
         <CreditsLink />
       </div>
+        </>
+      )}
       <ParentGate
         open={gate !== null}
         onOpenChange={(o) => !o && setGate(null)}

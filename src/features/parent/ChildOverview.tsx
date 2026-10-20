@@ -89,7 +89,7 @@ export function ChildOverview({ childId }: { childId: string }) {
       <div className="grid gap-5 lg:grid-cols-2">
         {growth.isLoading || growth.error ? (
           <div className="lg:col-span-2">
-            <ScreenState isLoading={growth.isLoading} error={growth.error} onRetry={() => void growth.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card" height={220} />}>
+            <ScreenState isLoading={growth.isLoading} error={growth.error} onRetry={() => void growth.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card h-[640px] sm:h-[290px] lg:h-[230px]" />}>
               {null}
             </ScreenState>
           </div>
@@ -124,7 +124,7 @@ export function ChildOverview({ childId }: { childId: string }) {
 
         <Panel title={t('stuck.title')} icon="alert">
           {(progress.isLoading || progress.error) && (
-            <ScreenState isLoading={progress.isLoading} error={progress.error} onRetry={() => void progress.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card" height={80} />}>
+            <ScreenState isLoading={progress.isLoading} error={progress.error} onRetry={() => void progress.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card h-[200px]" />}>
               {null}
             </ScreenState>
           )}
@@ -143,7 +143,7 @@ export function ChildOverview({ childId }: { childId: string }) {
 
         <Panel title={t('sessions.title')} icon="book" className="lg:col-span-2">
           {(sessions.isLoading || sessions.error) && (
-            <ScreenState isLoading={sessions.isLoading} error={sessions.error} onRetry={() => void sessions.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card" height={80} />}>
+            <ScreenState isLoading={sessions.isLoading} error={sessions.error} onRetry={() => void sessions.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card h-[260px]" />}>
               {null}
             </ScreenState>
           )}

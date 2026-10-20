@@ -30,7 +30,7 @@ export function JourneyScreen({ world }: { world: string }) {
   const empty = Boolean(journey.data) && journey.data!.nodes.length === 0;
 
   return (
-    <main className="mx-auto w-full max-w-2xl pb-4">
+    <main className="mx-auto w-full max-w-2xl pb-4 lg:max-w-4xl">
       <WorldHero
         world={hero}
         top={<IconButton label={t('back')} variant="ghost" sound="back" icon={<Icon name="chevron-left" />} onClick={() => router.push('/play/worlds')} className="bg-black/40 text-white hover:bg-black/55" />}

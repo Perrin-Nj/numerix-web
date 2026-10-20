@@ -21,7 +21,7 @@ export function EmptyState({ icon, title, description, action, size = 'compact',
         <span className="nx-sparkle absolute -end-1 -top-1 text-warning"><Icon name="sparkles" size={18} /></span>
         <Icon name={icon} size={36} />
       </span>
-      <h3 className="font-display text-xl font-semibold text-fg">{title}</h3>
+      <h2 className="font-display text-xl font-semibold text-fg">{title}</h2>
       {description && <p className="max-w-sm text-muted">{description}</p>}
       {action && <div className="mt-1">{action}</div>}
     </div>

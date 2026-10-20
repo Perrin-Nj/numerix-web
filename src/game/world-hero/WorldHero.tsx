@@ -38,7 +38,7 @@ export function WorldHero({ world, top, guide, className }: WorldHeroProps) {
         <div className="flex items-center gap-2">{top}</div>
         <div className="flex flex-col gap-1 px-1">
           <h1 className="font-display text-4xl font-bold leading-tight drop-shadow">{world.name}</h1>
-          {world.tagline && <p className="max-w-prose text-base leading-snug text-white/90">{world.tagline}</p>}
+          {world.tagline && world.tagline.trim().toLowerCase() !== world.name.trim().toLowerCase() && <p className="max-w-prose text-base leading-snug text-white/90">{world.tagline}</p>}
           {guide}
         </div>
       </div>

@@ -1,66 +1,44 @@
-import { z } from 'zod';
-
 /**
- * The only place that reads process.env. Everything else imports from
- * `@/config/app`. NEXT_PUBLIC_* values must be referenced statically so
- * Next.js can inline them in the client bundle.
+ * The only place that reads public process.env. Everything else imports from `@/config/app`.
+ * NEXT_PUBLIC_* values must be referenced statically so Next.js can inline them in the client bundle.
+ * Hand-written parsing (no zod) keeps the validator out of every route's JavaScript; the server variables
+ * live in `server-env.ts`.
  */
-const bool = (def: boolean) => z.stringbool().default(def);
-const list = z
-  .string()
-  .default('fr-CA,en-CA')
-  .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean));
+const problems: string[] = [];
+const TRUE = ['true', '1', 'yes', 'on', 'y', 'enabled'];
+const FALSE = ['false', '0', 'no', 'off', 'n', 'disabled'];
 
-const publicSchema = z.object({
-  NEXT_PUBLIC_APP_ENV: z.enum(['development', 'preview', 'production']).default('development'),
-  NEXT_PUBLIC_DEFAULT_LOCALE: z.string().default('fr-CA'),
-  NEXT_PUBLIC_LOCALES: list,
-  NEXT_PUBLIC_MASCOT_ENABLED: bool(true),
-  NEXT_PUBLIC_MASCOT_KIND: z.enum(['image', 'owl', 'rive']).default('owl'),
-  NEXT_PUBLIC_FEATURE_FEED: bool(true),
-  NEXT_PUBLIC_FEATURE_KIOSK: bool(true),
-  NEXT_PUBLIC_FEATURE_TV: bool(true),
-  NEXT_PUBLIC_FEATURE_READ_ALOUD: bool(true),
-  NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI: bool(false),
-  NEXT_PUBLIC_FEATURE_WELCOME_GIFT: bool(false),
-  NEXT_PUBLIC_SOUND_DEFAULT: bool(true),
-  NEXT_PUBLIC_ANALYTICS_ENABLED: bool(true),
-});
-
-const serverSchema = z.object({
-  API_URL: z.url().default('http://localhost:8081/v1'),
-});
-
-function fail(scope: string, error: z.ZodError): never {
-  const lines = error.issues.map((i) => `  ${i.path.join('.')}: ${i.message}`).join('\n');
-  throw new Error(`Invalid ${scope} configuration. Fix .env or Vercel variables:\n${lines}`);
+function bool(name: string, raw: string | undefined, def: boolean): boolean {
+  if (raw === undefined || raw === '') return def;
+  const v = raw.trim().toLowerCase();
+  if (TRUE.includes(v)) return true;
+  if (FALSE.includes(v)) return false;
+  problems.push(`  ${name}: expected true or false, got "${raw}"`);
+  return def;
+}
+function pick<T extends string>(name: string, raw: string | undefined, allowed: readonly T[], def: T): T {
+  if (raw === undefined || raw === '') return def;
+  if ((allowed as readonly string[]).includes(raw)) return raw as T;
+  problems.push(`  ${name}: expected one of ${allowed.join(', ')}, got "${raw}"`);
+  return def;
 }
 
-const publicParsed = publicSchema.safeParse({
-  NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
-  NEXT_PUBLIC_DEFAULT_LOCALE: process.env.NEXT_PUBLIC_DEFAULT_LOCALE,
-  NEXT_PUBLIC_LOCALES: process.env.NEXT_PUBLIC_LOCALES,
-  NEXT_PUBLIC_MASCOT_ENABLED: process.env.NEXT_PUBLIC_MASCOT_ENABLED,
-  NEXT_PUBLIC_MASCOT_KIND: process.env.NEXT_PUBLIC_MASCOT_KIND,
-  NEXT_PUBLIC_FEATURE_FEED: process.env.NEXT_PUBLIC_FEATURE_FEED,
-  NEXT_PUBLIC_FEATURE_KIOSK: process.env.NEXT_PUBLIC_FEATURE_KIOSK,
-  NEXT_PUBLIC_FEATURE_TV: process.env.NEXT_PUBLIC_FEATURE_TV,
-  NEXT_PUBLIC_FEATURE_READ_ALOUD: process.env.NEXT_PUBLIC_FEATURE_READ_ALOUD,
-  NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI: process.env.NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI,
-  NEXT_PUBLIC_FEATURE_WELCOME_GIFT: process.env.NEXT_PUBLIC_FEATURE_WELCOME_GIFT,
-  NEXT_PUBLIC_SOUND_DEFAULT: process.env.NEXT_PUBLIC_SOUND_DEFAULT,
-  NEXT_PUBLIC_ANALYTICS_ENABLED: process.env.NEXT_PUBLIC_ANALYTICS_ENABLED,
-});
-if (!publicParsed.success) fail('public', publicParsed.error);
-/**
- * Validated NEXT_PUBLIC_* values with defaults. Parsing throws at startup on a bad value. Only config/app.ts
- * should use it directly.
- */
-export const publicEnv = publicParsed.data;
+const publicEnvParsed = {
+  NEXT_PUBLIC_APP_ENV: pick('NEXT_PUBLIC_APP_ENV', process.env.NEXT_PUBLIC_APP_ENV, ['development', 'preview', 'production'], 'development'),
+  NEXT_PUBLIC_DEFAULT_LOCALE: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'fr-CA',
+  NEXT_PUBLIC_LOCALES: (process.env.NEXT_PUBLIC_LOCALES ?? 'fr-CA,en-CA').split(',').map((s) => s.trim()).filter(Boolean),
+  NEXT_PUBLIC_MASCOT_ENABLED: bool('NEXT_PUBLIC_MASCOT_ENABLED', process.env.NEXT_PUBLIC_MASCOT_ENABLED, true),
+  NEXT_PUBLIC_MASCOT_KIND: pick('NEXT_PUBLIC_MASCOT_KIND', process.env.NEXT_PUBLIC_MASCOT_KIND, ['image', 'owl', 'rive'], 'owl'),
+  NEXT_PUBLIC_FEATURE_FEED: bool('NEXT_PUBLIC_FEATURE_FEED', process.env.NEXT_PUBLIC_FEATURE_FEED, true),
+  NEXT_PUBLIC_FEATURE_KIOSK: bool('NEXT_PUBLIC_FEATURE_KIOSK', process.env.NEXT_PUBLIC_FEATURE_KIOSK, true),
+  NEXT_PUBLIC_FEATURE_TV: bool('NEXT_PUBLIC_FEATURE_TV', process.env.NEXT_PUBLIC_FEATURE_TV, true),
+  NEXT_PUBLIC_FEATURE_READ_ALOUD: bool('NEXT_PUBLIC_FEATURE_READ_ALOUD', process.env.NEXT_PUBLIC_FEATURE_READ_ALOUD, true),
+  NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI: bool('NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI', process.env.NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI, false),
+  NEXT_PUBLIC_FEATURE_WELCOME_GIFT: bool('NEXT_PUBLIC_FEATURE_WELCOME_GIFT', process.env.NEXT_PUBLIC_FEATURE_WELCOME_GIFT, false),
+  NEXT_PUBLIC_SOUND_DEFAULT: bool('NEXT_PUBLIC_SOUND_DEFAULT', process.env.NEXT_PUBLIC_SOUND_DEFAULT, true),
+  NEXT_PUBLIC_ANALYTICS_ENABLED: bool('NEXT_PUBLIC_ANALYTICS_ENABLED', process.env.NEXT_PUBLIC_ANALYTICS_ENABLED, true),
+};
+if (problems.length) throw new Error(`Invalid public configuration. Fix .env or Vercel variables:\n${problems.join('\n')}`);
 
-/** Server-only. Never import from a client component. */
-export function serverEnv() {
-  const parsed = serverSchema.safeParse({ API_URL: process.env.API_URL });
-  if (!parsed.success) fail('server', parsed.error);
-  return parsed.data;
-}
+/** Validated NEXT_PUBLIC_* values with defaults. Parsing throws at startup on a bad value. Only config/app.ts should use it directly. */
+export const publicEnv = publicEnvParsed;

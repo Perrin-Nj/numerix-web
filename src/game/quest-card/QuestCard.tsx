@@ -26,9 +26,9 @@ export function QuestCard({ quest, onPlay }: QuestCardProps) {
         <Icon name={state === 'completed' ? 'check' : state === 'available' ? 'sparkles' : 'moon'} size={28} />
       </span>
       <div className="flex flex-1 flex-col gap-1">
-        <h3 id="quest-title" className="font-display text-xl font-bold text-fg">
+        <h2 id="quest-title" className="font-display text-xl font-bold text-fg">
           {t('title')}
-        </h3>
+        </h2>
         <p className="text-base text-muted">{t(state)}</p>
       </div>
       {state === 'available' && (

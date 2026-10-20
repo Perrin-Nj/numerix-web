@@ -97,7 +97,7 @@ export function NotificationCenter() {
     <div
       role="region"
       aria-label={t('region')}
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] mx-auto flex w-full max-w-md flex-col gap-3 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[60] mx-auto flex w-full max-w-md flex-col gap-3 p-4 pt-[calc(3.5rem+env(safe-area-inset-top))]"
     >
       <ul aria-live="polite" className={list}>
         {others.map((i) => (

@@ -4,8 +4,7 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { isEmail, rulesResolver } from '@/shared/form-resolver';
 import { ApiError, isConnectionProblem } from '@/data/api/client';
 import { useLogin, useRegister } from '@/data/hooks';
 import { passkeysSupported, useDeviceLogin, usePasskeyLogin } from '@/data/hooks/devices';
@@ -63,20 +62,20 @@ export function AuthForm({ mode }: { mode: Mode }) {
     }
   }
 
-  const schema = useMemo(
+  type Values = { email: string; password: string };
+  const resolver = useMemo(
     () =>
-      z.object({
-        email: z.email(t('errors.email')),
-        password: mode === 'register' ? z.string().min(10, t('errors.passwordShort')) : z.string().min(1, t('errors.passwordEmpty')),
+      rulesResolver<Values>({
+        email: (v) => (isEmail(v) ? null : t('errors.email')),
+        password: (v) => (mode === 'register' ? (v.length >= 10 ? null : t('errors.passwordShort')) : v.length >= 1 ? null : t('errors.passwordEmpty')),
       }),
     [t, mode],
   );
-  type Values = z.infer<typeof schema>;
   const {
     register: field,
     handleSubmit,
     formState: { errors },
-  } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { email: '', password: '' } });
+  } = useForm<Values>({ resolver, defaultValues: { email: '', password: '' } });
 
   const pending = login.isPending || register.isPending;
 

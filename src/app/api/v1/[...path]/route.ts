@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { serverEnv } from '@/config/env';
+import { serverEnv } from '@/config/server-env';
 
 /**
  * Same-origin proxy to the backend (the Go API).

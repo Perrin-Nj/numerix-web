@@ -93,7 +93,7 @@ export function HomeFeed() {
 
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 pb-6 pt-3">
+    <main className="mx-auto w-full max-w-2xl px-4 pb-6 pt-3 lg:max-w-4xl">
       <header className="mb-4 flex items-center justify-between gap-3">
         <h1 className="font-display text-3xl font-extrabold text-brand">{t('title')}</h1>
         <div className="flex items-center gap-1">
@@ -150,8 +150,8 @@ export function HomeFeed() {
             <StreakBadge days={d.engagement.streak.current_days} />
             <DailyGoalRing done={d.engagement.daily_goal.done_chapters} target={d.engagement.daily_goal.target_chapters} />
           </div>
-          <div id="tour-worlds" className="flex flex-col gap-3">
-            <h2 className="font-display text-2xl font-bold">{t('worlds')}</h2>
+          <div id="tour-worlds" className="flex flex-col gap-3 lg:grid lg:grid-cols-2">
+            <h2 className="font-display text-2xl font-bold lg:col-span-2">{t('worlds')}</h2>
             {d.worlds.slice(0, 6).map((w) => (
               <WorldTeaser key={w.id} world={w} onOpen={(world) => router.push(`/play/journey/${world.id}`)} />
             ))}
@@ -159,7 +159,7 @@ export function HomeFeed() {
           {d.recent_cards.length > 0 && (
             <div className="flex flex-col gap-3">
               <h2 className="font-display text-2xl font-bold">{t('recentCards')}</h2>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 {d.recent_cards.map((c) => (
                   <StoryCard key={c.id} card={c} variant="tile" onOpen={() => router.push('/play/collection')} />
                 ))}
