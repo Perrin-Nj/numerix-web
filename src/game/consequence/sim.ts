@@ -241,7 +241,7 @@ function jug(c: Ctx, good: boolean, A: Amount): Built {
       const b = d.part!;
       // the last bits of sloshing die out: the liquid turns viscous after 3.5 s so the scene always comes to rest
       if (tick > 220) b.frictionAir = 0.3;
-      else if (d.live && tick - born[i] > 45 && b.position.y / S < JUG.top - 0.5 && b.speed < 0.8) Body.applyForce(b, b.position, { x: Math.sign(b.position.x / S - JUG.x || 1) * b.mass * 0.0006, y: 0 });
+      else if (d.live && tick - born[i] > 45 && b.position.y / S < JUG.top - 0.5 && b.speed < 0.8) Body.applyForce(b, b.position, { x: Math.sign(b.position.x / S - JUG.x || 1) * b.mass * 0.0008, y: 0 });
     });
   };
   return { verdict: () => outside() === 0 && Math.abs(surface() - JUG_MARK) < 2.6, busy: () => drops.some((d) => !d.live), drive: { from: 0, run: slump } };

@@ -2,7 +2,7 @@
 // Only CC0, public domain and CC BY 2.0 to 4.0 are accepted (licence read from extmetadata; SA, NC, ND, GFDL are rejected).
 //   node scripts/fetch-textures.mjs candidates <outDir>        download 5 candidates per kind and print their credits
 //   node scripts/fetch-textures.mjs pick <outDir> wood=2 stone=0 ...   crop the chosen candidates to 384 px WebP in public/textures and write textures.json
-import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { createRequire } from 'node:module';
 
