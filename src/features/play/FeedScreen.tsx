@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useAdminCopy } from '@/features/common/useAdminCopy';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { reportError } from '@/platform/errors/bridge';
 import type { AnswerValue, DiscoverItem, DiscoverPage, FeedItem } from '@/data/api/types';
@@ -40,6 +41,7 @@ function LoadingCard() {
  */
 export function FeedScreen() {
   const t = useTranslations('screens.play.feed');
+  const emptyCopy = useAdminCopy('feed_empty');
   const qc = useQueryClient();
   const status = useSessionStatus();
   const childId = status.data?.childId ?? null;
@@ -147,7 +149,7 @@ export function FeedScreen() {
           {null}
         </ScreenState>
       )}
-      {!loading && feed.data && total === 0 && <p className="py-10 text-center font-display text-xl text-muted">{t('empty')}</p>}
+      {!loading && feed.data && total === 0 && <p className="py-10 text-center font-display text-xl text-muted">{emptyCopy || t('empty')}</p>}
       {total > 0 && (
         <>
           <SnapFeed ariaLabel={t('label')} scroll="page" onActiveChange={onActiveChange}>

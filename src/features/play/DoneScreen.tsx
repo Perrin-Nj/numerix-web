@@ -11,6 +11,7 @@ import { MediaImage, heroOf } from '@/game/media-image';
 import { useStartChapter } from './useStartChapter';
 import { ChapterComplete } from '@/game/chapter-complete';
 import { MascotBubble } from '@/game/mascot-bubble';
+import { useAdminCopy } from '@/features/common/useAdminCopy';
 import { ScreenState } from '@/game/screen-state';
 import { Skeleton } from '@/ui/skeleton';
 import type { Reward } from '@/data/api/types';
@@ -37,6 +38,7 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
   const hero = w ? heroOf(w) : undefined;
   const { begin, dialog } = useStartChapter(childId);
   const rewards = useMemo(() => readRewards(sessionId), [sessionId]);
+  const doneCopy = useAdminCopy('session_done');
   const pick = usePickLine();
   const noCard = !rewards.some((r) => r.type === 'card_earned');
   const [appreciation] = useState(() => pick(noCard ? 'appreciation.miss' : 'appreciation.pass'));
@@ -75,6 +77,7 @@ export function DoneScreen({ sessionId }: { sessionId: string }) {
         </div>
       )}
       <MascotBubble pose={noCard ? 'think' : 'cheer'}>{appreciation}</MascotBubble>
+      {doneCopy && <p className="text-center font-display text-lg">{doneCopy}</p>}
       <ChapterComplete
         title={session.data?.story_title ?? undefined}
         rewards={rewards}

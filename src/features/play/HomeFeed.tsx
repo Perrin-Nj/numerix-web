@@ -13,6 +13,7 @@ import { useSpokenLine } from '@/platform/speech/useSpokenLine';
 import { ContinueCard } from '@/game/continue-card';
 import { DailyGoalRing } from '@/game/daily-goal-ring';
 import { MascotBubble } from '@/game/mascot-bubble';
+import { useAdminCopy } from '@/features/common/useAdminCopy';
 import { MenuTile } from '@/game/menu-tile';
 import { QuestCard } from '@/game/quest-card';
 import { StoryCard } from '@/game/story-card';
@@ -86,6 +87,7 @@ export function HomeFeed() {
   // Data loads on the client only, so reading storage here cannot mismatch the server render
   const tour = Boolean(childId && home.data && !tourDone && !localStorage.getItem(onboardingKey(childId)));
   const [giftLater, setGiftLater] = useState(false);
+  const tip = useAdminCopy('home_tip');
   const giftOn = usePublicConfig().data?.welcome_gift ?? true; // the admin can turn the gift off
   const giftOpen = appConfig.features.welcomeGift && giftOn && !giftLater && Boolean(d?.gift_available && !tour);
 
@@ -125,6 +127,7 @@ export function HomeFeed() {
         <div className="flex flex-col gap-5">
           <Reveal>
             <MascotBubble pose="greet">{greeting || ' '}</MascotBubble>
+            {tip && <p className="mt-2 text-center text-muted">{tip}</p>}
           </Reveal>
           <div id="tour-continue">
             <ContinueCard
