@@ -15,6 +15,7 @@ export function clipFor(m: VoiceManifest | null, lineId: string | undefined, lan
   return `${m.base ?? '/voice/'}${e.file}`;
 }
 
+/** Decides how a line is voiced: a human clip, the computer voice (parent opt-in only) or captions only. */
 export function planLine(a: {
   lineId?: string;
   lang: string;

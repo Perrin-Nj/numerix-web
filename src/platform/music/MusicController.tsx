@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useAudioSettings } from '@/platform/audio';
-import { usePublicConfig } from '@/data/hooks';
 import { usePrefs } from '@/platform/prefs/store';
 import { isDucked, onDuck } from './duck';
 import { MusicPlayer } from './player';
@@ -14,13 +13,11 @@ const saveData = () => (navigator as Navigator & { connection?: { saveData?: boo
  * Plays the background loops on child screens. Starts only after the first tap, follows the child's switch, the
  * parent's lock and the sound setting, pauses when the tab is hidden, and does nothing (no download) in data saver.
  */
-export function MusicController() {
+export function MusicController({ adminOn = true, trackIds = [] }: { adminOn?: boolean; trackIds?: string[] }) {
   const { music, musicVolume, musicLocked } = usePrefs();
   const { enabled: soundOn } = useAudioSettings();
-  // the admin's switch and track list (null config: nothing customised, music stays as the child set it)
-  const cfg = usePublicConfig().data;
-  const adminOn = cfg?.music.enabled ?? true;
-  const ids = cfg?.music.tracks.map((t) => t.id).join(',') ?? '';
+  // adminOn and trackIds come from the public config (the admin's switch and track list); empty list: all shipped tracks
+  const ids = trackIds.join(',');
   const player = useMemo(() => {
     const allowed = TRACKS.filter((t) => ids.split(',').includes(t.id));
     return new MusicPlayer(allowed.length ? allowed : TRACKS, MUSIC_BASE);

@@ -20,7 +20,8 @@ export function PlayShell({ children }: { children: ReactNode }) {
   const settings = useChildSettings(childId ?? '');
   const { setEnabled } = useAudioSettings();
   const maintenance = useMaintenance();
-  const discoverOn = usePublicConfig().data?.feed.discover_enabled ?? true;
+  const cfg = usePublicConfig().data;
+  const discoverOn = cfg?.feed.discover_enabled ?? true;
   useServerPrefsSync();
 
   // Follow the parent's sound choice
@@ -37,7 +38,7 @@ export function PlayShell({ children }: { children: ReactNode }) {
     <>
       <OfflineBanner />
       <MaintenanceBanner />
-      <MusicController />
+      <MusicController adminOn={cfg?.music.enabled ?? true} trackIds={cfg?.music.tracks.map((t) => t.id)} />
       <MusicToggle lifted={showNav} />
       <div className={showNav ? 'pb-24' : undefined}>{children}</div>
       {showNav && (

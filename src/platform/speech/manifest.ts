@@ -3,6 +3,7 @@ import type { VoiceManifest } from './plan';
 let cached: VoiceManifest | null = null;
 let loading: Promise<VoiceManifest> | null = null;
 
+/** The manifest already loaded, or null before the first load finishes. */
 export const getManifest = () => cached;
 
 /** Loads /voice/manifest.json once. Any failure gives an empty manifest (captions only), never an error. */
