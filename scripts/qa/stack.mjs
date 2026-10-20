@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 
 export const API_PORT = Number(process.env.QA_API_PORT ?? 8130), WEB_PORT = Number(process.env.QA_WEB_PORT ?? 3130);
 const FE = resolve(import.meta.dirname, '../..');
-const API_DIR = resolve(FE, '../numerix-api');
+const API_DIR = process.env.QA_API_DIR ?? resolve(FE, '../numerix-api');
 const OUT = resolve(import.meta.dirname, 'out');
 const DB = process.env.QA_DB ?? resolve(OUT, `qa-${API_PORT}.db`);
 const PIDS = resolve(OUT, `pids-${WEB_PORT}.json`);

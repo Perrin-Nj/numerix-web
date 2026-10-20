@@ -20,25 +20,24 @@ export function WelcomeGift({ open, card, onClaim, onLater }: WelcomeGiftProps) 
   return open ? <Gift card={card} onClaim={onClaim} onLater={onLater} /> : null;
 }
 
-/** The box stays on screen the whole time; on open the lid flies off and the rays burst. */
+/** Real photo of a wrapped gift. On open it lifts and melts away so the card can rise from the same spot. */
 function Box({ opened, reduced }: { opened: boolean; reduced: boolean }) {
   return (
-    <span aria-hidden className={cn('relative block size-full', !opened && !reduced && 'nx-gift-invite')}>
-      <span className="absolute inset-x-3 bottom-0 h-28 rounded-b-lg border-2 border-line bg-brand shadow-2" />
-      <span className="absolute bottom-0 left-1/2 h-28 w-8 -translate-x-1/2 bg-warning" />
-      {!(opened && reduced) && (
-        <span
-          className={cn(
-            'absolute inset-x-0 top-14 h-14 rounded-lg border-2 border-line bg-brand shadow-1',
-            opened && 'nx-gift-lid',
-            !opened && 'transition-transform duration-(--dur-3) ease-(--ease-spring) group-hover:-translate-y-2 group-hover:-rotate-3',
-          )}
-        >
-          <span className="absolute left-1/2 top-0 h-full w-8 -translate-x-1/2 bg-warning" />
-          <span className="absolute -top-6 left-1/2 size-12 -translate-x-1/2 rounded-full border-4 border-warning" />
-        </span>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/gift/welcome-gift.webp"
+      alt=""
+      aria-hidden
+      width={420}
+      height={405}
+      decoding="async"
+      fetchPriority="high"
+      className={cn(
+        'size-full rounded-3xl object-cover shadow-3',
+        !opened && !reduced && 'nx-gift-invite',
+        opened && (reduced ? 'opacity-0' : 'nx-gift-lid'),
       )}
-    </span>
+    />
   );
 }
 
@@ -54,21 +53,11 @@ function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
 
   useEffect(() => {
     if (!opened) return;
-    let cancelled = false;
     const timers = [
       setTimeout(() => play('card_earned'), reduced ? 0 : 1000),
       setTimeout(() => setReady(true), reduced ? 300 : 2000),
     ];
-    if (!reduced) {
-      import('canvas-confetti').then(({ default: confetti }) => {
-        if (cancelled) return;
-        const base = { ticks: 140, origin: { y: 0.55 }, disableForReducedMotion: true };
-        void confetti({ ...base, particleCount: 80, spread: 90, shapes: ['circle', 'square'] });
-        timers.push(setTimeout(() => void confetti({ ...base, particleCount: 45, spread: 120, startVelocity: 25, shapes: ['star'], scalar: 1.2 }), 650));
-      });
-    }
     return () => {
-      cancelled = true;
       timers.forEach(clearTimeout);
     };
   }, [opened, reduced, play]);
@@ -89,7 +78,7 @@ function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
   return (
     <D.Root open>
       <D.Portal>
-        <D.Overlay className="fixed inset-0 z-40 bg-bg/90" />
+        <D.Overlay className="fixed inset-0 z-40 bg-bg/95" />
         <D.Content
           onEscapeKeyDown={stop}
           onPointerDownOutside={stop}
@@ -99,7 +88,7 @@ function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
           <D.Title className="font-display text-3xl font-bold md:text-4xl">{t('title')}</D.Title>
           <D.Description className="text-lg text-muted">{opened ? t('opened') : t('hint')}</D.Description>
 
-          <div className="relative flex h-[19rem] w-52 items-end justify-center [perspective:900px]">
+          <div className="relative flex h-[19rem] w-64 items-end justify-center [perspective:900px]">
             {opened && !reduced && (
               <span aria-hidden className="nx-gift-rays pointer-events-none absolute bottom-6 left-1/2 size-96 -translate-x-1/2" />
             )}
@@ -117,7 +106,7 @@ function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
               </div>
             )}
             {opened ? (
-              <div className="relative size-48">
+              <div className="relative h-52 w-56">
                 <Box opened reduced={reduced} />
               </div>
             ) : (
@@ -125,7 +114,7 @@ function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
                 type="button"
                 aria-label={t('open')}
                 onClick={openGift}
-                className="lift group relative size-48 rounded-lg"
+                className="lift group relative h-52 w-56 rounded-3xl"
               >
                 <Box opened={false} reduced={reduced} />
               </button>
@@ -143,6 +132,15 @@ function Gift({ card, onClaim, onLater }: Omit<WelcomeGiftProps, 'open'>) {
               {t('claim')}
             </Button>
           )}
+
+          <a
+            className="text-sm text-muted underline underline-offset-4"
+            href="https://commons.wikimedia.org/wiki/File:Brown_gift_box_with_red_ribbon_and_bow.jpg"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('credit')}
+          </a>
 
           {line && (
             <MascotBubble pose={opened ? 'amazed' : 'greet'} className="max-w-sm text-start">

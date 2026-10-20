@@ -113,6 +113,23 @@ for (const [vp, [width, height]] of Object.entries(VPS)) {
   const childHref = kids.find((h) => /\/children\/[^/]+$/.test(h) && !/new/.test(h));
   const cid = childHref?.split('/').pop();
   for (const [n, u] of [['parent-child-new', '/parent/children/new'], ['parent-account', '/parent/account'], ['parent-subscription', '/parent/subscription'], ...(cid ? [['parent-child', `/parent/children/${cid}`], ['parent-consent', `/parent/children/${cid}/consent`], ['parent-report', `/parent/children/${cid}/report`], ['parent-settings', `/parent/children/${cid}/settings`]] : [])]) await visit(n, u);
+  // first run: a brand-new child whose welcome gift is still unclaimed (never claimed here, so the state can always be captured)
+  const fresh = { name: `Lea${vp}`, pin: '2468' };
+  const made = await page.evaluate(async ({ name, pin }) => {
+    const h = { 'content-type': 'application/json' };
+    const c = await fetch('/api/v1/children', { method: 'POST', headers: h, body: JSON.stringify({ display_name: name, grade: 3, avatar_id: 'owl', pin }) }).then((r) => r.json());
+    if (c.id) await fetch('/api/v1/auth/consent', { method: 'POST', headers: h, body: JSON.stringify({ child_id: c.id, version: '2026-10', accepted: true }) });
+    return c.id ?? null;
+  }, fresh);
+  if (made) {
+    await kidEnter(page, BASE, fresh.name, fresh.pin);
+    const dlg = () => page.getByRole('dialog').first();
+    const gate = async () => { if (!(await dlg().isVisible().catch(() => false))) results.push({ vp, name: 'first-run-gift', url: '/play/home', shot: '', ms: 0, lcp: 0, cls: 0, js: 0, img: 0, issues: [['first-run-gift-missing', 'P1', 'fresh child shows no welcome gift dialog']] }), console.log(`FAIL ${vp} first-run-gift missing`); };
+    await visit('first-run-gift', '/play/home', async () => { await page.getByRole('button', { name: /passer la visite|skip the tour/i }).first().click({ timeout: 3000 }).catch(() => {}); await dlg().waitFor({ timeout: 8000 }).catch(() => {}); await page.waitForTimeout(900); });
+    await gate();
+    await visit('first-run-gift-open', '/play/home', async () => { await page.getByRole('button', { name: /passer la visite|skip the tour/i }).first().click({ timeout: 3000 }).catch(() => {}); await page.getByRole('button', { name: /ouvrir le cadeau|open the gift/i }).click({ timeout: 8000 }); await page.waitForTimeout(3200); });
+    await page.evaluate((id) => fetch('/api/v1/children/' + id, { method: 'DELETE' }), made).catch(() => {});
+  } else console.log(`FAIL ${vp} could not create the first-run child`), results.push({ vp, name: 'first-run-gift', url: '', shot: '', ms: 0, lcp: 0, cls: 0, js: 0, img: 0, issues: [['first-run-child', 'P1', 'child creation failed']] });
   // kid
   await kidEnter(page, BASE);
   for (const [n, u] of [['play-home', '/play/home'], ['play-worlds', '/play/worlds'], ['play-feed', '/play/feed'], ['play-challenges', '/play/challenges'], ['play-collection', '/play/collection'], ['play-me', '/play/me'], ['play-quest', '/play/quest']]) await visit(n, u);

@@ -50,3 +50,16 @@ Rating: professional and photographic, playful through Numa and colour; the desk
 ## Not covered
 - Admin UI (none). Real-device iOS and Android, real TTS voice, real passkey hardware.
 - The first-visit tour covers the home screenshots; captured after "Passer la visite" in suites only.
+
+## Round 3 (2026-10-20, fix/qa-round2 3c933b2 + api 5ea5ff5)
+Closed: QA-BE-004, QA-BE-005, QA-A-008 (see QA_SIGNOFF.md). Gate: go test -count=3 1455 passed; sweep 0 P0, 0 P1, 253 P2; linkcheck 188/188; extra passes (locks, passkey, i18n, logout, credits).
+
+New open:
+| Id | Sev | Owner | Title | Repro | Test |
+|---|---|---|---|---|---|
+| QA-BE-006 | P0 | backend/A | Home "Jouer" is dead: `home.suggested` and `home.quest.skill_ids` hand out a skill that the BE-004 rule rejects (422 locked: prerequisites) for a new child. ui-checks (11), mobile-audit (1) and the flows nature chapter fail because of it | `node scripts/qa/extra.mjs <base>` "home suggestion starts" | extra.mjs (fails) |
+| QA-A-009 | P1 | A | Welcome gift overlay is a flat vector gift box, not photographic; not covered by the sweep | first login at 360, `/play/home` before claiming | add a sweep state with an unclaimed gift |
+
+P2 notes: voice-unavailable toast covers the answers at 360 (regress-strict, m360 science). `/feed` and `/feeds` return 404 (the real route is `/play/feed`): the owner's "Feeds Not Found" most likely comes from a typed or old address, so add redirects; every tab and link inside the app opens. Worlds meteo, robots and hiver have every chapter locked for a grade-4 child on the map, but the planner still starts a chapter from the world page.
+
+Welcome page weight (`node scripts/qa/weight.mjs`): `/` is 333 KB on the wire compressed (227 KB JS, 66 KB fonts, 19 KB CSS, 19 KB HTML), 1.4 MB of JS decompressed. About 7 s on 3G and heavy parsing on a low-end phone, fine on 4G or wifi. A high P2, not a P1: split zod and the tour library out of the first load.

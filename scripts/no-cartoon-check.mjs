@@ -37,6 +37,17 @@ function scan(p) {
 }
 walk(SRC);
 
+// First-run welcome gift (QA-A-009): must be a real raster photo that exists and is credited, never a CSS or SVG drawn box.
+{
+  const g = fs.readFileSync(path.join(SRC, 'game/welcome-gift/WelcomeGift.tsx'), 'utf8');
+  const photo = /src="(\/gift\/[\w-]+\.(?:webp|jpe?g))"/.exec(g)?.[1];
+  if (!photo) hits.push('game/welcome-gift/WelcomeGift.tsx: gift is not a /gift/*.webp photo');
+  else if (!fs.existsSync(path.join(ROOT, 'public', photo))) hits.push(`public${photo} is missing`);
+  else if (fs.statSync(path.join(ROOT, 'public', photo)).size > 60_000) hits.push(`public${photo} is over 60 KB`);
+  if (!/gift/i.test(fs.readFileSync(path.join(ROOT, 'LICENSES.md'), 'utf8'))) hits.push('LICENSES.md has no credit for the gift photo');
+  if (/border-2|<svg|rounded-b-lg/.test(g)) hits.push('game/welcome-gift/WelcomeGift.tsx: drawn box or heavy border');
+}
+
 const url = process.argv.includes('--url') ? process.argv[process.argv.indexOf('--url') + 1] : null;
 if (url) {
   for (const route of ['/play/worlds', '/play/home', '/play/credits']) {
