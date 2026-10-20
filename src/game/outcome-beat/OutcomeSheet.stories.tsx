@@ -43,3 +43,14 @@ export const WrongWithExplanation: Story = {
     explain: '8 + 7 = 8 + 2 + 5, donc 10 + 5.',
   },
 };
+
+/** Very long explanation on a phone: the text scrolls inside the sheet, Continue stays in view. */
+export const LongExplanation: Story = {
+  args: {
+    right: false,
+    line: 'Pas de souci, on repart sur un autre sentier.',
+    detail: '3 tas de 10 font 30. Avec 4 feuilles seules : 30 + 4 = 34.',
+    explain: 'Quand on additionne des dizaines et des unités, on garde les dizaines ensemble et on ajoute les unités à part, puis on regroupe le tout pour trouver le total. '.repeat(4),
+  },
+  globals: { viewport: { value: 'phone' } },
+};

@@ -14,7 +14,7 @@ const up = (u) => fetch(u, { signal: AbortSignal.timeout(2000) }).then((r) => r.
 mkdirSync(OUT, { recursive: true });
 
 if (process.argv.includes('--stop')) {
-  for (const pid of existsSync(PIDS) ? JSON.parse(readFileSync(PIDS, 'utf8')) : []) try { execSync(`taskkill /PID ${pid} /T /F`, { stdio: 'ignore' }); } catch {}
+  for (const pid of existsSync(PIDS) ? JSON.parse(readFileSync(PIDS, 'utf8')) : []) try { execSync(`taskkill /PID ${pid} /T /F`, { stdio: 'ignore' }); } catch { /* already stopped */ }
   process.exit(0);
 }
 const env = { ...process.env, PATH: `${process.env.PATH};C:\\Program Files\\Go\\bin` };

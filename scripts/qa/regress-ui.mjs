@@ -5,7 +5,7 @@ import { parentLogin, kidEnter } from '../lib/kid.mjs';
 const BASE = (process.argv[2] ?? 'http://localhost:3130').replace(/\/$/, '');
 const browser = await chromium.launch();
 let fails = 0;
-for (const [vp, w, h] of [['m360', 360, 740], ['t768', 768, 1024], ['d1280', 1280, 800]]) {
+for (const [vp, w, h] of [['m360', 360, 640], ['m390', 390, 844], ['t768', 768, 1024], ['d1280', 1280, 720], ['d1366', 1366, 768], ['d1920', 1920, 1080], ['z200', 640, 360]]) {
   const ctx = await browser.newContext({ locale: 'fr-CA', viewport: { width: w, height: h } });
   const page = await ctx.newPage();
   await parentLogin(page, BASE); await kidEnter(page, BASE);
@@ -16,13 +16,23 @@ for (const [vp, w, h] of [['m360', 360, 740], ['t768', 768, 1024], ['d1280', 128
       const node = await page.evaluate(async ([c, wd]) => (await (await fetch(`/api/v1/children/${c}/journey?world=${wd}`, { headers: { 'x-nx-mode': 'child' } })).json()).nodes[0], [childId, world]);
       const s = await page.evaluate(async ([c, k, wd]) => (await (await fetch(`/api/v1/children/${c}/sessions`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-nx-mode': 'child', 'idempotency-key': crypto.randomUUID() }, body: JSON.stringify({ world: wd, kind: 'chapter', skill_id: k }) })).json()), [childId, node.skill_id, world]);
       await page.goto(`${BASE}/play/session/${s.id}`, { waitUntil: 'domcontentloaded' });
-      const keypad = page.getByRole('button', { name: /^7$/ });
+      const keypad = page.getByRole('group', { name: 'Clavier numérique' });
       const idle = page.locator('main button[data-state=idle]').first();
-      await Promise.race([keypad.waitFor({ timeout: 15000 }), idle.waitFor({ timeout: 15000 })]);
-      if (await keypad.count()) { await keypad.click(); await page.getByRole('button', { name: /vérifier|suivant/i }).first().click(); } else await idle.click();
+      const order = page.getByRole('group', { name: 'Cartes à placer' });
+      const match = page.locator('ul[aria-label="Cartes de gauche"] button:not([disabled])');
+      await Promise.any([keypad.waitFor({ timeout: 15000 }), idle.waitFor({ timeout: 15000 }), order.waitFor({ timeout: 15000 }), match.first().waitFor({ timeout: 15000 })]);
+      const verify = () => page.getByRole('button', { name: /vérifier|suivant/i }).first().click({ timeout: 4000 }).catch(() => {});
+      if (await keypad.count()) { await keypad.getByRole('button', { name: /^7$/ }).click(); await verify(); }
+      else if (await order.count()) { while (await order.getByRole('button').count()) await order.getByRole('button').last().click(); await verify(); }
+      else if (await match.count()) {
+        const k = await match.count();
+        for (let i = 0; i < k; i++) { await page.locator('ul[aria-label="Cartes de gauche"] button').nth(i).click(); await page.locator('ul[aria-label="Cartes de droite"] button').nth(k - 1 - i).click(); }
+        await verify();
+      } else await idle.click();
       const cont = page.getByRole('button', { name: /^continuer$/i });
       await cont.waitFor({ timeout: 8000 });
       await page.waitForTimeout(700);
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight)); // a phone sheet may only hide content the child can scroll to
       const bad = await page.evaluate(() => {
         const btn = [...document.querySelectorAll('button')].find((b) => /^continuer$/i.test(b.textContent.trim()));
         let sheet = btn; // nearest fixed/sticky/absolute ancestor = the feedback sheet
@@ -30,7 +40,9 @@ for (const [vp, w, h] of [['m360', 360, 740], ['t768', 768, 1024], ['d1280', 128
         const sr = sheet.getBoundingClientRect(); const hits = [];
         const hit = (r) => r.width > 0 && r.height > 0 && r.left < sr.right && r.right > sr.left && r.top < sr.bottom - 2 && r.bottom > sr.top + 2;
         for (const e of document.querySelectorAll('main h1,main h2,main p,main [role=group] button,main button[data-state]')) {
-          if (sheet.contains(e)) continue; const r = e.getBoundingClientRect();
+          // collapsed (inert) answers are not content
+          if (sheet.contains(e) || e.closest('[inert]')) continue;
+          const r = e.getBoundingClientRect();
           if (hit(r) && (e.textContent || '').trim()) hits.push(`${e.tagName} "${e.textContent.trim().slice(0, 30)}"`);
         }
         return hits.slice(0, 4);

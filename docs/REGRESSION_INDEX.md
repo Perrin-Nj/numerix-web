@@ -4,7 +4,7 @@ Every defect gets a test that fails before the fix and passes after. All tests b
 
 | Defect | Test | Route / endpoint | Added | State |
 |---|---|---|---|---|
-| QA-A-001 feedback sheet covers question | `scripts/qa/regress-ui.mjs` | /play/session/[id], 3 viewports x 4 worlds | 2026-10-19 | failing (open) |
+| QA-A-001 feedback sheet covers question | `scripts/qa/regress-ui.mjs` | /play/session/[id], 7 viewports (360x640 to 1920x1080, 200% zoom) x 4 worlds | 2026-10-19 | fixed, passing |
 | QA-A-002 emoji art in kid screens | `scripts/qa/sweep.mjs` kind `emoji` | all routes | 2026-10-19 | failing (open) |
 | QA-A-003 flat vector illustrations | `scripts/qa/sweep.mjs` kind `flat-vector-svg`, `svg-image-art` | all routes | 2026-10-19 | failing (open) |
 | QA-A-004 heavy button borders (>= 2 px) | `scripts/qa/sweep.mjs` kind `heavy-button-border` | all routes | 2026-10-19 | failing (open) |

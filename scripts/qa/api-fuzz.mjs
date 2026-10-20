@@ -7,7 +7,7 @@ const T = {};
 async function call(method, path, { body, token, raw, headers = {} } = {}) {
   calls++;
   const res = await fetch(API + path, { method, headers: { ...(raw === undefined ? { 'content-type': 'application/json' } : { 'content-type': 'application/json' }), ...(token ? { authorization: `Bearer ${token}` } : {}), 'x-forwarded-for': headers['x-forwarded-for'] ?? '10.9.8.7', ...headers }, body: raw ?? (body ? JSON.stringify(body) : undefined) });
-  const text = await res.text(); let json = null; try { json = JSON.parse(text); } catch {}
+  const text = await res.text(); let json = null; try { json = JSON.parse(text); } catch { /* not JSON */ }
   if (res.status >= 500) five.push(`${res.status} ${method} ${path} ${text.slice(0, 80)}`);
   return { status: res.status, json, text, ct: res.headers.get('content-type') ?? '', h: res.headers };
 }
