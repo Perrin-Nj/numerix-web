@@ -97,6 +97,8 @@ for (const locale of ['fr-CA', 'en-CA']) {
   // The first-visit tour would cover the tabs: mark it done for this kid
   const childId = (await (await page.request.get(`${BASE}/api/session`)).json()).childId;
   await page.evaluate((id) => localStorage.setItem(`nx:onboarding:${id}`, 'done'), childId);
+  // The welcome gift is a modal until it is claimed: claim it once so it never covers the tabs
+  await page.evaluate((c) => fetch(`/api/v1/children/${c}/gift/claim`, { method: 'POST', headers: { 'x-nx-mode': 'child', 'idempotency-key': crypto.randomUUID() } }), childId);
   const worlds = await page.evaluate(async () => { const w = await (await fetch('/api/v1/worlds', { headers: { 'x-nx-mode': 'child' } })).json(); return (w.items ?? w.worlds ?? w).map((x) => x.id); });
   const kidRoutes = ['/play/home', '/play/worlds', '/play/feed', '/play/collection', '/play/me', '/play/challenges', '/play/quest', '/credits', ...(worlds[0] ? [`/play/journey/${worlds[0]}`] : [])];
   for (const p of kidRoutes) {

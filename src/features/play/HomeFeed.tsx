@@ -17,7 +17,7 @@ import { MenuTile } from '@/game/menu-tile';
 import { QuestCard } from '@/game/quest-card';
 import { StoryCard } from '@/game/story-card';
 import { StreakBadge } from '@/game/streak-badge';
-import { WelcomeGift } from '@/game/welcome-gift';
+import dynamic from 'next/dynamic';
 import { WorldTeaser } from '@/game/world-teaser';
 import { GuidedTour } from '@/ui/guided-tour';
 import { ScreenState } from '@/game/screen-state';
@@ -25,6 +25,8 @@ import { Reveal } from '@/ui/reveal';
 import { Skeleton } from '@/ui/skeleton';
 import { ThemeToggle } from '@/ui/theme-toggle';
 
+// The gift dialog (Radix Dialog, confetti) is only needed when a gift is waiting: not part of the first load
+const WelcomeGift = dynamic(() => import('@/game/welcome-gift').then((m) => m.WelcomeGift));
 const onboardingKey = (id: string) => `nx:onboarding:${id}`;
 
 /** The child's home: one normal page scroll, a clear primary action, and a menu with more to do. */
@@ -180,7 +182,7 @@ export function HomeFeed() {
           { target: '#tour-worlds', title: t('tour.worldsTitle'), description: t('tour.worlds') },
         ]}
       />
-      <WelcomeGift open={giftOpen} card={{ id: 'welcome', world: 'nature', title: t('giftCard') }} onClaim={() => claim.mutate()} onLater={() => setGiftLater(true)} />
+      {giftOpen && <WelcomeGift open card={{ id: 'welcome', world: 'nature', title: t('giftCard') }} onClaim={() => claim.mutate()} onLater={() => setGiftLater(true)} />}
     </main>
   );
 }
