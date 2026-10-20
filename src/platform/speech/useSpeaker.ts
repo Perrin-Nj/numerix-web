@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocale } from 'next-intl';
 import { useAudioSettings } from '@/platform/audio';
+import { setDucked } from '@/platform/music/duck';
 import { getPrefs, usePrefs } from '@/platform/prefs/store';
 import { pickVoice } from './voices';
 import { spokenText } from './spoken';
@@ -92,6 +93,7 @@ export function useSpeaker(defaultLang?: string) {
     queued.current = null;
     setPending(false);
     setSpeaking(false);
+    setDucked(false);
   }, []);
   useEffect(() => cancel, [cancel]);
   useEffect(() => {
@@ -160,6 +162,7 @@ export function useSpeaker(defaultLang?: string) {
       u.pitch = 1.05;
       u.volume = Math.min(1, Math.max(0, o.volume ?? 1));
       const done = () => {
+        setDucked(false);
         if (keep.current === u) {
           keep.current = null;
           setSpeaking(false);
@@ -171,6 +174,7 @@ export function useSpeaker(defaultLang?: string) {
       window.speechSynthesis.cancel();
       keep.current = u;
       setSpeaking(true);
+      setDucked(true);
       window.speechSynthesis.speak(u);
       return true;
     },

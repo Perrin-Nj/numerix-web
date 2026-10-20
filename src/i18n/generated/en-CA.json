@@ -1252,6 +1252,23 @@
       ]
     }
   },
+  "music": {
+    "toggleOn": "Turn the music off",
+    "toggleOff": "Turn the music on",
+    "switch": "Calm music while I play",
+    "switchHint": "Soft background music. You can turn it off any time.",
+    "volume": "Music volume",
+    "low": "Soft",
+    "medium": "Medium",
+    "parentLock": "Allow background music",
+    "parentLockHint": "When off, the music stays off for every child on this device.",
+    "creditsTitle": "Music",
+    "creditsIntro": "Calm tracks played while children learn.",
+    "by": "by {artist}",
+    "licence": "Licence: {licence}",
+    "source": "Source",
+    "licenceLink": "Licence text"
+  },
   "ui": {
     "banner": {
       "dismiss": "Hide message"
