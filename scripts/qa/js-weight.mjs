@@ -12,7 +12,14 @@ async function measure(ctx, path) {
   const cdp = await ctx.newCDPSession(page);
   await cdp.send('Network.enable');
   const js = new Map();
-  cdp.on('Network.responseReceived', (e) => { if (e.type === 'Script') js.set(e.requestId, { dec: 0, wire: 0 }); });
+  // the service worker takes over mid-load and replays scripts: count each URL once (the first request wins)
+  const byUrl = new Map();
+  cdp.on('Network.responseReceived', (e) => {
+    if (e.type !== 'Script' || byUrl.has(e.response.url)) return;
+    const j = { dec: 0, wire: 0 };
+    byUrl.set(e.response.url, j);
+    js.set(e.requestId, j);
+  });
   cdp.on('Network.dataReceived', (e) => { const j = js.get(e.requestId); if (j) j.dec += e.dataLength; });
   cdp.on('Network.loadingFinished', (e) => { const j = js.get(e.requestId); if (j) j.wire = e.encodedDataLength; });
   await page.addInitScript(() => {
@@ -24,7 +31,7 @@ async function measure(ctx, path) {
   await page.waitForTimeout(1200);
   const m = await page.evaluate(() => window.__m);
   await page.close();
-  const all = [...js.values()];
+  const all = [...byUrl.values()];
   return { path, dec: all.reduce((a, j) => a + j.dec, 0) / 1024, wire: all.reduce((a, j) => a + j.wire, 0) / 1024, lcp: m.lcp, cls: m.cls };
 }
 
