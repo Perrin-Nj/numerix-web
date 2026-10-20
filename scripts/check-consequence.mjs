@@ -2,38 +2,57 @@
 import assert from 'node:assert/strict';
 import { FAMILIES, SCENES, SCENE_BY_ID, familyOf } from '../src/game/consequence/catalog.ts';
 import { createSim, settle } from '../src/game/consequence/sim.ts';
+import { amountOf, rightAmount, numberOf } from '../src/game/consequence/amounts.ts';
 import { pickScene, mergeHistory } from '../src/game/consequence/picker.ts';
 
 // library: 8 families, at least 6 wrong and 6 right each
 for (const f of FAMILIES) for (const good of [true, false]) assert.ok(SCENES.filter((s) => s.family === f && s.good === good).length >= 6, `${f} ${good}`);
 assert.equal(SCENES.length, 96);
 
-// rigid-body scenes: the outcome comes out of the simulation. Right answer: it works and rests. Wrong answer: it visibly does not.
+// rigid-body scenes: the outcome comes out of the simulation. Right answer: it works and rests. Wrong answer: the failure itself happens,
+// sized by the child's real answer (more or less than the right one, small or large numbers).
+const PAIRS = [[4, 5], [4, 3], [6, 9], [8, 5], [3, 7], [5, 2], [2, 1], [7, 11], [42, 47], [347, 374], [120, 96], [2.5, 1.5], [12, 3], [9, 30]];
+const RIGHTS = [2, 3, 4, 5, 6, 7, 8, 42, 120];
+// amounts: the drawn right and wrong sizes are never equal and stay in range
+for (const [r, g] of PAIRS) {
+  const A = amountOf(r, g);
+  assert.ok(A.a >= 2 && A.a <= 8 && A.b >= 1 && A.b <= A.a + 4 && A.a !== A.b && A.over === (g > r), `amount ${r},${g} -> ${JSON.stringify(A)}`);
+}
+assert.deepEqual([amountOf('7', '9').a, amountOf([5, 1], 4).over, numberOf('3,5')], [7, false, 3.5]);
 let worstStep = 0;
 let capped = 0;
-for (const s of SCENES) for (const n of [3, 4, 5, 6]) {
-  const a = createSim(s.rig, s.good, n, s.id);
+const slow = [];
+let runs = 0;
+const jobs = [];
+for (const s of SCENES) {
+  if (s.good) for (const r of RIGHTS) jobs.push([s, rightAmount(r), `right ${r}`]);
+  else for (const [r, g] of PAIRS) jobs.push([s, amountOf(r, g), `${r} vs ${g}`]);
+}
+for (const [s, A, label] of jobs) {
+  const a = createSim(s.rig, s.good, A, s.id);
   while (!a.settled) {
     const t0 = performance.now();
     a.step();
     worstStep = Math.max(worstStep, performance.now() - t0);
   }
-  assert.equal(a.verdict(), s.good, `${s.id} n=${n}: the simulation ended ${a.verdict() ? 'right' : 'wrong'}`);
-  if (a.frame >= 420) capped++;
+  runs++;
+  assert.equal(a.verdict(), s.good, `${s.id} (${label}): the simulation ended ${a.verdict() ? 'right' : 'wrong'}`);
+  if (!s.good) assert.ok(a.emerged(), `${s.id} (${label}): the failure did not happen in the simulation`);
+  if (a.frame >= 420) { capped++; slow.push(`${s.rig}.${s.good ? 'ok' : 'ko'} ${label}`); }
   for (const p of a.pieces) {
     const q = a.pose(p);
     if (!q) continue;
     assert.ok(Object.values(q).every(Number.isFinite), `${s.id} ${p.id} not finite`);
-    assert.ok(q.x > -6 && q.x < 106 && q.y < 60, `${s.id} n=${n} ${p.id} left the stage at ${q.x.toFixed(1)},${q.y.toFixed(1)}`);
+    assert.ok(q.x > -6 && q.x < 106 && q.y < 60, `${s.id} (${label}) ${p.id} left the stage at ${q.x.toFixed(1)},${q.y.toFixed(1)}`);
   }
   // same scene, same seed, same ending
-  if (n === 4) {
-    const b = settle(createSim(s.rig, s.good, n, s.id));
+  if (label === '4 vs 5' || label === 'right 4') {
+    const b = settle(createSim(s.rig, s.good, A, s.id));
     assert.deepEqual(a.pieces.map((p) => a.pose(p)), b.pieces.map((p) => b.pose(p)), `${s.id} not repeatable`);
   }
 }
-assert.equal(capped, 0, `${capped} runs never came to rest before the 7 s cap`);
-console.log(`     worst single physics step ${worstStep.toFixed(1)} ms on this machine; ${capped} of ${SCENES.length * 4} runs cut at 7 s`);
+assert.equal(capped, 0, `${capped} of ${runs} runs never came to rest before the 7 s cap: ${[...new Set(slow)].slice(0, 12).join(', ')}`);
+console.log(`     ${runs} runs, worst single physics step ${worstStep.toFixed(1)} ms on this machine; ${capped} cut at 7 s`);
 
 // picker: 200 simulated answers over random families, never the same scene twice in a row, and each pool cycles fully before reuse
 let seedv = 7;
