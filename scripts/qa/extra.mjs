@@ -59,6 +59,7 @@ for (const [loc, bad, name] of [['en-CA', FR, 'English'], ['fr-CA', EN, 'French'
   const start = (w, k) => page.evaluate(async ([c, wd, sk]) => { const x = await fetch(`/api/v1/children/${c}/sessions`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-nx-mode': 'child', 'idempotency-key': crypto.randomUUID() }, body: JSON.stringify({ world: wd, kind: 'chapter', skill_id: sk }) }); return `${x.status} ${(await x.text()).slice(0, 80)}`; }, [childId, w, k]);
   if (home.suggested?.skill_id) { const r = await start(home.suggested.world, home.suggested.skill_id); ok(`home suggestion ${home.suggested.skill_id} starts (Play button)`, r.startsWith('201'), r); }
   const q = home.quest;
+  await page.waitForTimeout(4000); // the start-session limiter answers 429 (retry after 3 s) right after the previous start
   if (q?.skill_ids?.length && home.suggested?.world) { const r = await start(home.suggested.world, q.skill_ids[0]); ok(`daily quest ${q.skill_ids[0]} starts`, r.startsWith('201') || /409|session/.test(r), r); }
   await ctx.close();
 }

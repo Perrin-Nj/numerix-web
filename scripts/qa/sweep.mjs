@@ -129,6 +129,7 @@ for (const [vp, [width, height]] of Object.entries(VPS)) {
     await gate();
     await visit('first-run-gift-open', '/play/home', async () => { await page.getByRole('button', { name: /passer la visite|skip the tour/i }).first().click({ timeout: 3000 }).catch(() => {}); await page.getByRole('button', { name: /ouvrir le cadeau|open the gift/i }).click({ timeout: 8000 }); await page.waitForTimeout(3200); });
     await page.evaluate((id) => fetch('/api/v1/children/' + id, { method: 'DELETE' }), made).catch(() => {});
+    await page.context().clearCookies({ name: 'nx_child' }); // the deleted child's token would make every play page ask for its (gone) settings
   } else console.log(`FAIL ${vp} could not create the first-run child`), results.push({ vp, name: 'first-run-gift', url: '', shot: '', ms: 0, lcp: 0, cls: 0, js: 0, img: 0, issues: [['first-run-child', 'P1', 'child creation failed']] });
   // kid
   await kidEnter(page, BASE);

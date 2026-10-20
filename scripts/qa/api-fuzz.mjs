@@ -49,7 +49,12 @@ r = await call('POST', `/children/${kid}/token`, { token: T.parent, body: { pin:
 r = await call('POST', '/children', { token: T.child, body: { display_name: 'X', grade: 2, avatar_id: 'owl', pin: '1234' } }); ok('child token cannot create child 403', r.status === 403, `${r.status}`);
 r = await call('GET', '/children', { token: T.child }); ok('child token cannot list family 403', r.status === 403, `${r.status}`);
 r = await call('GET', `/children/${kid}/export`, { token: T.child }); ok('child token cannot export 403', r.status === 403, `${r.status}`);
-r = await call('PUT', `/children/${kid}/settings`, { token: T.child, body: { daily_minutes: 999 } }); ok('child token cannot change settings 403/405', [403, 405].includes(r.status), `${r.status}`);
+// R3: a child may switch its own music and voice (merged server side); every other field, and the parent lock, are ignored or refused
+const sBefore = (await call('GET', `/children/${kid}/settings`, { token: T.child })).json;
+r = await call('PUT', `/children/${kid}/settings`, { token: T.child, body: { ...sBefore, daily_goal_chapters: 5, enabled_worlds: ['nature'], music: { enabled: false, volume: 11, parent_locked: true }, voice: { human_enabled: false, computer_voice: true } } });
+const sAfter = (await call('GET', `/children/${kid}/settings`, { token: T.child })).json;
+ok('child token cannot change goal, worlds, parent lock or computer voice', [403, 405].includes(r.status) || (r.status === 200 && sAfter.daily_goal_chapters === sBefore.daily_goal_chapters && sAfter.enabled_worlds.length === sBefore.enabled_worlds.length && sAfter.music.parent_locked === false && sAfter.voice.computer_voice === false), `${r.status} ${JSON.stringify(sAfter).slice(0, 120)}`);
+ok('child token can switch its own music and human voice', r.status !== 200 || (sAfter.music.enabled === false && sAfter.music.volume === 11 && sAfter.voice.human_enabled === false), JSON.stringify(sAfter.music));
 r = await call('POST', `/children/${kid}/sessions`, { token: T.parent, body: { world: 'nature', kind: 'chapter' }, headers: { 'idempotency-key': crypto.randomUUID() } }); ok('parent token cannot start a session 403', r.status === 403, `${r.status}`);
 // other family
 r = await call('POST', '/auth/register', { body: { email: email(), password: 'correct-horse-battery', locale: 'fr-CA' }, headers: ip() }); const other = r.json?.access_token;
