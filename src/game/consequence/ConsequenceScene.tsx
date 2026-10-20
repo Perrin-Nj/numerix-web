@@ -47,6 +47,8 @@ export type ConsequenceSceneProps = {
   amount?: Amount;
   /** False draws the finished picture, no sound. */
   playing?: boolean;
+  /** True: run the simulation without drawing it and show the resting picture (admin kill switch for physics, like reduced motion). */
+  still?: boolean;
   /** Fires when everything came to rest (at once under reduced motion) or the child taps to skip. */
   onDone?: () => void;
   showCaption?: boolean;
@@ -58,7 +60,7 @@ export type ConsequenceSceneProps = {
  * constraints on a fixed 1/60 s step, and the outcome comes out of it. The loop stops when everything is at rest.
  * Reduced motion runs the same simulation without drawing and shows the resting picture. Numa reacts bottom right.
  */
-export function ConsequenceScene({ sceneId, world, amount, playing = true, onDone, showCaption = true, className }: ConsequenceSceneProps) {
+export function ConsequenceScene({ sceneId, world, amount, playing = true, still = false, onDone, showCaption = true, className }: ConsequenceSceneProps) {
   const t = useTranslations('game.consequence');
   const locale = useLocale();
   const goo = `nx-goo-${useId().replace(/:/g, '')}`;
@@ -86,7 +88,7 @@ export function ConsequenceScene({ sceneId, world, amount, playing = true, onDon
       const s = createSim(def.rig, def.good, amount ?? amountOf(), def.id);
       setSim(s);
       // ask again here: the hook reads the setting after the first paint and no motion may start at all under reduced motion
-      const calm = !playing || reduced || window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduced';
+      const calm = !playing || still || reduced || window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'reduced';
       const paint = () =>
         s.pieces.forEach((p, i) => {
           const el = els.current[i];
@@ -143,7 +145,7 @@ export function ConsequenceScene({ sceneId, world, amount, playing = true, onDon
       live = false;
       cancelAnimationFrame(raf);
     };
-  }, [def, amount, playing, reduced, play]);
+  }, [def, amount, playing, still, reduced, play]);
   if (!def) return null;
   const A = amount ?? amountOf();
   const fmt = (n: number | null) => (n === null ? '' : new Intl.NumberFormat(locale).format(Math.abs(n)));

@@ -21,6 +21,7 @@ import {
   resumeSession,
   sendAnswer,
   useChildSettings,
+  usePublicConfig,
   useSessionStatus,
 } from '@/data/hooks';
 import { MascotBubble } from '@/game/mascot-bubble';
@@ -30,7 +31,7 @@ import { QuestionSwap } from '@/game/question-swap';
 import { QuestionVisual } from '@/game/question-visual';
 import { LessonProgress } from '@/game/lesson-progress';
 import { IllustrationFrame } from '@/game/illustration-frame';
-import { ConsequenceScene, useConsequence } from '@/game/consequence';
+import { ConsequenceScene, loadVariantHistory, mergeHistory, useConsequence } from '@/game/consequence';
 import { MethodVisual } from '@/game/method-visual';
 import { ScenePicture } from '@/game/scene-picture';
 import { useCoach } from '@/platform/coach/useCoach';
@@ -88,6 +89,12 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const status = useSessionStatus();
   const settings = useChildSettings(status.data?.childId ?? '');
   const [s, dispatch] = useReducer(storyReducer, initialStoryState);
+  const publicCfg = usePublicConfig().data;
+  // latest session, read when an answer is sent (variant_history goes with it)
+  const sessionRef = useRef<{ variant_history?: string[] | null } | null>(null);
+  useEffect(() => {
+    sessionRef.current = s.session as { variant_history?: string[] | null } | null;
+  });
   const [attempt, setAttempt] = useState(0);
   const [pauseOpen, setPauseOpen] = useState(false);
   const [exitOpen, setExitOpen] = useState(false);
@@ -220,7 +227,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     async (value: AnswerValue, key: string) => {
       if (!beatId) return;
       try {
-        const result = await sendAnswer(sessionId, beatId, value, key);
+        const result = await sendAnswer(sessionId, beatId, value, key, mergeHistory(loadVariantHistory(sessionId), sessionRef.current?.variant_history));
         dispatch({ type: 'ANSWER_RESULT', result });
         // Start the next question while the child reads the feedback. A failure here resurfaces, with a retry, on Continue.
         if (result.session.status !== 'completed') {
@@ -403,7 +410,8 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     outcome: s.outcome,
     skillId: s.beat?.skill_id,
     visualKind: q?.visual?.kind,
-    sceneKey: (s.beat as { scene_key?: string | null } | null)?.scene_key,
+    sceneKey: s.sceneKey ?? (s.beat as { scene_key?: string | null } | null)?.scene_key,
+    rules: publicCfg?.scenes,
     correct: s.correctAnswer,
     chosen: s.chosen,
     serverHistory: (s.session as { variant_history?: string[] | null } | null)?.variant_history,
@@ -465,7 +473,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                 <MethodVisual visual={s.methodVisual} />
               ) : s.beat && outcomeStage ? (
                 <div className="relative flex size-full items-center justify-center">
-                  {consequence && <ConsequenceScene sceneId={consequence.sceneId} amount={consequence.amount} world={world} showCaption={step >= 1} onDone={skipAhead} />}
+                  {consequence && <ConsequenceScene sceneId={consequence.sceneId} amount={consequence.amount} world={world} still={publicCfg?.scenes.physics_enabled === false} showCaption={step >= 1} onDone={skipAhead} />}
                   {s.outcome !== 'correct' && !reduced && step >= 1 && <Dust />}
                 </div>
               ) : s.beat && q?.visual ? (

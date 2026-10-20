@@ -1,6 +1,7 @@
 'use client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiMode, unwrap } from '@/data/api/client';
+import type { components } from '@/data/api/schema';
 import type {
   CheckoutRequest,
   CheckoutResult,
@@ -131,3 +132,40 @@ export function usePlatformPublic(enabled = true) {
 
 /** BE-26. Used by `subscribeToPush`; kept here so every platform call shares one error path. */
 export const postPushSubscription = (subscription: PushSubscriptionJSON) => call<unknown>('POST', '/push/subscribe', subscription);
+
+/** GET /config/public: what the admin controls at runtime (music, voice, scenes, flags, maintenance). */
+export type AppPublicConfig = components['schemas']['AppPublicConfig'];
+const CFG_CACHE = 'nx.public-config';
+
+/**
+ * Query for the admin-controlled app config. The server answers with max-age=60, so it is cached 60 s here. If the call
+ * fails the last good copy kept in localStorage is used, then null: every reader must treat null as "nothing
+ * customised" (music on, nothing blocked).
+ */
+export function usePublicConfig() {
+  return useQuery({
+    queryKey: ['public-config'] as const,
+    staleTime: 60_000,
+    refetchInterval: 120_000, // a closed screen reopens by itself when the admin ends maintenance
+    retry: false,
+    queryFn: async (): Promise<AppPublicConfig | null> => {
+      try {
+        const cfg = await call<AppPublicConfig>('GET', '/config/public');
+        try {
+          localStorage.setItem(CFG_CACHE, JSON.stringify(cfg));
+        } catch {
+          /* private window: no cache */
+        }
+        return cfg;
+      } catch {
+        try {
+          // a stale copy must never keep the app closed: maintenance is dropped from the fallback
+          const old = JSON.parse(localStorage.getItem(CFG_CACHE) ?? 'null') as AppPublicConfig | null;
+          return old && { ...old, maintenance: { ...old.maintenance, enabled: false, block_play: false } };
+        } catch {
+          return null;
+        }
+      }
+    },
+  });
+}

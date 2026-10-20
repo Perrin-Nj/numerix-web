@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useAudioSettings } from '@/platform/audio';
+import { usePublicConfig } from '@/data/hooks';
 import { usePrefs } from '@/platform/prefs/store';
 import { isDucked, onDuck } from './duck';
 import { MusicPlayer } from './player';
@@ -16,7 +17,14 @@ const saveData = () => (navigator as Navigator & { connection?: { saveData?: boo
 export function MusicController() {
   const { music, musicVolume, musicLocked } = usePrefs();
   const { enabled: soundOn } = useAudioSettings();
-  const player = useMemo(() => new MusicPlayer(TRACKS, MUSIC_BASE), []);
+  // the admin's switch and track list (null config: nothing customised, music stays as the child set it)
+  const cfg = usePublicConfig().data;
+  const adminOn = cfg?.music.enabled ?? true;
+  const ids = cfg?.music.tracks.map((t) => t.id).join(',') ?? '';
+  const player = useMemo(() => {
+    const allowed = TRACKS.filter((t) => ids.split(',').includes(t.id));
+    return new MusicPlayer(allowed.length ? allowed : TRACKS, MUSIC_BASE);
+  }, [ids]);
   const [unlocked, setUnlocked] = useState(false);
   const [visible, setVisible] = useState(true);
   const [ducked, setDucked] = useState(isDucked);
@@ -38,8 +46,8 @@ export function MusicController() {
   }, []);
 
   useEffect(() => {
-    player.sync(shouldPlay({ music, locked: musicLocked, soundOn, unlocked, visible, saveData: saveData() }), musicVolume, ducked);
-  }, [player, music, musicLocked, soundOn, unlocked, visible, musicVolume, ducked]);
+    player.sync(shouldPlay({ music: music && adminOn, locked: musicLocked, soundOn, unlocked, visible, saveData: saveData() }), musicVolume, ducked);
+  }, [player, music, adminOn, musicLocked, soundOn, unlocked, visible, musicVolume, ducked]);
 
   useEffect(() => () => player.sync(false, 0, false), [player]);
   return null;

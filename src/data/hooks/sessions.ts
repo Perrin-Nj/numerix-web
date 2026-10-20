@@ -40,11 +40,12 @@ export function requestBeat(sessionId: string) {
  * Submits the child's answer to a beat and returns the grading, outcome and rewards. The caller supplies the
  * idempotency key so a network retry of the same answer is not counted twice.
  */
-export function sendAnswer(sessionId: string, beatId: string, answer: AnswerValue, key: string) {
+export function sendAnswer(sessionId: string, beatId: string, answer: AnswerValue, key: string, variantHistory?: readonly string[]) {
   return unwrap(
     api.POST('/sessions/{sessionId}/beats/{beatId}/answer', {
       params: { path: { sessionId, beatId }, header: { 'Idempotency-Key': key } },
-      body: { answer },
+      // the last 30 scene ids the child saw, so the server keeps the no-repeat rule across reloads and devices
+      body: { answer, ...(variantHistory?.length ? { variant_history: variantHistory.slice(-30) } : {}) },
     }),
   );
 }

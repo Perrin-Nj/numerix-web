@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { signOut } from '@/data/hooks';
 import { OfflineBanner } from '@/features/common/OfflineBanner';
+import { MaintenanceBanner } from '@/features/common/Maintenance';
 import { NotificationCenterBell } from '@/features/common/NotificationCenterBell';
 import { SubscriptionPill } from '@/features/common/SubscriptionPill';
 import { ParentFooter } from './ParentFooter';
@@ -56,6 +57,7 @@ export function ParentPage({ title, backHref, wide, children }: Props) {
         }
       />
       <OfflineBanner />
+      <MaintenanceBanner />
       <main>
         <PageContainer width={wide ? 'wide' : 'default'}>
           {/* min height keeps the footer below the fold while content loads, so it never jumps */}

@@ -6,7 +6,8 @@ import { usePrefs } from '@/platform/prefs/store';
 import { useSpeaker } from '@/platform/speech';
 import { useCountUp } from '@/platform/motion';
 import { reportError } from '@/platform/errors/bridge';
-import { signOut, useChildSettings, useEngagement, useGrowth, useSessionStatus } from '@/data/hooks';
+import { signOut, useChildSettings, useEngagement, useGrowth, usePublicConfig, useSessionStatus } from '@/data/hooks';
+import { useSaveKidPrefs } from './useServerPrefs';
 import { useLocale } from 'next-intl';
 import { useChildProfile } from '@/data/local/who';
 import { Avatar } from '@/game/avatar';
@@ -84,12 +85,14 @@ function VoicePanel() {
   const prefs = usePrefs();
   const sp = useSpeaker();
   const tm = useTranslations('music');
+  const save = useSaveKidPrefs();
+  const adminMusic = usePublicConfig().data?.music.enabled ?? true;
   return (
     <Panel title={t('title')}>
       <div className="flex flex-col gap-4">
-        {!prefs.musicLocked && (
+        {!prefs.musicLocked && adminMusic && (
           <>
-            <Switch label={tm('switch')} description={tm('switchHint')} checked={prefs.music} onCheckedChange={(music) => prefs.set({ music })} />
+            <Switch label={tm('switch')} description={tm('switchHint')} checked={prefs.music} onCheckedChange={(music) => save({ music })} />
             {prefs.music && (
               <Choice
                 label={tm('volume')}
@@ -98,13 +101,13 @@ function VoicePanel() {
                   { value: 0.2, label: tm('low') },
                   { value: 0.35, label: tm('medium') },
                 ]}
-                onChange={(musicVolume) => prefs.set({ musicVolume })}
+                onChange={(musicVolume) => save({ musicVolume })}
               />
             )}
           </>
         )}
         <Switch label={t('vibration')} description={t('vibrationHint')} checked={prefs.vibration} onCheckedChange={(vibration) => prefs.set({ vibration })} />
-        <Switch label={t('voice')} description={t('voiceHint')} checked={prefs.voice} onCheckedChange={(voice) => prefs.set({ voice })} />
+        <Switch label={t('voice')} description={t('voiceHint')} checked={prefs.voice} onCheckedChange={(voice) => save({ voice })} />
         <Switch label={t('hints')} description={t('hintsHint')} checked={prefs.hints} onCheckedChange={(hints) => prefs.set({ hints })} />
         {prefs.hints && (
           <>

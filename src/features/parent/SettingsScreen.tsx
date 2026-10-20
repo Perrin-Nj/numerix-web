@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { usePrefs } from '@/platform/prefs/store';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { exportChild, useChildren, useChildSettings, useDeleteChild, useUpdateSettings } from '@/data/hooks';
@@ -22,10 +21,7 @@ import { Switch } from '@/ui/switch';
 /** Per-child settings: goal, time limit, sound, read aloud, languages, worlds, data export and deletion. */
 export function SettingsScreen({ childId }: { childId: string }) {
   const t = useTranslations('screens.parent.settings');
-  const computerVoice = usePrefs((p) => p.computerVoice);
-  const setPrefs = usePrefs((p) => p.set);
   const tm = useTranslations('music');
-  const prefs = usePrefs();
   const tw = useTranslations('worlds');
   const router = useRouter();
   const { notify } = useNotify();
@@ -87,14 +83,14 @@ export function SettingsScreen({ childId }: { childId: string }) {
                 options={[0, 15, 30, 45, 60].map((n) => ({ value: String(n), label: n === 0 ? t('noLimit') : t('limitOption', { count: n }) }))}
               />
               <Switch checked={draft.sound} onCheckedChange={(v) => setDraft({ ...draft, sound: v })} label={t('sound')} />
-              <Switch checked={!prefs.musicLocked} onCheckedChange={(v) => prefs.set({ musicLocked: !v })} label={tm('parentLock')} description={tm('parentLockHint')} />
+              <Switch checked={!draft.music?.parent_locked} onCheckedChange={(v) => setDraft({ ...draft, music: { ...(draft.music ?? { enabled: true, volume: 30 }), parent_locked: !v } })} label={tm('parentLock')} description={tm('parentLockHint')} />
               <Switch
                 checked={draft.read_aloud}
                 onCheckedChange={(v) => setDraft({ ...draft, read_aloud: v })}
                 label={t('readAloud')}
                 description={t('readAloudHint')}
               />
-              <Switch checked={computerVoice} onCheckedChange={(v) => setPrefs({ computerVoice: v })} label={t('computerVoice')} description={t('computerVoiceHint')} />
+              <Switch checked={draft.voice?.computer_voice === true} onCheckedChange={(v) => setDraft({ ...draft, voice: { ...(draft.voice ?? { human_enabled: true }), computer_voice: v } })} label={t('computerVoice')} description={t('computerVoiceHint')} />
               <Switch
                 checked={draft.kid_can_change_language !== false}
                 onCheckedChange={(v) => setDraft({ ...draft, kid_can_change_language: v })}

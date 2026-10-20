@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
-import { useChildSettings, useClaimGift, useHome, useSessionStatus } from '@/data/hooks';
+import { useChildSettings, useClaimGift, useHome, usePublicConfig, useSessionStatus } from '@/data/hooks';
 import { useStartChapter } from './useStartChapter';
 import { usePickLine } from '@/platform/lines';
 import { useLocalReminders } from '@/features/notify';
@@ -86,7 +86,8 @@ export function HomeFeed() {
   // Data loads on the client only, so reading storage here cannot mismatch the server render
   const tour = Boolean(childId && home.data && !tourDone && !localStorage.getItem(onboardingKey(childId)));
   const [giftLater, setGiftLater] = useState(false);
-  const giftOpen = appConfig.features.welcomeGift && !giftLater && Boolean(d?.gift_available && !tour);
+  const giftOn = usePublicConfig().data?.welcome_gift ?? true; // the admin can turn the gift off
+  const giftOpen = appConfig.features.welcomeGift && giftOn && !giftLater && Boolean(d?.gift_available && !tour);
 
   function endTour() {
     setTourDone(true);

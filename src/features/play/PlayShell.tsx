@@ -3,9 +3,11 @@ import { useEffect, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAudioSettings } from '@/platform/audio';
-import { useChildSettings, useSessionStatus } from '@/data/hooks';
+import { useChildSettings, usePublicConfig, useSessionStatus } from '@/data/hooks';
 import { MusicController } from '@/platform/music/MusicController';
 import { MusicToggle } from './MusicToggle';
+import { useServerPrefsSync } from './useServerPrefs';
+import { MaintenanceBanner, MaintenanceBlock, useMaintenance } from '@/features/common/Maintenance';
 import { OfflineBanner } from '@/features/common/OfflineBanner';
 import { BottomNav } from '@/ui/bottom-nav';
 
@@ -17,6 +19,9 @@ export function PlayShell({ children }: { children: ReactNode }) {
   const childId = status.data?.childId ?? null;
   const settings = useChildSettings(childId ?? '');
   const { setEnabled } = useAudioSettings();
+  const maintenance = useMaintenance();
+  const discoverOn = usePublicConfig().data?.feed.discover_enabled ?? true;
+  useServerPrefsSync();
 
   // Follow the parent's sound choice
   useEffect(() => {
@@ -27,9 +32,11 @@ export function PlayShell({ children }: { children: ReactNode }) {
   const showNav = !inStory && pathname !== '/play';
   const is = (p: string) => pathname === p || pathname.startsWith(`${p}/`);
 
+  if (maintenance?.blockPlay) return <MaintenanceBlock />;
   return (
     <>
       <OfflineBanner />
+      <MaintenanceBanner />
       <MusicController />
       <MusicToggle lifted={showNav} />
       <div className={showNav ? 'pb-24' : undefined}>{children}</div>
@@ -39,7 +46,7 @@ export function PlayShell({ children }: { children: ReactNode }) {
           items={[
             { href: '/play/home', label: t('home'), icon: 'home', active: is('/play/home') },
             { href: '/play/worlds', label: t('worlds'), icon: 'map', active: is('/play/worlds') || is('/play/journey') },
-            { href: '/play/feed', label: t('discover'), icon: 'sparkles', active: is('/play/feed') },
+            ...(discoverOn ? [{ href: '/play/feed', label: t('discover'), icon: 'sparkles' as const, active: is('/play/feed') }] : []),
             { href: '/play/collection', label: t('cards'), icon: 'star', active: is('/play/collection') },
             { href: '/play/me', label: t('me'), icon: 'user', active: is('/play/me') },
           ]}

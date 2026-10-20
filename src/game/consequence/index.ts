@@ -1,6 +1,8 @@
 export { ConsequenceScene } from './ConsequenceScene';
 export type { ConsequenceSceneProps } from './ConsequenceScene';
-export { useConsequence } from './useConsequence';
+export { useConsequence, loadVariantHistory } from './useConsequence';
+export { mergeHistory } from './picker';
+export type { SceneRules } from './picker';
 export type { Consequence } from './useConsequence';
 export { amountOf, rightAmount } from './amounts';
 export type { Amount } from './amounts';

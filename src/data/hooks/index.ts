@@ -9,3 +9,4 @@ export * from './feed';
 export * from './state';
 export * from './devices';
 export * from './media';
+export { usePublicConfig, type AppPublicConfig } from './platform';

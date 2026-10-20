@@ -1,5 +1,6 @@
 /** Slow background loops through Web Audio: gapless, fades, ducking. Files load only once playback is wanted. */
-export type MusicFile = { id: string; file: string };
+/** `alt` is the AAC (m4a) twin for browsers without webm/opus, Safari mostly. */
+export type MusicFile = { id: string; file: string; alt?: string };
 
 const FADE = 1.5; // seconds
 const DUCK = 0.3; // fraction of the volume left under a voice
@@ -21,6 +22,7 @@ export class MusicPlayer {
   private next: ReturnType<typeof setTimeout> | undefined;
   private off: ReturnType<typeof setTimeout> | undefined;
   private failed = false;
+  private webm = true; // false: play the m4a twin
 
   constructor(tracks: MusicFile[], base: string) {
     this.tracks = tracks;
@@ -51,7 +53,9 @@ export class MusicPlayer {
     clearTimeout(this.off);
     if (this.failed || typeof window === 'undefined') return;
     const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!Ctor || document.createElement('audio').canPlayType('audio/webm; codecs="opus"') === '') return;
+    const probe = document.createElement('audio');
+    this.webm = probe.canPlayType('audio/webm; codecs="opus"') !== '';
+    if (!Ctor || (!this.webm && probe.canPlayType('audio/mp4; codecs="mp4a.40.2"') === '')) return;
     if (!this.ctx) {
       this.ctx = new Ctor();
       this.master = this.ctx.createGain();
@@ -67,7 +71,9 @@ export class MusicPlayer {
     const hit = this.buffers.get(t.id);
     if (hit || !this.ctx) return hit ?? null;
     try {
-      const res = await fetch(this.base + t.file);
+      const file = this.webm ? t.file : t.alt;
+      if (!file) throw new Error('no file for this browser');
+      const res = await fetch(this.base + file);
       if (!res.ok) throw new Error(String(res.status));
       const buf = await this.ctx.decodeAudioData(await res.arrayBuffer());
       this.buffers.set(t.id, buf);

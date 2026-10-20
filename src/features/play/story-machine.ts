@@ -34,6 +34,8 @@ export type StoryState = {
   /** Curated questions: kind note for the typical error, and how to solve it. */
   feedback: string | null;
   explain: string | null;
+  /** Server hint for the consequence scene family, from the answer (more exact than the beat's). */
+  sceneKey: string | null;
   rewards: Reward[];
   rewardIndex: number;
   /** Set when the last answer could not be sent; the same key is reused on retry. */
@@ -56,6 +58,7 @@ export const initialStoryState: StoryState = {
   methodVisual: null,
   feedback: null,
   explain: null,
+  sceneKey: null,
   rewards: [],
   rewardIndex: 0,
   pendingAnswer: null,
@@ -138,6 +141,7 @@ export function storyReducer(s: StoryState, a: StoryAction): StoryState {
         methodVisual: a.result.method_visual ?? null,
         feedback: a.result.feedback ?? null,
         explain: a.result.explain ?? null,
+        sceneKey: a.result.scene_key ?? null,
         rewards: a.result.rewards ?? [],
         rewardIndex: 0,
         pendingAnswer: null,

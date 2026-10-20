@@ -7,7 +7,9 @@
     "licence": "CC BY 4.0",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300003",
-    "bytes": 386617
+    "bytes": 386617,
+    "alt": "morning.m4a",
+    "alt_bytes": 334713
   },
   {
     "id": "avec-soin",
@@ -17,7 +19,9 @@
     "licence": "CC BY 4.0",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100860",
-    "bytes": 347903
+    "bytes": 347903,
+    "alt": "avec-soin.m4a",
+    "alt_bytes": 334448
   },
   {
     "id": "facile",
@@ -27,7 +31,9 @@
     "licence": "CC BY 4.0",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100858",
-    "bytes": 342687
+    "bytes": 342687,
+    "alt": "facile.m4a",
+    "alt_bytes": 335511
   },
   {
     "id": "water-lily",
@@ -37,7 +43,9 @@
     "licence": "CC BY 4.0",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400035",
-    "bytes": 277425
+    "bytes": 277425,
+    "alt": "water-lily.m4a",
+    "alt_bytes": 335101
   },
   {
     "id": "reawakening",
@@ -47,7 +55,9 @@
     "licence": "CC BY 4.0",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400017",
-    "bytes": 357110
+    "bytes": 357110,
+    "alt": "reawakening.m4a",
+    "alt_bytes": 335390
   },
   {
     "id": "enchanted-journey",
@@ -57,7 +67,9 @@
     "licence": "CC BY 4.0",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100799",
-    "bytes": 349614
+    "bytes": 349614,
+    "alt": "enchanted-journey.m4a",
+    "alt_bytes": 335385
   },
   {
     "id": "clear-air",
@@ -67,6 +79,8 @@
     "licence": "CC BY 4.0",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100626",
-    "bytes": 331938
+    "bytes": 331938,
+    "alt": "clear-air.m4a",
+    "alt_bytes": 334785
   }
 ]

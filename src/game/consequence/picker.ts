@@ -13,8 +13,18 @@ const hash = (s: string) => {
 /** A bridge cannot show "too much" (a longer plank still bridges), so a wrong answer above the right one never gets the bridge. */
 export const allowed = (s: SceneDef, over?: boolean | null) => !(over && !s.good && s.rig === 'bridge');
 
-export function pickScene(family: Family, good: boolean, history: readonly string[], seed: string, over?: boolean | null): SceneDef {
-  const pool = SCENES.filter((s) => s.family === family && s.good === good && allowed(s, over));
+/** Admin scene rules (public config `scenes`): a family can be off, and single scenes or whole rigs can be off. */
+export type SceneRules = { physics_enabled: boolean; families: Record<string, { enabled: boolean; disabled_variants: string[] }> };
+const CFG_KEY: Partial<Record<Family, string>> = { addsub: 'add_sub', multdiv: 'mult_div' };
+export const sceneOff = (rules: SceneRules | null | undefined, s: SceneDef): boolean => {
+  const f = rules?.families[CFG_KEY[s.family] ?? s.family];
+  return !!f && (!f.enabled || f.disabled_variants.includes(s.id) || f.disabled_variants.includes(s.rig));
+};
+
+/** The next scene, or null when the admin switched off every scene of this pool (the screen then shows the plain how-to picture). */
+export function pickScene(family: Family, good: boolean, history: readonly string[], seed: string, over?: boolean | null, off?: (s: SceneDef) => boolean): SceneDef | null {
+  const pool = SCENES.filter((s) => s.family === family && s.good === good && allowed(s, over) && !off?.(s));
+  if (!pool.length) return null;
   // scenes of this pool shown since the pool was last used up
   let used = new Set<string>();
   for (const id of history) {
