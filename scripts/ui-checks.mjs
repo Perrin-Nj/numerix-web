@@ -241,12 +241,14 @@ async function startChapter() {
 }
 await check('the story is read aloud by the French woman voice, in French', async () => {
   // R3: the computer voice is a parent opt-in kept in the child's backend settings; the parent turns it on, then the story reloads
-  await page.evaluate(async () => {
+  const put = await page.evaluate(async () => {
     const id = (await (await fetch('/api/session')).json()).childId;
     const h = { 'x-nx-mode': 'parent', 'content-type': 'application/json' };
     const cur = await (await fetch(`/api/v1/children/${id}/settings`, { headers: h })).json();
-    await fetch(`/api/v1/children/${id}/settings`, { method: 'PUT', headers: h, body: JSON.stringify({ ...cur, voice: { ...cur.voice, computer_voice: true } }) });
+    return fetch(`/api/v1/children/${id}/settings`, { method: 'PUT', headers: h, body: JSON.stringify({ ...cur, voice: { ...cur.voice, computer_voice: true } }) }).then((r) => r.status);
   });
+  const spokenSoFar = () => page.evaluate(() => JSON.stringify(window.__spoken.slice(0, 4)));
+  if (put !== 200) throw new Error(`parent could not opt in to the computer voice: ${put}`);
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(1500);
   await page.mouse.click(5, 5); // speech waits for a first gesture
