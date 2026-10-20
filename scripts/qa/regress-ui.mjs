@@ -14,7 +14,10 @@ for (const [vp, w, h] of [['m360', 360, 640], ['m390', 390, 844], ['t768', 768, 
     const name = `QA-A-001 feedback sheet clear of question [${vp} ${world} ${right ? 'right' : 'wrong'}]`;
     try {
       const node = await page.evaluate(async ([c, wd]) => (await (await fetch(`/api/v1/children/${c}/journey?world=${wd}`, { headers: { 'x-nx-mode': 'child' } })).json()).nodes[0], [childId, world]);
-      const s = await page.evaluate(async ([c, k, wd]) => (await (await fetch(`/api/v1/children/${c}/sessions`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-nx-mode': 'child', 'idempotency-key': crypto.randomUUID() }, body: JSON.stringify({ world: wd, kind: 'chapter', skill_id: k }) })).json()), [childId, node.skill_id, world]);
+      const start = () => page.evaluate(async ([c, k, wd]) => (await (await fetch(`/api/v1/children/${c}/sessions`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-nx-mode': 'child', 'idempotency-key': crypto.randomUUID() }, body: JSON.stringify({ world: wd, kind: 'chapter', skill_id: k }) })).json()), [childId, node.skill_id, world]);
+      let s = await start();
+      for (let n = 0; !s.id && n < 4; n++) { await page.waitForTimeout(2500); s = await start(); }
+      if (!s.id) throw new Error(`session did not start: ${JSON.stringify(s).slice(0, 80)}`);
       await page.goto(`${BASE}/play/session/${s.id}`, { waitUntil: 'domcontentloaded' });
       const keypad = page.getByRole('group', { name: 'Clavier numérique' });
       const idle = page.locator('main button[data-state=idle]').first();

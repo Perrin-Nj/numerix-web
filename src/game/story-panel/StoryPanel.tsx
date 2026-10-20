@@ -49,13 +49,15 @@ export function StoryPanel({
     <section
       className={cn(
         'mx-auto flex w-full max-w-7xl flex-col lg:grid lg:h-auto lg:min-h-dvh lg:grid-cols-2 lg:items-center lg:gap-10',
-        // While the sheet is up the page scrolls and keeps room under the content for it
-        sheet ? 'min-h-dvh max-lg:pb-[calc(var(--nx-sheet-h,0px)+0.75rem)]' : 'h-dvh',
+        // While the sheet is up (phone, 600 px tall or more) the panel ends where the sheet starts: the whole question and caption stay in view, no scrolling (QA-A-008). A landscape phone keeps the old way: the page scrolls and keeps room under the content
+        sheet
+          ? 'min-h-dvh max-lg:pb-[calc(var(--nx-sheet-h,0px)+0.75rem)] max-lg:[@media(min-height:600px)]:h-[calc(100dvh-var(--nx-sheet-h,0px))] max-lg:[@media(min-height:600px)]:min-h-0 max-lg:[@media(min-height:600px)]:pb-0'
+          : 'h-dvh',
         className,
       )}
     >
       <div className="shrink-0 px-3 pt-[calc(3.5rem+env(safe-area-inset-top))] lg:pt-0">
-        <div className={cn('transition-[height] duration-300 lg:aspect-[4/3] lg:h-auto', visualStage ? 'h-[34dvh]' : compactStage ? 'h-[20dvh]' : mediumStage ? 'h-[28dvh]' : 'h-[38dvh]')}>
+        <div className={cn('transition-[height] duration-300 lg:aspect-[4/3] lg:h-auto', sheet ? 'h-[15dvh]' : visualStage ? 'h-[34dvh]' : compactStage ? 'h-[20dvh]' : mediumStage ? 'h-[28dvh]' : 'h-[38dvh]')}>
           {illustration}
         </div>
       </div>
