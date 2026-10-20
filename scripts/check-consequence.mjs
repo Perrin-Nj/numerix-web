@@ -57,15 +57,15 @@ console.log(`     ${runs} runs, worst single physics step ${worstStep.toFixed(1)
 // picker: 200 simulated answers over random families, never the same scene twice in a row, and each pool cycles fully before reuse
 let seedv = 7;
 const rnd = () => ((seedv = (seedv * 1664525 + 1013904223) >>> 0) / 2 ** 32);
-for (const mode of ['mixed', 'sameTopic']) {
+for (const mode of ['mixed', 'sameTopic', 'tooBig']) {
   seedv = 7;
   const hist = [];
   const perPool = new Map();
   let rigRepeats = 0;
   for (let i = 0; i < 200; i++) {
     const fam = mode === 'sameTopic' ? 'addsub' : FAMILIES[Math.floor(rnd() * FAMILIES.length)];
-    const good = rnd() < 0.5;
-    const over = !good && rnd() < 0.5;
+    const good = mode === 'tooBig' ? false : rnd() < 0.5;
+    const over = mode === 'tooBig'; // pool without the bridge: 5 scenes per cycle
     const s = pickScene(fam, good, hist, 'session-1', over);
     assert.ok(!(over && s.rig === 'bridge'), 'a too-big wrong answer never gets the bridge');
     assert.notEqual(s.id, hist[hist.length - 1], `repeat at ${i}`);
@@ -74,7 +74,7 @@ for (const mode of ['mixed', 'sameTopic']) {
     const k = `${fam}${good}`;
     perPool.set(k, [...(perPool.get(k) ?? []), s.id]);
   }
-  for (const [k, ids] of perPool) for (let i = 0; i + 6 <= ids.length; i += 6) assert.equal(new Set(ids.slice(i, i + 6)).size, 6, `${mode} ${k} cycle ${i / 6}`);
+  for (const [k, ids] of perPool) for (let i = 0, n = mode === 'tooBig' ? 5 : 6; i + n <= ids.length; i += n) assert.equal(new Set(ids.slice(i, i + n)).size, n, `${mode} ${k} cycle ${i / 6}`);
   if (mode === 'sameTopic') assert.equal(rigRepeats, 0, 'failing twice on one topic never shows the same set-up');
 }
 // deterministic, and server history is honoured
