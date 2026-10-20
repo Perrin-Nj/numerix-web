@@ -92,6 +92,8 @@ function tower(c: Ctx, good: boolean, n: number): Built {
   const blocks = Array.from({ length: n }, (_, i) =>
     c.box(`b${i}`, 'photo', 50 + (c.rnd() - 0.5) * 0.6, FLOOR - bh / 2 - bh * i - 0.15 * (i + 1), bw, bh, { friction: 0.7, restitution: 0.02 }, (i % 2) as 0 | 1),
   );
+  // a right tower is built block by block: each one is set down from just above the stack
+  if (good) blocks.forEach((b, i) => { Body.setPosition(b.part!, { x: b.part!.position.x, y: b.part!.position.y - 14 * S }); c.spawn(b, i * 18); });
   if (!good) {
     const e = c.box('extra', 'photo', 50 + 2.6, -4, bw, bh, { friction: 0.7, restitution: 0.02 }, (n % 2) as 0 | 1);
     blocks.push(e);

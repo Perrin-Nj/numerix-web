@@ -110,13 +110,17 @@ export function ConsequenceScene({ sceneId, world, seed = 4, playing = true, onD
         } else {
           acc += Math.min(now - last, 50);
           last = now;
+          const t0 = performance.now();
           let n = 0;
-          while (acc >= STEP_MS && n < 3 && !s.settled) {
+          // never more than 10 ms of physics per frame: a slow phone sees slow motion, not a stutter
+          while (acc >= STEP_MS && n < 3 && !s.settled && (n === 0 || performance.now() - t0 < 10)) {
             s.step();
             acc -= STEP_MS;
             n++;
           }
+          if (acc >= STEP_MS) acc = 0;
           paint();
+          (window as unknown as { __nxWork?: number[] }).__nxWork?.push(performance.now() - t0); // test hook: our own work per frame
           if (s.settled) return finish();
         }
         raf = requestAnimationFrame(tick);
