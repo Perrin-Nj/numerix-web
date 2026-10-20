@@ -126,7 +126,7 @@ async function worker(idx) {
     const world = allWorlds[w];
     met[world] = new Set();
     const j = await kid(`/children/${childId}/journey?world=${world}`);
-    let nodes = j.json?.nodes ?? [];
+    let nodes = (j.json?.nodes ?? []).filter((n) => n.state !== 'locked'); // an explicit skill_id on a locked chapter is 422 (QA-BE-004)
     if (process.env.SKILL) nodes = nodes.filter((n) => n.skill_id === process.env.SKILL);
     if (process.env.ONLY_FIRST) nodes = nodes.slice(0, 1);
     else if (process.env.QUESTS) nodes = nodes.slice(0, Number(process.env.QUESTS));
