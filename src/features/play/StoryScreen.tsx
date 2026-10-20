@@ -489,7 +489,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
             )}
             {speechWaiting && (
               <div className="mt-3">
-                <Button variant="secondary" iconLeft={<Icon name="volume" />} onClick={() => s.sceneText && speak(s.sceneText)}>
+                <Button variant="secondary" iconLeft={<Icon name="volume" />} onClick={() => s.sceneText && speak(s.sceneText, true)}>
                   {t('tapToHear')}
                 </Button>
               </div>
