@@ -8,6 +8,7 @@ import { Toggles } from '@/components/toggles';
 export default function Login() {
   const t = useT();
   const [pw, setPw] = useState('');
+  const [actor, setActor] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -16,7 +17,7 @@ export default function Login() {
     setBusy(true);
     setErr('');
     try {
-      await api('auth/login', { method: 'POST', body: { password: pw } });
+      await api('auth/login', { method: 'POST', body: { password: pw, actor } });
       window.location.href = '/';
     } catch (x) {
       const a = x as ApiError;
@@ -38,7 +39,8 @@ export default function Login() {
             <p className="text-sm text-muted">{t('login.sub')}</p>
           </div>
         </div>
-        <Input label={t('login.password')} type="password" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} autoFocus />
+        <Input label={t('login.name')} autoComplete="username" value={actor} onChange={(e) => setActor(e.target.value)} maxLength={40} autoFocus />
+        <Input label={t('login.password')} type="password" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
         {err && (
           <p role="alert" className="mt-3 rounded-lg bg-danger-soft px-3 py-2 text-sm text-danger">
             {err}

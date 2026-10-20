@@ -1,6 +1,7 @@
 import type { acfr } from './appcfg-fr';
 
 export const acen: Record<keyof typeof acfr, string> = {
+  'login.name': 'Your name (shown in the audit log)',
   'nav.music': 'Music',
   'nav.voice': 'Voice',
   'nav.voicecfg': 'Voice settings',

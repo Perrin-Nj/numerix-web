@@ -2,6 +2,7 @@
 export const acfr = {
   'nav.music': 'Musique',
   'nav.voice': 'Voix',
+  'login.name': 'Votre nom (affiché dans le journal d’audit)',
   'nav.voicecfg': 'Réglages voix',
   'nav.scenes': 'Scènes',
   'nav.feed': 'Fil Découverte',

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '@/lib/env';
-import { COOKIE, verifyToken } from '@/lib/session';
+import { COOKIE, tokenActor, verifyToken } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +28,7 @@ async function handle(req: NextRequest, ctx: { params: Promise<{ path: string[] 
       headers: {
         authorization: `Bearer ${e.ADMIN_API_TOKEN}`,
         accept: 'application/json',
+        'x-admin-actor': tokenActor(req.cookies.get(COOKIE)?.value), // the audit log shows who really changed it
         ...(hasBody ? { 'content-type': 'application/json' } : {}),
         ...(req.headers.get('if-match') ? { 'if-match': req.headers.get('if-match')! } : {}), // optimistic locking on question saves
       },

@@ -12,8 +12,11 @@ export function safeEqual(a: string, b: string) {
   return timingSafeEqual(ha, hb);
 }
 
-export function makeToken() {
-  const p = Buffer.from(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + SESSION_SECONDS })).toString('base64url');
+/** Admin name for the audit log: letters, digits and . _ @ - only, max 40; the shared password has no user list, so the name is self-declared. */
+export const cleanActor = (v: unknown) => (typeof v === 'string' ? v.replace(/[^\w.@ -]/g, '').trim().slice(0, 40) : '') || 'admin';
+
+export function makeToken(actor?: string) {
+  const p = Buffer.from(JSON.stringify({ actor: cleanActor(actor), exp: Math.floor(Date.now() / 1000) + SESSION_SECONDS })).toString('base64url');
   return `${p}.${sign(p)}`;
 }
 
@@ -26,5 +29,14 @@ export function verifyToken(token: string | undefined) {
     return typeof exp === 'number' && exp > Date.now() / 1000;
   } catch {
     return false;
+  }
+}
+
+/** The actor stored in a session token ('admin' when none). */
+export function tokenActor(token: string | undefined) {
+  try {
+    return cleanActor((JSON.parse(Buffer.from(token!.split('.')[0], 'base64url').toString('utf8')) as { actor?: string }).actor);
+  } catch {
+    return 'admin';
   }
 }
