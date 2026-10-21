@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { serverEnv } from '@/config/server-env';
+import { clientIp } from '@/shared/client-ip';
 
 /**
  * Same-origin proxy to the backend (the Go API).
@@ -28,6 +29,9 @@ async function forward(req: NextRequest, upstream: string, token: string | undef
   }
   const locale = req.cookies.get('NEXT_LOCALE')?.value ?? req.headers.get('accept-language');
   if (locale) headers.set('accept-language', locale);
+  // The API limits requests per visitor IP; without this it would see only this server's address for everybody
+  const ip = clientIp((n) => req.headers.get(n));
+  if (ip) headers.set('x-forwarded-for', ip);
   if (token) headers.set('authorization', `Bearer ${token}`);
   const device = req.cookies.get(DEVICE_COOKIE)?.value;
   if (device) headers.set('cookie', `${DEVICE_COOKIE}=${device}`);

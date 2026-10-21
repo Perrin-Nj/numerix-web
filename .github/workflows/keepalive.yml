@@ -13,4 +13,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node scripts/keepalive.mjs
+      # KEEPALIVE_URLS: space separated health URLs, set in Settings, Variables (staging and production /api/health). Empty = built-in default.
+      - run: node scripts/keepalive.mjs ${{ vars.KEEPALIVE_URLS }}

@@ -1,0 +1,103 @@
+name: deploy-staging
+
+# Every push to main: run all checks, build the web app and the admin app ONCE, deploy both to the staging VM,
+# smoke test them. The same archives are what deploy-prod.yml later ships to production.
+# Deploy the API first when a change needs a new API (see docs/PROD_GO_LIVE.md, "Order of a release").
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      id: ${{ steps.id.outputs.id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - id: id
+        run: echo "id=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+      - run: pnpm install --frozen-lockfile
+      - name: Build the web app archive
+        run: bash scripts/release.sh web "${{ steps.id.outputs.id }}"
+      - name: Build the admin app archive
+        run: |
+          (cd admin && npm ci)
+          bash scripts/release.sh admin "${{ steps.id.outputs.id }}"
+          (cd dist && sha256sum web.tgz admin.tgz > SHA256SUMS && cat SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ steps.id.outputs.id }}
+          path: |
+            dist/web.tgz
+            dist/admin.tgz
+            dist/SHA256SUMS
+          retention-days: 90
+          if-no-files-found: error
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    env:
+      ID: ${{ needs.build.outputs.id }}
+      WEB_URL: ${{ vars.WEB_URL }}
+      ADMIN_URL: ${{ vars.ADMIN_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-${{ needs.build.outputs.id }}
+          path: dist
+      - uses: ./.github/actions/vm-ssh
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          user: ${{ vars.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+      - name: Check the settings
+        run: |
+          [[ "$WEB_URL" == https://* && "$ADMIN_URL" == https://* ]] || { echo "::error::variables WEB_URL and ADMIN_URL must be the https addresses of the staging web and admin apps"; exit 1; }
+      - name: Install and activate both apps, health check
+        run: |
+          set -euo pipefail
+          (cd dist && sha256sum -c SHA256SUMS)
+          for c in web admin; do
+            SUM="$(grep " $c.tgz\$" dist/SHA256SUMS | cut -d' ' -f1)"
+            ssh nxvm "put $c $ID $SUM" < "dist/$c.tgz"
+            ssh nxvm "activate $c $ID"
+            ssh nxvm "verify $c"
+          done
+      - name: Smoke test (includes a real sign up and account delete on staging)
+        run: SMOKE_WRITE=1 bash scripts/smoke-web.sh "$WEB_URL" "$ADMIN_URL"
+      - name: Put the previous release back if anything above failed
+        if: failure()
+        run: |
+          echo "::error::staging deploy of $ID failed, rolling back both apps"
+          for c in web admin; do ssh nxvm "rollback $c" || true; ssh nxvm "verify $c" || true; done
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Staging deploy of web and admin release \`$ID\`"
+            echo "- result: **${{ job.status }}**"
+            echo '```'; cat dist/SHA256SUMS; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

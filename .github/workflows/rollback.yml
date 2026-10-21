@@ -1,0 +1,56 @@
+name: rollback
+
+# Manual. Puts the previous web and/or admin release back (the VM keeps the last five). Same approval gate as a deploy.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Which environment to roll back
+        required: true
+        type: choice
+        options: [staging, production]
+      component:
+        description: What to roll back
+        required: true
+        type: choice
+        options: [web, admin, both]
+        default: both
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: ${{ inputs.environment }}
+    env:
+      WEB_URL: ${{ vars.WEB_URL }}
+      ADMIN_URL: ${{ vars.ADMIN_URL }}
+      COMPONENT: ${{ inputs.component }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/vm-ssh
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          user: ${{ vars.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+      - name: State before
+        run: ssh nxvm status
+      - name: Roll back
+        run: |
+          set -euo pipefail
+          list="$COMPONENT"; if [ "$COMPONENT" = both ]; then list="web admin"; fi
+          for c in $list; do
+            ssh nxvm "rollback $c"
+            ssh nxvm "verify $c"
+          done
+      - name: Smoke test
+        run: bash scripts/smoke-web.sh "$WEB_URL" "$ADMIN_URL"
+      - name: State after
+        run: ssh nxvm status

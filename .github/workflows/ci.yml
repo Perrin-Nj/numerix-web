@@ -1,12 +1,23 @@
 name: CI
+
+# Runs on every pull request and every push to main. deploy-staging.yml calls it first, so nothing is deployed unless it is green.
 on:
   pull_request:
   push:
     branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -15,19 +26,46 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Contract is valid and types are in sync
+      - name: Contract is valid and types are in sync (contract drift)
         run: |
           npx --yes @redocly/cli@1.25.0 lint contracts/openapi.yaml --max-problems 1000 || true
           npx --yes @redocly/cli@1.25.0 lint contracts/openapi.admin.yaml --max-problems 1000
           pnpm gen:api
           git diff --exit-code src/data/api/schema.d.ts
       - run: pnpm gen:messages
-      - name: Policy checks (Storybook-only, copy, sounds)
-        run: pnpm check:stories && pnpm check:copy && pnpm check:sounds
+      - name: Policy checks (Storybook-only, copy, sounds, art, client IP)
+        run: pnpm check:stories && pnpm check:copy && pnpm check:sounds && pnpm check:art && pnpm check:ip
+      - run: node scripts/check-architecture.mjs
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm build
+      - name: Self-host build (the same archive the VM runs) and its start-up
+        run: |
+          bash scripts/release.sh web ci
+          mkdir run && tar -xzf dist/web.tgz -C run
+          (cd run && PORT=3999 HOSTNAME=127.0.0.1 API_URL=http://127.0.0.1:9/v1 node server.js &)
+          for _ in $(seq 1 20); do curl -fsS -m 2 http://127.0.0.1:3999/api/health >/dev/null && break; sleep 1; done
+          curl -fsS -m 5 http://127.0.0.1:3999/api/health | grep -q '"app":"ok"'
       - run: pnpm exec storybook build -o storybook-static --disable-telemetry
+
+  admin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: admin/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Self-host build
+        run: NEXT_OUTPUT=standalone npm run build
 
   suite:
     # Every regression test runs here, always: the full scripts/test.sh run against a freshly built and seeded Go API.
@@ -57,3 +95,38 @@ jobs:
           mkdir -p ../Services && ln -sfn "$GITHUB_WORKSPACE/numerix-api" ../numerix-api
           API_PORT=8130 APP_PORT=3130 bash scripts/test.sh all | tee suite.log
           ! grep -E "FAIL|FAILED" suite.log
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Known vulnerabilities in shipped dependencies (high and above)
+        run: pnpm audit --prod --audit-level=high
+      - name: Same for the admin app
+        run: cd admin && npm audit --omit=dev --audit-level=high
+      - name: Secret scan (files and history)
+        run: bash scripts/secret-scan.sh
+
+  workflows:
+    # The pipeline code is checked like any other code.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - run: go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 && "$(go env GOPATH)/bin/actionlint"
+      - run: shellcheck scripts/release.sh scripts/smoke-web.sh scripts/secret-scan.sh
+      - run: |
+          pipx install yamllint==1.35.1
+          yamllint -c .yamllint .github

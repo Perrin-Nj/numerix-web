@@ -2,6 +2,8 @@ import type { NextConfig } from 'next';
 
 const config: NextConfig = {
   poweredByHeader: false,
+  // Self-hosting on the Oracle VM: NEXT_OUTPUT=standalone builds a server folder (node server.js). Vercel leaves it unset.
+  ...(process.env.NEXT_OUTPUT === 'standalone' ? { output: 'standalone' as const, outputFileTracingRoot: process.cwd() } : {}),
   async headers() {
     return [
       {
