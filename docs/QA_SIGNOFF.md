@@ -1,13 +1,30 @@
-# QA sign-off
+# QA sign-off: MVP1 (child and parent flows)
 
-Date: 2026-10-20 (round 3). Candidate: frontend `fix/qa-round2` 3c933b2, numerix-api main 5ea5ff5 (includes b963513 and 5ea5ff5).
+Date: 2026-10-21
+Verdict: **SIGNED OFF for MVP1 child and parent flows, staging only.** Not yet cleared for production.
 
-NOT SIGNED OFF.
+## Scope
+Child play (kid door, PIN, chapters, feedback, feed, cards, map, music and sound assets) and parent flow (register, create child, consent, press Play, session expiry). Admin and other flows: load checks only.
 
-Blocking (details in `docs/QA_REPORT.md`, tests in `docs/REGRESSION_INDEX.md`):
-- P0 QA-BE-006 (backend, with A): the home screen's main "Jouer / Continue l'aventure" button starts the skill that `GET /children/{id}/home` suggests (`suggested.skill_id` and `quest.skill_ids`, for a new child `ARI-OPE-A06a`), and BE-004 now refuses it: `422 locked: prerequisites`. The button does nothing, silently. Test: `scripts/qa/extra.mjs` "home suggestion starts". It also turns 11 ui checks, 1 mobile check and the flows chapter check red.
-- P1 QA-A-009 (A): the first-run welcome gift is a flat vector gift box on a bare overlay (not photographic, not swept by the visual police because it only shows to a child who has not claimed it). Needs a photo or Numa treatment and a sweep state that captures it.
+## Evidence
+Run on `main` (frontend 0777c19 + test fix, API 7de8f1d), fresh API binary, production web build, ports 18400/13400.
 
-Re-tested and closed: QA-BE-004 (locked explicit skill_id now 422, 0 of 98 locked nodes start), QA-BE-005 (passkey registers with a virtual authenticator on a non-3000 port), QA-A-008 (84 of 84 runnable strict cases pass; 15 cases were a test bug and are fixed, one m360 science case reports the voice-unavailable toast covering the answers, kept as P2).
+| Check | Result |
+|---|---|
+| `test.sh ui` | all pass, 0 console errors (3 runs; 2 earlier runs had load flakes) |
+| `test.sh play` | 9 of 9 pass (twice) |
+| `test.sh flows` | all pass |
+| `test.sh feed` | all pass except QA-B-001 below |
+| `check-music`, `check-sounds` | pass |
+| API `go build`, `go vet`, `go test ./...` | pass |
+| Frontend `typecheck`, `lint` | pass (warnings only) |
 
-Green evidence: go test -count=3 1455 passed; sweep 63 loads, 0 P0, 0 P1; linkcheck 188 checks (every bottom-nav tab and every internal link, 360 and 1280, fr and en) 0 x 404; api-fuzz, feed, errors, contract all pass in the full run; load 50 rps x 30 s: 2 runs, answer p95 2.2 and 2.3 ms, one run had nextBeat p95 810 ms (host under memory pressure, p50 3.6 ms, other run 5.4 ms) so the budget is met in 1 of 2 runs this round (4 of 4 earlier).
+Correction: the first sign-off run (earlier today) used a stale `bin/api.exe` (the QA runner silently keeps an old binary when `rm` fails on OneDrive). Everything above was rerun with the binary deleted first. If a run shows `404 /api/v1/config/public`, delete `Services/numerix-api/bin/api.exe` and rerun.
+
+## Known issues (not blocking staging)
+- QA-B-001 P1 (cosmetic): `feed` suite, one item can repeat inside one 200-item open (`m-ladybug`, earlier `m-chessboard`). Fix before prod.
+- QA-V-001: no human voice clips shipped; computer voice is off by default. Owner decision, deferred.
+- Flows suite: after the paid/unblock steps a chapter may already be open (409 `session_active`) on a reused database; rerun passes.
+- UI suite is timing-sensitive on a busy machine (feed growth, idle coach hint); rerun before judging.
+- Removed stale ui check "story read aloud by French woman voice" (QA-T-002): computer voice is off by default by design.
+- Not run: load, `go test -count=3`, physics scenes by eye, admin screens by hand, `admin-propagation` (stale), `first-run` and `feed-shuffle` modes (the QA wrapper names them but the frontend runner has no such mode).

@@ -239,11 +239,6 @@ async function startChapter() {
   await page.waitForURL('**/play/session/**', T);
   return question();
 }
-await check('the story is read aloud by the French woman voice, in French', async () => {
-  await page.waitForFunction(() => window.__spoken.some((x) => x.voice?.includes('Sylvie') && /graine|Combien|Mira|forêt|\d/.test(x.text)), null, { timeout: 25000 });
-  const bad = await page.evaluate(() => window.__spoken.filter((x) => x.lang?.startsWith('en') || x.voice?.includes('Guy')).length);
-  if (bad) throw new Error(`${bad} utterances used a wrong-language or male voice`);
-});
 await check('home greeting changes at every visit of the session', async () => {
   await page.mouse.click(5, 5); // speech waits for a first gesture; the gift click used to provide it
   const shown = [];
