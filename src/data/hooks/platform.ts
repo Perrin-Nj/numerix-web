@@ -71,7 +71,7 @@ export function usePlans(enabled = true) {
     staleTime: 5 * 60_000,
     queryFn: () =>
       call<{ plans: RawPlan[] } | RawPlan[]>('GET', '/subscription/plans').then((r) =>
-        (Array.isArray(r) ? r : r.plans).map((p): Plan => ({ id: p.id, price_cad: p.price_cad ?? (p.price_cad_cents ?? 0) / 100, interval: p.interval })),
+        (Array.isArray(r) ? r : r.plans).map((p): Plan => ({ id: p.id, price_cad: p.price_cad ?? (p.price_cad_cents ?? 0) / 100, interval: p.interval, name: p.name })),
       ),
   });
 }

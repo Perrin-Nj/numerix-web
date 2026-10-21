@@ -94,6 +94,7 @@ jobs:
       ID: ${{ needs.prepare.outputs.id }}
       WEB_URL: ${{ vars.WEB_URL }}
       ADMIN_URL: ${{ vars.ADMIN_URL }}
+      ACTIVATED_COMPONENTS: ''
     steps:
       - uses: actions/checkout@v4
         with:
@@ -120,13 +121,44 @@ jobs:
           set -euo pipefail
           for c in web admin; do
             SUM="$(grep " $c.tgz\$" dist/SHA256SUMS | cut -d' ' -f1)"
+            # shellcheck disable=SC2029
             ssh nxvm "put $c $ID $SUM" < "dist/$c.tgz"
-            ssh nxvm "activate $c $ID"
+            # shellcheck disable=SC2029
+            if ssh nxvm "activate $c $ID"; then
+              ACTIVATED_COMPONENTS="${ACTIVATED_COMPONENTS:+$ACTIVATED_COMPONENTS,}$c"
+              echo "ACTIVATED_COMPONENTS=$ACTIVATED_COMPONENTS" >> "$GITHUB_ENV"
+            else
+              STATUS="$(ssh nxvm status || true)"
+              CURRENT="$(printf '%s\n' "$STATUS" | awk -v component="$c" '$1 == component {sub(/^current=/, "", $2); print $2}')"
+              if [ "$CURRENT" = "releases/$ID" ]; then
+                ACTIVATED_COMPONENTS="${ACTIVATED_COMPONENTS:+$ACTIVATED_COMPONENTS,}$c"
+                echo "ACTIVATED_COMPONENTS=$ACTIVATED_COMPONENTS" >> "$GITHUB_ENV"
+              fi
+              exit 1
+            fi
+          done
+      - name: Roll back if activation failed partway through
+        if: failure() && env.ACTIVATED_COMPONENTS != ''
+        run: |
+          IFS=',' read -r -a components <<< "$ACTIVATED_COMPONENTS"
+          for c in "${components[@]}"; do
+            STATUS="$(ssh nxvm status || true)"
+            CURRENT="$(printf '%s\n' "$STATUS" | awk -v component="$c" '$1 == component {sub(/^current=/, "", $2); print $2}')"
+            if [ "$CURRENT" = "releases/$ID" ]; then
+              echo "::error::activation of $c release $ID failed; restoring the prior release"
+              ssh nxvm "rollback $c"
+              ssh nxvm "verify $c" || true
+            fi
           done
       - name: Health check, smoke test, automatic rollback
         run: |
           set -uo pipefail
-          back() { for c in web admin; do ssh nxvm "rollback $c"; ssh nxvm "verify $c"; done; }
+          back() { for c in web admin; do
+            # shellcheck disable=SC2029
+            ssh nxvm "rollback $c"
+            # shellcheck disable=SC2029
+            ssh nxvm "verify $c"
+          done; }
           for c in web admin; do
             if ! ssh nxvm "verify $c"; then echo "::error::$c never became healthy. Rolling both apps back."; back; exit 1; fi
           done

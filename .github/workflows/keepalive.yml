@@ -1,8 +1,11 @@
 name: Keep alive
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/30 * * * *'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   ping:
@@ -13,5 +16,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      # KEEPALIVE_URLS: space separated health URLs, set in Settings, Variables (staging and production /api/health). Empty = built-in default.
-      - run: node scripts/keepalive.mjs ${{ vars.KEEPALIVE_URLS }}
+      # KEEPALIVE_URLS: space-separated health URLs. Empty means no pings.
+      - name: Ping configured health URLs
+        env:
+          KEEPALIVE_URLS: ${{ vars.KEEPALIVE_URLS }}
+        run: node scripts/keepalive.mjs

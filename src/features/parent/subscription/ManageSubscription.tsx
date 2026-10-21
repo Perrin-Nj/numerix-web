@@ -1,7 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { ApiError } from '@/data/api/client';
 import { cn } from '@/shared/cn';
 import { daysUntil } from '@/features/notify/reminders';
@@ -106,12 +106,13 @@ function CurrentPlan({ sub }: { sub: Subscription }) {
 function PlanCard({ id, plan, selected, current, onSelect }: { id: PlanId; plan?: Plan; selected: boolean; current: boolean; onSelect?: () => void }) {
   const t = useTranslations('screens.parent.subscription');
   const format = useFormatter();
+  const locale = useLocale().startsWith('fr') ? 'fr' : 'en';
   const price = id === 'free' ? 0 : plan?.price_cad;
   const features = t.raw(`plans.${id}.features`) as string[];
   const body = (
     <>
       <div className="flex items-center justify-between gap-2 pr-8">
-        <span className="font-display text-lg font-semibold">{t(`plans.${id}.name`)}</span>
+        <span className="font-display text-lg font-semibold">{plan?.name?.[locale] ?? t(`plans.${id}.name`)}</span>
         {current && <span className="rounded-full bg-sunken px-2 py-0.5 text-sm font-semibold">{t('plans.current')}</span>}
       </div>
       <p className="font-display text-2xl font-bold">

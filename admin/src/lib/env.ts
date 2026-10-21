@@ -3,8 +3,18 @@ import { z } from 'zod';
 const schema = z.object({
   ADMIN_PASSWORD: z.string().min(8),
   ADMIN_SESSION_SECRET: z.string().min(32),
-  PLATFORM_API_URL: z.string().url(),
-  ADMIN_API_TOKEN: z.string().min(1),
+  PLATFORM_API_URL: z.string().url().refine((value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' || (
+        url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
+      );
+    } catch (error) {
+      if (error instanceof TypeError) return false;
+      throw error;
+    }
+  }, 'must use HTTPS except for a trusted loopback API'),
+  ADMIN_API_TOKEN: z.string().min(16),
 });
 
 let cached: z.infer<typeof schema> | null = null;

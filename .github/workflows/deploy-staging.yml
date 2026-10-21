@@ -50,7 +50,7 @@ jobs:
       id: ${{ steps.id.outputs.id }}
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -84,6 +84,7 @@ jobs:
       ID: ${{ needs.build.outputs.id }}
       WEB_URL: ${{ vars.WEB_URL }}
       ADMIN_URL: ${{ vars.ADMIN_URL }}
+      ACTIVATED_COMPONENTS: ''
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -105,17 +106,43 @@ jobs:
           (cd dist && sha256sum -c SHA256SUMS)
           for c in web admin; do
             SUM="$(grep " $c.tgz\$" dist/SHA256SUMS | cut -d' ' -f1)"
+            # shellcheck disable=SC2029
             ssh nxvm "put $c $ID $SUM" < "dist/$c.tgz"
-            ssh nxvm "activate $c $ID"
+            # shellcheck disable=SC2029
+            if ssh nxvm "activate $c $ID"; then
+              ACTIVATED_COMPONENTS="${ACTIVATED_COMPONENTS:+$ACTIVATED_COMPONENTS,}$c"
+              echo "ACTIVATED_COMPONENTS=$ACTIVATED_COMPONENTS" >> "$GITHUB_ENV"
+            else
+              STATUS="$(ssh nxvm status || true)"
+              CURRENT="$(printf '%s\n' "$STATUS" | awk -v component="$c" '$1 == component {sub(/^current=/, "", $2); print $2}')"
+              if [ "$CURRENT" = "releases/$ID" ]; then
+                ACTIVATED_COMPONENTS="${ACTIVATED_COMPONENTS:+$ACTIVATED_COMPONENTS,}$c"
+                echo "ACTIVATED_COMPONENTS=$ACTIVATED_COMPONENTS" >> "$GITHUB_ENV"
+              fi
+              exit 1
+            fi
+            # shellcheck disable=SC2029
             ssh nxvm "verify $c"
           done
       - name: Smoke test (includes a real sign up and account delete on staging)
         run: SMOKE_WRITE=1 bash scripts/smoke-web.sh "$WEB_URL" "$ADMIN_URL"
       - name: Put the previous release back if anything above failed
-        if: failure()
+        if: failure() && env.ACTIVATED_COMPONENTS != ''
         run: |
-          echo "::error::staging deploy of $ID failed, rolling back both apps"
-          for c in web admin; do ssh nxvm "rollback $c" || true; ssh nxvm "verify $c" || true; done
+          IFS=',' read -r -a components <<< "$ACTIVATED_COMPONENTS"
+          for c in "${components[@]}"; do
+            STATUS="$(ssh nxvm status || true)"
+            CURRENT="$(printf '%s\n' "$STATUS" | awk -v component="$c" '$1 == component {sub(/^current=/, "", $2); print $2}')"
+            if [ "$CURRENT" = "releases/$ID" ]; then
+              echo "::error::staging deploy of $ID failed after activating $c; rolling it back"
+              # shellcheck disable=SC2029
+              ssh nxvm "rollback $c" || true
+              # shellcheck disable=SC2029
+              ssh nxvm "verify $c" || true
+            else
+              echo "$c release $ID is not active; not rolling back an unrelated release."
+            fi
+          done
       - name: Summary
         if: always()
         run: |

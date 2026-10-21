@@ -12,7 +12,7 @@ export type Subscription = {
   marked_by_admin?: boolean;
 };
 
-export type Plan = { id: PlanId; price_cad: number; interval?: 'month' | 'year' | null };
+export type Plan = { id: PlanId; price_cad: number; interval?: 'month' | 'year' | null; name?: { fr?: string; en?: string } };
 
 export type CheckoutRequest = { plan: PlanId; method: PaymentMethod };
 /** Development completes at once and returns the new subscription. A real provider returns a hosted page URL (BE-24). */
