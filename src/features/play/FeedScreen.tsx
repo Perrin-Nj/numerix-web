@@ -71,6 +71,7 @@ export function FeedScreen() {
         heights.clear();
         lastActive.current = 0;
         setActive(0);
+        window.scrollTo({ top: 0, behavior: 'auto' }); // the smooth scroll may have been cut short by the swap
         setSeed(newDiscoverSeed());
         setFading(false);
       };

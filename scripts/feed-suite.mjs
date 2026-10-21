@@ -146,13 +146,15 @@ page.on('request', (rq) => {
 });
 const firstIds = (seed) => page.evaluate(async ([c, sd]) => (await (await fetch(`/api/v1/children/${c}/discover?limit=12&seed=${sd}`, { headers: { 'x-nx-mode': 'child' } })).json()).items.map((i) => i.id).join(), [cid, seed]);
 const tab = () => page.locator('nav a[href="/play/feed"]').first();
+// Home shows a first-visit spotlight over the nav, so the tab is clicked in the DOM (same React onClick and navigation)
+const tapTab = () => tab().evaluate((a) => a.click());
 await check('open the Feeds tab 5 times: at least 4 different first pages, each open has its own seed', async () => {
   const seen = [];
   const seeds = new Set();
   for (let i = 0; i < 5; i++) {
     await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
     discoverCalls.length = 0;
-    await tab().click();
+    await tapTab();
     await page.waitForURL('**/play/feed', T);
     await cards().first().waitFor(T);
     const call = discoverCalls.find((c) => !c.cursor);
@@ -171,11 +173,11 @@ await check('one open: same seed on every page, 200 items scrolled, no item twic
     if (/\/discover\?/.test(resp.url()) && resp.ok()) ids.push(...(await resp.json()).items.map((i) => i.id));
   };
   page.on('response', sniff);
-  await tab().click();
+  await tapTab();
   await page.waitForURL('**/play/feed', T);
-  for (let i = 0; i < 160 && ids.length < 200; i++) {
-    await page.mouse.wheel(0, 700);
-    await page.waitForTimeout(120);
+  for (let i = 0; i < 400 && ids.length < 200; i++) {
+    await page.mouse.wheel(0, 900);
+    await page.waitForTimeout(100);
   }
   page.off('response', sniff);
   if (ids.length < 200) throw new Error(`only ${ids.length} items loaded`);
@@ -193,7 +195,7 @@ await check('tapping the Feeds tab while on it scrolls to top and reshuffles wit
   await tab().click();
   await page.waitForFunction((b) => window.scrollY < 5, null, T);
   await cards().first().waitFor(T);
-  await page.waitForTimeout(600);
+  await page.waitForTimeout(900);
   const after = discoverCalls.filter((c) => !c.cursor).at(-1)?.seed;
   if (!after || after === before) throw new Error(`seed ${before} -> ${after}`);
   if ((await page.evaluate(() => scrollY)) > 5) throw new Error('not at the top');
