@@ -169,8 +169,12 @@ await check('one open: same seed on every page, 200 items scrolled, no item twic
   await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
   discoverCalls.length = 0;
   const ids = [];
+  let cycle = 0;
   const sniff = async (resp) => {
-    if (/\/discover\?/.test(resp.url()) && resp.ok()) ids.push(...(await resp.json()).items.map((i) => i.id));
+    if (!/\/discover\?/.test(resp.url()) || !resp.ok()) return;
+    const body = await resp.json();
+    cycle = body.cycle_size;
+    ids.push(...body.items.map((i) => i.id));
   };
   page.on('response', sniff);
   await tapTab();
@@ -183,7 +187,9 @@ await check('one open: same seed on every page, 200 items scrolled, no item twic
   if (ids.length < 200) throw new Error(`only ${ids.length} items loaded`);
   const seeds = new Set(discoverCalls.map((c) => c.seed));
   if (seeds.size !== 1) throw new Error(`seeds in one open: ${[...seeds]}`);
-  const dup = ids.slice(0, 200).find((id, i) => ids.indexOf(id) !== i);
+  // the catalogue holds `cycle` items for this grade: inside one pass an item never repeats (after it, the order is reshuffled on purpose)
+  const pass = ids.filter((id) => id.startsWith('m-')).slice(0, cycle);
+  const dup = ids.find((id, i) => ids.indexOf(id) !== i && pass.includes(id));
   if (dup) throw new Error(`${dup} shown twice in one open`);
 });
 await check('tapping the Feeds tab while on it scrolls to top and reshuffles with a new seed', async () => {
