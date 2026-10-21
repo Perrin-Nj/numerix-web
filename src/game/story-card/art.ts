@@ -6,7 +6,31 @@ export type Family = 'postcard' | 'badge' | 'present';
 export type Glyph = { g: string; x: number; y: number; size: number; rot: number };
 export type Piece = { x: number; y: number; rot: number; k: 0 | 1 | 2 | 3; hue: number; size: number };
 
+export const TAPES = ['#fde68a', '#fbcfe8', '#bae6fd', '#bbf7d0', '#ddd6fe', '#fed7aa'] as const;
+export const PAPERS = [
+  { bg: '#fbf3e2', edge: '#d8c8a4' },
+  { bg: '#f7f1e8', edge: '#d9ccb8' },
+  { bg: '#f3f6ea', edge: '#c9d3ae' },
+  { bg: '#eef3f8', edge: '#b9c9dc' },
+  { bg: '#f9eeee', edge: '#dcb9b9' },
+  { bg: '#f4eefa', edge: '#cdbbe0' },
+  { bg: '#fdf6d8', edge: '#e0d08a' },
+  { bg: '#eaf6f2', edge: '#aed3c6' },
+] as const;
+export const STICKERS = ['stamp', 'circle', 'pill', 'star', 'tag'] as const;
+export const STAMPS = ['ring', 'box', 'double', 'solid'] as const;
+/** Paper-card dressing, all derived from the card id. */
+export type Look = {
+  tapes: { side: 'start' | 'end'; off: number; rot: number; w: number; color: string }[];
+  paper: number;
+  tilt: number;
+  sticker: { shape: (typeof STICKERS)[number]; rot: number; tone: number };
+  stamp: { style: (typeof STAMPS)[number]; rot: number };
+  sig: string;
+};
+
 export type Art = {
+  look: Look;
   family: Family;
   /** Silhouette. Families never share one: postcard, round or shield, present. */
   shape: 'postcard' | 'round' | 'shield' | 'present';
@@ -55,6 +79,21 @@ export function sourceOf(id: string): CardSource {
   return id === 'welcome' ? 'gift' : id.startsWith('ch-') ? 'challenge' : 'chapter';
 }
 
+function lookFor(id: string): Look {
+  const r = rng(seedOf(`look|${id}`));
+  const tapes: Look['tapes'] = [];
+  for (let i = 0, m = 1 + r.int(2); i < m; i++)
+    tapes.push({ side: r.next() < 0.5 ? 'start' : 'end', off: Math.round(r.range(4, 40)), rot: Math.round(r.range(-14, 14)), w: Math.round(r.range(34, 64)), color: TAPES[r.int(TAPES.length)] });
+  const l = {
+    tapes,
+    paper: r.int(PAPERS.length),
+    tilt: Math.round(r.range(-30, 30)) / 10,
+    sticker: { shape: STICKERS[r.int(STICKERS.length)], rot: Math.round(r.range(-14, 14)), tone: r.int(TAPES.length) },
+    stamp: { style: STAMPS[r.int(STAMPS.length)], rot: Math.round(r.range(-20, 20)) },
+  };
+  return { ...l, sig: seedOf(JSON.stringify(l)).toString(36) };
+}
+
 export function artFor(id: string, world: string, source: CardSource = 'chapter'): Art {
   const family = familyOf(source);
   const r = rng(seedOf(`${family}|${world}|${id}`));
@@ -62,6 +101,7 @@ export function artFor(id: string, world: string, source: CardSource = 'chapter'
   const hue = family === 'postcard' ? (baseHue + r.int(61) - 30 + 360) % 360 : r.int(360);
   const hue2 = (hue + 40 + r.int(120)) % 360;
   const art: Omit<Art, 'signature'> = {
+    look: lookFor(id),
     family,
     shape: family === 'postcard' ? 'postcard' : family === 'present' ? 'present' : r.next() < 0.5 ? 'round' : 'shield',
     hue,

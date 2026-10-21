@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { StoryCard } from './StoryCard';
+import { photosFor } from './card-photos';
 
 const meta = {
   title: 'game/StoryCard',
@@ -80,3 +81,27 @@ export const ReducedMotion: Story = { globals: { motion: 'reduced' } };
 export const TVScale: Story = { globals: { display: 'tv' } };
 export const French: Story = { globals: { locale: 'fr-CA' } };
 export const English: Story = { globals: { locale: 'en-CA' } };
+
+const COLLECTION = [
+  ['nature', 'Le premier pas'], ['nature', 'La clairière qui chantait'], ['nature', 'Le secret des graines endormies'], ['nature', 'Le chemin des feuilles'],
+  ['nature', 'La mare aux grenouilles'], ['nature', 'Le partage des pommes'], ['espace', 'La fusée en panne'], ['espace', 'Une nuit de comètes'],
+  ['cuisine', 'La soupe de minuit'], ['sport', 'Le grand match'], ['ocean', 'Les poissons du récif'], ['musique', 'Le tambour magique'],
+] as const;
+/** Twelve cards in one list: the regression test (scripts/check-card-collection.mjs) asserts unique photos and layouts. */
+export const Collection: Story = {
+  parameters: { layout: 'fullscreen' },
+  decorators: [(Story) => <div className="w-full max-w-none"><Story /></div>],
+  render: () => {
+    const cards = COLLECTION.map(([world, title], i) => ({ id: `5f1c1b0e-0000-4000-8000-0000000000${String(i + 10)}`, world, title, image_url: '', earned_at: `2026-03-${String(i + 10)}T15:00:00Z` }));
+    const photos = photosFor(cards);
+    return (
+      <ul data-testid="collection" className="mx-auto grid w-[min(calc(100vw-2rem),56rem)] grid-cols-2 gap-3 p-3 sm:grid-cols-3 lg:grid-cols-4">
+        {cards.map((c) => (
+          <li key={c.id}>
+            <StoryCard card={c} photo={photos.get(c.id)} />
+          </li>
+        ))}
+      </ul>
+    );
+  },
+};

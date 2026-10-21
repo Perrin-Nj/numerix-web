@@ -38,3 +38,27 @@ if (distinct < 95) { console.error(`Art check failed: ${distinct}/100 distinct`)
 if (new Set(all).size !== all.length) { console.error('Art check failed: families share a shape'); process.exit(1); }
 if (artFor('x', 'nature', 'chapter').signature !== artFor('x', 'nature', 'chapter').signature) { console.error('Art check failed: not deterministic'); process.exit(1); }
 console.log(`Art check passed (${distinct}/100 distinct)`);
+
+// Photo pool: >= 60 photos over the 20 worlds, files and credits present; a list never repeats a photo until the pool is used up; deterministic; pinned wins.
+{
+  const { assignPhotos } = await import('../src/game/story-card/card-pick.ts');
+  const { readFileSync, existsSync } = await import('node:fs');
+  const pool = JSON.parse(readFileSync(new URL('../src/game/story-card/card-photos.json', import.meta.url), 'utf8'));
+  const credits = JSON.parse(readFileSync(new URL('../public/cards/credits.json', import.meta.url), 'utf8'));
+  const fail = (m) => { console.error(`Photo pool check failed: ${m}`); process.exit(1); };
+  if (pool.length < 60) fail(`only ${pool.length} photos`);
+  if (new Set(pool.map((p) => p.world)).size < 20) fail('worlds not all covered');
+  for (const p of pool) {
+    if (!existsSync(new URL(`../public/cards/${p.id}.webp`, import.meta.url))) fail(`missing file ${p.id}`);
+    if (!credits.some((c) => c.id === p.id && c.licence && c.source_url)) fail(`no credit for ${p.id}`);
+  }
+  const cards = Array.from({ length: pool.length }, (_, i) => ({ id: `c${i}`, world: worlds[i % worlds.length], title: 'Le premier pas', earned_at: `2026-01-${String((i % 28) + 1).padStart(2, '0')}` }));
+  const a = assignPhotos(pool, cards);
+  if (new Set([...a.values()].map((p) => p.id)).size !== pool.length) fail('a photo repeats before the pool is used up');
+  if ([...assignPhotos(pool, cards)].some(([k, v]) => a.get(k).id !== v.id)) fail('not deterministic');
+  const some = cards.slice(0, 12);
+  const pin = { c3: pool[5].id };
+  const b = assignPhotos(pool, some, pin);
+  if (b.get('c3').id !== pool[5].id || new Set([...b.values()].map((p) => p.id)).size !== 12) fail('pinned photo not kept or repeated');
+  console.log(`Photo pool check passed (${pool.length} photos, 20 worlds)`);
+}

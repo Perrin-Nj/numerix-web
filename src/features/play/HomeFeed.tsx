@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app';
@@ -16,7 +16,7 @@ import { MascotBubble } from '@/game/mascot-bubble';
 import { useAdminCopy } from '@/features/common/useAdminCopy';
 import { MenuTile } from '@/game/menu-tile';
 import { QuestCard } from '@/game/quest-card';
-import { StoryCard } from '@/game/story-card';
+import { StoryCard, photosFor } from '@/game/story-card';
 import { StreakBadge } from '@/game/streak-badge';
 import dynamic from 'next/dynamic';
 import { WorldTeaser } from '@/game/world-teaser';
@@ -41,6 +41,7 @@ export function HomeFeed() {
   const home = useHome(childId);
   const claim = useClaimGift(childId);
   const d = home.data;
+  const recentPhotos = useMemo(() => photosFor(d?.recent_cards ?? []), [d?.recent_cards]);
   const openChallenges = d?.active_challenges ?? 0;
   const { begin, dialog } = useStartChapter(childId);
   const [tourDone, setTourDone] = useState(false);
@@ -167,7 +168,7 @@ export function HomeFeed() {
               <h2 className="font-display text-2xl font-bold">{t('recentCards')}</h2>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 {d.recent_cards.map((c) => (
-                  <StoryCard key={c.id} card={c} variant="tile" onOpen={() => router.push('/play/collection')} />
+                  <StoryCard key={c.id} card={c} photo={recentPhotos.get(c.id)} variant="tile" onOpen={() => router.push('/play/collection')} />
                 ))}
               </div>
             </div>

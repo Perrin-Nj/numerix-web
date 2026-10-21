@@ -24,3 +24,10 @@ Photographs from Wikimedia Commons, cropped to 384 px WebP by `scripts/fetch-tex
 | cloth.webp (book cover fabric) | Delany Dean, Sanford FL | CC BY 2.0, credit required | https://commons.wikimedia.org/wiki/File:Book_cover_fabric_-_Flickr_-_Delany_Dean.jpg |
 
 Credit line for the two CC BY pictures: "Blue water ripple surface" by Nenad Stojkovic and "Book cover fabric" by Delany Dean, both CC BY 2.0 (https://creativecommons.org/licenses/by/2.0/), cropped and tinted.
+
+## Collectible card photos
+
+- `public/cards/*.webp` (118 photos, 480 px WebP, lazy loaded): the 480 px variant of every approved photo of the 20 worlds in the API seed (`numerix-api/seed/assets`, fetched and licence-checked by `tools/assets/fetch.mjs`). Licences: CC0 (69), Public Domain Mark (17), CC BY 2.0 (22), CC BY 3.0 (3), CC BY 4.0 (7).
+- Creator, licence, source link and the exact credit line of each photo are in `public/cards/credits.json` (and on the Credits page through `GET /v1/credits`, same asset ids).
+- Rebuild: `node scripts/build-card-photos.mjs <path to numerix-api/seed/assets>`.
+- Which photo a card shows: `src/game/story-card/card-pick.ts` (title words against photo topics, then world, no repeat inside a list). A card whose `image_url` is set by the backend shows that picture instead, so an admin can replace one card's art through the card data without a release.

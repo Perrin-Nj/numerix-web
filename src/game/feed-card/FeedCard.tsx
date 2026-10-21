@@ -1,11 +1,11 @@
 'use client';
-import { memo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { AnswerValue, FeedItem, Outcome } from '@/data/api/types';
 import { AiBadge } from '@/game/ai-badge';
 import { ChoiceButton, type ChoiceState } from '@/game/choice-button';
 import { IllustrationFrame } from '@/game/illustration-frame';
-import { WorldScene } from '@/game/world-scene';
+import { photosFor } from '@/game/story-card';
 import { Mascot } from '@/game/mascot';
 import { MascotBubble } from '@/game/mascot-bubble';
 import { NarrationText } from '@/game/narration-text';
@@ -26,6 +26,8 @@ export type FeedCardProps = {
 
 function FeedCardBase({ item, onReact, onAnswer, onCta, active = false }: FeedCardProps) {
   const t = useTranslations('game.feedCard');
+  // Each fun fact gets its own photo (matched on its title, pinned per item) instead of the world's single banner
+  const photo = useMemo(() => photosFor([{ id: item.id, world: item.world, title: item.title, earned_at: '' }], '.feed').get(item.id)!, [item.id, item.world, item.title]);
   const [picked, setPicked] = useState<AnswerValue | null>(null);
   const [result, setResult] = useState<FeedAnswerResult | null>(null);
 
@@ -63,7 +65,8 @@ function FeedCardBase({ item, onReact, onAnswer, onCta, active = false }: FeedCa
         {item.kind === 'fun_fact' ? (
           <>
             <span aria-hidden className="block h-32 overflow-hidden rounded-lg">
-              <WorldScene world={item.world} variant="banner" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/cards/${photo.id}.webp`} alt="" draggable={false} loading="lazy" decoding="async" className="size-full object-cover" />
             </span>
             {author}
             <h2 className="font-display text-3xl font-bold text-fg md:text-4xl">{item.title}</h2>

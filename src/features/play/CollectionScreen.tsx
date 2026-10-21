@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useCollection, useSessionStatus } from '@/data/hooks';
-import { StoryCard } from '@/game/story-card';
+import { StoryCard, photosFor } from '@/game/story-card';
 import { Button } from '@/ui/button';
 import { EmptyState } from '@/ui/empty-state';
 import { ScreenState } from '@/game/screen-state';
@@ -19,12 +19,13 @@ export function CollectionScreen() {
   const col = useCollection(status.data?.childId ?? null);
   const more = useRef<HTMLDivElement>(null);
 
+  const items = useMemo(() => (col.data?.pages.flatMap((p) => p.items) ?? []) as StoryCardData[], [col.data]);
+  const photos = useMemo(() => photosFor(items), [items]);
   const groups = useMemo(() => {
-    const items = (col.data?.pages.flatMap((p) => p.items) ?? []) as StoryCardData[];
     const map = new Map<string, StoryCardData[]>();
     for (const c of items) map.set(c.world, [...(map.get(c.world) ?? []), c]);
     return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
-  }, [col.data]);
+  }, [items]);
 
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = col;
   useEffect(() => {
@@ -69,7 +70,7 @@ export function CollectionScreen() {
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {cards.map((c) => (
               <li key={c.id}>
-                <StoryCard card={c} variant="tile" />
+                <StoryCard card={c} photo={photos.get(c.id)} variant="tile" />
               </li>
             ))}
           </ul>

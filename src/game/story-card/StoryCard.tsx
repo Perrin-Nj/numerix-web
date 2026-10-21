@@ -5,9 +5,9 @@ import { cn } from '@/shared/cn';
 import { useReducedMotion } from '@/platform/motion';
 import type { StoryCard as StoryCardData } from '@/data/api/types';
 import { IllustrationFrame } from '@/game/illustration-frame';
-import { artFor, sourceOf, type Art } from './art';
+import { artFor, sourceOf, PAPERS, TAPES, type Art } from './art';
+import { photosFor, type CardPhoto } from './card-photos';
 import { metalGradient } from './CardArt';
-import { WorldScene } from '@/game/world-scene';
 import { Icon } from '@/ui/icon';
 import { cardStyleFor, type CardSource } from './card-style';
 
@@ -17,12 +17,27 @@ export type StoryCardProps = {
   variant?: 'tile' | 'reveal';
   /** Chapter = storybook postcard, challenge = medal badge, gift = wrapped present. Inferred from the card id when omitted. */
   source?: CardSource;
+  /** Photo picked for this card by the list (photosFor), so no two cards of one list share a picture. Picked from the card alone when omitted. */
+  photo?: CardPhoto;
 };
 
 const FACE = '[grid-area:1/1] [backface-visibility:hidden] [-webkit-backface-visibility:hidden]';
 const NOTCH = 'polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px)';
 const SHIELD = 'polygon(50% 0,100% 12%,100% 58%,50% 100%,0 58%,0 12%)';
 const HAND = "'Segoe Script','Bradley Hand',Georgia,serif";
+const STICKER_SHAPE: Record<string, { cls: string; clip?: string }> = {
+  stamp: { cls: 'size-11 [outline:3px_dotted_#c9b78b] [outline-offset:-3px]' },
+  circle: { cls: 'size-12 rounded-full border-2 border-stone-700/40' },
+  pill: { cls: 'h-6 w-16 rounded-full border-2 border-stone-700/40' },
+  star: { cls: 'size-16', clip: 'polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)' },
+  tag: { cls: 'h-7 w-16 ps-1', clip: 'polygon(0 0,82% 0,100% 50%,82% 100%,0 100%)' },
+};
+const STAMP_STYLE = {
+  ring: 'rounded-full border-2 border-stone-500/60',
+  box: 'rounded-none border-2 border-stone-500/60',
+  double: 'rounded-sm border-4 border-double border-stone-500/60',
+  solid: 'rounded bg-stone-500/20',
+} as const;
 const hsl = (h: number, s: number, l: number, a = 1) => `hsl(${h} ${s}% ${l}% / ${a})`;
 
 /** Parallax layer: moves with the pointer, deeper layers move more and sit closer to the viewer. */
@@ -88,35 +103,47 @@ function GiftDress({ label }: { label: string }) {
   );
 }
 
-type Parts = { art: Art; title: string; date: string; rarity: string; hue: number; angle: number; reduced: boolean; image: ReactNode; gift: string; giftBack: string };
+type Parts = { photo: string; art: Art; title: string; date: string; rarity: string; hue: number; angle: number; reduced: boolean; image: ReactNode; gift: string; giftBack: string };
 
 function PostcardFront({ art, title, date, rarity, reduced, image }: Parts) {
-  const corner = ['end-2 top-2', 'start-2 top-2', 'end-2 bottom-2', 'start-2 bottom-2'][art.corner];
+  const corner = ['end-4 top-3', 'start-4 top-3', 'end-4 bottom-3', 'start-4 bottom-3'][art.corner];
+  const { look } = art;
+  const paper = PAPERS[look.paper];
+  const sticker = STICKER_SHAPE[look.sticker.shape];
   return (
     <span
       className={cn(FACE, 'relative flex flex-col gap-2 rounded-md p-2.5 text-stone-900')}
       style={{
-        backgroundColor: '#fbf3e2',
+        backgroundColor: paper.bg,
         backgroundImage: 'repeating-linear-gradient(0deg, rgb(120 90 40 / 0.05) 0 1px, transparent 1px 3px), radial-gradient(circle at 20% 10%, rgb(255 255 255 / 0.7), transparent 60%)',
-        boxShadow: 'inset 0 0 0 1px #d8c8a4, inset 0 0 0 5px #fbf3e2, inset 0 0 0 6px #e4d5b0',
+        boxShadow: `inset 0 0 0 1px ${paper.edge}, inset 0 0 0 5px ${paper.bg}, inset 0 0 0 6px ${paper.edge}`,
       }}
     >
-      <span aria-hidden className="absolute -top-2 start-6 z-10 h-4 w-12 -rotate-6 bg-amber-200/80 shadow-1" />
-      <span aria-hidden className="absolute -top-2 end-6 z-10 h-4 w-10 rotate-3 bg-amber-200/80 shadow-1" />
+      {look.tapes.map((t, i) => (
+        <span
+          key={i}
+          aria-hidden
+          className="absolute -top-2 z-10 h-4 opacity-80 shadow-1"
+          style={{ [t.side === 'start' ? 'insetInlineStart' : 'insetInlineEnd']: `${t.off}%`, width: t.w, rotate: `${t.rot}deg`, backgroundColor: t.color }}
+        />
+      ))}
       <span className="relative mt-1 block aspect-[5/6] overflow-hidden rounded-sm" style={{ boxShadow: 'inset 0 0 0 2px rgb(0 0 0 / 0.15)' }}>
         {image}
         <Sparkles art={art} reduced={reduced} />
         <Layer depth={14} className={corner}>
-          <span className="flex size-11 flex-col items-center justify-center bg-[#fbf3e2] text-[0.6rem] font-bold uppercase leading-none shadow-2 [outline:3px_dotted_#c9b78b] [outline-offset:-3px]">
+          <span
+            className={cn('flex flex-col items-center justify-center text-[0.6rem] font-bold uppercase leading-none text-stone-900 shadow-2', sticker.cls)}
+            style={{ backgroundColor: TAPES[look.sticker.tone], rotate: `${look.sticker.rot}deg`, clipPath: sticker.clip }}
+          >
             {rarity}
           </span>
         </Layer>
       </span>
-      <span className="flex items-end justify-between gap-2 px-1 pb-1">
-        <span className="text-lg font-bold leading-tight" style={{ fontFamily: HAND }}>
+      <span className="flex flex-wrap items-end justify-between gap-x-2 gap-y-1 px-1 pb-1">
+        <span className="min-w-[6rem] flex-1 text-lg font-bold leading-tight [overflow-wrap:anywhere]" style={{ fontFamily: HAND }}>
           {title}
         </span>
-        <span aria-hidden className="mb-0.5 shrink-0 -rotate-12 rounded-full border-2 border-stone-500/60 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase text-stone-600">
+        <span aria-hidden className={cn('mb-0.5 max-w-[48%] shrink-0 text-center leading-tight px-1.5 py-0.5 text-[0.6rem] font-bold uppercase text-stone-600', STAMP_STYLE[look.stamp.style])} style={{ rotate: `${look.stamp.rot}deg` }}>
           {date}
         </span>
       </span>
@@ -124,14 +151,15 @@ function PostcardFront({ art, title, date, rarity, reduced, image }: Parts) {
   );
 }
 
-function PostcardBack({ title, date, rarity }: Parts) {
+function PostcardBack({ art, title, date, rarity }: Parts) {
+  const paper = PAPERS[art.look.paper];
   return (
     <span
       className={cn(FACE, 'relative flex flex-col justify-between gap-3 rounded-md p-4 text-stone-900 ')}
       style={{
-        backgroundColor: '#f6ecd6',
-        backgroundImage: 'linear-gradient(90deg, transparent 49.5%, #c9b78b 49.5% 50.5%, transparent 50.5%), repeating-linear-gradient(0deg, transparent 0 22px, #d8c8a4 22px 23px)',
-        boxShadow: 'inset 0 0 0 1px #d8c8a4',
+        backgroundColor: paper.bg,
+        backgroundImage: `linear-gradient(90deg, transparent 49.5%, ${paper.edge} 49.5% 50.5%, transparent 50.5%), repeating-linear-gradient(0deg, transparent 0 22px, ${paper.edge} 22px 23px)`,
+        boxShadow: `inset 0 0 0 1px ${paper.edge}`,
       }}
     >
       <span className="ms-auto flex size-12 flex-col items-center justify-center bg-[#fbf3e2] text-[0.6rem] font-bold uppercase [outline:3px_dotted_#c9b78b] [outline-offset:-3px]">
@@ -236,7 +264,7 @@ function PresentBack({ title, date, giftBack }: Parts) {
 const FRONT = { postcard: PostcardFront, badge: BadgeFront, present: PresentFront } as const;
 const BACK = { postcard: PostcardBack, badge: BadgeBack, present: PresentBack } as const;
 
-function StoryCardBase({ card, onOpen, variant = 'tile', source }: StoryCardProps) {
+function StoryCardBase({ card, onOpen, variant = 'tile', source, photo }: StoryCardProps) {
   const t = useTranslations('game.storyCard');
   const format = useFormatter();
   const reduced = useReducedMotion();
@@ -247,6 +275,7 @@ function StoryCardBase({ card, onOpen, variant = 'tile', source }: StoryCardProp
   const src = source ?? sourceOf(card.id);
   const art = useMemo(() => artFor(card.id, card.world, src), [card.id, card.world, src]);
   const style = cardStyleFor(card.id, card.world, src);
+  const pic = useMemo(() => photo ?? photosFor([card]).get(card.id)!, [photo, card]);
   const parts: Parts = {
     art,
     title: card.title,
@@ -255,7 +284,13 @@ function StoryCardBase({ card, onOpen, variant = 'tile', source }: StoryCardProp
     hue: style.hue,
     angle: style.foilAngle,
     reduced,
-    image: card.image_url ? <IllustrationFrame world={card.world} src={card.image_url} alt="" className="size-full" /> : <WorldScene world={card.world} variant="hero" />,
+    photo: pic.id,
+    image: card.image_url ? (
+      <IllustrationFrame world={card.world} src={card.image_url} alt="" className="size-full" />
+    ) : (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={`/cards/${pic.id}.webp`} alt="" data-photo={pic.id} draggable={false} loading={reveal ? 'eager' : 'lazy'} decoding="async" className="absolute inset-0 size-full object-cover" />
+    ),
     gift: t('banner.gift'),
     giftBack: t('giftBack'),
   };
@@ -287,7 +322,11 @@ function StoryCardBase({ card, onOpen, variant = 'tile', source }: StoryCardProp
     mixBlendMode: 'soft-light',
   };
   return (
-    <span className={cn('block w-full [perspective:900px]', reveal ? 'max-w-[10.5rem] nx-card-enter' : 'nx-card-pop')}>
+    <span
+      data-layout={art.look.sig}
+      className={cn('block w-full [perspective:900px]', reveal ? 'max-w-[10.5rem] nx-card-enter' : 'nx-card-pop')}
+      style={art.family === 'postcard' ? { rotate: `${art.look.tilt}deg` } : undefined}
+    >
       <span className={cn('block', !reduced && 'nx-card-float')} style={{ animationDelay: `${(art.hue % 7) * -0.5}s` }}>
         <button
           ref={ref}
