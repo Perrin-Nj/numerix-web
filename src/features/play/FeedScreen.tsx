@@ -1,11 +1,11 @@
 'use client';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAdminCopy } from '@/features/common/useAdminCopy';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { reportError } from '@/platform/errors/bridge';
 import type { AnswerValue, DiscoverItem, DiscoverPage, FeedItem } from '@/data/api/types';
-import { answerFeedPuzzle, reactToFeedItem, useDiscover, useSessionStatus } from '@/data/hooks';
+import { answerFeedPuzzle, FEED_RETAP, newDiscoverSeed, reactToFeedItem, useDiscover, useSessionStatus } from '@/data/hooks';
 import { useStartChapter } from './useStartChapter';
 import { FeedCard } from '@/game/feed-card';
 import { MediaCard } from '@/game/media-card';
@@ -45,7 +45,10 @@ export function FeedScreen() {
   const qc = useQueryClient();
   const status = useSessionStatus();
   const childId = status.data?.childId ?? null;
-  const feed = useDiscover(childId);
+  // A new random order every time the tab opens (this component mounts again on every visit) or is tapped again.
+  const [seed, setSeed] = useState(newDiscoverSeed);
+  const [fading, setFading] = useState(false);
+  const feed = useDiscover(childId, seed);
   const { begin, dialog } = useStartChapter(childId);
   const [active, setActive] = useState(0);
   const [scrolled, setScrolled] = useState(false);
@@ -58,6 +61,35 @@ export function FeedScreen() {
     [feed.data],
   );
   const total = entries.length;
+
+  // Tab tapped while already here (or page restored from the back-forward cache): top of the page, new order.
+  useEffect(() => {
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const reshuffle = () => {
+      const swap = () => {
+        heights.clear();
+        lastActive.current = 0;
+        setActive(0);
+        window.scrollTo({ top: 0, behavior: 'auto' }); // the smooth scroll may have been cut short by the swap
+        setSeed(newDiscoverSeed());
+        setFading(false);
+      };
+      window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
+      if (calm) return swap(); // reduced motion: no animation at all
+      setFading(true);
+      clearTimeout(timer);
+      timer = setTimeout(swap, 180);
+    };
+    const onShow = (e: PageTransitionEvent) => e.persisted && reshuffle();
+    window.addEventListener(FEED_RETAP, reshuffle);
+    window.addEventListener('pageshow', onShow);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener(FEED_RETAP, reshuffle);
+      window.removeEventListener('pageshow', onShow);
+    };
+  }, [heights]);
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = feed;
 
   const onActiveChange = useCallback(
@@ -75,10 +107,10 @@ export function FeedScreen() {
 
   const patch = useCallback(
     (id: string, next: Reaction) =>
-      qc.setQueryData<Cache>(['discover', childId ?? ''], (d) =>
+      qc.setQueryData<Cache>(['discover', childId ?? '', seed], (d) =>
         d && { ...d, pages: d.pages.map((pg) => ({ ...pg, items: pg.items.map((it) => (it.id === id ? { ...it, ...next } : it)) })) },
       ),
-    [qc, childId],
+    [qc, childId, seed],
   );
 
   const react = useCallback(
@@ -152,6 +184,7 @@ export function FeedScreen() {
       {!loading && feed.data && total === 0 && <p className="py-10 text-center font-display text-xl text-muted">{emptyCopy || t('empty')}</p>}
       {total > 0 && (
         <>
+          <div className={`motion-safe:transition-opacity motion-safe:duration-150 ${fading ? 'opacity-0' : 'opacity-100'}`}>
           <SnapFeed ariaLabel={t('label')} scroll="page" onActiveChange={onActiveChange}>
             {entries.map(({ key, item }, i) => {
               const near = Math.abs(i - active) <= WINDOW;
@@ -177,6 +210,7 @@ export function FeedScreen() {
               </div>
             )}
           </SnapFeed>
+          </div>
           {!scrolled && (
             <p
               role="status"

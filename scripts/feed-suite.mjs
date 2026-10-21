@@ -119,7 +119,7 @@ await check('micro-question: tap to reveal the answer, Numa reacts', async () =>
   await q.getByRole('button', { name: /voir la réponse/i }).click();
   await q.locator('[data-mascot="numa"]').waitFor(T);
 });
-await check('like and save come back from the server after a reload', async () => {
+await check('like and save come back from the server after a reload (the order reshuffles, the reaction does not)', async () => {
   await page.evaluate(() => scrollTo(0, 0));
   await page.waitForTimeout(500);
   const first = page.locator('article[data-media]').first();
@@ -131,8 +131,80 @@ await check('like and save come back from the server after a reload', async () =
   }
   await first.getByRole('button', { name: /j.aime/i }).click();
   await liked.waitFor(T);
+  const seed = await page.evaluate(() => new URLSearchParams(performance.getEntriesByType('resource').filter((r) => /\/discover\?/.test(r.name)).at(-1).name.split('?')[1]).get('seed'));
   await page.reload({ waitUntil: 'networkidle' });
-  await page.locator(`article[aria-label="${id.replace(/"/g, '\\"')}"]`).getByRole('button', { name: /^aimé/i }).waitFor(T);
+  const r = await page.evaluate(async ([c, sd]) => (await fetch(`/api/v1/children/${c}/discover?limit=12&seed=${sd}`, { headers: { 'x-nx-mode': 'child' } })).json(), [cid, seed]);
+  if (!r.items.some((it) => it.liked)) throw new Error(`no liked item in the page of seed ${seed} (${id})`);
+});
+
+// ---------- 2b. every open and every tap is a new random order ----------
+// Walk the app like a child: Home, then the Discover tab. Each open must send its own seed and show a different first page.
+const discoverCalls = [];
+page.on('request', (rq) => {
+  const u = new URL(rq.url());
+  if (/\/discover$/.test(u.pathname)) discoverCalls.push({ cursor: u.searchParams.get('cursor'), seed: u.searchParams.get('seed') });
+});
+const firstIds = (seed) => page.evaluate(async ([c, sd]) => (await (await fetch(`/api/v1/children/${c}/discover?limit=12&seed=${sd}`, { headers: { 'x-nx-mode': 'child' } })).json()).items.map((i) => i.id).join(), [cid, seed]);
+const tab = () => page.locator('nav a[href="/play/feed"]').first();
+// Home shows a first-visit spotlight over the nav, so the tab is clicked in the DOM (same React onClick and navigation)
+const tapTab = () => tab().evaluate((a) => a.click());
+await check('open the Feeds tab 5 times: at least 4 different first pages, each open has its own seed', async () => {
+  const seen = [];
+  const seeds = new Set();
+  for (let i = 0; i < 5; i++) {
+    await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
+    discoverCalls.length = 0;
+    await tapTab();
+    await page.waitForURL('**/play/feed', T);
+    await cards().first().waitFor(T);
+    const call = discoverCalls.find((c) => !c.cursor);
+    if (!call?.seed) throw new Error('first page sent without a seed');
+    seeds.add(call.seed);
+    seen.push(await firstIds(call.seed));
+  }
+  if (seeds.size !== 5) throw new Error(`only ${seeds.size} distinct seeds`);
+  if (new Set(seen).size < 4) throw new Error(`only ${new Set(seen).size} distinct first pages in 5 opens`);
+});
+await check('one open: same seed on every page, 200 items scrolled, no item twice', async () => {
+  await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' });
+  discoverCalls.length = 0;
+  const ids = [];
+  let cycle = 0;
+  const sniff = async (resp) => {
+    if (!/\/discover\?/.test(resp.url()) || !resp.ok()) return;
+    const body = await resp.json();
+    cycle = body.cycle_size;
+    ids.push(...body.items.map((i) => i.id));
+  };
+  page.on('response', sniff);
+  await tapTab();
+  await page.waitForURL('**/play/feed', T);
+  for (let i = 0; i < 400 && ids.length < 200; i++) {
+    await page.mouse.wheel(0, 900);
+    await page.waitForTimeout(100);
+  }
+  page.off('response', sniff);
+  if (ids.length < 200) throw new Error(`only ${ids.length} items loaded`);
+  const seeds = new Set(discoverCalls.map((c) => c.seed));
+  if (seeds.size !== 1) throw new Error(`seeds in one open: ${[...seeds]}`);
+  // the catalogue holds `cycle` items for this grade: inside one pass an item never repeats (after it, the order is reshuffled on purpose)
+  const pass = ids.filter((id) => id.startsWith('m-')).slice(0, cycle);
+  const dup = ids.find((id, i) => ids.indexOf(id) !== i && pass.includes(id));
+  if (dup) throw new Error(`${dup} shown twice in one open`);
+});
+await check('tapping the Feeds tab while on it scrolls to top and reshuffles with a new seed', async () => {
+  await page.goto(`${BASE}/play/feed`, { waitUntil: 'networkidle' });
+  await cards().first().waitFor(T);
+  for (let i = 0; i < 6; i++) await page.mouse.wheel(0, 700);
+  await page.waitForTimeout(500);
+  const before = discoverCalls.filter((c) => !c.cursor).at(-1)?.seed;
+  await tab().click();
+  await page.waitForFunction((b) => window.scrollY < 5, null, T);
+  await cards().first().waitFor(T);
+  await page.waitForTimeout(900);
+  const after = discoverCalls.filter((c) => !c.cursor).at(-1)?.seed;
+  if (!after || after === before) throw new Error(`seed ${before} -> ${after}`);
+  if ((await page.evaluate(() => scrollY)) > 5) throw new Error('not at the top');
 });
 
 // ---------- 3. video: play in view, pause out of view, muted, captions ----------

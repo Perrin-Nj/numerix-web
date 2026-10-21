@@ -4,7 +4,7 @@ import { cn } from '@/shared/cn';
 import { useSound } from '@/platform/audio';
 import { Icon, type IconName } from '@/ui/icon';
 
-export type BottomNavItem = { href: string; label: string; icon: IconName; active: boolean };
+export type BottomNavItem = { href: string; label: string; icon: IconName; active: boolean; onSelect?: () => void };
 export type BottomNavProps = { items: BottomNavItem[]; ariaLabel: string };
 
 /** Primary navigation outside of play. Never shown on the story screen. */
@@ -20,7 +20,10 @@ export function BottomNav({ items, ariaLabel }: BottomNavProps) {
           <li key={it.href} className="flex-1">
             <Link
               href={it.href}
-              onClick={() => play('switch')}
+              onClick={() => {
+                play('switch');
+                it.onSelect?.();
+              }}
               aria-current={it.active ? 'page' : undefined}
               className={cn(
                 'flex min-h-16 flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 font-display text-sm font-semibold transition-[transform,background-color,color] duration-[var(--dur-1)] active:scale-95',
