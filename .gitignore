@@ -25,3 +25,5 @@ smoke-error-shots/
 .next-*/
 qa-shots/
 sb.log
+!.env.example
+!admin/.env.example
