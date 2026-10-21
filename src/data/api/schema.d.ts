@@ -3768,8 +3768,10 @@ export interface operations {
         parameters: {
             query?: {
                 cursor?: string;
-                /** @description A fresh random number the app picks each time the child opens or taps the Discover tab. It changes the
-                 *     order; send the same seed with every page of one visit. Without it the order is the child's fixed one. */
+                /**
+                 * @description A fresh random number the app picks each time the child opens or taps the Discover tab. It changes the
+                 *     order; send the same seed with every page of one visit. Without it the order is the child's fixed one.
+                 */
                 seed?: number;
                 limit?: number;
             };
