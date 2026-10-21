@@ -73,7 +73,7 @@
     "playwright": "latest",
     "prettier": "^3.9.10",
     "size-limit": "^14.2.0",
-    "storybook": "^10.6.1",
+    "storybook": "^10.6.2",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite": "latest",
