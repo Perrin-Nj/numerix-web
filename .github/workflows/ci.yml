@@ -83,7 +83,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: numerix-api/go.mod
       - run: pnpm install --frozen-lockfile
@@ -122,7 +122,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version: stable
       - run: go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 && "$(go env GOPATH)/bin/actionlint"
