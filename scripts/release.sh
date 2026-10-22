@@ -40,6 +40,8 @@ mkdir -p "$STAGE/.next" && cp -r "$SRC/static" "$STAGE/.next/static"
 [ -d public ] && cp -r public "$STAGE/public"
 [ -f "$STAGE/server.js" ] || { echo "no server.js in the standalone output (check outputFileTracingRoot)" >&2; exit 1; }
 echo "$ID" > "$STAGE/RELEASE"
+# mktemp creates the folder as 0700 and tar stores that mode; the service runs as another user and must be able to enter it
+chmod -R u+rwX,go+rX "$STAGE"
 tar -czf "$OUT/$APP.tgz" -C "$STAGE" .
 ( cd "$OUT" && sha256sum "$APP.tgz" )
 ls -la "$OUT/$APP.tgz"
