@@ -18,7 +18,7 @@ export function AiDraft({ open, onClose }: { open: boolean; onClose: () => void 
   const [f, setF] = useState({ world: '', quest: '', type: 'numeric', difficulty: '3', topic_hint: '' });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<ApiError | null>(null);
-  const list = quests.data?.items.filter((q) => !f.world || q.world === f.world) ?? [];
+  const list = (quests.data?.items ?? []).filter((q) => !f.world || q.world === f.world);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value, ...(k === 'world' ? { quest: '' } : {}) });
   async function go() {
     setBusy(true);

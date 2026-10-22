@@ -34,7 +34,17 @@ export async function api<T>(path: string, init?: { method?: string; body?: unkn
     const d = data as { message?: string; error?: string; detail?: string } | null;
     throw new ApiError(d?.message ?? d?.error ?? d?.detail ?? `HTTP ${res.status}`, res.status, data);
   }
-  return data as T;
+  return emptyListsToArrays(data) as T;
+}
+
+// The Go API answers `null` for an empty list (a nil slice). Pages call .map/.filter on these, so turn them into [].
+const LIST_KEYS = ['items', 'quests', 'worlds'];
+function emptyListsToArrays(data: unknown): unknown {
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    const o = data as Record<string, unknown>;
+    for (const k of LIST_KEYS) if (k in o && o[k] === null) o[k] = [];
+  }
+  return data;
 }
 
 export const qs = (o: Record<string, string | number | undefined | null>) => {
