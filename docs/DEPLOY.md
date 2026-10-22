@@ -38,7 +38,7 @@ SEED_CONTENT=1 bash scripts/test.sh play   # world map, journeys, every question
 The API is one static binary (`GOARCH=arm64` for the Ampere VM) with SQLite on the VM disk. Full walkthrough: `../numerix-api/docs/DEPLOY_ORACLE.md`. Short version, from `../numerix-api`:
 
 ```bash
-bash deploy/oracle/deploy.sh ubuntu@<vm-ip> arm64     # build, copy, restart (about 10 s of downtime)
+bash deploy/vps/deploy.sh ubuntu@<vm-ip> arm64     # build, copy, restart (about 10 s of downtime)
 curl -s https://<api-host>/v1/health                  # {"status":"ok",...}
 ```
 
