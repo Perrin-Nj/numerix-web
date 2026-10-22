@@ -17,6 +17,7 @@ export const SOUND_NAMES = [
   'toggle',
   'select',
   'switch',
+  'nav',
   'scroll',
   'pluck',
   'drop',

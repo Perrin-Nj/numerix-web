@@ -16,6 +16,7 @@ export const SOUND_FILES: Record<SoundName, readonly string[]> = {
   toggle: ['/sounds/toggle'],
   select: ['/sounds/select'],
   switch: ['/sounds/switch'],
+  nav: ['/sounds/tick'], // the player synthesizes a soft chime for this one; the file is only a fallback
   scroll: ['/sounds/scroll'],
   pluck: ['/sounds/pluck'],
   drop: ['/sounds/drop'],
@@ -53,6 +54,7 @@ export const SOUND_VOLUME: Record<SoundName, number> = {
   toggle: 0.4,
   select: 0.45,
   switch: 0.35,
+  nav: 0.25,
   scroll: 0, // the feed no longer plays it
   pluck: 0.6,
   drop: 0.55,

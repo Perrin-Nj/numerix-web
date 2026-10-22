@@ -13,6 +13,8 @@ export function BottomNav({ items, ariaLabel }: BottomNavProps) {
   return (
     <nav
       aria-label={ariaLabel}
+      // own transition layer: the bar stays still while the page cross-fades behind it
+      style={{ viewTransitionName: 'nx-nav' }}
       className="fixed inset-x-0 bottom-0 z-30 rounded-t-2xl bg-bg/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(0_0_0/0.06)] backdrop-blur supports-[not(backdrop-filter:blur(1px))]:bg-bg"
     >
       <ul className="mx-auto flex max-w-3xl items-stretch justify-around gap-1 px-2">
@@ -20,8 +22,9 @@ export function BottomNav({ items, ariaLabel }: BottomNavProps) {
           <li key={it.href} className="flex-1">
             <Link
               href={it.href}
+              prefetch
               onClick={() => {
-                play('switch');
+                play('nav');
                 it.onSelect?.();
               }}
               aria-current={it.active ? 'page' : undefined}

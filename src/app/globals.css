@@ -78,18 +78,19 @@ body {
    The fallback class animates only where the View Transitions API does not exist. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 180ms;
+  animation-duration: 140ms;
   animation-timing-function: var(--ease-out);
 }
 ::view-transition-group(nx-page) {
-  animation-duration: 220ms;
+  animation-duration: 160ms;
   animation-timing-function: var(--ease-out);
 }
+/* Plain cross-fade, no rise and no delay: the old screen leaves while the new one arrives, so nothing jumps */
 ::view-transition-old(nx-page) {
-  animation: nx-vt-out 120ms ease-in both;
+  animation: nx-vt-out 120ms linear both;
 }
 ::view-transition-new(nx-page) {
-  animation: nx-vt-in 220ms var(--ease-out) 60ms both;
+  animation: nx-vt-in 160ms var(--ease-out) both;
 }
 @keyframes nx-vt-out {
   to {
@@ -99,7 +100,6 @@ body {
 @keyframes nx-vt-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
 }
 @media (prefers-reduced-motion: reduce) {

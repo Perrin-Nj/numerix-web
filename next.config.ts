@@ -34,6 +34,9 @@ const nextConfig: NextConfig = {
   ...(selfHost ? { output: 'standalone' as const, outputFileTracingRoot: process.cwd() } : {}),
   // A second copy of the app (another port, another API) needs its own build folder
   distDir: process.env.NX_DIST ?? '.next',
+  // Screens load their data on the client, so a page's server payload is only a shell. Reusing it for 30 s makes a
+  // tab change instant instead of waiting for the server each time.
+  experimental: { staleTimes: { dynamic: 30, static: 180 } },
   async rewrites() {
     return [
       { source: '/assets/:path*', destination: `${apiBase}/assets/:path*` },

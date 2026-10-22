@@ -10,6 +10,7 @@ export class WebAudioPlayer implements AudioPlayer {
   private last = new Map<SoundName, number>();
   private enabled: boolean;
   private reported = false;
+  private lastChime = -1;
 
   /** Set by the provider; called once if a sound cannot load. */
   private onError?: (message: string) => void;
@@ -70,10 +71,42 @@ export class WebAudioPlayer implements AudioPlayer {
     return p;
   }
 
+  /** Soft two-tone chime for tab changes: sine waves, fast fade in, gentle fade out, no hard click. */
+  private chime() {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    if (now - this.lastChime < 0.09) return; // quick repeated taps must not stack into a buzz
+    this.lastChime = now;
+    const out = ctx.createGain();
+    out.gain.setValueAtTime(0.0001, now);
+    out.gain.exponentialRampToValueAtTime(SOUND_VOLUME.nav, now + 0.012);
+    out.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 2600;
+    out.connect(lp).connect(ctx.destination);
+    for (const [freq, level] of [[659.25, 1], [987.77, 0.35]] as const) {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq * 0.94, now);
+      osc.frequency.exponentialRampToValueAtTime(freq, now + 0.07);
+      g.gain.value = level;
+      osc.connect(g).connect(out);
+      osc.start(now);
+      osc.stop(now + 0.28);
+    }
+  }
+
   play(name: SoundName) {
     if (!this.enabled || typeof window === 'undefined') return;
     this.unlock();
     if (!this.ctx) return;
+    if (name === 'nav') {
+      this.chime();
+      return;
+    }
     const list = SOUND_FILES[name];
     const idx = pickVariant(list, this.last.get(name));
     this.last.set(name, idx);
