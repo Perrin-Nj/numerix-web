@@ -4,12 +4,11 @@ import { appConfig } from '@/config/app';
 import { useTheme, type DisplayMode, type ThemeChoice } from '@/platform/theme';
 import { AccountSecurity } from './AccountSecurity';
 import { ParentPage } from './ParentPage';
-import { Button } from '@/ui/button';
 import { Panel } from '@/ui/panel';
 import { Select } from '@/ui/select';
 import { Switch } from '@/ui/switch';
 
-/** Parent preferences and security: theme, language, reduced motion, guided tour replay, passkeys and devices. */
+/** Parent preferences and security: theme, language, reduced motion, passkeys and devices. */
 export function AccountScreen() {
   const t = useTranslations('screens.parent.account');
   const locale = useLocale();
@@ -54,19 +53,6 @@ export function AccountScreen() {
           </div>
         </Panel>
         <AccountSecurity />
-        <Panel title={t('guide')} icon="info">
-          <p className="mb-3 text-muted">{t('guideHint')}</p>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              Object.keys(localStorage)
-                .filter((k) => k.startsWith('nx:onboarding:'))
-                .forEach((k) => localStorage.removeItem(k));
-            }}
-          >
-            {t('replayGuide')}
-          </Button>
-        </Panel>
       </div>
     </ParentPage>
   );
