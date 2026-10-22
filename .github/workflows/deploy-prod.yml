@@ -101,7 +101,7 @@ jobs:
           (cd admin && npm ci)
           bash scripts/release.sh admin "${{ steps.id.outputs.id }}"
           (cd dist && sha256sum web.tgz admin.tgz > SHA256SUMS && cat SHA256SUMS)
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-${{ steps.id.outputs.id }}
           path: |
