@@ -28,8 +28,9 @@ export function clearLocalState(scope: 'child' | 'all') {
   if (scope !== 'all') return;
   usePrefs.setState({ ...DEFAULT_PREFS });
   try {
+    // the tour-done flag is a device setting, not account state: signing out must not bring the tour back
     Object.keys(localStorage)
-      .filter((k) => k.startsWith('nx:'))
+      .filter((k) => k.startsWith('nx:') && !k.startsWith('nx:onboarding:'))
       .forEach((k) => localStorage.removeItem(k));
   } catch {
     /* storage can be blocked */
