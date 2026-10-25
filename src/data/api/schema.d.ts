@@ -2177,7 +2177,7 @@ export interface components {
          *         "world": "echecs",
          *         "kind": "chapter",
          *         "status": "completed",
-         *         "chapter_length": 3,
+         *         "chapter_length": 5,
          *         "beats_answered": 3,
          *         "current_beat": null,
          *         "story_title": "Le tournoi des tours",
