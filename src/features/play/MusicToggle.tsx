@@ -1,4 +1,5 @@
 'use client';
+import { useSyncExternalStore } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePrefs } from '@/platform/prefs/store';
 import { usePublicConfig } from '@/data/hooks';
@@ -13,7 +14,13 @@ export function MusicToggle({ lifted }: { lifted: boolean }) {
   const { music, musicLocked } = usePrefs();
   const save = useSaveKidPrefs();
   const adminOn = usePublicConfig().data?.music.enabled ?? true;
-  if (musicLocked || !adminOn) return null;
+  // The switch comes from this device's storage, which the server cannot see: draw it only once the page is on the client
+  const onClient = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  if (!onClient || musicLocked || !adminOn) return null;
   return (
     <IconButton
       label={music ? t('toggleOn') : t('toggleOff')}
