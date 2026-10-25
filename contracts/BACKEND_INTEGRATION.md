@@ -360,11 +360,11 @@ Status: 200; 404; 422.
 
 ### 3.5 Sessions (the chapter loop)
 
-A session is one chapter: 3 beats (`chapter_length = 3`). Each beat is a scene (LLM text), a question with 4 choices (engine), and after the answer a denouement (LLM text). Child token for everything below except summary.
+A session is one chapter: 5 beats (`chapter_length = 5`). Each beat is a scene (LLM text), a question with 4 choices (engine), and after the answer a denouement (LLM text). Child token for everything below except summary.
 
 The `Session` object:
 ```json
-{ "id": "3333...", "child_id": "1111...", "world": "echecs", "kind": "chapter", "status": "active", "chapter_length": 3,
+{ "id": "3333...", "child_id": "1111...", "world": "echecs", "kind": "chapter", "status": "active", "chapter_length": 5,
   "beats_answered": 1, "current_beat": Beat | null, "story_title": "Le tournoi des tours",
   "started_at": "2026-10-12T14:00:00Z", "ended_at": null, "score": Score? }
 ```
@@ -986,7 +986,7 @@ Relational model (PostgreSQL target). `id` columns are UUID v4 unless noted. Tim
 | `child` | `id`; `parent_id`; `display_name` (≤ 30); `birth_year`; `grade` (1 to 4 in the kid contract, 1 to 6 in admin); `avatar_id` (≤ 40); `pin_hash` (nullable); `consent_given` (derived from `consent`); `favorite_world` (nullable world id); `timezone` (IANA, default `America/Toronto`); `onboarding_completed`; `created_at`; `last_seen_at` | At most 8 per parent. |
 | `child_settings` | `child_id`; `daily_goal_chapters` (1 to 5, default 1); `daily_time_limit_minutes` (null or 5 to 180); `enabled_worlds` (non-empty subset of the 8, default all); `read_aloud` (default true); `sound` (default true); `kid_can_change_language` (default true) | |
 | `consent` | `id`; `parent_id`; `child_id`; `notice_version`; `notice_hash`; `accepted_at`; `ip_prefix`; `user_agent_family` | Evidence, kept after child deletion (ids only). |
-| `session` | `id`; `child_id`; `world`; `kind` (`chapter`\|`daily_quest`\|`onboarding`); `status` (`active`\|`paused`\|`completed`\|`abandoned`); `chapter_length` (3); `skill_id`; `seed`; `story_title`; `started_at`; `ended_at`; `active_seconds` | Derived: `beats_answered`, `score`. |
+| `session` | `id`; `child_id`; `world`; `kind` (`chapter`\|`daily_quest`\|`onboarding`); `status` (`active`\|`paused`\|`completed`\|`abandoned`); `chapter_length` (5); `skill_id`; `seed`; `story_title`; `started_at`; `ended_at`; `active_seconds` | Derived: `beats_answered`, `score`. |
 | `beat` | `id`; `session_id`; `index` (0 to 2); `skill_id`; `math_text`; `choices` (4 values, JSON); `correct_answer` (JSON, **server only until answered**); `typical_answer` (JSON, server only); `scene_text`; `scene_status`; `created_at` | The two answer columns are never selected into a response before the answer. |
 | `answer` | `beat_id`; `given` (JSON); `outcome` (`correct`\|`erreur_typique`\|`erreur_aleatoire`); `response_time_ms`; `denouement_text`; `denouement_status`; `answered_at`; `idempotency_key` | One per beat. |
 | `skill_progress` | `child_id`; `skill_id`; `mastery` (0 to 1); `attempts`; `last_practiced_at`; `next_review_at`; `level` (0 to 5) | Per child and skill (per world in the stand-in model). |

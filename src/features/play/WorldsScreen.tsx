@@ -33,6 +33,21 @@ function LiveCard({ world, childId, locked, suggested, priority, onSelect }: { w
   );
 }
 
+/** A grid of world cards, all available or all locked. */
+function WorldGrid({ worlds, childId, suggested, locked, onOpen }: { worlds: World[]; childId: string | null; suggested?: string; locked: boolean; onOpen: (w: World) => void }) {
+  return (
+    <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
+      {worlds.map((w, i) => (
+        <li key={w.id}>
+          <Reveal delayMs={Math.min(i, 8) * 40}>
+            <LiveCard world={w} childId={childId} locked={locked} suggested={suggested === w.id} priority={i < 4} onSelect={onOpen} />
+          </Reveal>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** World map: one photo card per world, with lock and progress ring. */
 export function WorldsScreen() {
   const t = useTranslations('screens.play.worlds');
@@ -43,9 +58,13 @@ export function WorldsScreen() {
   const settings = useChildSettings(childId ?? '');
   const home = useHome(childId);
   const [lockedOpen, setLockedOpen] = useState(false);
+  const [showDisabled, setShowDisabled] = useState(false); // disabled worlds stay out of sight until the child asks
   // Until the settings arrive nothing is shown as locked: no flash of padlocks
   const enabled = settings.data?.enabled_worlds;
-  const list = worlds.data ?? [];
+  const all = worlds.data ?? [];
+  // Until the settings arrive nothing is shown as disabled: everything counts as available
+  const list = enabled ? all.filter((w) => enabled.includes(w.id)) : all;
+  const disabled = enabled ? all.filter((w) => !enabled.includes(w.id)) : [];
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-6">
@@ -67,25 +86,21 @@ export function WorldsScreen() {
           </div>
         }
       >
-        <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
-          {list.map((w, i) => {
-            const locked = enabled ? !enabled.includes(w.id) : false;
-            return (
-              <li key={w.id}>
-                <Reveal delayMs={Math.min(i, 8) * 40}>
-                  <LiveCard
-                    world={w}
-                    childId={childId}
-                    locked={locked}
-                    suggested={home.data?.suggested.world === w.id}
-                    priority={i < 4}
-                    onSelect={(world) => (locked ? setLockedOpen(true) : router.push(`/play/journey/${world.id}`))}
-                  />
-                </Reveal>
-              </li>
-            );
-          })}
-        </ul>
+        <h2 className="mb-3 font-display text-2xl font-bold">{t('availableTitle')}</h2>
+        <WorldGrid worlds={list} childId={childId} suggested={home.data?.suggested.world} locked={false} onOpen={(w) => router.push(`/play/journey/${w.id}`)} />
+        {disabled.length > 0 && (
+          <div className="mt-8">
+            <Button variant="secondary" onClick={() => setShowDisabled((v) => !v)} aria-expanded={showDisabled}>
+              {showDisabled ? t('hideDisabled') : t('showDisabled', { count: disabled.length })}
+            </Button>
+            {showDisabled && (
+              <>
+                <h2 className="mb-3 mt-5 font-display text-2xl font-bold">{t('disabledTitle')}</h2>
+                <WorldGrid worlds={disabled} childId={childId} suggested={undefined} locked onOpen={() => setLockedOpen(true)} />
+              </>
+            )}
+          </div>
+        )}
       </ScreenState>
       <Dialog
         open={lockedOpen}

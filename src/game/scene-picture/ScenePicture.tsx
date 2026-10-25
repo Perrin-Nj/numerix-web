@@ -13,9 +13,9 @@ export const ITEMS: Record<WorldId, [string, string]> = {
   cuisine: ['cookie', 'red-apple'],
   sport: ['soccer-ball', 'tennis'],
   construction: ['hammer', 'wrench'],
-  medecine: ['tangerine', 'red-apple'],
+  medecine: ['bandage', 'cat'],
   science: ['pebble', 'thermometer'],
-  echecs: ['chess-pawn', 'game-die'],
+  echecs: ['chess-pawn-b', 'chess-rook'],
   ocean: ['shell', 'tropical-fish'],
   dinosaures: ['t-rex', 'sauropod'],
   animaux: ['rabbit', 'turtle'],
@@ -34,6 +34,8 @@ export type ScenePictureProps = {
   world: WorldId;
   skillId: string;
   numbers: number[];
+  /** The sum as written ("63 ÷ 9 = ?"): the picture follows its operation. */
+  mathText?: string;
   /** Server photo of the real object to count (media role "object"). */
   sprite?: MediaRef;
   className?: string;
@@ -135,12 +137,12 @@ function NumberLine({ value, max }: { value: number; max: number }) {
 }
 
 /** Counted real objects (photos) for a skill. */
-export function ScenePicture({ world, skillId, numbers, sprite, className }: ScenePictureProps) {
+export function ScenePicture({ world, skillId, numbers, mathText, sprite, className }: ScenePictureProps) {
   const t = useTranslations('game.scenePicture');
   const [w1, w2] = ITEMS[world];
   const e1: Glyph = sprite ?? w1;
   const e2: Glyph = sprite ?? w2;
-  const l = useMemo(() => layoutFor(skillId, numbers), [skillId, numbers]);
+  const l = useMemo(() => layoutFor(skillId, numbers, mathText), [skillId, numbers, mathText]);
   const uid = useId();
   const key = uid + skillId + numbers.join(','); // remount, so the pop-in replays for new numbers
   const alt = describePicture(t as unknown as Tr, world, l);
@@ -186,7 +188,7 @@ export function ScenePicture({ world, skillId, numbers, sprite, className }: Sce
     body = (
       <div className="flex w-full flex-wrap items-end justify-center gap-[2.5cqw]" style={cellStyle(l.cell)}>
         {Array.from({ length: l.bowls }, (_, b) => (
-          <div key={b} className="flex w-[18cqw] flex-col items-center">
+          <div key={b} className="flex flex-col items-center" style={{ width: `${Math.min(18, 92 / Math.min(l.bowls, 5) - 2)}cqw` }}>
             <div className="flex min-h-[1.2em] flex-wrap justify-center">
               {Array.from({ length: l.per }, (_, k) => (
                 <Item key={k} emoji={e1} i={i++} n={l.total} />

@@ -20,3 +20,15 @@ for (const [id, nums, ok] of cases) assert.ok(ok(layoutFor(id, nums)), `${id} ${
 assert.notDeepEqual(layoutFor('ARI-OPE-A02a', [28, 19]), layoutFor('ARI-OPE-A02a', [27, 19]));
 assert.notDeepEqual(layoutFor('ARI-OPE-A06a', [3, 4]), layoutFor('ARI-OPE-A06a', [4, 3]));
 console.log(`scene layout ok (${cases.length + 2} checks)`);
+
+// the picture follows the sum written on screen, even when the skill id says another operation
+assert.equal(layoutFor('ARI-OPE-A06a', [63, 9], '63 ÷ 9 = ?').kind, 'div');
+const dv = layoutFor('ARI-OPE-A06a', [63, 9], '63 ÷ 9 = ?');
+assert.equal(dv.bowls, 9); assert.equal(dv.per, 7); assert.equal(dv.rem, 0);
+assert.equal(layoutFor('ARI-OPE-A07', [6, 7], '6 × 7 = ?').kind, 'mul');
+assert.equal(layoutFor('ARI-OPE-A02a', [12, 5], '12 − 5 = ?').kind, 'sub');
+assert.equal(layoutFor('ARI-OPE-A02a', [9, 15], '9 + ? = 15').kind, 'missing');
+// a multiplication picture never grows taller than its frame
+const m = layoutFor('ARI-OPE-A06a', [10, 9], '10 × 9 = ?');
+assert.ok(m.cell * m.rows <= 53, `too tall: ${m.cell * m.rows}`);
+console.log('scene layout follows the sum');

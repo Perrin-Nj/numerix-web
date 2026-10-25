@@ -91,7 +91,7 @@ warm() {
 }
 
 case "$MODE" in
-  state)  run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run voiceplay node scripts/check-voice-play.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs; run music node scripts/check-music.mjs; run consequence node scripts/check-consequence.mjs ;;
+  state)  run spoken node scripts/check-spoken.mjs; run voices node scripts/check-voices.mjs; run voiceplay node scripts/check-voice-play.mjs; run coach node scripts/check-coach.mjs; run scene node scripts/check-scene-layout.mjs; run cards node scripts/check-card-styles.mjs; run music node scripts/check-music.mjs; run consequence node scripts/check-consequence.mjs; run reveal node scripts/check-reveal.mjs ;;
   consequence) # scenes at 360 and 1280, axe, reduced motion; needs Storybook (own port 6220, started and stopped here)
           SBP="${STORYBOOK_PORT:-6220}"; up "http://localhost:$SBP/iframe.html" || { pnpm gen:messages >/dev/null 2>&1; pnpm exec storybook dev -p "$SBP" --ci --no-open >/dev/null 2>&1 & STARTED+=($SBP); for _ in $(seq 1 90); do up "http://localhost:$SBP/iframe.html" && break; sleep 1; done; }
           run consequence node scripts/check-consequence.mjs; run consequence-ui node scripts/check-consequence-ui.mjs "http://localhost:$SBP" ;;

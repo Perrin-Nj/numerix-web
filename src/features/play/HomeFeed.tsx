@@ -143,6 +143,13 @@ export function HomeFeed() {
             />
           </div>
 
+          <div id="tour-worlds" className="flex flex-col gap-3 lg:grid lg:grid-cols-2">
+            <h2 className="font-display text-2xl font-bold lg:col-span-2">{t('worlds')}</h2>
+            {d.worlds.slice(0, 6).map((w) => (
+              <WorldTeaser key={w.id} world={w} onOpen={(world) => router.push(`/play/journey/${world.id}`)} />
+            ))}
+          </div>
+
           <nav aria-label={t('menu.label')} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <MenuTile icon="trophy" label={t('menu.challenges')} hint={t('menu.challengesHint')} badge={openChallenges || undefined} tone="warning" onSelect={() => router.push('/play/challenges')} />
             <MenuTile icon="sparkles" label={t('menu.discover')} hint={t('menu.discoverHint')} tone="brand" onSelect={() => router.push('/play/feed')} />
@@ -156,12 +163,6 @@ export function HomeFeed() {
           <div id="tour-streak" className="flex flex-wrap items-center justify-between gap-4 rounded-lg border-2 border-line bg-elevated p-4">
             <StreakBadge days={d.engagement.streak.current_days} />
             <DailyGoalRing done={d.engagement.daily_goal.done_chapters} target={d.engagement.daily_goal.target_chapters} />
-          </div>
-          <div id="tour-worlds" className="flex flex-col gap-3 lg:grid lg:grid-cols-2">
-            <h2 className="font-display text-2xl font-bold lg:col-span-2">{t('worlds')}</h2>
-            {d.worlds.slice(0, 6).map((w) => (
-              <WorldTeaser key={w.id} world={w} onOpen={(world) => router.push(`/play/journey/${world.id}`)} />
-            ))}
           </div>
           {d.recent_cards.length > 0 && (
             <div className="flex flex-col gap-3">
@@ -183,8 +184,8 @@ export function HomeFeed() {
         steps={[
           { title: t('tour.welcomeTitle'), description: t('tour.welcome') },
           { target: '#tour-continue', title: t('tour.continueTitle'), description: t('tour.continue') },
-          { target: '#tour-streak', title: t('tour.streakTitle'), description: t('tour.streak') },
           { target: '#tour-worlds', title: t('tour.worldsTitle'), description: t('tour.worlds') },
+          { target: '#tour-streak', title: t('tour.streakTitle'), description: t('tour.streak') },
         ]}
       />
       {giftOpen && <WelcomeGift open card={{ id: 'welcome', world: 'nature', title: t('giftCard') }} onClaim={() => claim.mutate()} onLater={() => setGiftLater(true)} />}

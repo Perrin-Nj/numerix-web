@@ -1,7 +1,8 @@
 'use client';
+import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useJourney, useSessionStatus, useWorlds } from '@/data/hooks';
+import { useChildSettings, useJourney, useSessionStatus, useWorlds } from '@/data/hooks';
 import { useStartChapter } from './useStartChapter';
 import { JourneyPath } from '@/game/journey-path';
 import { WorldHero } from '@/game/world-hero';
@@ -21,7 +22,13 @@ export function JourneyScreen({ world }: { world: string }) {
   const w = (valid ? world : 'echecs') as WorldId;
   const status = useSessionStatus();
   const childId = status.data?.childId ?? null;
-  const journey = useJourney(childId, w);
+  const settings = useChildSettings(childId ?? '');
+  // A disabled world is closed even by typing its address: back to the world list
+  const closed = Boolean(settings.data?.enabled_worlds && !settings.data.enabled_worlds.includes(w));
+  useEffect(() => {
+    if (closed) router.replace('/play/worlds');
+  }, [closed, router]);
+  const journey = useJourney(closed ? null : childId, w);
   const worlds = useWorlds();
   const { begin, dialog } = useStartChapter(childId);
   const found = worlds.data?.find((x) => x.id === w);

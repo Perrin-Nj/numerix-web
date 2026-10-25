@@ -10,7 +10,11 @@
         "guide": "On va où aujourd’hui ? Choisis un monde.",
         "lockedTitle": "Ce monde dort encore",
         "lockedText": "Un adulte peut l’ouvrir dans l’espace parent. Choisis un autre monde pour l’instant.",
-        "lockedOk": "Compris"
+        "lockedOk": "Compris",
+        "availableTitle": "Mondes disponibles",
+        "showDisabled": "Voir les mondes désactivés ({count})",
+        "hideDisabled": "Cacher les mondes désactivés",
+        "disabledTitle": "Mondes désactivés"
       },
       "journey": {
         "guide": "Choisis une quête sur le chemin, ou touche Jouer et je choisis pour toi.",

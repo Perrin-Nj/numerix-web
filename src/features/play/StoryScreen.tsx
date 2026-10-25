@@ -21,7 +21,6 @@ import {
   resumeSession,
   sendAnswer,
   useChildSettings,
-  usePublicConfig,
   useSessionStatus,
 } from '@/data/hooks';
 import { MascotBubble } from '@/game/mascot-bubble';
@@ -31,7 +30,7 @@ import { QuestionSwap } from '@/game/question-swap';
 import { QuestionVisual } from '@/game/question-visual';
 import { LessonProgress } from '@/game/lesson-progress';
 import { IllustrationFrame } from '@/game/illustration-frame';
-import { ConsequenceScene, loadVariantHistory, mergeHistory, useConsequence } from '@/game/consequence';
+import { loadVariantHistory, mergeHistory } from '@/game/consequence';
 import { MethodVisual } from '@/game/method-visual';
 import { ScenePicture } from '@/game/scene-picture';
 import { useCoach } from '@/platform/coach/useCoach';
@@ -64,18 +63,6 @@ const KNOWN = new Set([
   'no_question_available',
 ]);
 
-const DUST = [8, 22, 38, 54, 70, 86];
-/** Soft dust drifting up after a miss. Decorative, no red. */
-function Dust() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-2 h-10">
-      {DUST.map((left, i) => (
-        <span key={i} className="nx-dust" style={{ left: `${left}%`, animationDelay: `${i * 120}ms` }} />
-      ))}
-    </div>
-  );
-}
-
 /**
  * The play screen: one story, one question, four choices. No score, progress bar, timer or menu.
  * The only chrome is a quiet pause button.
@@ -89,7 +76,6 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const status = useSessionStatus();
   const settings = useChildSettings(status.data?.childId ?? '');
   const [s, dispatch] = useReducer(storyReducer, initialStoryState);
-  const publicCfg = usePublicConfig().data;
   // latest session, read when an answer is sent (variant_history goes with it)
   const sessionRef = useRef<{ variant_history?: string[] | null } | null>(null);
   useEffect(() => {
@@ -292,9 +278,6 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     };
   }, [s.phase, beatId]);
   const step = reveal.key === beatId ? reveal.step : 0;
-  const skipAhead = useCallback(() => {
-    if (beatId) setReveal({ key: beatId, step: 2 });
-  }, [beatId]);
 
   // Optional buzz: short for right, double for wrong
   useEffect(() => {
@@ -403,19 +386,16 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const questionText = q?.prompt ?? q?.math_text ?? '';
   const denReady = s.denouementStatus === 'ready' || s.denouementStatus === 'fallback';
   const outcomeStage = s.phase === 'outcome' && !!s.outcome;
-  // Scene of the consequence: never the same twice in a row, all variants before reuse (history kept per session, server list merged)
-  const consequence = useConsequence({
-    sessionId,
-    beatId: outcomeStage ? beatId : undefined,
-    outcome: s.outcome,
-    skillId: s.beat?.skill_id,
-    visualKind: q?.visual?.kind,
-    sceneKey: s.sceneKey ?? (s.beat as { scene_key?: string | null } | null)?.scene_key,
-    rules: publicCfg?.scenes,
-    correct: s.correctAnswer,
-    chosen: s.chosen,
-    serverHistory: (s.session as { variant_history?: string[] | null } | null)?.variant_history,
-  });
+  // What the picture shows once the answer is known: the right number on a number line, or the right order of tiles
+  const ca = s.correctAnswer;
+  const solution =
+    outcomeStage && q && ca != null
+      ? {
+          numeric: typeof ca === 'number' ? ca : undefined,
+          text: typeof ca === 'string' ? ca : undefined,
+          order: Array.isArray(ca) && ca.every((x) => typeof x === 'string') && q.items?.cards ? { sequence: ca as string[], cards: q.items.cards } : undefined,
+        }
+      : undefined;
   const sheetVisible = outcomeStage && step >= 2;
   // After the short story consequence, the stage shows how to solve it: the same picture for right and wrong answers
   const showHow = outcomeStage && step >= 2 && Boolean(s.methodVisual);
@@ -471,15 +451,17 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
             stage={
               s.beat && outcomeStage && showHow && s.methodVisual ? (
                 <MethodVisual visual={s.methodVisual} />
-              ) : s.beat && outcomeStage ? (
+              ) : s.beat && outcomeStage && q?.visual ? (
+                // The answer plays on the question's OWN diagram (same board, bars, clock or grid), never on a generic scene
                 <div className="relative flex size-full items-center justify-center">
-                  {consequence && <ConsequenceScene sceneId={consequence.sceneId} amount={consequence.amount} world={world} still={publicCfg?.scenes.physics_enabled === false} showCaption={step >= 1} onDone={skipAhead} />}
-                  {s.outcome !== 'correct' && !reduced && step >= 1 && <Dust />}
+                  <div className={`size-full ${s.outcome === 'correct' ? 'nx-reveal-ok' : 'nx-reveal-soft'}`}>
+                    <QuestionVisual visual={q.visual} reveal={solution} />
+                  </div>
                 </div>
               ) : s.beat && q?.visual ? (
                 <QuestionVisual visual={q.visual} />
               ) : s.beat && showCounting ? (
-                <ScenePicture world={world} skillId={s.beat.skill_id} numbers={nums} sprite={sprite} />
+                <ScenePicture world={world} skillId={s.beat.skill_id} numbers={nums} mathText={q?.math_text} sprite={sprite} />
               ) : undefined
             }
           />
@@ -565,7 +547,8 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
           right={s.outcome === 'correct'}
           line={mascotLine}
           detail={s.feedback ?? undefined}
-          explain={s.explain ?? undefined}
+          // the reaction text already says the explanation: show it once
+          explain={s.explain && s.denouementText?.includes(s.explain) ? undefined : (s.explain ?? undefined)}
           glow={streak}
           continueLabel={t('continue')}
           canContinue={denReady}

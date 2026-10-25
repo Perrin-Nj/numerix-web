@@ -85,6 +85,9 @@ assert.deepEqual(mergeHistory(['time.tower.ko'], ['a.b', 'time.jug.ko', 'time.to
 // family hints
 assert.equal(familyOf({ sceneKey: 'fractions:m12' }), 'fractions');
 assert.equal(familyOf({ visualKind: 'clock' }), 'time');
+assert.equal(familyOf({ sceneKey: 'add_sub', skillId: 'ARI-OPE-A03a' }), 'addsub');
+assert.equal(familyOf({ sceneKey: 'mult_div:m3' }), 'multdiv');
+assert.equal(familyOf({ sceneKey: 'measure', visualKind: 'clock' }), 'time');
 assert.equal(familyOf({ skillId: 'ARI-SEN-A01c' }), 'number');
 assert.equal(familyOf({ skillId: 'ARI-OPE-A06a' }), 'multdiv');
 assert.equal(familyOf({ skillId: 'ARI-OPE-A02a' }), 'addsub');

@@ -81,7 +81,11 @@
         "guide": "Where do we go today? Pick a world.",
         "lockedTitle": "This world is asleep",
         "lockedText": "A grown-up can open it in the parent area. Pick another world for now.",
-        "lockedOk": "Got it"
+        "lockedOk": "Got it",
+        "availableTitle": "Available worlds",
+        "showDisabled": "View disabled worlds ({count})",
+        "hideDisabled": "Hide disabled worlds",
+        "disabledTitle": "Disabled worlds"
       },
       "journey": {
         "back": "Back to worlds",
@@ -1015,6 +1019,7 @@
       "clock": "A clock showing {hour}:{minute}",
       "numberline": "A number line from {min} to {max}",
       "grid": "A grid of {cols} columns and {rows} rows",
+      "tile": "tile",
       "fraction": "A circle cut in {parts} equal parts, {filled} coloured",
       "dice": "Dice showing {list}"
     },

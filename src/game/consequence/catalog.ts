@@ -29,7 +29,9 @@ const VISUAL_FAMILY: Record<string, Family> = { clock: 'time', bars: 'data', pic
  * kind of picture the question shows, then the skill id (ARI-SEN number sense, A06 or DIV multiply and divide, the rest add and subtract).
  */
 export function familyOf(o: { sceneKey?: string | null; visualKind?: string | null; skillId?: string | null }): Family {
-  const hint = o.sceneKey?.split(':')[0] as Family | undefined;
+  if (o.visualKind === 'clock') return 'time'; // a clock on screen always gets a time scene, whatever the skill family
+  // the API writes add_sub and mult_div; the scene library says addsub and multdiv
+  const hint = o.sceneKey?.split(':')[0].replace('_', '') as Family | undefined;
   if (hint && (FAMILIES as readonly string[]).includes(hint)) return hint;
   if (o.visualKind && VISUAL_FAMILY[o.visualKind]) return VISUAL_FAMILY[o.visualKind];
   const id = (o.skillId ?? '').toUpperCase();

@@ -81,7 +81,11 @@
         "guide": "On va où aujourd’hui ? Choisis un monde.",
         "lockedTitle": "Ce monde dort encore",
         "lockedText": "Un adulte peut l’ouvrir dans l’espace parent. Choisis un autre monde pour l’instant.",
-        "lockedOk": "Compris"
+        "lockedOk": "Compris",
+        "availableTitle": "Mondes disponibles",
+        "showDisabled": "Voir les mondes désactivés ({count})",
+        "hideDisabled": "Cacher les mondes désactivés",
+        "disabledTitle": "Mondes désactivés"
       },
       "journey": {
         "back": "Retour aux mondes",
@@ -1015,6 +1019,7 @@
       "clock": "Une horloge qui montre {hour} h {minute}",
       "numberline": "Une droite numérique de {min} à {max}",
       "grid": "Une grille de {cols} colonnes et {rows} rangées",
+      "tile": "case",
       "fraction": "Un cercle coupé en {parts} parts égales, {filled} colorées",
       "dice": "Des dés qui montrent {list}"
     },

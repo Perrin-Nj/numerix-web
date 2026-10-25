@@ -31,3 +31,25 @@ Credit line for the two CC BY pictures: "Blue water ripple surface" by Nenad Sto
 - Creator, licence, source link and the exact credit line of each photo are in `public/cards/credits.json` (and on the Credits page through `GET /v1/credits`, same asset ids).
 - Rebuild: `node scripts/build-card-photos.mjs <path to numerix-api/seed/assets>`.
 - Which photo a card shows: `src/game/story-card/card-pick.ts` (title words against photo topics, then world, no repeat inside a list). A card whose `image_url` is set by the backend shows that picture instead, so an admin can replace one card's art through the card data without a release.
+
+## Cartoon pictures in question diagrams
+
+CC0 (public domain dedication) clip art from Wikimedia Commons, converted to 256 px WebP in `public/objects/` (`<name>-256.webp`). Used by `grid` diagrams as `img:<name>` labels. No credit is required by CC0; creators are listed anyway.
+
+- `public/objects/chair-256.webp`: Windsor Chair.svg by Eggib, CC0, https://commons.wikimedia.org/wiki/File%3AWindsor_Chair.svg
+- `public/objects/bandage-256.webp`: Apósito adhesivo.svg by Eloy, CC0, https://commons.wikimedia.org/wiki/File%3AAp%C3%B3sito_adhesivo.svg
+- `public/objects/solar-panel-256.webp`: Solar energy.svg by gnokii, CC0, https://commons.wikimedia.org/wiki/File%3ASolar_energy.svg
+- `public/objects/cat-256.webp`: Black Cat.svg by Lantaire, CC0, https://commons.wikimedia.org/wiki/File%3ABlack_Cat.svg
+- `public/objects/stopwatch-256.webp`: Stopwatch.svg by badaman, CC0, https://commons.wikimedia.org/wiki/File%3AStopwatch.svg
+- `public/objects/chess-rook-256.webp`: Chess black rook.svg by CyrilKato, CC0, https://commons.wikimedia.org/wiki/File%3AChess_black_rook.svg
+- `public/objects/chess-knight-256.webp`: Chess black knight.svg by CyrilKato, CC0, https://commons.wikimedia.org/wiki/File%3AChess_black_knight.svg
+- `public/objects/chess-bishop-256.webp`: Chess black bishop.svg by CyrilKato, CC0, https://commons.wikimedia.org/wiki/File%3AChess_black_bishop.svg
+- `public/objects/chess-queen-256.webp`: Chess black queen.svg by CyrilKato, CC0, https://commons.wikimedia.org/wiki/File%3AChess_black_queen.svg
+- `public/objects/chess-king-256.webp`: Chess black king.svg by CyrilKato, CC0, https://commons.wikimedia.org/wiki/File%3AChess_black_king.svg
+- `public/objects/chess-pawn-b-256.webp`: Chess black pawn.svg by CyrilKato, CC0, https://commons.wikimedia.org/wiki/File%3AChess_black_pawn.svg
+- `public/objects/person-man-256.webp`: Silhouette of a standing man.svg by Mette Aumala, CC0, https://commons.wikimedia.org/wiki/File%3ASilhouette_of_a_standing_man.svg
+- `public/objects/person-woman-256.webp`: Silhouette of a woman.svg by Mette Aumala, CC0, https://commons.wikimedia.org/wiki/File%3ASilhouette_of_a_woman.svg
+- `public/objects/dog-256.webp`: Dog Silhouette 01.svg by Amada44, Public domain, https://commons.wikimedia.org/wiki/File%3ADog_Silhouette_01.svg
+- `public/objects/mouse-256.webp`: Silhouette-mouse-standing.svg by Mahlzahn, CC0, https://commons.wikimedia.org/wiki/File%3ASilhouette-mouse-standing.svg
+- `public/objects/pill-256.webp`: Pill (NIH BioArt 407 - 633314).svg by Courtesy of NIAID Ryan Kissinger, Public domain, https://commons.wikimedia.org/wiki/File%3APill_(NIH_BioArt_407_-_633314).svg
+- `public/objects/water-drop-256.webp`: Water drop 2.svg by inky2010, CC0, https://commons.wikimedia.org/wiki/File%3AWater_drop_2.svg
