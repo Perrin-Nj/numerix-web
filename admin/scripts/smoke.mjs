@@ -19,6 +19,8 @@ try {
   check('login refused without password', r.status === 401, r.status);
   r = await post('/api/auth/login', { password: password + 'x' }, ip(1));
   check('login refused with wrong password', r.status === 401, r.status);
+  r = await fetch(base + '/login');
+  check('login sends HSTS and mic-only Permissions-Policy', r.headers.get('strict-transport-security') === 'max-age=31536000' && /microphone=\(self\)/.test(r.headers.get('permissions-policy') ?? '') && /camera=\(\)/.test(r.headers.get('permissions-policy') ?? ''));
   r = await fetch(base + '/api/overview');
   check('protected api 401 without cookie', r.status === 401, r.status);
   r = await fetch(base + '/parents', { redirect: 'manual' });

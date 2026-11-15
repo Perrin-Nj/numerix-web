@@ -14,8 +14,11 @@ Branch `hardening/sec-perf`. Goal: more security and speed, no behavior change.
 - Admin proxy `/api/[...path]`: fixed upstream base, path segments allowlisted, fixed forwarded headers (no client header passthrough except If-Match), 15 s timeout, auth required.
 - `dangerouslySetInnerHTML`: one use, a static theme script (admin layout).
 - Secrets: `scripts/secret-scan.sh` is clean, `.env.example` files hold empty values only.
-- Known limit (not changed, behavior change): the admin login rate limit keys on `x-forwarded-for`, which a client can spoof unless the reverse proxy overwrites it.
+- Admin login rate limit keys on the first `x-forwarded-for` entry. Prod is safe: the VM Caddy (numerix-api `deploy/vps/Caddyfile`, admin site block) has no `trusted_proxies`, so it REPLACES the header with the real client address; Vercel does the same. It would be spoofable behind any proxy that appends. Documented in the login route, auth logic unchanged.
 - CSP keeps `'unsafe-inline'` for scripts (ADR 0003, needs nonces). Not changed.
+
+## Rollout
+HSTS is sticky: browsers remember `max-age=31536000` (1 year) per host, so HTTPS must keep working on every host serving it. No includeSubDomains, no preload. Caddy already sends the same value in prod.
 
 ## Audit
 | | before | after |
@@ -32,5 +35,5 @@ No change. No obvious win found; the only lint hint is a `<img>` in QuestionVisu
 - web: `pnpm check` (stories, copy, sounds, art, client IP, env, typecheck, lint) pass, 0 errors; `check-architecture` pass; `test.sh state` and `test.sh contract` ALL GOOD; `pnpm build` pass.
 - admin: typecheck, lint (0 errors, 3 pre-existing warnings), voice dsp, `next build` pass.
 - Built apps started and loaded: web self-host build `/`, `/api/health`, `/play`, `/parent/login` return 200 with the new headers; admin `/login` 200 with the new headers.
-- Not run: suites needing the live Go API (flows, ui, errors, nav, mobile, feed, play, qa) and `admin/scripts/test.sh` smoke.
+- Live-API suites (flows, ui, nav, play, feed) run against a local API on own ports, branch vs main: see PR body. Admin `smoke.mjs` now asserts HSTS and Permissions-Policy (needs a running admin, not run here).
 - Pre-existing: `gen:messages` rewrites `src/i18n/generated/*.json` with different line endings on Windows (reverted, not committed).
