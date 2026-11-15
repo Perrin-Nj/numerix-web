@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     return NextResponse.json({ message: (err as Error).message }, { status: 500 });
   }
+  // Trusted: prod Caddy (numerix-api deploy/vps/Caddyfile) and Vercel overwrite X-Forwarded-For with the real client address. Not safe behind a proxy that appends.
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
   const wait = blockedFor(ip);
   if (wait) {
