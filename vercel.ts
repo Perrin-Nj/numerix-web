@@ -41,6 +41,7 @@ export const config: VercelConfig = {
       source: '/(.*)',
       headers: [
         header('Content-Security-Policy', csp),
+        header('Strict-Transport-Security', 'max-age=31536000'),
         header('X-Content-Type-Options', 'nosniff'),
         header('X-Frame-Options', 'DENY'),
         header('Referrer-Policy', 'strict-origin-when-cross-origin'),
