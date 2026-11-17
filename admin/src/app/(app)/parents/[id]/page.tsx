@@ -10,6 +10,7 @@ import type { BroadcastRow, Page, Parent, Plan } from '@/lib/types';
 import type { Key } from '@/messages/fr';
 import { Badge, Button, Card, ConfirmDialog, DataState, Empty, Input, PageTitle, Select, Skeleton, fmtDate, fmtDay, type ConfirmSpec } from '@/components/ui';
 import { AccountBadge, SubBadge } from '@/components/parts';
+import { ResetCodeDialog, type ResetCode } from '@/components/resetcode';
 
 function Row({ k, v }: { k: string; v: React.ReactNode }) {
   return (
@@ -27,6 +28,7 @@ export default function ParentDetail() {
   const locale = useUI((s) => s.locale);
   const act = useAct();
   const [confirm, setConfirm] = useState<ConfirmSpec | null>(null);
+  const [resetCode, setResetCode] = useState<ResetCode | null>(null);
   const [days, setDays] = useState('30');
   const [plan, setPlan] = useState<Plan | ''>('');
   const actions = useParentActions(setConfirm);
@@ -62,7 +64,22 @@ export default function ParentDetail() {
                   <Row k={t('col.created')} v={fmtDay(p.created_at, locale)} />
                   <Row k={t('col.kids')} v={p.children_count} />
                   {p.status === 'blocked' && <Row k={t('pd.blocked_reason')} v={p.blocked_reason || '-'} />}
-                  <div className="mt-3">
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      onClick={() =>
+                        setConfirm({
+                          title: t('rp.confirm_title', { name: p.name }),
+                          body: t('rp.confirm_body'),
+                          confirmLabel: t('rp.confirm_btn'),
+                          run: async () => {
+                            const r = (await act(() => api<{ code: string; parent: { email: string } }>(`parents/${p.id}/password-reset`, { method: 'POST' }), t('toast.reset'))) as { code: string; parent: { email: string } };
+                            setResetCode({ code: r.code, email: r.parent.email });
+                          },
+                        })
+                      }
+                    >
+                      {t('rp.btn')}
+                    </Button>
                     {p.status === 'blocked' ? (
                       <Button onClick={() => actions.unblock(p)}>{t('act.unblock')}</Button>
                     ) : (
@@ -174,6 +191,7 @@ export default function ParentDetail() {
         }}
       </DataState>
       <ConfirmDialog spec={confirm} onClose={() => setConfirm(null)} />
+      <ResetCodeDialog reset={resetCode} onClose={() => setResetCode(null)} />
     </>
   );
 }
