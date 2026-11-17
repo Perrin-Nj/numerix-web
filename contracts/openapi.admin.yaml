@@ -84,6 +84,37 @@ paths:
                     properties:
                       items: { type: array, items: { $ref: '#/components/schemas/Parent' } }
 
+  /parents/{parentId}/password-reset:
+    parameters:
+      - $ref: '#/components/parameters/ParentId'
+    post:
+      tags: [Parents]
+      operationId: adminCreateParentPasswordReset
+      summary: Create a one-time password reset token for a parent
+      description: The token is returned once and never stored in clear. The admin app builds the link and hands it to the parent. It signs nobody in, it only lets the parent choose a new password. Recorded in the audit log.
+      responses:
+        '201':
+          description: Token created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, expires_in_seconds, parent]
+                properties:
+                  token: { type: string }
+                  expires_in_seconds: { type: integer }
+                  parent:
+                    type: object
+                    required: [id, email]
+                    properties:
+                      id: { type: string }
+                      email: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   /parents/{parentId}:
     parameters:
       - $ref: '#/components/parameters/ParentId'

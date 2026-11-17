@@ -105,6 +105,61 @@ paths:
               schema: { $ref: '#/components/schemas/AuthSession' }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
+  /auth/password/forgot:
+    post:
+      tags: [Auth]
+      operationId: forgotPassword
+      summary: Ask for a password reset link by email
+      description: Always answers 202 with the same body, so the answer never reveals whether an account exists. The link works for 30 minutes.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+                locale: { type: string, enum: [fr-CA, en-CA], description: Language of the email }
+      responses:
+        '202':
+          description: Accepted. A link was sent if the account exists.
+          content:
+            application/json:
+              schema: { type: object }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/password/reset:
+    post:
+      tags: [Auth]
+      operationId: resetPassword
+      summary: Choose a new password with a reset token
+      description: The token is single use. Unknown, expired and used tokens all answer 400 with code reset_token_invalid. No session is opened.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token: { type: string }
+                password: { type: string, minLength: 10, maxLength: 128 }
+      responses:
+        '204': { description: Password changed }
+        '400':
+          description: Link unknown, expired or already used (code reset_token_invalid)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   /auth/refresh:
     post:
       tags: [Auth]
@@ -2453,6 +2508,7 @@ components:
       required: [version, music, voice, scenes, features, welcome_gift, feed, maintenance, copy]
       properties:
         version: { type: integer, minimum: 0, description: Sum of the versions of every config document; changes on any edit }
+        password_reset_email: { type: boolean, description: True when the server can send the reset email. When false or missing the app shows the contact route instead of a form. }
         music:
           type: object
           required: [enabled, default_volume, tracks]
