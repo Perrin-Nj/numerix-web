@@ -42,20 +42,12 @@ export function useConsent() {
 }
 
 /**
- * Mutation for POST /auth/password/forgot. The answer is always 202, so the screen shows the same confirmation
- * whether or not the account exists. The form handles errors itself.
+ * Mutation for POST /auth/password/reset: email, the 8 digit code from the Numerix team and the new password.
+ * No session opens: the parent signs in afterwards. The form handles errors itself.
  */
-export function useForgotPassword() {
-  return useMutation({
-    mutationFn: (body: { email: string; locale: 'fr-CA' | 'en-CA' }) => unwrap(api.POST('/auth/password/forgot', { body })),
-    meta: { handled: true },
-  });
-}
-
-/** Mutation for POST /auth/password/reset. No session opens: the parent signs in afterwards. The form handles errors itself. */
 export function useResetPassword() {
   return useMutation({
-    mutationFn: (body: { token: string; password: string }) => unwrap(api.POST('/auth/password/reset', { body })),
+    mutationFn: (body: { email: string; code: string; password: string }) => unwrap(api.POST('/auth/password/reset', { body })),
     meta: { handled: true },
   });
 }

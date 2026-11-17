@@ -38,26 +38,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/password/forgot": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Ask for a password reset link by email
-         * @description Always answers 202 with the same body, so the answer never reveals whether an account exists. The link works for 30 minutes.
-         */
-        post: operations["forgotPassword"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/auth/password/reset": {
         parameters: {
             query?: never;
@@ -68,8 +48,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Choose a new password with a reset token
-         * @description The token is single use. Unknown, expired and used tokens all answer 400 with code reset_token_invalid. No session is opened.
+         * Choose a new password with a reset code from the Numerix team
+         * @description The code is 8 digits, comes from the team after they verified the parent, lasts 1 hour and works once. Every failure (wrong email, wrong code, expired, used, burned after 5 wrong tries) answers 400 reset_code_invalid. No session is opened.
          */
         post: operations["resetPassword"];
         delete?: never;
@@ -1851,8 +1831,6 @@ export interface components {
         AppPublicConfig: {
             /** @description Sum of the versions of every config document; changes on any edit */
             version: number;
-            /** @description True when the server can send the reset email. When false or missing the app shows the contact route instead of a form. */
-            password_reset_email?: boolean;
             music: {
                 enabled: boolean;
                 default_volume: number;
@@ -2722,7 +2700,7 @@ export interface operations {
             500: components["responses"]["ServerError"];
         };
     };
-    forgotPassword: {
+    resetPassword: {
         parameters: {
             query?: never;
             header?: never;
@@ -2734,40 +2712,8 @@ export interface operations {
                 "application/json": {
                     /** Format: email */
                     email: string;
-                    /**
-                     * @description Language of the email
-                     * @enum {string}
-                     */
-                    locale?: "fr-CA" | "en-CA";
-                };
-            };
-        };
-        responses: {
-            /** @description Accepted. A link was sent if the account exists. */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            422: components["responses"]["ValidationError"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["ServerError"];
-        };
-    };
-    resetPassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    token: string;
+                    /** @description 8 digits */
+                    code: string;
                     password: string;
                 };
             };
@@ -2780,7 +2726,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Link unknown, expired or already used (code reset_token_invalid) */
+            /** @description Code not valid (code reset_code_invalid) */
             400: {
                 headers: {
                     [name: string]: unknown;

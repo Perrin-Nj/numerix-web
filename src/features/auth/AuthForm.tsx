@@ -147,7 +147,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
             </div>
           </FormField>
           {mode === 'login' && (
-            <Link href="/parent/forgot" className="-mt-2 inline-flex min-h-11 w-fit items-center font-semibold text-brand underline">
+            <Link href="/parent/reset" className="-mt-2 inline-flex min-h-11 w-fit items-center font-semibold text-brand underline">
               {t('forgotLink')}
             </Link>
           )}

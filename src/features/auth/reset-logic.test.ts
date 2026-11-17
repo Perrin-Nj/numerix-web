@@ -1,19 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { parseTokenFragment, passwordProblem, waitMinutes } from './reset-logic';
+import { formatCode, isCodeComplete, normalizeCode, passwordProblem, waitMinutes } from './reset-logic';
 
-describe('parseTokenFragment', () => {
-  it('reads the token', () => expect(parseTokenFragment('#token=abc123')).toBe('abc123'));
-  it('ignores other parts', () => expect(parseTokenFragment('#a=1&token=xyz&b=2')).toBe('xyz'));
-  it('decodes percent escapes and keeps plus', () => expect(parseTokenFragment('#token=a%2Fb+c')).toBe('a/b+c'));
-  it('is null without a token', () => {
-    expect(parseTokenFragment('')).toBeNull();
-    expect(parseTokenFragment('#')).toBeNull();
-    expect(parseTokenFragment('#token=')).toBeNull();
-    expect(parseTokenFragment('#other=1')).toBeNull();
+describe('code', () => {
+  it('keeps digits only', () => {
+    expect(normalizeCode('1234-5678')).toBe('12345678');
+    expect(normalizeCode(' 1234 5678 ')).toBe('12345678');
+    expect(normalizeCode('12ab34')).toBe('1234');
   });
-  it('rejects spaces and huge values', () => {
-    expect(parseTokenFragment('#token=a%20b')).toBeNull();
-    expect(parseTokenFragment('#token=' + 'a'.repeat(2000))).toBeNull();
+  it('caps at 8 digits', () => expect(normalizeCode('1234567890')).toBe('12345678'));
+  it('formats as NNNN-NNNN', () => {
+    expect(formatCode('1234')).toBe('1234');
+    expect(formatCode('12345')).toBe('1234-5');
+    expect(formatCode('12345678')).toBe('1234-5678');
+  });
+  it('knows when complete', () => {
+    expect(isCodeComplete('1234-567')).toBe(false);
+    expect(isCodeComplete('1234 5678')).toBe(true);
   });
 });
 

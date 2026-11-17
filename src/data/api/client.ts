@@ -24,7 +24,7 @@ export function getApiMode() {
 }
 
 export type ErrorCode =
-  | 'reset_token_invalid'
+  | 'reset_code_invalid'
   | 'consent_missing'
   | 'daily_limit_reached'
   | 'session_active'
