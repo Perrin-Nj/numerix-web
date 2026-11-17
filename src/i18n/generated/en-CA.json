@@ -1,5 +1,96 @@
 {
   "screens": {
+    "auth": {
+      "forgotLink": "Forgot your password?",
+      "forgot": {
+        "title": "Forgot your password?",
+        "lead": "No problem. Enter the email you signed up with and we will send you a link to choose a new one.",
+        "email": "Email",
+        "emailInvalid": "Enter a valid email, like name@example.com.",
+        "submit": "Send me the link",
+        "back": "Back to sign in",
+        "sent": {
+          "title": "Check your email",
+          "body": "If an account exists for this address, we sent a link. It works for 30 minutes. Check your spam folder."
+        },
+        "resend": "Send the link again",
+        "resendWait": "You can send it again in {seconds} s",
+        "rateLimited": "That is a lot of tries for now. Please try again in {minutes, plural, one {# minute} other {# minutes}}.",
+        "rateLimitedNoWait": "That is a lot of tries for now. Please try again in a few minutes.",
+        "network": "No connection. Check your network and try again.",
+        "generic": "We could not send the link right now. Try again in a moment.",
+        "unavailable": {
+          "title": "We will help you directly",
+          "body": "Contact the Numerix team and we will give you a reset link."
+        }
+      },
+      "reset": {
+        "title": "Choose a new password",
+        "lead": "Pick something you will remember, at least {min} characters.",
+        "password": "New password",
+        "confirm": "Type it again",
+        "show": "Show passwords",
+        "hide": "Hide passwords",
+        "count": "{count} of {min} characters",
+        "countOk": "Long enough",
+        "submit": "Save my new password",
+        "retry": "Try again",
+        "backToSignIn": "Back to sign in",
+        "errors": {
+          "short": "The password needs at least 10 characters.",
+          "long": "The password can have 128 characters at most.",
+          "mismatch": "The two passwords are not the same.",
+          "policy": "This password is not accepted. Use between 10 and 128 characters.",
+          "rateLimited": "That is a lot of tries for now. Please try again in {minutes, plural, one {# minute} other {# minutes}}.",
+          "rateLimitedNoWait": "That is a lot of tries for now. Please try again in a few minutes.",
+          "network": "No connection. Check your network and try again.",
+          "generic": "We could not save your password right now. Try again in a moment."
+        },
+        "invalid": {
+          "title": "This link does not work anymore",
+          "body": "It may have expired or already been used. A link works once, for a short time. Ask for a new one, it takes a few seconds.",
+          "action": "Get a new link"
+        },
+        "success": {
+          "title": "Password changed",
+          "body": "You can now sign in with your new password.",
+          "action": "Sign in"
+        }
+      },
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least 10 characters.",
+      "errors": {
+        "email": "Enter a valid email.",
+        "passwordShort": "The password needs at least 10 characters.",
+        "passwordEmpty": "Enter your password.",
+        "emailTaken": "This email already has an account. Log in instead.",
+        "wrongCredentials": "Wrong email or password. Check and try again.",
+        "network": "No connection. Check your network and try again.",
+        "generic": "We could not continue right now. Try again in a moment."
+      },
+      "login": {
+        "title": "Parent login",
+        "submit": "Log in",
+        "switchPrompt": "No account yet?",
+        "switchAction": "Create an account"
+      },
+      "register": {
+        "title": "Create a parent account",
+        "submit": "Create my account",
+        "switchPrompt": "Already have an account?",
+        "switchAction": "Log in"
+      },
+      "passkey": {
+        "signIn": "Sign in with a passkey",
+        "cancelled": "No problem. Try again, or use your password.",
+        "error": "The passkey did not work. Try your password instead."
+      },
+      "tagline": "Progress, profiles and settings for the whole family.",
+      "showPassword": "Show characters",
+      "hidePassword": "Hide characters",
+      "backHome": "Back to the start"
+    },
     "welcome": {
       "kidButton": "I am a kid",
       "kidHint": "Tap here to play",
@@ -195,41 +286,6 @@
       "unlock": "Unlock",
       "wrong": "That password does not match. Try again.",
       "network": "No connection. Check your network and try again."
-    },
-    "auth": {
-      "email": "Email",
-      "password": "Password",
-      "passwordHint": "At least 10 characters.",
-      "errors": {
-        "email": "Enter a valid email.",
-        "passwordShort": "The password needs at least 10 characters.",
-        "passwordEmpty": "Enter your password.",
-        "emailTaken": "This email already has an account. Log in instead.",
-        "wrongCredentials": "Wrong email or password. Check and try again.",
-        "network": "No connection. Check your network and try again.",
-        "generic": "We could not continue right now. Try again in a moment."
-      },
-      "login": {
-        "title": "Parent login",
-        "submit": "Log in",
-        "switchPrompt": "No account yet?",
-        "switchAction": "Create an account"
-      },
-      "register": {
-        "title": "Create a parent account",
-        "submit": "Create my account",
-        "switchPrompt": "Already have an account?",
-        "switchAction": "Log in"
-      },
-      "passkey": {
-        "signIn": "Sign in with a passkey",
-        "cancelled": "No problem. Try again, or use your password.",
-        "error": "The passkey did not work. Try your password instead."
-      },
-      "tagline": "Progress, profiles and settings for the whole family.",
-      "showPassword": "Show characters",
-      "hidePassword": "Hide characters",
-      "backHome": "Back to the start"
     },
     "parent": {
       "shell": {

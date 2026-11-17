@@ -1,0 +1,62 @@
+{
+  "screens": {
+    "auth": {
+      "forgotLink": "Mot de passe oublié ?",
+      "forgot": {
+        "title": "Mot de passe oublié ?",
+        "lead": "Pas de souci. Entre le courriel de ton compte et nous t’envoyons un lien pour en choisir un nouveau.",
+        "email": "Courriel",
+        "emailInvalid": "Entre un courriel valide, comme nom@exemple.com.",
+        "submit": "M’envoyer le lien",
+        "back": "Retour à la connexion",
+        "sent": {
+          "title": "Vérifie tes courriels",
+          "body": "Si un compte existe pour cette adresse, nous avons envoyé un lien. Il fonctionne pendant 30 minutes. Pense à regarder dans tes pourriels."
+        },
+        "resend": "Envoyer le lien de nouveau",
+        "resendWait": "Tu pourras le renvoyer dans {seconds} s",
+        "rateLimited": "Ça fait beaucoup d’essais pour l’instant. Réessaie dans {minutes, plural, one {# minute} other {# minutes}}.",
+        "rateLimitedNoWait": "Ça fait beaucoup d’essais pour l’instant. Réessaie dans quelques minutes.",
+        "network": "Pas de connexion. Vérifie ton réseau puis réessaie.",
+        "generic": "Nous n’avons pas pu envoyer le lien. Réessaie dans un instant.",
+        "unavailable": {
+          "title": "Nous t’aidons directement",
+          "body": "Contacte l’équipe Numerix et nous te donnerons un lien de réinitialisation."
+        }
+      },
+      "reset": {
+        "title": "Choisis un nouveau mot de passe",
+        "lead": "Prends-en un dont tu te souviendras, d’au moins {min} caractères.",
+        "password": "Nouveau mot de passe",
+        "confirm": "Saisis-le encore une fois",
+        "show": "Afficher les mots de passe",
+        "hide": "Masquer les mots de passe",
+        "count": "{count} caractères sur {min}",
+        "countOk": "C’est assez long",
+        "submit": "Enregistrer mon nouveau mot de passe",
+        "retry": "Réessayer",
+        "backToSignIn": "Retour à la connexion",
+        "errors": {
+          "short": "Le mot de passe doit avoir au moins 10 caractères.",
+          "long": "Le mot de passe peut avoir 128 caractères au maximum.",
+          "mismatch": "Les deux mots de passe ne sont pas identiques.",
+          "policy": "Ce mot de passe n’est pas accepté. Utilise entre 10 et 128 caractères.",
+          "rateLimited": "Ça fait beaucoup d’essais pour l’instant. Réessaie dans {minutes, plural, one {# minute} other {# minutes}}.",
+          "rateLimitedNoWait": "Ça fait beaucoup d’essais pour l’instant. Réessaie dans quelques minutes.",
+          "network": "Pas de connexion. Vérifie ton réseau puis réessaie.",
+          "generic": "Nous n’avons pas pu enregistrer ton mot de passe. Réessaie dans un instant."
+        },
+        "invalid": {
+          "title": "Ce lien ne fonctionne plus",
+          "body": "Il a peut-être expiré ou déjà servi. Un lien ne marche qu’une fois, pendant peu de temps. Demande-en un nouveau, ça prend quelques secondes.",
+          "action": "Obtenir un nouveau lien"
+        },
+        "success": {
+          "title": "Mot de passe changé",
+          "body": "Tu peux maintenant te connecter avec ton nouveau mot de passe.",
+          "action": "Me connecter"
+        }
+      }
+    }
+  }
+}

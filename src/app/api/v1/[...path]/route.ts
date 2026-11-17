@@ -125,7 +125,7 @@ async function handle(req: NextRequest, ctx: Ctx) {
       : problem(502, 'backend_unreachable', 'Backend unreachable', 'The backend could not be reached.');
   }
   const outHeaders = new Headers();
-  for (const name of ['content-type', 'cache-control']) {
+  for (const name of ['content-type', 'cache-control', 'retry-after']) {
     const v = res.headers.get(name);
     if (v) outHeaders.set(name, v);
   }
