@@ -84,6 +84,37 @@ paths:
                     properties:
                       items: { type: array, items: { $ref: '#/components/schemas/Parent' } }
 
+  /parents/{parentId}/password-reset:
+    parameters:
+      - $ref: '#/components/parameters/ParentId'
+    post:
+      tags: [Parents]
+      operationId: adminCreateParentPasswordReset
+      summary: Create a one-time password reset code for a parent
+      description: Returns an 8 digit code once (1 hour, single use, 5 wrong tries burn it). The admin gives it to the parent after verifying who they are. The admin never sees or sets a password. Recorded in the audit log.
+      responses:
+        '201':
+          description: Code created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, expires_in_seconds, parent]
+                properties:
+                  code: { type: string, description: 8 digits }
+                  expires_in_seconds: { type: integer }
+                  parent:
+                    type: object
+                    required: [id, email]
+                    properties:
+                      id: { type: string }
+                      email: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   /parents/{parentId}:
     parameters:
       - $ref: '#/components/parameters/ParentId'
