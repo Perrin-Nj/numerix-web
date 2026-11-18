@@ -2712,7 +2712,7 @@ export interface operations {
                 "application/json": {
                     /** Format: email */
                     email: string;
-                    /** @description 8 digits */
+                    /** @description 8 digits, NNNN-NNNN; dash and spaces are accepted */
                     code: string;
                     password: string;
                 };

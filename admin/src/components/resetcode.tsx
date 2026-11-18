@@ -9,7 +9,10 @@ export interface ResetCode {
 }
 
 /** 12345678 -> 1234-5678 */
-export const showCode = (c: string) => (c.length === 8 ? `${c.slice(0, 4)}-${c.slice(4)}` : c);
+export const showCode = (c: string) => {
+  const d = c.replace(/\D/g, '');
+  return d.length === 8 ? `${d.slice(0, 4)}-${d.slice(4)}` : c;
+};
 
 /** Shows a reset code once. Closing the dialog drops it from memory (nothing is stored anywhere). */
 export function ResetCodeDialog({ reset, onClose }: { reset: ResetCode | null; onClose: () => void }) {

@@ -120,8 +120,8 @@ paths:
               type: object
               required: [email, code, password]
               properties:
-                email: { type: string, format: email }
-                code: { type: string, description: 8 digits, dashes and spaces already removed }
+                email: { type: string, format: email, maxLength: 254 }
+                code: { type: string, maxLength: 20, description: '8 digits, NNNN-NNNN; dash and spaces are accepted' }
                 password: { type: string, minLength: 10, maxLength: 128 }
       responses:
         '204': { description: Password changed }
