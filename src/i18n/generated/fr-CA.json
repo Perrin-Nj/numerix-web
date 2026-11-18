@@ -1,5 +1,75 @@
 {
   "screens": {
+    "auth": {
+      "forgotLink": "Mot de passe oublié ?",
+      "reset": {
+        "title": "Réinitialise ton mot de passe",
+        "how": "Demande un code de réinitialisation à l’équipe Numerix, puis entre-le ici.",
+        "contact": "Contacte l’équipe :",
+        "email": "Courriel de ton compte",
+        "code": "Code de réinitialisation",
+        "codeHint": "8 chiffres, comme 1234-5678",
+        "password": "Nouveau mot de passe",
+        "confirm": "Saisis-le encore une fois",
+        "show": "Afficher les mots de passe",
+        "hide": "Masquer les mots de passe",
+        "count": "{count} caractères sur {min}",
+        "countOk": "C’est assez long",
+        "submit": "Enregistrer mon nouveau mot de passe",
+        "backToSignIn": "Retour à la connexion",
+        "errors": {
+          "email": "Entre un courriel valide, comme nom@exemple.com.",
+          "code": "Entre les 8 chiffres de ton code.",
+          "short": "Le mot de passe doit avoir au moins 10 caractères.",
+          "long": "Le mot de passe peut avoir 128 caractères au maximum.",
+          "mismatch": "Les deux mots de passe ne sont pas identiques.",
+          "codeInvalid": "Ce code n’est pas valide. Vérifie le code et le courriel, ou demande un nouveau code. Après 5 essais ratés, le code ne fonctionne plus.",
+          "policy": "Ce mot de passe n’est pas accepté. Utilise entre 10 et 128 caractères.",
+          "rateLimited": "Ça fait beaucoup d’essais pour l’instant. Réessaie dans {minutes, plural, one {# minute} other {# minutes}}.",
+          "rateLimitedNoWait": "Ça fait beaucoup d’essais pour l’instant. Réessaie dans quelques minutes.",
+          "network": "Pas de connexion. Vérifie ton réseau puis réessaie.",
+          "generic": "Nous n’avons pas pu enregistrer ton mot de passe. Réessaie dans un instant."
+        },
+        "success": {
+          "title": "Mot de passe changé",
+          "body": "Tu peux maintenant te connecter avec ton nouveau mot de passe.",
+          "action": "Me connecter"
+        }
+      },
+      "email": "Courriel",
+      "password": "Mot de passe",
+      "passwordHint": "Au moins 10 caractères.",
+      "errors": {
+        "email": "Entre un courriel valide.",
+        "passwordShort": "Le mot de passe doit avoir au moins 10 caractères.",
+        "passwordEmpty": "Entre ton mot de passe.",
+        "emailTaken": "Ce courriel a déjà un compte. Connecte-toi plutôt.",
+        "wrongCredentials": "Courriel ou mot de passe incorrect. Vérifie et réessaie.",
+        "network": "Pas de connexion. Vérifie ton réseau puis réessaie.",
+        "generic": "Impossible de continuer pour le moment. Réessaie dans un instant."
+      },
+      "login": {
+        "title": "Connexion parent",
+        "submit": "Se connecter",
+        "switchPrompt": "Pas encore de compte ?",
+        "switchAction": "Créer un compte"
+      },
+      "register": {
+        "title": "Créer un compte parent",
+        "submit": "Créer mon compte",
+        "switchPrompt": "Déjà un compte ?",
+        "switchAction": "Se connecter"
+      },
+      "passkey": {
+        "signIn": "Se connecter avec une clé d'accès",
+        "cancelled": "Pas de souci. Réessaie, ou utilise ton mot de passe.",
+        "error": "La clé d'accès n'a pas fonctionné. Essaie avec ton mot de passe."
+      },
+      "tagline": "Suivi, profils et réglages pour toute la famille.",
+      "showPassword": "Afficher les caractères",
+      "hidePassword": "Masquer les caractères",
+      "backHome": "Retour à l'accueil"
+    },
     "welcome": {
       "kidButton": "Je suis un enfant",
       "kidHint": "Touche ici pour jouer",
@@ -195,41 +265,6 @@
       "unlock": "Déverrouiller",
       "wrong": "Ce mot de passe ne correspond pas. Essaie encore.",
       "network": "Pas de connexion. Vérifie ton réseau puis réessaie."
-    },
-    "auth": {
-      "email": "Courriel",
-      "password": "Mot de passe",
-      "passwordHint": "Au moins 10 caractères.",
-      "errors": {
-        "email": "Entre un courriel valide.",
-        "passwordShort": "Le mot de passe doit avoir au moins 10 caractères.",
-        "passwordEmpty": "Entre ton mot de passe.",
-        "emailTaken": "Ce courriel a déjà un compte. Connecte-toi plutôt.",
-        "wrongCredentials": "Courriel ou mot de passe incorrect. Vérifie et réessaie.",
-        "network": "Pas de connexion. Vérifie ton réseau puis réessaie.",
-        "generic": "Impossible de continuer pour le moment. Réessaie dans un instant."
-      },
-      "login": {
-        "title": "Connexion parent",
-        "submit": "Se connecter",
-        "switchPrompt": "Pas encore de compte ?",
-        "switchAction": "Créer un compte"
-      },
-      "register": {
-        "title": "Créer un compte parent",
-        "submit": "Créer mon compte",
-        "switchPrompt": "Déjà un compte ?",
-        "switchAction": "Se connecter"
-      },
-      "passkey": {
-        "signIn": "Se connecter avec une clé d'accès",
-        "cancelled": "Pas de souci. Réessaie, ou utilise ton mot de passe.",
-        "error": "La clé d'accès n'a pas fonctionné. Essaie avec ton mot de passe."
-      },
-      "tagline": "Suivi, profils et réglages pour toute la famille.",
-      "showPassword": "Afficher les caractères",
-      "hidePassword": "Masquer les caractères",
-      "backHome": "Retour à l'accueil"
     },
     "parent": {
       "shell": {

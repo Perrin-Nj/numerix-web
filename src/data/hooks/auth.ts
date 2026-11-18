@@ -40,3 +40,14 @@ export function useConsent() {
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.children }),
   });
 }
+
+/**
+ * Mutation for POST /auth/password/reset: email, the 8 digit code from the Numerix team and the new password.
+ * No session opens: the parent signs in afterwards. The form handles errors itself.
+ */
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (body: { email: string; code: string; password: string }) => unwrap(api.POST('/auth/password/reset', { body })),
+    meta: { handled: true },
+  });
+}

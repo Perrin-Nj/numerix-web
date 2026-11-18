@@ -30,6 +30,8 @@ export const appConfig = {
   defaults: {
     sound: publicEnv.NEXT_PUBLIC_SOUND_DEFAULT,
   },
+  /** Where a parent can write when the server cannot send a reset email. Empty: the screen says to contact the team without an address. */
+  supportEmail: publicEnv.NEXT_PUBLIC_SUPPORT_EMAIL,
   analyticsEnabled: publicEnv.NEXT_PUBLIC_ANALYTICS_ENABLED,
 } as const;
 

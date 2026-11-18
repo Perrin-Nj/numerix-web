@@ -146,6 +146,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
             />
             </div>
           </FormField>
+          {mode === 'login' && (
+            <Link href="/parent/reset" className="-mt-2 inline-flex min-h-11 w-fit items-center font-semibold text-brand underline">
+              {t('forgotLink')}
+            </Link>
+          )}
           {formError && <InlineError message={formError} />}
           <Button type="submit" size="lg" fullWidth loading={pending}>
             {t(`${mode}.submit`)}

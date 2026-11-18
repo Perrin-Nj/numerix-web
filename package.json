@@ -27,6 +27,7 @@
     "flows": "node scripts/flows.mjs",
     "ui-checks": "node scripts/ui-checks.mjs",
     "dev:next": "next dev",
+    "test:unit": "vitest run --project unit",
     "test": "bash scripts/test.sh"
   },
   "dependencies": {

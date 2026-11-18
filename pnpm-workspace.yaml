@@ -1,3 +1,8 @@
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+# No patched picomatch exists yet (4.0.7 is the latest). Reached only through next-intl's file watcher at development and build time, never in the running site.
+# Owner decision 2026-11-17. Remove this entry once picomatch ships a fix (GHSA-fc5q-39xc-vjpf).
+auditConfig:
+  ignoreGhsas:
+    - GHSA-fc5q-39xc-vjpf

@@ -15,7 +15,9 @@ export function proxy(req: NextRequest) {
   let res: NextResponse | undefined;
 
   const publicParent = pathname === '/parent/login' || pathname === '/parent/register';
-  if (pathname.startsWith('/parent') && !publicParent && !hasParent) {
+  // Reset pages work signed in or out: nobody is bounced, so the link in the address bar always lands
+  const openParent = publicParent || pathname === '/parent/reset';
+  if (pathname.startsWith('/parent') && !openParent && !hasParent) {
     res = NextResponse.redirect(new URL('/parent/login', req.url));
   } else if (pathname.startsWith('/parent') && publicParent && hasParent) {
     res = NextResponse.redirect(new URL('/parent', req.url));

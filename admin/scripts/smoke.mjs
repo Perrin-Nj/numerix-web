@@ -68,6 +68,9 @@ try {
   const cd = await call(`children/${cl.data.items[0].id}`);
   check('child detail returns data', cd.status === 200 && cd.data.settings, cd.status);
 
+  const rc = await call(`parents/${pl.data.items[0].id}/password-reset`, 'POST');
+  check('admin password reset gives an 8 digit code valid 1 hour', rc.status === 201 && /^\d{4}-?\d{4}$/.test(rc.data?.code) && rc.data.expires_in_seconds === 3600 && rc.data.parent?.email === pl.data.items[0].email, rc.status);
+
   const target = pl.data.items.find((p) => p.status === 'active' && p.subscription.status !== 'active') ?? pl.data.items[0];
   let u = await call(`parents/${target.id}`, 'PATCH', { subscription: { status: 'active', plan: 'family_monthly' } });
   let v = await call(`parents/${target.id}`);

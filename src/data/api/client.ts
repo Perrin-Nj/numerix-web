@@ -24,6 +24,7 @@ export function getApiMode() {
 }
 
 export type ErrorCode =
+  | 'reset_code_invalid'
   | 'consent_missing'
   | 'daily_limit_reached'
   | 'session_active'
@@ -55,6 +56,8 @@ export class ApiError extends Error {
   readonly status: number;
   readonly code: ErrorCode;
   readonly detail?: string;
+  /** Seconds to wait, from the Retry-After header of a 429 (when the service sends it). */
+  retryAfterSeconds?: number;
   constructor(status: number, code: ErrorCode, title: string, detail?: string) {
     super(title);
     this.name = 'ApiError';
@@ -125,7 +128,10 @@ export async function unwrap<T>(promise: Promise<Result<T>>): Promise<T> {
     throw await classifyConnectionFailure();
   }
   if (res.response.ok) return res.data as T;
-  throw fromProblem(res.response.status, res.error as Partial<Problem> | undefined);
+  const err = fromProblem(res.response.status, res.error as Partial<Problem> | undefined);
+  const wait = Number(res.response.headers.get('retry-after'));
+  if (wait > 0) err.retryAfterSeconds = wait;
+  throw err;
 }
 
 /**
