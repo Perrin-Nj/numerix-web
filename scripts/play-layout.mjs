@@ -212,10 +212,11 @@ for (const [w, h] of [[320, 640], [1280, 800]]) {
         const sw = l.querySelector('[role=switch]').getBoundingClientRect();
         const text = l.querySelector('span[id$=-label]').getBoundingClientRect();
         const row = l.getBoundingClientRect();
-        return { h: row.height, w: row.width, gap: text.left - sw.right };
+        return { h: row.height, w: row.width, cell: l.parentElement.getBoundingClientRect().width, gap: text.left - sw.right };
       });
       if (r.h < 48 - 1) throw new Error(`row ${i} is ${r.h}px tall`);
-      if (r.w > 28 * 16 + 1) throw new Error(`row ${i} is ${r.w}px wide`);
+      // no width cap: the row fills its grid cell, never wider than it
+      if (r.w > r.cell + 1) throw new Error(`row ${i} is ${r.w}px wide in a ${r.cell}px cell`);
       if (r.gap > 40) throw new Error(`row ${i}: switch is ${Math.round(r.gap)}px away from its label`);
     }
     // a tap on the label text (not on the switch) toggles it

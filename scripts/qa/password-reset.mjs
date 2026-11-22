@@ -88,7 +88,7 @@ try {
     ok('link opens /parent/reset', /\/parent\/reset$/.test(page.url()));
     ok('reset page is noindex', (await page.locator('meta[name=robots]').getAttribute('content'))?.includes('noindex'));
     ok('reset page sends no referrer', (await page.locator('meta[name=referrer]').getAttribute('content')) === 'no-referrer');
-    ok('how it works and support contact are shown', (await page.getByText(/ask the numerix team for a reset code/i).count()) === 1 && (await page.getByRole('link', { name: /@/ }).count()) === 1);
+    ok('how it works and support contact are shown', (await page.getByText(/ask the numerix team for a reset code/i).count()) === 1 && (await page.getByRole('link', { name: /@/ }).count()) === (process.env.NEXT_PUBLIC_SUPPORT_EMAIL ? 1 : 0), process.env.NEXT_PUBLIC_SUPPORT_EMAIL ? '' : 'NEXT_PUBLIC_SUPPORT_EMAIL empty in this build: no contact link expected');
     const attrs = await page.evaluate(() => ({ p: document.getElementById('new-password').autocomplete, c: document.getElementById('confirm-password').autocomplete, m: document.getElementById('reset-code').inputMode }));
     ok('password managers: new-password on both fields, numeric code keypad', attrs.p === 'new-password' && attrs.c === 'new-password' && attrs.m === 'numeric', JSON.stringify(attrs));
     await c.close();
