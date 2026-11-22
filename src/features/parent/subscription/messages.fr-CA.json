@@ -5,8 +5,7 @@
         "title": "Gérer l'abonnement",
         "current": {
           "title": "Votre forfait",
-          "renews": "Votre forfait se renouvelle le {date}.",
-          "trial": "Vous essayez Numerix gratuitement. Choisissez un forfait quand vous voulez pour continuer à jouer après l'essai.",
+          "accessUntil": "Accès jusqu'au {date}.",
           "unpaid": "Un paiement est dû. Payez maintenant pour que vos enfants puissent continuer à jouer.",
           "expired": "Votre forfait est terminé. Choisissez un forfait pour rejouer. Les progrès sont conservés.",
           "canceled": "Votre forfait est annulé. Vos enfants peuvent jouer jusqu'au {date}.",
@@ -15,14 +14,10 @@
         "plans": {
           "title": "Choisir un forfait",
           "current": "Votre forfait",
-          "priceFree": "Gratuit",
           "perMonth": "par mois, CAD",
           "perYear": "par an, CAD",
           "priceUnknown": "Prix affiché au paiement",
-          "free": {
-            "name": "Gratuit",
-            "features": ["Essayer Numerix sans frais", "Un petit choix d'histoires"]
-          },
+          "standard": { "name": "Standard" },
           "family_monthly": {
             "name": "Famille, mensuel",
             "features": ["Tous les mondes et toutes les histoires", "Des rapports pour le parent", "Annulez quand vous voulez"]
@@ -35,7 +30,7 @@
         "method": {
           "title": "Comment voulez-vous payer?",
           "secure": "Vous ne tapez jamais de numéro de carte ici. En continuant, le paiement se termine sur la page sécurisée du fournisseur de paiement.",
-          "testNote": "Dans cette version d'essai, le paiement se termine tout de suite et aucun argent n'est prélevé.",
+          "testNote": "Dans cette version de démonstration, le paiement se termine tout de suite et aucun argent n'est prélevé.",
           "card": { "name": "Carte de crédit ou de débit", "hint": "Visa, Mastercard, Amex" },
           "interac": { "name": "Interac", "hint": "Payez depuis votre banque canadienne" },
           "paypal": { "name": "PayPal", "hint": "Utilisez votre compte PayPal" },

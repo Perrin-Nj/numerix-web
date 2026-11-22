@@ -28,7 +28,8 @@ export function JourneyScreen({ world }: { world: string }) {
   useEffect(() => {
     if (closed) router.replace('/play/worlds');
   }, [closed, router]);
-  const journey = useJourney(closed ? null : childId, w);
+  const settingsReady = settings.isSuccess || settings.isError; // ask for the journey only once we know the world is open: no 422 before the redirect
+  const journey = useJourney(closed || !settingsReady ? null : childId, w);
   const worlds = useWorlds();
   const { begin, dialog } = useStartChapter(childId);
   const found = worlds.data?.find((x) => x.id === w);

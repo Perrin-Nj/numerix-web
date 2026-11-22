@@ -173,6 +173,13 @@ await check('the next question was prefetched while the child read the feedback'
     await page.getByRole('button', { name: /^7$/ }).click();
     await page.getByRole('button', { name: /vérifier|suivant/i }).first().click();
   } else await page.locator('main button[data-state=idle]').first().click();
+  // a wrong first answer now opens the second try: answer again, then the reveal comes
+  if (await page.locator('[data-retry-moment]').waitFor({ timeout: 2500 }).then(() => true, () => false)) {
+    if (kind === 'keypad') {
+      await page.getByRole('button', { name: /^5$/ }).click();
+      await page.getByRole('button', { name: /vérifier|suivant/i }).first().click();
+    } else await page.locator('main button[data-state=idle]').first().click();
+  }
   await page.getByRole('button', { name: /^continuer$/i }).waitFor({ timeout: 8000 });
   const beforeContinue = calls.length;
   if (beforeContinue < 2) throw new Error(`only ${beforeContinue} beat request(s) before Continue`);
@@ -194,6 +201,40 @@ await check('a failing next question shows a retry state, not a blank screen', a
   for (let i = 0; i < 40 && !(await detect()); i++) await page.waitForTimeout(250);
   if (!(await detect())) throw new Error('retry did not bring the question back');
   await page.evaluate((id) => fetch(`/api/v1/sessions/${id}/finish`, { method: 'POST', headers: { 'x-nx-mode': 'child' } }), s.id);
+});
+await check('retry contract: a wrong first answer is withheld, hinted, and revealed on the second try', async () => {
+  const childId = (await (await page.request.get(`${BASE}/api/session`)).json()).childId;
+  const out = await page.evaluate(async (c) => {
+    const H = (k) => ({ 'content-type': 'application/json', 'x-nx-mode': 'child', 'idempotency-key': k ?? crypto.randomUUID() });
+    const j = async (r) => ({ status: r.status, json: await r.json().catch(() => null) });
+    const node = (await (await fetch(`/api/v1/children/${c}/journey?world=echecs`, { headers: H() })).json()).nodes.find((n) => n.state !== 'locked') ?? null;
+    const s = (await j(await fetch(`/api/v1/children/${c}/sessions`, { method: 'POST', headers: H(), body: JSON.stringify({ world: 'echecs', kind: 'chapter', ...(node ? { skill_id: node.skill_id } : {}) }) }))).json;
+    const seen = { withheld: false, hint: null, second: null, tf: null, replay: null };
+    for (let i = 0; i < 6 && !seen.second; i++) {
+      const beat = (await j(await fetch(`/api/v1/sessions/${s.id}/beats`, { method: 'POST', headers: H(), body: JSON.stringify({}) }))).json;
+      const q = beat?.question;
+      if (!q) break;
+      const wrong = q.kind === 'truefalse' ? false : q.choices?.length ? q.choices[q.choices.length - 1] : 987654;
+      const key = crypto.randomUUID();
+      const r1 = (await j(await fetch(`/api/v1/sessions/${s.id}/beats/${beat.id}/answer`, { method: 'POST', headers: H(key), body: JSON.stringify({ answer: wrong, attempt: 1 }) }))).json;
+      if (r1.retry_available) {
+        seen.withheld = !('correct_answer' in r1) && r1.rewards.length === 0;
+        seen.hint = (await j(await fetch(`/api/v1/sessions/${s.id}/beats/${beat.id}/hint`, { method: 'POST', headers: H() }))).json?.kind ?? null;
+        const again = (await j(await fetch(`/api/v1/sessions/${s.id}/beats/${beat.id}/answer`, { method: 'POST', headers: H(key), body: JSON.stringify({ answer: wrong, attempt: 1 }) }))).json;
+        seen.replay = again.retry_available === true;
+        const key2 = crypto.randomUUID();
+        const r2 = (await j(await fetch(`/api/v1/sessions/${s.id}/beats/${beat.id}/answer`, { method: 'POST', headers: H(key2), body: JSON.stringify({ answer: q.choices?.[0] ?? 1, attempt: 2 }) }))).json;
+        seen.second = { attempt: r2.attempt, full: 'correct_answer' in r2, retry: r2.retry_available === true };
+      } else if (q.kind === 'truefalse') seen.tf = r1.retry_available !== true;
+      else seen.tf = seen.tf ?? null;
+    }
+    await fetch(`/api/v1/sessions/${s.id}/finish`, { method: 'POST', headers: H() });
+    return seen;
+  }, childId);
+  if (!out.withheld) throw new Error(`first wrong answer not withheld: ${JSON.stringify(out)}`);
+  if (out.hint !== 'retry_hint') throw new Error(`hint kind ${out.hint}`);
+  if (!out.replay) throw new Error('same key did not replay the withheld result');
+  if (!out.second || out.second.attempt !== 2 || !out.second.full || out.second.retry) throw new Error(`second try: ${JSON.stringify(out.second)}`);
 });
 await check('credits page lists attributions and is linked from Me', async () => {
   await page.goto(`${BASE}/play/me`, { waitUntil: 'networkidle' });

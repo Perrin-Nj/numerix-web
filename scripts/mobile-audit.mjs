@@ -55,16 +55,19 @@ await page.goto(`${BASE}/play/home`, { waitUntil: 'networkidle' }).catch(() => {
 await page.getByRole('button', { name: /plus tard/i }).click({ timeout: 4000 }).catch(() => {});
 await page.getByRole('button', { name: /jouer|continuer|reprendre/i }).first().click().catch(() => {});
 await page.waitForURL('**/play/session/**', { timeout: 60000 }).catch(() => {});
-await page.waitForFunction(() => [...document.querySelectorAll('button')].some((b) => /^D\s/.test(b.innerText)), null, { timeout: 40000 }).catch(() => {});
+// the first question is a four-card choice or a keypad entry, whatever the bank deals
+await page.waitForFunction(() => [...document.querySelectorAll('button')].some((b) => /^D\s/.test(b.innerText)) || document.querySelector('[role=group][aria-label="Clavier numérique"]'), null, { timeout: 40000 }).catch(() => {});
 await page.waitForTimeout(900); // toasts and choices scale in; measure at full size
 const m = await measure();
 say(m.overflowX <= 1, `story: no sideways scroll${m.overflowX > 1 ? ` (+${m.overflowX}px)` : ''}`);
 say(m.small.length === 0, `story: touch targets >= 44px${m.small.length ? ` (${[...new Set(m.small)].slice(0, 4).join(' | ')})` : ''}`);
 const reach = await page.evaluate(() => {
-  const b = [...document.querySelectorAll('button')].filter((x) => /^[ABCD]\s/.test(x.innerText));
-  return b.map((x) => Math.round(x.getBoundingClientRect().bottom));
+  const cards = [...document.querySelectorAll('button')].filter((x) => /^[ABCD]\s/.test(x.innerText));
+  const keys = [...document.querySelectorAll('[role=group][aria-label="Clavier numérique"] button')];
+  const els = cards.length ? cards : keys;
+  return { kind: cards.length ? 'cards' : 'keypad', n: els.length, bottoms: els.map((x) => Math.round(x.getBoundingClientRect().bottom)) };
 });
-say(reach.length === 4, `story: four choices found (${reach.join(',')} of ${H}px high screen)`);
+say((reach.kind === 'cards' ? reach.n === 4 : reach.n >= 12) && Math.max(...reach.bottoms) <= H, `story: ${reach.kind === 'cards' ? 'four choices' : 'keypad'} found and on screen (${reach.n} ${reach.kind}, lowest ${Math.max(...reach.bottoms)}px of ${H}px high screen)`);
 const scrollNeeded = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
 console.log(`info story page is ${scrollNeeded}px taller than the screen`);
 if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/story.png` });

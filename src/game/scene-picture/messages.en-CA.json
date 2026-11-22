@@ -21,7 +21,10 @@
         "robots": "{n, plural, one {gear} other {gears}}",
         "arts": "{n, plural, one {brush} other {brushes}}",
         "hiver": "{n, plural, one {snowflake} other {snowflakes}}",
-        "jeux": "{n, plural, one {die} other {dice}}"
+        "jeux": "{n, plural, one {die} other {dice}}",
+        "histoires": "{n, plural, one {drum} other {drums}}",
+        "english": "{n, plural, one {pencil} other {pencils}}",
+        "francais": "{n, plural, one {pencil} other {pencils}}"
       },
       "alt": {
         "add": "{a} {ia} and {b} {ib}, to put together.",

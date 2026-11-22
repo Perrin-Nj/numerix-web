@@ -35,6 +35,9 @@ export const SIM_SOUND: Record<WorldId, { good: SoundName; bad: SoundName }> = {
   arts: { good: 'chapter_complete', bad: 'question' },
   hiver: { good: 'chapter_complete', bad: 'pluck' },
   jeux: { good: 'chapter_complete', bad: 'question' },
+  histoires: { good: 'sparkle', bad: 'beat_detour' },
+  english: { good: 'chapter_complete', bad: 'question' },
+  francais: { good: 'chapter_complete', bad: 'question' },
 };
 
 export type OutcomeSimProps = {

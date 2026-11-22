@@ -11,6 +11,14 @@ export default function FeedPage() {
       {(d, patch) => (
         <div className="space-y-4">
           <Switch label={t('feed.discover')} checked={d.discover_enabled} onChange={(v) => patch({ discover_enabled: v })} />
+          <div className="rounded-xl border-2 border-line p-3">
+            <h3 className="font-display text-base font-bold">{t('feed.home_title')}</h3>
+            <p className="text-xs text-muted">{t('feed.home_sub')}</p>
+            <Switch label={t('feed.home_challenges')} checked={d.home_sections?.challenges === true} onChange={(v) => patch({ home_sections: { ...d.home_sections, challenges: v } })} />
+            <Switch label={t('feed.home_discover')} checked={d.home_sections?.discover === true} onChange={(v) => patch({ home_sections: { ...d.home_sections, discover: v } })} />
+            <Switch label={t('feed.home_daily_quest')} checked={d.home_sections?.daily_quest === true} onChange={(v) => patch({ home_sections: { ...d.home_sections, daily_quest: v } })} />
+            <p className="mt-1 text-xs text-muted">{t('feed.home_hint')}</p>
+          </div>
           <Switch label={t('feed.board')} checked={d.family_board_visible} onChange={(v) => patch({ family_board_visible: v })} />
           <div>
             <Input label={t('feed.stretch')} type="number" min={0} max={2} value={d.max_grade_stretch} onChange={(e) => patch({ max_grade_stretch: Number(e.target.value) })} className="max-w-xs" />

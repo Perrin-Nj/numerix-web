@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/cn';
 import { Icon, type IconName } from '@/ui/icon';
 
-const panel = cva('rounded-lg text-fg', {
+const panel = cva('rounded-[var(--radius-card)] text-fg', {
   variants: {
     tone: {
       plain: 'bg-elevated shadow-2',

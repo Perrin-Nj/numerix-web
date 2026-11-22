@@ -2,7 +2,7 @@
 /** Pictures of the question bank: credits list, hints, and a warm-up so the next question never waits on images. */
 import { useQuery, type QueryClient } from '@tanstack/react-query';
 import { api, unwrap } from '@/data/api/client';
-import type { Beat, MediaRef } from '@/data/api/types';
+import type { Beat, HintResult, MediaRef } from '@/data/api/types';
 import { requestBeat } from './sessions';
 
 /** Attributions required by the images in use (GET /credits). Public, immutable for a day. */
@@ -21,6 +21,11 @@ export function getHint(sessionId: string, beatId: string) {
       params: { path: { sessionId, beatId } },
     }),
   ).then((r) => r.hint);
+}
+
+/** Same call with the hint kind: `retry_hint` while the second try is open. */
+export function getHintResult(sessionId: string, beatId: string): Promise<HintResult> {
+  return unwrap(api.POST('/sessions/{sessionId}/beats/{beatId}/hint', { params: { path: { sessionId, beatId } } }));
 }
 
 /**

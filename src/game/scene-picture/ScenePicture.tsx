@@ -28,6 +28,9 @@ export const ITEMS: Record<WorldId, [string, string]> = {
   arts: ['pencil', 'artist-palette'],
   hiver: ['snowflake', 'pinecone'],
   jeux: ['game-die', 'puzzle-piece'],
+  histoires: ['drum', 'coin'],
+  english: ['pencil', 'artist-palette'],
+  francais: ['pencil', 'puzzle-piece'],
 };
 
 export type ScenePictureProps = {

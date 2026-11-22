@@ -177,6 +177,30 @@ paths:
         '204': { description: Deleted }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /parents/{parentId}/free-access:
+    parameters:
+      - $ref: '#/components/parameters/ParentId'
+    put:
+      tags: [Parents]
+      operationId: adminGrantFreeAccess
+      summary: Grant or extend free access (audited, action parent.free_access)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [until, reason], additionalProperties: false, properties: { until: { type: [string, 'null'], format: date-time, description: 'Future date, or null for no end' }, reason: { type: string, minLength: 1, maxLength: 200 } } } } }
+      responses:
+        '200': { description: The parent, content: { application/json: { schema: { $ref: '#/components/schemas/Parent' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { description: 'Past date, empty or long reason, unknown key' }
+    delete:
+      tags: [Parents]
+      operationId: adminEndFreeAccess
+      summary: End free access now (audited)
+      responses:
+        '200': { description: The parent, content: { application/json: { schema: { $ref: '#/components/schemas/Parent' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /children:
     get:
       tags: [Children]
@@ -855,6 +879,22 @@ paths:
           description: Worlds
           content: { application/json: { schema: { type: object, required: [items], properties: { items: { type: array, items: { type: object, additionalProperties: true } } } } } }
 
+  /worlds/{id}/status:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    put:
+      tags: [Content]
+      operationId: adminPutWorldStatus
+      summary: Open or close a world for children and parents (audited, action world.status)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [status], additionalProperties: false, properties: { status: { type: string, enum: [published, draft] } } } } }
+      responses:
+        '200': { description: ok, content: { application/json: { schema: { type: object, required: [id, status], properties: { id: { type: string }, status: { type: string, enum: [published, draft] } } } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { description: 'Bad status, or the world is in default_worlds or ready_worlds' }
+
   /worlds/{id}:
     parameters:
       - { name: id, in: path, required: true, schema: { type: string } }
@@ -907,7 +947,7 @@ paths:
     get:
       tags: [Content]
       operationId: adminContentCoverage
-      summary: Question counts by status and type per quest, and the missing quota per world
+      summary: Question counts by status and type per quest, and the missing quota per world (quests and worlds also carry by_grade, grade_min and grade_max, worlds grade_quota_missing)
       responses:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1130,6 +1170,14 @@ components:
         marked_by_admin: { type: boolean }
         can_play: { type: boolean }
         days_left: { type: [integer, 'null'] }
+        free_access:
+          type: object
+          description: Admin grant, shown to the admin only
+          properties:
+            granted_by: { type: string }
+            granted_at: { type: string, format: date-time }
+            until: { type: [string, 'null'], format: date-time }
+            reason: { type: string }
     Parent:
       type: object
       required: [id, email, name, created_at, locale, status, subscription, children_count]
@@ -1286,7 +1334,20 @@ components:
         reminder_hour_local: { type: integer, minimum: 0, maximum: 23, default: 17 }
         expiring_warning_days: { type: integer, minimum: 0, maximum: 60, default: 7 }
         default_locale: { type: string, pattern: '^[a-z]{2}-[A-Z]{2}$', default: fr-CA }
+        default_worlds: { type: array, items: { type: string }, minItems: 1, default: [echecs, medecine, espace], description: 'Worlds a new child starts with; must be published and in ready_worlds' }
+        ready_worlds: { type: array, items: { type: string }, default: [echecs, medecine, espace], description: 'The only worlds a parent may switch on; must be published' }
+        retry_enabled: { type: boolean, default: true }
+        grade_window: { type: boolean, default: true }
+        grade_prior_base: { type: number, minimum: 0, maximum: 0.6, default: 0.25 }
+        grade_prior_step: { type: number, minimum: 0, maximum: 0.3, default: 0.15 }
         features: { type: object, additionalProperties: { type: boolean }, example: { feed: true, challenges: true, push: false, payments: true } }
+    FeedConfig:
+      type: object
+      description: Runtime config namespace feed
+      properties:
+        home_sections:
+          type: object
+          properties: { challenges: { type: boolean, default: false }, discover: { type: boolean, default: false }, daily_quest: { type: boolean, default: false } }
     BroadcastRequest:
       type: object
       required: [title, body]
@@ -1321,7 +1382,7 @@ components:
         id: { type: string }
         at: { type: string, format: date-time }
         actor: { type: string }
-        action: { type: string, example: parent.block }
+        action: { type: string, example: parent.block, description: 'Includes world.status and parent.free_access' }
         target_type: { type: string, enum: [parent, child, config, plans, notification] }
         target_id: { type: string }
         detail: { type: string, maxLength: 300 }
@@ -1392,6 +1453,8 @@ components:
         hint: { type: object, properties: { fr: { type: string }, en: { type: string } } }
         answer: { type: object, additionalProperties: true }
         tags: { type: array, items: { type: string } }
+        style: { type: string, enum: [drill, context], description: 'Drills are served to grades 1 and 2 only; absent means context.' }
+        retry_hint: { type: object, description: 'Shown in the second-try window; never the answer (validator code answer_leak)', properties: { fr: { type: string }, en: { type: string } } }
     QuestionRecord:
       type: object
       required: [id, status, version, question]

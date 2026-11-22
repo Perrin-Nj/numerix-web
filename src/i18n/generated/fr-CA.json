@@ -148,14 +148,7 @@
       },
       "worlds": {
         "title": "Choisis ton monde",
-        "guide": "On va où aujourd’hui ? Choisis un monde.",
-        "lockedTitle": "Ce monde dort encore",
-        "lockedText": "Un adulte peut l’ouvrir dans l’espace parent. Choisis un autre monde pour l’instant.",
-        "lockedOk": "Compris",
-        "availableTitle": "Mondes disponibles",
-        "showDisabled": "Voir les mondes désactivés ({count})",
-        "hideDisabled": "Cacher les mondes désactivés",
-        "disabledTitle": "Mondes désactivés"
+        "guide": "On va où aujourd’hui ? Choisis un monde."
       },
       "journey": {
         "back": "Retour aux mondes",
@@ -464,8 +457,7 @@
         "title": "Gérer l'abonnement",
         "current": {
           "title": "Votre forfait",
-          "renews": "Votre forfait se renouvelle le {date}.",
-          "trial": "Vous essayez Numerix gratuitement. Choisissez un forfait quand vous voulez pour continuer à jouer après l'essai.",
+          "accessUntil": "Accès jusqu'au {date}.",
           "unpaid": "Un paiement est dû. Payez maintenant pour que vos enfants puissent continuer à jouer.",
           "expired": "Votre forfait est terminé. Choisissez un forfait pour rejouer. Les progrès sont conservés.",
           "canceled": "Votre forfait est annulé. Vos enfants peuvent jouer jusqu'au {date}.",
@@ -474,16 +466,11 @@
         "plans": {
           "title": "Choisir un forfait",
           "current": "Votre forfait",
-          "priceFree": "Gratuit",
           "perMonth": "par mois, CAD",
           "perYear": "par an, CAD",
           "priceUnknown": "Prix affiché au paiement",
-          "free": {
-            "name": "Gratuit",
-            "features": [
-              "Essayer Numerix sans frais",
-              "Un petit choix d'histoires"
-            ]
+          "standard": {
+            "name": "Standard"
           },
           "family_monthly": {
             "name": "Famille, mensuel",
@@ -505,7 +492,7 @@
         "method": {
           "title": "Comment voulez-vous payer?",
           "secure": "Vous ne tapez jamais de numéro de carte ici. En continuant, le paiement se termine sur la page sécurisée du fournisseur de paiement.",
-          "testNote": "Dans cette version d'essai, le paiement se termine tout de suite et aucun argent n'est prélevé.",
+          "testNote": "Dans cette version de démonstration, le paiement se termine tout de suite et aucun argent n'est prélevé.",
           "card": {
             "name": "Carte de crédit ou de débit",
             "hint": "Visa, Mastercard, Amex"
@@ -616,6 +603,18 @@
       "title": "Cette question a déjà reçu une réponse",
       "description": "On recharge ton histoire."
     },
+    "retry_not_allowed": {
+      "title": "Un seul deuxième essai",
+      "description": "On passe à la suite de l'histoire."
+    },
+    "world_inactive": {
+      "title": "Ce monde n'est pas encore ouvert",
+      "description": "Choisis un autre monde pour continuer."
+    },
+    "world_not_ready": {
+      "title": "Ce monde n'est pas encore prêt",
+      "description": "Choisis un des mondes proposés."
+    },
     "invalid_pin": {
       "title": "Ce code ne correspond pas",
       "description": "Essaie encore."
@@ -706,7 +705,10 @@
     "robots": "Robots",
     "arts": "Arts",
     "hiver": "Hiver",
-    "jeux": "Jeux"
+    "jeux": "Jeux",
+    "histoires": "Histoires africaines",
+    "english": "English",
+    "francais": "Français"
   },
   "lib": {
     "notify": {
@@ -776,6 +778,10 @@
       "congrats": "Quelle histoire ! Tu as fait avancer l'aventure.",
       "next": "Chapitre suivant",
       "back": "Retour à mon chemin"
+    },
+    "childCard": {
+      "delete": "Supprimer le profil",
+      "deleteFor": "Supprimer le profil de {name}"
     },
     "consequence": {
       "skip": "Passer l'animation",
@@ -1018,6 +1024,12 @@
         }
       }
     },
+    "previousReveal": {
+      "button": "Revoir la réponse précédente",
+      "title": "La question d'avant",
+      "answer": "La réponse :",
+      "close": "Fermer"
+    },
     "questCard": {
       "title": "Quête du jour",
       "available": "Quelques vieilles histoires ont besoin de toi.",
@@ -1064,6 +1076,10 @@
       "save": "Garder",
       "saved": "Gardé"
     },
+    "retryMoment": {
+      "lead": "Presque ! Tu as encore un essai.",
+      "fallback": "Relis la question tranquillement, puis choisis à nouveau."
+    },
     "rewardBurst": {
       "continue": "Continuer",
       "card_earned": {
@@ -1108,7 +1124,10 @@
         "robots": "{n, plural, one {engrenage} other {engrenages}}",
         "arts": "{n, plural, one {pinceau} other {pinceaux}}",
         "hiver": "{n, plural, one {flocon} other {flocons}}",
-        "jeux": "{n, plural, one {dé} other {dés}}"
+        "jeux": "{n, plural, one {dé} other {dés}}",
+        "histoires": "{n, plural, one {tambour} other {tambours}}",
+        "english": "{n, plural, one {crayon} other {crayons}}",
+        "francais": "{n, plural, one {crayon} other {crayons}}"
       },
       "alt": {
         "add": "{a} {ia} et {b} {ib}, à réunir.",
@@ -1118,6 +1137,9 @@
         "div": "{total} {it} partagés dans {bowls} bols, {rem, plural, =0 {sans reste} other {il en reste #}}.",
         "line": "Une droite de 0 à {max} avec un repère sur {value}."
       }
+    },
+    "sceneStage": {
+      "replay": "Revoir l’animation"
     },
     "storyCard": {
       "flip": "{title}. Retourner la carte.",
@@ -1136,14 +1158,17 @@
       "fresh": "Une nouvelle série t'attend"
     },
     "subscriptionBadge": {
-      "trial": "{count, plural, =0 {L'essai gratuit se termine aujourd'hui} one {Essai gratuit, # jour restant} other {Essai gratuit, # jours restants}}",
       "active": "Actif",
-      "activeUntil": "Actif, renouvelé le {date}",
+      "activeUntil": "Accès jusqu'au {date}",
       "unpaid": "Paiement à faire",
       "expired": "Expiré",
       "canceled": "Annulé",
       "canceledUntil": "Annulé, accès jusqu'au {date}",
       "blocked": "Compte en pause"
+    },
+    "switchRow": {
+      "on": "Activé",
+      "off": "Désactivé"
     },
     "welcomeGift": {
       "title": "Un cadeau t'attend",
@@ -1283,6 +1308,12 @@
         "Un petit pas, et puis un autre.",
         "Ici, on a le droit de chercher.",
         "Je crois en toi, vraiment."
+      ],
+      "retryWin": [
+        "Tu as réessayé et tu as trouvé, bravo !",
+        "Beau travail, tu n'as pas lâché.",
+        "Voilà, ton deuxième essai a fait mouche !",
+        "Chercher encore, c'est comme ça qu'on apprend."
       ],
       "welcome": [
         "Salut, contente de te revoir !",

@@ -7,14 +7,7 @@
         "hintRetry": "Tap the button to try again."
       },
       "worlds": {
-        "guide": "Where do we go today? Pick a world.",
-        "lockedTitle": "This world is asleep",
-        "lockedText": "A grown-up can open it in the parent area. Pick another world for now.",
-        "lockedOk": "Got it",
-        "availableTitle": "Available worlds",
-        "showDisabled": "View disabled worlds ({count})",
-        "hideDisabled": "Hide disabled worlds",
-        "disabledTitle": "Disabled worlds"
+        "guide": "Where do we go today? Pick a world."
       },
       "journey": {
         "guide": "Pick a quest on the path, or press Play and I will choose for you.",

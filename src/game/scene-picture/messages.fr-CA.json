@@ -21,7 +21,10 @@
         "robots": "{n, plural, one {engrenage} other {engrenages}}",
         "arts": "{n, plural, one {pinceau} other {pinceaux}}",
         "hiver": "{n, plural, one {flocon} other {flocons}}",
-        "jeux": "{n, plural, one {dé} other {dés}}"
+        "jeux": "{n, plural, one {dé} other {dés}}",
+        "histoires": "{n, plural, one {tambour} other {tambours}}",
+        "english": "{n, plural, one {crayon} other {crayons}}",
+        "francais": "{n, plural, one {crayon} other {crayons}}"
       },
       "alt": {
         "add": "{a} {ia} et {b} {ib}, à réunir.",

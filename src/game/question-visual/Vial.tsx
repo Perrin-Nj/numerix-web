@@ -1,5 +1,5 @@
 'use client';
-import { useId, type CSSProperties } from 'react';
+import { useId } from 'react';
 import { useLocale } from 'next-intl';
 
 type Loc = string | number | { fr?: string; en?: string } | undefined | null;
@@ -49,7 +49,6 @@ export function Vial({ data }: { data: VialData }) {
   for (let v = 0; v <= max; v += step) ticks.push(v);
   const unit = txt(data.unit);
   const label = `${txt(data.title)} ${segs.map((s) => s.value).join(' + ')} / ${max} ${unit}`;
-  const idx = (i: number) => ({ '--nx-i': i }) as CSSProperties;
   return (
     <svg role="img" aria-label={label} viewBox="0 0 220 210" className="h-full max-h-[300px] w-full max-w-[300px]" preserveAspectRatio="xMidYMid meet">
       <defs>
@@ -67,16 +66,21 @@ export function Vial({ data }: { data: VialData }) {
       {ticks.map((v) => (
         <g key={v}>
           <line x1={58} x2={70} y1={y(v)} y2={y(v)} stroke="#6b7c8c" strokeWidth={2} strokeLinecap="round" />
-          <text x={52} y={y(v) + 4} textAnchor="end" fontSize={11} fontWeight={700} fill="#4a5a69">
+          <text x={52} y={y(v) + 4} textAnchor="end" fontSize={13} fontWeight={700} fill="#2f3d4a">
             {v}
           </text>
         </g>
       ))}
+      {/* one small graduation per unit (drop), so the level reads exactly */}
+      {max <= 40 &&
+        Array.from({ length: max + 1 }, (_, v) => v)
+          .filter((v) => v % step !== 0)
+          .map((v) => <line key={`m${v}`} x1={64} x2={70} y1={y(v)} y2={y(v)} stroke="#8a9aa8" strokeWidth={1} />)}
       {/* the liquid, layer by layer, clipped to the glass */}
       <g clipPath={`url(#nx-vial-body-${uid})`}>
         <rect x={70} y={top} width={60} height={bottom - top + 8} fill="#eef6fb" />
         {layers.map(({ s, i, from, to }) => (
-          <rect key={i} x={70} y={y(to)} width={60} height={Math.max(0, y(from) - y(to))} fill={`url(#nx-vial-${s.tone ?? (i === 0 ? 'a' : 'b')})`} className="nx-vial-rise" style={idx(i)} />
+          <rect key={i} x={70} y={y(to)} width={60} height={Math.max(0, y(from) - y(to))} fill={`url(#nx-vial-${uid}-${s.tone ?? (i === 0 ? 'a' : 'b')})`} />
         ))}
       </g>
       {/* glass: body, neck, rim and a soft highlight */}
@@ -84,6 +88,15 @@ export function Vial({ data }: { data: VialData }) {
       <path d="M86 30 H114 V46 H86 Z" fill="#eef6fb" fillOpacity={0.6} stroke="#5b7c99" strokeWidth={3} strokeLinejoin="round" />
       <rect x={82} y={22} width={36} height={10} rx={4} fill="#c98a4b" stroke="#8a5a2b" strokeWidth={2} />
       <path d="M78 56 V168" stroke="#ffffff" strokeOpacity={0.7} strokeWidth={4} strokeLinecap="round" />
+      {/* the amount of each layer, written next to it */}
+      {layers.map(({ s, to, from }) => (
+        <g key={`v${to}`}>
+          <line x1={130} x2={140} y1={y(to)} y2={y(to)} stroke="#334155" strokeWidth={2} />
+          <text x={144} y={(y(to) + y(from)) / 2 + 5} fontSize={16} fontWeight={800} fill="#1f2d3a">
+            {s.value}
+          </text>
+        </g>
+      ))}
       {unit && (
         <text x={100} y={206} textAnchor="middle" fontSize={11} fontWeight={700} fill="#4a5a69">
           {unit}

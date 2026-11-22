@@ -374,7 +374,8 @@ export interface paths {
         /**
          * Ask for the hint of the open question (BE-70)
          * @description Curated questions carry a written hint that guides without giving the answer. Only available while the beat
-         *     is unanswered (409 `beat_answered` afterwards) and when `Question.hint_available` is true (404 otherwise).
+         *     is unanswered, or in the second-try window after a wrong first answer when the client opted in with `attempt: 1`
+         *     and a retry is open (the response then has `kind: retry_hint`; 409 `beat_answered` otherwise) and when `Question.hint_available` is true (404 otherwise).
          *     Asking never changes the verdict or the mastery estimate today; the client may show a softer mascot pose.
          */
         post: operations["requestHint"];
@@ -1373,7 +1374,8 @@ export interface components {
              *     consent_missing, daily_limit_reached, session_active, session_paused, session_completed,
              *     beat_answered, beat_not_answered, invalid_pin, subscription_inactive, account_blocked,
              *     not_cancelable, conflict, email_taken, passkey_invalid, passkey_session_expired,
-             *     passkey_exists, passkey_limit, passkeys_unavailable.
+             *     passkey_exists, passkey_limit, passkeys_unavailable, retry_not_allowed (409: a second attempt is not allowed
+             *     for this beat), world_inactive (422: the world exists but is not open to children yet), world_not_ready (422).
              * @example consent_missing
              */
             code?: string;
@@ -1396,12 +1398,13 @@ export interface components {
             }[];
         };
         /**
-         * @description The twenty story worlds. The first eight are the original worlds; the other twelve came with the question bank
-         *     (CR-11). A client must treat an id it does not know as a generic world (accent colour and name come from
+         * @description The story worlds. The first eight are the original worlds; the next twelve came with the question bank
+         *     (CR-11); `histoires`, `english` and `francais` are new and stay draft (absent from GET /worlds and refused with
+         *     `world_inactive`) until an admin publishes them. A client must treat an id it does not know as a generic world (accent colour and name come from
          *     `GET /worlds`), so a new world never needs a release.
          * @enum {string}
          */
-        WorldId: "nature" | "espace" | "cuisine" | "sport" | "construction" | "medecine" | "science" | "echecs" | "ocean" | "dinosaures" | "animaux" | "musique" | "transport" | "pirates" | "marche" | "meteo" | "robots" | "arts" | "hiver" | "jeux";
+        WorldId: "nature" | "espace" | "cuisine" | "sport" | "construction" | "medecine" | "science" | "echecs" | "ocean" | "dinosaures" | "animaux" | "musique" | "transport" | "pirates" | "marche" | "meteo" | "robots" | "arts" | "hiver" | "jeux" | "histoires" | "english" | "francais";
         /**
          * @description PDA skill id from the curriculum graph
          * @example ARI-OPE-A07a
@@ -1716,11 +1719,10 @@ export interface components {
         PaymentMethod: "card" | "interac" | "paypal" | "apple_pay" | "google_pay";
         /**
          * @example {
-         *       "status": "trial",
+         *       "status": "active",
          *       "plan": "free",
-         *       "trial_ends_at": "2026-10-26T14:00:00Z",
-         *       "can_play": true,
-         *       "days_left": 14
+         *       "access_until": "2026-10-26T14:00:00Z",
+         *       "can_play": true
          *     }
          */
         SubscriptionView: {
@@ -1734,12 +1736,21 @@ export interface components {
             method?: components["schemas"]["PaymentMethod"];
             /** Format: date-time */
             renews_at?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @deprecated
+             * @description Parent and child tokens never receive it; use access_until.
+             */
             trial_ends_at?: string;
+            /**
+             * Format: date-time
+             * @description End of the current access period, neutral wording for parents and children. Replaces trial_ends_at, which parent and child tokens never receive; status is never trial for them (a running trial reads active).
+             */
+            access_until?: string | null;
             marked_by_admin?: boolean;
             /** @description The subscription alone allows play (trial running, paid period running, or canceled but not ended). The start gate is can_play OR unpaid_policy allow, and a blocked parent is always refused. */
             can_play: boolean;
-            /** @description Whole days, rounded up, until trial_ends_at or renews_at; null when there is no end */
+            /** @description Whole days, rounded up, until trial_ends_at or renews_at; null when there is no end. Parent and child tokens always see null here. */
             days_left?: number | null;
         };
         PlanCatalog: {
@@ -1812,6 +1823,10 @@ export interface components {
             /** @enum {string} */
             unpaid_policy: "block" | "allow";
             card_threshold_pct: number;
+            /**
+             * @deprecated
+             * @description No longer sent.
+             */
             trial_days?: number;
             default_locale?: string;
             /** @description Days before the end of a trial or canceled period that trigger subscription_expiring */
@@ -1869,6 +1884,12 @@ export interface components {
             feed: {
                 discover_enabled: boolean;
                 family_board_visible: boolean;
+                /** @description Which blocks the child home page shows. Missing means all false. */
+                home_sections?: {
+                    challenges?: boolean;
+                    discover?: boolean;
+                    daily_quest?: boolean;
+                };
             };
             maintenance: {
                 enabled: boolean;
@@ -1895,6 +1916,8 @@ export interface components {
             /** @description One short teaser line shown on the home feed */
             hook?: string;
             skill_count: number;
+            /** @description True when an admin marked the world ready for parents (platform.ready_worlds). The parent settings may switch on only ready worlds (else 422 world_not_ready). Children only see worlds enabled for them. Absent on old servers, read as false. */
+            ready?: boolean;
             /** @description First school year the world serves (CR-12) */
             grade_min?: number;
             grade_max?: number;
@@ -2069,6 +2092,11 @@ export interface components {
         Question: {
             kind?: components["schemas"]["QuestionKind"];
             /**
+             * @description How the question is framed. Drills are served to grades 1 and 2 only; absent means context.
+             * @enum {string}
+             */
+            style?: "drill" | "context";
+            /**
              * @description Language neutral statement; for curated questions without one, the prompt text
              * @example 340 ÷ 7 = ? (avec reste)
              */
@@ -2154,6 +2182,8 @@ export interface components {
             scene_key?: components["schemas"]["SceneKey"];
             /** Format: date-time */
             created_at?: string;
+            /** @description True when the child already gave a wrong first answer to this beat and the second try is still open (a reload resumes it). Send `attempt: 2`, or ask for the next beat to move on. Absent otherwise. */
+            retry_available?: boolean;
         };
         /**
          * @description Hint for the client to pick a consequence scene. It is the topic family (number, add_sub, mult_div, fractions,
@@ -2164,6 +2194,11 @@ export interface components {
         SceneKey: string;
         AnswerRequest: {
             answer: components["schemas"]["AnswerValue"];
+            /**
+             * @description Absent = legacy client: the full verdict is returned at once and no second try exists. `1` opts in to the second try: when the first answer is not correct, the question type allows it (not truefalse) and platform.retry_enabled is on, the result is withheld (`retry_available: true`, no `correct_answer`). `2` is the second try (needs a wrong first answer, else 409 `retry_not_allowed`); it returns the full reveal. Only the first attempt counts for mastery; a correct second try counts half in the card threshold.
+             * @enum {integer}
+             */
+            attempt?: 1 | 2;
             /** @description Used by mastery tracking only. Never displayed, never a timer. */
             response_time_ms?: number;
             /** @description Optional. The client's recent scene ids, oldest first. The server stores them on the session (last 30 kept) and returns them as `session.variant_history`, so a reload cannot reset the no-repeat rule. An omitted field leaves the stored list unchanged. */
@@ -2255,7 +2290,14 @@ export interface components {
          */
         AnswerResult: {
             outcome: components["schemas"]["Outcome"];
-            correct_answer: components["schemas"]["AnswerValue"];
+            /**
+             * @description Echo of the request attempt; absent for a legacy request.
+             * @enum {integer}
+             */
+            attempt?: 1 | 2;
+            /** @description True when this first answer was not correct and a second try is open. The reveal fields (`correct_answer`, `explain`, `feedback`, `method_visual`, `misconception`) are then absent, `rewards` is empty and `denouement` stays pending. Ask `POST .../hint` for a hint, then send `attempt: 2`. */
+            retry_available?: boolean;
+            correct_answer?: components["schemas"]["AnswerValue"];
             /** @description Curated questions only (BE-69): how to solve it, in the request language. Shown after answering, never before. */
             explain?: string | null;
             /** @description Curated questions only (BE-69): the matched typical error code when `outcome` is erreur_typique. For analytics and parent reports, not for display. */
@@ -3420,6 +3462,11 @@ export interface operations {
                 content: {
                     "application/json": {
                         hint: string;
+                        /**
+                         * @description `retry_hint` when asked in the second-try window (after a wrong first answer); it never contains the answer.
+                         * @enum {string}
+                         */
+                        kind?: "hint" | "retry_hint";
                     };
                 };
             };

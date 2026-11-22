@@ -7,6 +7,8 @@ export type InputProps = {
   phase: InputPhase;
   chosen: AnswerValue | null;
   outcome: Outcome | null;
+  /** Second try: the first answer, kept disabled so the child picks something else (cards only; the other inputs are simply cleared). */
+  tried?: AnswerValue | null;
   onSubmit: (value: AnswerValue) => void;
 };
 

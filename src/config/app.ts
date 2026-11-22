@@ -22,10 +22,12 @@ export const appConfig = {
     kiosk: publicEnv.NEXT_PUBLIC_FEATURE_KIOSK,
     tv: publicEnv.NEXT_PUBLIC_FEATURE_TV,
     readAloud: publicEnv.NEXT_PUBLIC_FEATURE_READ_ALOUD,
-    /** Trial and subscription badge, pill and links for parents. Off until billing exists. */
+    /** Subscription badge, pill and links for parents. Off until billing exists. */
     subscriptionUi: publicEnv.NEXT_PUBLIC_FEATURE_SUBSCRIPTION_UI,
     /** The one-time welcome gift on the kid home. Other gifts and cards are unaffected. */
     welcomeGift: publicEnv.NEXT_PUBLIC_FEATURE_WELCOME_GIFT,
+    /** The illustrated scene stage on story questions. Off: the stage shows the question visual or the neutral stage. */
+    scenes: publicEnv.NEXT_PUBLIC_FEATURE_SCENES,
   },
   defaults: {
     sound: publicEnv.NEXT_PUBLIC_SOUND_DEFAULT,

@@ -7,7 +7,9 @@ const SRC = resolve(import.meta.dirname, '../src');
 
 /** layer -> layers it may import. A layer may always import itself. */
 const ALLOWED = {
-  app: ['features', 'game', 'ui', 'data', 'platform', 'shared', 'config', 'i18n'],
+  app: ['features', 'game', 'ui', 'data', 'platform', 'shared', 'config', 'i18n', 'dev'],
+  // dev-only QA routes (src/dev, gated by QA_RENDER_AUDIT); nothing else may import them
+  dev: ['features', 'game', 'ui', 'data', 'platform', 'shared', 'config', 'i18n'],
   features: ['game', 'ui', 'data', 'platform', 'shared', 'config', 'i18n'],
   game: ['ui', 'platform', 'shared', 'config', 'i18n'],
   ui: ['platform', 'shared', 'config', 'i18n'],

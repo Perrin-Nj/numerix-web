@@ -35,7 +35,7 @@ export function ParentPage({ title, backHref, wide, children }: Props) {
         }
         right={
           <>
-            <SubscriptionPill />
+            <span className="max-[400px]:hidden"><SubscriptionPill /></span>
             <NotificationCenterBell />
             <ThemeToggle variant="icon" className="hidden sm:inline-flex" />
             <IconButton label={t('account')} variant="ghost" icon={<Icon name="settings" />} onClick={() => router.push('/parent/account')} />
@@ -59,7 +59,8 @@ export function ParentPage({ title, backHref, wide, children }: Props) {
       <OfflineBanner />
       <MaintenanceBanner />
       <main>
-        <PageContainer width={wide ? 'wide' : 'default'}>
+        {/* two frames only: text and forms 42 rem, dashboards 64 rem; the footer rule shares the frame */}
+        <PageContainer width={wide ? 'wide' : 'default'} className={wide ? 'max-w-5xl' : 'max-w-2xl'}>
           {/* min height keeps the footer below the fold while content loads, so it never jumps */}
           <div className="flex min-h-[calc(100dvh+3rem)] flex-col gap-6 py-6">
             {children}

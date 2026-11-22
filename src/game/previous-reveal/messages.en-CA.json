@@ -1,0 +1,10 @@
+{
+  "game": {
+    "previousReveal": {
+      "button": "See the last answer",
+      "title": "The last question",
+      "answer": "The answer:",
+      "close": "Close"
+    }
+  }
+}

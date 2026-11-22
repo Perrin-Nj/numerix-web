@@ -13,6 +13,12 @@ export type Reveal = {
 /** The picture data with the solution drawn in. A number line moves its arrow to the answer only when its author set revealArrow. */
 export function revealedData(kind: string, base: D, reveal: Reveal | undefined, txt: (v: Loc) => string): D {
   let data = base;
+  if (!reveal) {
+    // before the answer a square the author marks only as the move's destination must not be pre-lit: the arrow shows it afterwards
+    const arrows = ((base.after as D | undefined)?.arrows as { to?: { x: number; y: number } }[] | undefined) ?? [];
+    const marks = base.marks as { x: number; y: number }[] | undefined;
+    if (marks && arrows.length > 0) data = { ...data, marks: marks.filter((m) => !arrows.some((a) => a.to?.x === m.x && a.to?.y === m.y)) };
+  }
   if (reveal && kind === 'numberline' && data.revealArrow === true && reveal.numeric !== undefined && reveal.numeric >= num(data.min) && reveal.numeric <= num(data.max, 100)) {
     data = { ...data, arrow: reveal.numeric }; // the arrow lands on the answer
   }

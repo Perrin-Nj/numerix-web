@@ -2,21 +2,20 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { exportChild, useChildren, useChildSettings, useDeleteChild, useUpdateSettings } from '@/data/hooks';
+import { exportChild, useChildren, useChildSettings, useUpdateSettings, useWorlds } from '@/data/hooks';
+import { DeleteChildDialog } from './DeleteChildDialog';
 import { ParentPage } from './ParentPage';
 import { useNotify } from '@/ui/notification-center';
 import { reportError } from '@/platform/errors/bridge';
-import { WORLD_IDS, type ChildSettings, type WorldId } from '@/data/api/types';
+import type { ChildSettings, World } from '@/data/api/types';
 import { Button } from '@/ui/button';
-import { Dialog } from '@/ui/dialog';
-import { FormField } from '@/ui/form-field';
 import { Icon } from '@/ui/icon';
-import { Input } from '@/ui/input';
 import { Panel } from '@/ui/panel';
 import { Select } from '@/ui/select';
 import { Skeleton } from '@/ui/skeleton';
 import { ScreenState } from '@/game/screen-state';
-import { Switch } from '@/ui/switch';
+import { SwitchRow } from '@/game/switch-row';
+import { SettingsGrid } from '@/ui/settings-grid';
 
 /** Per-child settings: goal, time limit, sound, read aloud, languages, worlds, data export and deletion. */
 export function SettingsScreen({ childId }: { childId: string }) {
@@ -28,11 +27,10 @@ export function SettingsScreen({ childId }: { childId: string }) {
   const settings = useChildSettings(childId);
   const save = useUpdateSettings(childId);
   const children = useChildren();
-  const del = useDeleteChild();
+  const worlds = useWorlds();
   const [edits, setDraft] = useState<ChildSettings | null>(null);
   const draft = edits ?? settings.data ?? null;
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [typed, setTyped] = useState('');
 
   const child = children.data?.find((c) => c.id === childId);
 
@@ -56,20 +54,13 @@ export function SettingsScreen({ childId }: { childId: string }) {
     }
   }
 
-  async function onDelete() {
-    await del.mutateAsync(childId);
-    setConfirmOpen(false);
-    notify({ kind: 'success', title: t('deleted') });
-    router.replace('/parent');
-  }
-
   return (
-    <ParentPage title={t('title')} backHref={`/parent/children/${childId}`}>
+    <ParentPage wide title={t('title')} backHref={`/parent/children/${childId}`}>
       {!draft && <ScreenState isLoading={settings.isLoading} error={settings.error} isEmpty onRetry={() => void settings.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card" height={240} />}>{null}</ScreenState>}
       {draft && (
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
+        <div className="flex w-full flex-col gap-5">
           <Panel title={t('play')} icon="settings">
-            <div className="flex flex-col gap-4 [&>div:has(button[role=switch])]:border-t-2 [&>div:has(button[role=switch])]:border-line [&>div:has(button[role=switch])]:pt-4">
+            <SettingsGrid>
               <Select
                 label={t('goal')}
                 value={String(draft.daily_goal_chapters)}
@@ -82,36 +73,39 @@ export function SettingsScreen({ childId }: { childId: string }) {
                 onValueChange={(v) => setDraft({ ...draft, daily_time_limit_minutes: Number(v) === 0 ? null : Number(v) })}
                 options={[0, 15, 30, 45, 60].map((n) => ({ value: String(n), label: n === 0 ? t('noLimit') : t('limitOption', { count: n }) }))}
               />
-              <Switch checked={draft.sound} onCheckedChange={(v) => setDraft({ ...draft, sound: v })} label={t('sound')} />
-              <Switch checked={!draft.music?.parent_locked} onCheckedChange={(v) => setDraft({ ...draft, music: { ...(draft.music ?? { enabled: true, volume: 30 }), parent_locked: !v } })} label={tm('parentLock')} description={tm('parentLockHint')} />
-              <Switch
+              <SwitchRow checked={draft.sound} onCheckedChange={(v) => setDraft({ ...draft, sound: v })} label={t('sound')} />
+              <SwitchRow checked={!draft.music?.parent_locked} onCheckedChange={(v) => setDraft({ ...draft, music: { ...(draft.music ?? { enabled: true, volume: 30 }), parent_locked: !v } })} label={tm('parentLock')} description={tm('parentLockHint')} />
+              <SwitchRow
                 checked={draft.read_aloud}
                 onCheckedChange={(v) => setDraft({ ...draft, read_aloud: v })}
                 label={t('readAloud')}
                 description={t('readAloudHint')}
               />
-              <Switch checked={draft.voice?.computer_voice === true} onCheckedChange={(v) => setDraft({ ...draft, voice: { ...(draft.voice ?? { human_enabled: true }), computer_voice: v } })} label={t('computerVoice')} description={t('computerVoiceHint')} />
-              <Switch
+              <SwitchRow checked={draft.voice?.computer_voice === true} onCheckedChange={(v) => setDraft({ ...draft, voice: { ...(draft.voice ?? { human_enabled: true }), computer_voice: v } })} label={t('computerVoice')} description={t('computerVoiceHint')} />
+              <SwitchRow
                 checked={draft.kid_can_change_language !== false}
                 onCheckedChange={(v) => setDraft({ ...draft, kid_can_change_language: v })}
                 label={t('kidLanguage')}
                 description={t('kidLanguageHint')}
               />
-              <Switch
+              <SwitchRow
                 checked={draft.remember_on_device === true}
                 onCheckedChange={(v) => setDraft({ ...draft, remember_on_device: v })}
                 label={t('rememberOnDevice')}
                 description={t('rememberOnDeviceHint')}
               />
-            </div>
+            </SettingsGrid>
           </Panel>
 
           <Panel title={t('worlds')} icon="map">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {WORLD_IDS.map((w: WorldId) => {
+            <SettingsGrid>
+              {/* Only worlds an admin marked ready can be switched on; one that is already on stays listed so it can be switched off */}
+              {(worlds.data ?? [])
+                .filter((x: World) => x.ready === true || draft.enabled_worlds.includes(x.id))
+                .map(({ id: w }: World) => {
                 const on = draft.enabled_worlds.includes(w);
                 return (
-                  <Switch
+                  <SwitchRow
                     key={w}
                     checked={on}
                     label={tw(w)}
@@ -125,11 +119,11 @@ export function SettingsScreen({ childId }: { childId: string }) {
                   />
                 );
               })}
-            </div>
+            </SettingsGrid>
             <p className="mt-2 text-sm text-muted">{t('worldsHint')}</p>
           </Panel>
 
-          <div className="sticky bottom-3 z-10 flex">
+          <div className="sticky bottom-3 z-10 flex justify-end">
             <Button size="lg" className="max-sm:w-full" onClick={onSave} loading={save.isPending}>
               {t('save')}
             </Button>
@@ -148,27 +142,7 @@ export function SettingsScreen({ childId }: { childId: string }) {
         </div>
       )}
 
-      <Dialog
-        open={confirmOpen}
-        onOpenChange={setConfirmOpen}
-        tone="danger"
-        title={t('confirm.title')}
-        description={t('confirm.description')}
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
-              {t('confirm.cancel')}
-            </Button>
-            <Button variant="danger" loading={del.isPending} disabled={typed.trim() !== (child?.display_name ?? '')} onClick={onDelete}>
-              {t('confirm.confirm')}
-            </Button>
-          </>
-        }
-      >
-        <FormField label={t('confirm.type', { name: child?.display_name ?? '' })} htmlFor="confirm-name">
-          <Input id="confirm-name" value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" />
-        </FormField>
-      </Dialog>
+      <DeleteChildDialog childId={childId} name={child?.display_name ?? ''} open={confirmOpen} onOpenChange={setConfirmOpen} onDeleted={() => router.replace('/parent')} />
     </ParentPage>
   );
 }

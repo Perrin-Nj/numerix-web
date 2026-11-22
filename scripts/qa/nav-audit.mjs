@@ -38,14 +38,14 @@ async function visit(page, bag, name, act, { expectUrl } = {}) {
     if (bag.length) return fail(name, bag.slice(0, 3).join(' | '));
     console.log(`ok   ${name}`);
   } catch (e) {
-    fail(name, e.message.split('\n')[0].slice(0, 200));
+    fail(name, e.message.replace(/\s+/g, ' ').slice(0, 450));
   }
 }
 
 const hrefsOf = (page) => page.evaluate(() => [...new Set([...document.querySelectorAll('a[href^="/"]')].map((a) => a.getAttribute('href').split('#')[0]).filter((h) => h && h !== '/' && !/^\/(api|_next|assets|feed-media)/.test(h)))]);
 const at = (p) => new RegExp(`^${p}$`);
 
-for (const locale of ['fr-CA', 'en-CA']) {
+for (const locale of process.env.NAV_FLOW_ONLY ? [] : ['fr-CA', 'en-CA']) {
   const tag = locale;
   const ctx = await browser.newContext({ locale, viewport: { width: 420, height: 880 } });
   await ctx.addCookies([{ name: 'NEXT_LOCALE', value: locale, url: BASE }]);
@@ -99,8 +99,7 @@ for (const locale of ['fr-CA', 'en-CA']) {
   await page.evaluate((id) => localStorage.setItem(`nx:onboarding:${id}`, 'done'), childId);
   // The welcome gift is a modal until it is claimed: claim it once so it never covers the tabs
   await page.evaluate((c) => fetch(`/api/v1/children/${c}/gift/claim`, { method: 'POST', headers: { 'x-nx-mode': 'child', 'idempotency-key': crypto.randomUUID() } }), childId);
-  const worlds = await page.evaluate(async () => { const w = await (await fetch('/api/v1/worlds', { headers: { 'x-nx-mode': 'child' } })).json(); return (w.items ?? w.worlds ?? w).map((x) => x.id); });
-  const kidRoutes = ['/play/home', '/play/worlds', '/play/feed', '/play/collection', '/play/me', '/play/challenges', '/play/quest', '/credits', ...(worlds[0] ? [`/play/journey/${worlds[0]}`] : [])];
+  const kidRoutes = ['/play/home', '/play/worlds', '/play/feed', '/play/collection', '/play/me', '/play/challenges', '/play/quest', '/credits', "/play/journey/echecs"];
   for (const p of kidRoutes) {
     await visit(page, bag, `${tag} kid: open ${p}`, go(p), { expectUrl: at(p) });
     await visit(page, bag, `${tag} kid: refresh ${p}`, () => page.reload({ waitUntil: 'domcontentloaded' }), { expectUrl: at(p) });
@@ -142,6 +141,188 @@ for (const locale of ['fr-CA', 'en-CA']) {
   }, { expectUrl: at('/play/feed') });
   await ctx.close();
 }
+
+// 4. World flow (T048): world -> journey -> chapter -> question -> (retry) -> reveal -> continue, per world and grade, at several sizes.
+// fr-CA only (same screens); grade kids Nav1 to Nav4 are created through the API when missing.
+const ALL_KIDS = [[1, 'Nav1', '1111'], [2, 'Nav2', '2222'], [3, 'Nav3', '3333'], [4, 'Nav4', '4444']];
+const GRADE_KIDS = ALL_KIDS.filter(([g]) => !process.env.NAV_GRADES || process.env.NAV_GRADES.split(',').includes(String(g)));
+const FLOW_WORLDS = process.env.NAV_WORLDS ? process.env.NAV_WORLDS.split(',') : ['echecs', 'medecine', 'espace'];
+const SIZES = { phone: [390, 800], tablet: [820, 1180], desktop: [1366, 768], tv: [1920, 1080], short: [900, 420] };
+const stat = { retried: 0, reviewed: 0 };
+
+async function answerOnce(page) {
+  const kind = await page.evaluate(() => {
+    const q = (x) => document.querySelector(x);
+    if (q('[role=group][aria-label="Clavier numérique"]')) return q('[role=group][aria-label="Clavier numérique"] button:not([disabled])') ? 'keypad' : null;
+    if (q('ol[aria-label="Ton ordre"]')) return q('[role=group][aria-label="Cartes à placer"] button') ? 'order' : null;
+    if (q('ul[aria-label="Cartes de gauche"]')) return q('ul[aria-label="Cartes de gauche"] button:not([disabled])') ? 'match' : null;
+    if (q('[role=slider]')) return 'estimate';
+    return document.querySelector('main button[data-state=idle]') ? 'choice' : null;
+  });
+  if (!kind) return false;
+  const click = (name) => page.getByRole('button', { name }).first().click({ timeout: 4000 });
+  if (kind === 'keypad') {
+    await click(/^4$/);
+    await click(/vérifier|suivant/i);
+  } else if (kind === 'estimate') {
+    await click(/vérifier|suivant/i);
+  } else if (kind === 'order') {
+    const g = page.getByRole('group', { name: 'Cartes à placer' });
+    while (await g.getByRole('button').count()) await g.getByRole('button').first().click();
+    await click(/^vérifier$/i);
+  } else if (kind === 'match') {
+    const n = await page.locator('ul[aria-label="Cartes de gauche"] button').count();
+    for (let i = 0; i < n; i++) {
+      await page.locator('ul[aria-label="Cartes de gauche"] button').nth(i).click();
+      await page.locator('ul[aria-label="Cartes de droite"] button').nth(i).click();
+    }
+    await click(/^vérifier$/i);
+  } else await page.locator('main button[data-state=idle]').last().click(); // the last card is rarely the right one: exercises the retry
+  return true;
+}
+
+async function worldFlow(browser, { grade, name, pin, worlds, size, questions }) {
+  const tag = `flow g${grade} ${size}`;
+  const [width, height] = SIZES[size];
+  const ctx = await browser.newContext({ locale: 'fr-CA', viewport: { width, height } });
+  await ctx.addCookies([{ name: 'NEXT_LOCALE', value: 'fr-CA', url: BASE }]);
+  const page = await ctx.newPage();
+  const bag = [];
+  watch(page, bag);
+  await parentLogin(page, BASE);
+  await kidEnter(page, BASE, name, pin);
+  const childId = (await (await page.request.get(`${BASE}/api/session`)).json()).childId;
+  await page.evaluate((id) => localStorage.setItem(`nx:onboarding:${id}`, 'done'), childId);
+  await page.evaluate((c) => fetch(`/api/v1/children/${c}/gift/claim`, { method: 'POST', headers: { 'x-nx-mode': 'child', 'idempotency-key': crypto.randomUUID() } }), childId);
+  for (const world of worlds) {
+    await visit(page, bag, `${tag} ${world}: world card opens its journey, nav bar intact`, async () => {
+      await page.goto(`${BASE}/play/worlds`, { waitUntil: 'networkidle' });
+      await page.locator(`[data-world="${world}"]`).click({ timeout: 15000 });
+      await page.waitForURL(`**/play/journey/${world}`, { timeout: 15000 });
+      await page.locator('ol button[data-state]').first().waitFor({ timeout: 15000 });
+      if (width < 1024 && (await page.locator('nav a[href^="/play/"]').count()) < 5) throw new Error('bottom nav changed');
+    });
+    await visit(page, bag, `${tag} ${world}: journey back button returns to the worlds`, async () => {
+      await page.getByRole('button', { name: /retour|back/i }).first().click({ timeout: 8000 });
+      await page.waitForURL('**/play/worlds', { timeout: 15000 });
+      await page.locator(`[data-world="${world}"]`).click();
+      await page.waitForURL(`**/play/journey/${world}`, { timeout: 15000 });
+      await page.locator('ol button[data-state]').first().waitFor({ timeout: 15000 });
+    });
+    await visit(page, bag, `${tag} ${world}: ${questions} questions with retry, reveal, continue, previous answer, leave`, async () => {
+      await page.getByRole('button', { name: /^(jouer|play)$/i }).first().click({ timeout: 8000 }); // "Jouer" picks the next quest, locked ones stay closed
+      await page.waitForURL('**/play/session/*', { timeout: 20000 });
+      for (let q = 0; q < questions; q++) {
+        if (/\/done/.test(page.url())) return;
+        // A reward moment (new power, streak, card) sits between two questions: it has its own Continue and no input.
+        for (let i = 0; i < 4 && (await page.locator('#reward-title').count()); i++) {
+          await page.getByRole('button', { name: /^(continuer|terminer|suite)$/i }).first().click({ timeout: 6000 });
+          await page.waitForTimeout(400);
+        }
+        const prev = page.getByRole('button', { name: /revoir la réponse précédente/i });
+        await page.locator('main button[data-state=idle], [role=group][aria-label="Clavier numérique"], [role=group][aria-label="Cartes à placer"], ul[aria-label="Cartes de gauche"], [role=slider]').first().waitFor({ timeout: 20000 }).catch(async () => {
+          throw new Error(`question ${q + 1}: no input on screen at ${page.url().replace(BASE, '')}: ${(await page.locator('main').innerText()).replace(/\s+/g, ' ').slice(0, 220)}`);
+        });
+        if (q === 0) {
+          if (await prev.count()) throw new Error('previous-answer button on question 1');
+        } else {
+          await prev.first().waitFor({ timeout: 15000 });
+          await prev.first().click();
+          await page.getByRole('dialog').waitFor({ timeout: 5000 });
+          await page.keyboard.press('Escape');
+          await page.getByRole('dialog').waitFor({ state: 'detached', timeout: 5000 });
+          stat.reviewed++;
+        }
+        const deadline = Date.now() + 30000;
+        let answered = false;
+        let retried = false;
+        while (Date.now() < deadline) {
+          if (await page.locator('[data-error-code]').count()) throw new Error('error screen during play');
+          const cont = page.getByRole('button', { name: /^(continuer|terminer|suite)$/i });
+          if (answered && (await cont.count()) && (await cont.first().isEnabled())) {
+            await cont.first().click();
+            break;
+          }
+          if (await page.locator('[data-retry-moment]').count()) {
+            if (!retried) {
+              retried = true;
+              stat.retried++;
+            }
+            await page.waitForTimeout(300);
+            await answerOnce(page); // second try: the first card stays disabled, so this is a different one
+            continue;
+          }
+          if (!answered && (await answerOnce(page))) answered = true;
+          else await page.waitForTimeout(250);
+        }
+        if (!answered) throw new Error(`question ${q + 1}: nothing to answer (dead end?)`);
+      }
+      // A short chapter ends on the done screen: rewards, then a way back. Otherwise leave through the X.
+      await page.waitForTimeout(800);
+      if (/\/done/.test(page.url())) {
+        const back = page.getByRole('button', { name: /retour à mon chemin/i });
+        for (let i = 0; i < 8 && !(await back.count()); i++) {
+          await page.getByRole('button', { name: /^continuer$/i }).first().click({ timeout: 6000 }).catch(() => {});
+          await page.waitForTimeout(400);
+        }
+        await back.first().click({ timeout: 8000 });
+        await page.waitForURL('**/play/home', { timeout: 15000 });
+        return;
+      }
+      await page.getByRole('button', { name: /quitter la partie/i }).first().click();
+      await page.getByRole('dialog').getByRole('button', { name: /quitter la partie/i }).click();
+      await page.waitForURL('**/play/home', { timeout: 15000 });
+    });
+  }
+  await ctx.close();
+}
+
+{
+  const ctx = await browser.newContext({ locale: 'fr-CA', viewport: { width: 420, height: 880 } });
+  const page = await ctx.newPage();
+  const bag = [];
+  watch(page, bag);
+  await parentLogin(page, BASE);
+  const existing = await page.evaluate(async () => {
+    const r = await (await fetch('/api/v1/children')).json();
+    return (r.items ?? r).map((c) => c.display_name);
+  });
+  for (const [grade, name, pin] of ALL_KIDS) {
+    if (existing.includes(name)) continue;
+    await page.evaluate(async ([g, n, p]) => {
+      const res = await fetch('/api/v1/children', { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': crypto.randomUUID() }, body: JSON.stringify({ display_name: n, grade: g, avatar_id: 'fox', pin: p }) });
+      const c = await res.json();
+      await fetch('/api/v1/auth/consent', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ child_id: c.id, version: '2026-10', accepted: true }) });
+    }, [grade, name, pin]);
+  }
+  await kidEnter(page, BASE, ALL_KIDS[1][1], ALL_KIDS[1][2]);
+  // Inactive worlds are never reachable: not on the map, and typing the address sends the child back to the map
+  await visit(page, bag, 'flow: inactive worlds are not on the map', async () => {
+    await page.goto(`${BASE}/play/worlds`, { waitUntil: 'networkidle' });
+    for (const w of ['histoires', 'english', 'francais']) if (await page.locator(`[data-world="${w}"]`).count()) throw new Error(`${w} is listed`);
+  });
+  for (const w of ['histoires', 'english', 'francais']) {
+    await visit(page, bag, `flow: typing /play/journey/${w} is not a dead end`, async () => {
+      await page.goto(`${BASE}/play/journey/${w}`, { waitUntil: 'domcontentloaded' });
+      await page.waitForFunction(() => location.pathname === '/play/worlds' || document.querySelector('main button, main a'), null, { timeout: 15000 });
+      await page.waitForLoadState('networkidle').catch(() => {});
+      bag.length = 0; // the API refuses a closed world (422) and its picture is absent: that is the expected way out
+    });
+  }
+  // Error screens always offer a way back
+  await visit(page, bag, 'flow: an unknown chapter shows an error with a way back', async () => {
+    await page.goto(`${BASE}/play/session/does-not-exist`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: /retour|back/i }).first().waitFor({ timeout: 15000 });
+    bag.length = 0; // the 404 of that session is the point of the check
+    await page.getByRole('button', { name: /retour|back/i }).first().click();
+    await page.waitForURL('**/play/home', { timeout: 15000 });
+  });
+  await ctx.close();
+}
+for (const [grade, name, pin] of GRADE_KIDS) await worldFlow(browser, { grade, name, pin, worlds: FLOW_WORLDS, size: 'phone', questions: 3 });
+for (const size of process.env.NAV_PHONE_ONLY ? [] : ['tablet', 'desktop', 'tv', 'short']) await worldFlow(browser, { grade: 2, name: 'Nav2', pin: '2222', worlds: ['espace'], size, questions: 2 });
+console.log(`flow: ${stat.retried} retry moments and ${stat.reviewed} previous-answer dialogs exercised`);
+
 await browser.close();
 console.log(fails ? `${fails} FAILED of ${checks}` : `all ${checks} navigation checks pass`);
 process.exit(fails ? 1 : 0);

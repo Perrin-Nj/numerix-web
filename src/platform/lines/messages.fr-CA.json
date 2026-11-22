@@ -53,6 +53,12 @@
         "Ici, on a le droit de chercher.",
         "Je crois en toi, vraiment."
       ],
+      "retryWin": [
+        "Tu as réessayé et tu as trouvé, bravo !",
+        "Beau travail, tu n'as pas lâché.",
+        "Voilà, ton deuxième essai a fait mouche !",
+        "Chercher encore, c'est comme ça qu'on apprend."
+      ],
       "welcome": [
         "Salut, contente de te revoir !",
         "Bienvenue, l'aventure t'attendait.",

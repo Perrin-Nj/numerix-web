@@ -51,6 +51,21 @@ for (const k of Object.keys(fr)) {
   const text = fr[k].trim();
   if (fr[k] === en[k] && /\s/.test(text) && /[a-zA-ZÀ-ÿ]{3}/.test(text) && !ALLOW_SAME.has(k)) errors.push(`message ${k} is identical in fr-CA and en-CA (untranslated?): ${text.slice(0, 60)}`);
 }
+// Parents and children never read trial or free wording (owner decision 3). Admin bundles live in admin/, outside src.
+// "essai" alone also means "try", so only the trial phrases are banned in French.
+const NO_TRIAL = /\b(trial|free(?!dom)|gratuit\w*)\b|(mois|jours?|semaines?) offert\w*|essai gratuit|p[ée]riode d['’]essai|version d['’]essai|\bessayez numerix/i;
+for (const [k, v] of [...Object.entries(fr), ...Object.entries(en)]) {
+  if (typeof v === 'string' && NO_TRIAL.test(v)) errors.push(`message ${k} has trial or free wording: ${v.slice(0, 60)}`);
+}
+function walkSrc(dir) {
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (statSync(p).isDirectory()) walkSrc(p);
+    else if (/\.tsx$/.test(name) && !/\.stories\./.test(name) && /(?<!\$)\{\s*(sub|subscription|s)\.plan\s*\}/.test(readFileSync(p, 'utf8'))) errors.push(`${p} prints the raw plan id`);
+  }
+}
+walkSrc(root);
+
 if (errors.length) {
   console.error('Copy check failed:\n' + errors.slice(0, 30).join('\n'));
   process.exit(1);

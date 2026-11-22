@@ -18,7 +18,32 @@ const BANNED = [
   [/fluent-emoji|3D icon/i, 'Fluent emoji sprites'],
   [/kind\s*===?\s*['"]sprite['"]/, 'sprite assets'],
 ];
+// ALLOWLIST (owner decision 17, spec 001-three-worlds-premium): the illustrated 3D scenes under src/game/scene-stage are drawn art
+// (inline SVG characters, objects, gradients and a canvas light layer). Inside that folder ONLY the figurative bans are lifted
+// (flat person avatar, flat world scenes, sprite assets). Emoji, DiceBear, Fluent emoji and 3D icon packs stay banned there too,
+// and every other folder keeps every ban. Add a folder here only with an owner decision; --self-test proves the scope.
+export const SCENE_ALLOW = ['src/game/scene-stage/'];
+const FIGURATIVE = new Set(['flat person avatar', 'flat vector world scenes', 'sprite assets']);
+export function problemsFor(rel, line) {
+  const out = [];
+  if (EMOJI.test(line)) out.push('emoji');
+  const allowed = SCENE_ALLOW.some((p) => rel.startsWith(p));
+  for (const [rx, why] of BANNED) if (rx.test(line) && !(allowed && FIGURATIVE.has(why))) out.push(why);
+  return out;
+}
 const skipFile = (f) => /\.(stories|test|spec)\.[tj]sx?$/.test(f) || /[\\/](generated|__snapshots__)[\\/]/.test(f) || /schema\.d\.ts$/.test(f);
+
+if (process.argv.includes('--self-test')) {
+  const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) { console.error('self-test failed: ' + m + ' got ' + JSON.stringify(a)); process.exit(1); } };
+  eq(problemsFor('src/game/scene-stage/archetypes/x.tsx', "kind === 'sprite'"), [], 'sprite allowed in scene-stage');
+  eq(problemsFor('src/game/scene-stage/archetypes/x.tsx', "import '@/game/world-scene/scenes'"), [], 'flat scenes allowed in scene-stage');
+  eq(problemsFor('src/game/scene-stage/archetypes/x.tsx', 'const a = "😀"; 😀'.replace('\u{1F600}', String.fromCodePoint(0x1f600))), ['emoji'], 'emoji still banned in scene-stage');
+  eq(problemsFor('src/game/scene-stage/x.tsx', "from '@dicebear/core'"), ['cartoon avatar library'], 'dicebear still banned in scene-stage');
+  eq(problemsFor('src/game/other/x.tsx', "kind === 'sprite'"), ['sprite assets'], 'sprite banned elsewhere');
+  eq(problemsFor('src/game/scene-stage-evil/x.tsx', "kind === 'sprite'"), ['sprite assets'], 'the allowlist matches the folder, not a prefix of the name');
+  console.log('no-cartoon-check self-test: ok');
+  process.exit(0);
+}
 
 const hits = [];
 function walk(d) {

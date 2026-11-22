@@ -26,21 +26,21 @@ t('time limit params carry minutes and limit', () => {
   const [r] = computeReminders({ ...base, minutesToday: 40 }, at(10));
   assert.deepEqual(r.params, { name: 'Lea', count: 40, limit: 30 });
 });
-t('trial ending in 3 days warns', () => {
-  const r = computeReminders({ ...base, minutesToday: 1, subscription: { status: 'trial', plan: 'free', trial_ends_at: iso(15) } }, at(12));
+t('free-plan access ending in 3 days warns', () => {
+  const r = computeReminders({ ...base, minutesToday: 1, subscription: { status: 'active', plan: 'free', access_until: iso(15) } }, at(12));
   assert.equal(r[0].kind, 'subscription_expiring');
   assert.equal(r[0].params.count, 3);
 });
-t('trial ending in 30 days does not warn', () =>
-  assert.deepEqual(kinds({ ...base, minutesToday: 1, subscription: { status: 'trial', plan: 'free', trial_ends_at: iso(42) } }, at(12)), []));
+t('free-plan access ending in 30 days does not warn', () =>
+  assert.deepEqual(kinds({ ...base, minutesToday: 1, subscription: { status: 'active', plan: 'free', access_until: iso(42) } }, at(12)), []));
 t('warning window is configurable', () =>
-  assert.deepEqual(kinds({ ...base, minutesToday: 1, expiringWarningDays: 2, subscription: { status: 'trial', plan: 'free', trial_ends_at: iso(15) } }, at(12)), []));
+  assert.deepEqual(kinds({ ...base, minutesToday: 1, expiringWarningDays: 2, subscription: { status: 'active', plan: 'free', access_until: iso(15) } }, at(12)), []));
 t('canceled plan warns before access ends', () =>
   assert.deepEqual(kinds({ ...base, minutesToday: 1, subscription: { status: 'canceled', plan: 'family_monthly', renews_at: iso(14) } }, at(12)), ['subscription_expiring']));
 t('active plan renewing soon is not an expiry', () =>
   assert.deepEqual(kinds({ ...base, minutesToday: 1, subscription: { status: 'active', plan: 'family_monthly', renews_at: iso(14) } }, at(12)), []));
-t('already ended trial does not warn (the status covers it)', () =>
-  assert.deepEqual(kinds({ ...base, minutesToday: 1, subscription: { status: 'trial', plan: 'free', trial_ends_at: iso(5) } }, at(12)), []));
+t('already ended access does not warn (the status covers it)', () =>
+  assert.deepEqual(kinds({ ...base, minutesToday: 1, subscription: { status: 'active', plan: 'free', access_until: iso(5) } }, at(12)), []));
 t('unpaid asks to pay', () =>
   assert.deepEqual(kinds({ ...base, minutesToday: 1, subscription: { status: 'unpaid', plan: 'family_monthly' } }, at(12)), ['payment_due']));
 t('limit reached suppresses the play reminder', () => assert.deepEqual(kinds({ ...base, minutesToday: 30 }, at(20)), ['time_limit']));

@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { ApiError } from '@/data/api/client';
 import { cn } from '@/shared/cn';
-import { daysUntil } from '@/features/notify/reminders';
 import type { PaymentMethod, Plan, PlanId, Subscription } from '@/data/api/platform-types';
 import { useCancelSubscription, useCheckout, usePlans, useSubscription } from '@/data/hooks/platform';
 import { ParentPage } from '@/features/parent/ParentPage';
@@ -48,7 +47,7 @@ function RadioCard({
   return (
     <label
       className={cn(
-        'lift relative flex cursor-pointer flex-col gap-2 rounded-lg border bg-elevated p-4 text-fg has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand',
+        'lift relative flex cursor-pointer flex-col gap-2 rounded-[var(--radius-card)] border bg-elevated p-4 text-fg has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand',
         checked ? 'border-brand bg-brand-soft' : 'border-line',
         disabled && 'cursor-not-allowed opacity-60',
       )}
@@ -83,17 +82,16 @@ function ErrorPanel({ error, onRetry }: { error: unknown; onRetry: () => void })
 function CurrentPlan({ sub }: { sub: Subscription }) {
   const t = useTranslations('screens.parent.subscription');
   const format = useFormatter();
-  const daysLeft = sub.status === 'trial' ? Math.max(0, daysUntil(sub.trial_ends_at, new Date()) || 0) : undefined;
-  const date = sub.status === 'trial' ? sub.trial_ends_at : sub.renews_at;
+  const date = sub.status === 'canceled' ? sub.renews_at : (sub.access_until ?? sub.renews_at);
   return (
     <Panel title={t('current.title')} tone="brand">
       <div className="flex flex-wrap items-center gap-3">
-        <SubscriptionBadge status={sub.status} daysLeft={daysLeft} date={sub.status === 'trial' ? undefined : date} />
-        <span className="font-display text-lg font-semibold">{t(`plans.${sub.plan}.name`)}</span>
+        <SubscriptionBadge status={sub.status} date={date ?? undefined} />
+        {/* the plan id `free` is a machine id and never shown: parents read a neutral name */}
+        <span className="font-display text-lg font-semibold">{t(`plans.${sub.plan === 'free' ? 'standard' : sub.plan}.name`)}</span>
       </div>
       <p className="mt-3 text-muted">
-        {sub.status === 'active' && date && t('current.renews', { date: format.dateTime(new Date(date), { dateStyle: 'long' }) })}
-        {sub.status === 'trial' && t('current.trial')}
+        {sub.status === 'active' && date && t('current.accessUntil', { date: format.dateTime(new Date(date), { dateStyle: 'long' }) })}
         {sub.status === 'unpaid' && t('current.unpaid')}
         {sub.status === 'expired' && t('current.expired')}
         {sub.status === 'canceled' && date && t('current.canceled', { date: format.dateTime(new Date(date), { dateStyle: 'long' }) })}
@@ -107,7 +105,7 @@ function PlanCard({ id, plan, selected, current, onSelect }: { id: PlanId; plan?
   const t = useTranslations('screens.parent.subscription');
   const format = useFormatter();
   const locale = useLocale().startsWith('fr') ? 'fr' : 'en';
-  const price = id === 'free' ? 0 : plan?.price_cad;
+  const price = plan?.price_cad;
   const features = t.raw(`plans.${id}.features`) as string[];
   const body = (
     <>
@@ -116,7 +114,7 @@ function PlanCard({ id, plan, selected, current, onSelect }: { id: PlanId; plan?
         {current && <span className="rounded-full bg-sunken px-2 py-0.5 text-sm font-semibold">{t('plans.current')}</span>}
       </div>
       <p className="font-display text-2xl font-bold">
-        {price === undefined ? t('plans.priceUnknown') : price === 0 ? t('plans.priceFree') : format.number(price, { style: 'currency', currency: 'CAD' })}
+        {price === undefined ? t('plans.priceUnknown') : price === 0 ? t('plans.priceUnknown') : format.number(price, { style: 'currency', currency: 'CAD' })}
         {price ? <span className="ml-1 text-base font-normal text-muted">{t(id === 'family_yearly' ? 'plans.perYear' : 'plans.perMonth')}</span> : null}
       </p>
       <ul className="flex flex-col gap-1 text-muted">
@@ -129,7 +127,7 @@ function PlanCard({ id, plan, selected, current, onSelect }: { id: PlanId; plan?
       </ul>
     </>
   );
-  if (!onSelect) return <div className="relative flex flex-col gap-2 rounded-lg border-2 border-line bg-sunken p-4 text-fg">{body}</div>;
+  if (!onSelect) return <div data-card="" className="relative flex flex-col gap-2 rounded-[var(--radius-card)] border-2 border-line bg-sunken p-4 text-fg">{body}</div>;
   return (
     <RadioCard name="plan" value={id} checked={selected} onChange={onSelect}>
       {body}
@@ -156,7 +154,7 @@ export function ManageSubscription() {
   const chosen: PlanId = plan ?? (sub && PAID.includes(sub.plan) ? sub.plan : 'family_monthly');
   const byId = useMemo(() => new Map((plansQ.data ?? []).map((p) => [p.id, p])), [plansQ.data]);
   const sameAsCurrent = sub?.status === 'active' && sub.plan === chosen;
-  const hasPlan = sub?.status === 'active' || sub?.status === 'trial' || sub?.status === 'unpaid';
+  const hasPlan = sub?.status === 'active' || sub?.status === 'unpaid';
 
   function subscribe() {
     checkout.mutate(
@@ -218,9 +216,8 @@ export function ManageSubscription() {
               {plansQ.error && <ErrorPanel error={plansQ.error} onRetry={() => void plansQ.refetch()} />}
               {plansQ.isLoading && <Skeleton shape="block" className="h-[640px] sm:h-[270px]" />}
               {plansQ.data && (
-                <fieldset className="grid gap-3 sm:grid-cols-3">
+                <fieldset className="grid gap-3 sm:grid-cols-2">
                   <legend className="sr-only">{t('plans.title')}</legend>
-                  <PlanCard id="free" selected={false} current={sub.plan === 'free'} />
                   {PAID.map((id) => (
                     <PlanCard key={id} id={id} plan={byId.get(id)} selected={chosen === id} current={sub.plan === id && sub.status === 'active'} onSelect={() => setPlan(id)} />
                   ))}
@@ -230,7 +227,7 @@ export function ManageSubscription() {
 
             <Panel title={t('method.title')}>
               <p className="mb-3 text-muted">{t('method.secure')}</p>
-              <fieldset className="grid gap-3 sm:grid-cols-2">
+              <fieldset className="grid gap-3 sm:grid-cols-2 sm:[&>:last-child:nth-child(even)]:col-span-full">
                 <legend className="sr-only">{t('method.title')}</legend>
                 {METHODS.map((m) => (
                   <RadioCard key={m} name="method" value={m} checked={method === m} onChange={() => setMethod(m)}>

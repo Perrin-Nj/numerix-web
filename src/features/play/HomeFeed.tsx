@@ -89,7 +89,10 @@ export function HomeFeed() {
   const tour = Boolean(childId && home.data && !tourDone && !localStorage.getItem(onboardingKey(childId)));
   const [giftLater, setGiftLater] = useState(false);
   const tip = useAdminCopy('home_tip');
-  const giftOn = usePublicConfig().data?.welcome_gift ?? true; // the admin can turn the gift off
+  const cfg = usePublicConfig().data;
+  const giftOn = cfg?.welcome_gift ?? true; // the admin can turn the gift off
+  // The admin turns each home block on; missing means off. The child nav bar is not affected.
+  const sections = cfg?.feed.home_sections;
   const giftOpen = appConfig.features.welcomeGift && giftOn && !giftLater && Boolean(d?.gift_available && !tour);
 
   function endTour() {
@@ -151,15 +154,15 @@ export function HomeFeed() {
           </div>
 
           <nav aria-label={t('menu.label')} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <MenuTile icon="trophy" label={t('menu.challenges')} hint={t('menu.challengesHint')} badge={openChallenges || undefined} tone="warning" onSelect={() => router.push('/play/challenges')} />
-            <MenuTile icon="sparkles" label={t('menu.discover')} hint={t('menu.discoverHint')} tone="brand" onSelect={() => router.push('/play/feed')} />
+            {sections?.challenges === true && <MenuTile icon="trophy" label={t('menu.challenges')} hint={t('menu.challengesHint')} badge={openChallenges || undefined} tone="warning" onSelect={() => router.push('/play/challenges')} />}
+            {sections?.discover === true && <MenuTile icon="sparkles" label={t('menu.discover')} hint={t('menu.discoverHint')} tone="brand" onSelect={() => router.push('/play/feed')} />}
             <MenuTile icon="map" label={t('menu.worlds')} hint={t('menu.worldsHint')} tone="info" onSelect={() => router.push('/play/worlds')} />
             <MenuTile icon="star" label={t('menu.cards')} hint={t('menu.cardsHint')} badge={d.recent_cards.length || undefined} tone="success" onSelect={() => router.push('/play/collection')} />
             <MenuTile icon="flame" label={t('menu.progress')} hint={t('menu.progressHint')} tone="world" onSelect={() => router.push('/play/me')} />
-            <MenuTile icon="book" label={t('menu.quest')} hint={t('menu.questHint')} badge={d.quest.completed ? undefined : '!'} tone="brand" onSelect={() => router.push('/play/quest')} />
+            {sections?.daily_quest === true && <MenuTile icon="book" label={t('menu.quest')} hint={t('menu.questHint')} badge={d.quest.completed ? undefined : '!'} tone="brand" onSelect={() => router.push('/play/quest')} />}
           </nav>
 
-          <QuestCard quest={d.quest} onPlay={() => begin(d.suggested.world, { kind: 'daily_quest' })} />
+          {sections?.daily_quest === true && <QuestCard quest={d.quest} onPlay={() => begin(d.suggested.world, { kind: 'daily_quest' })} />}
           <div id="tour-streak" className="flex flex-wrap items-center justify-between gap-4 rounded-lg border-2 border-line bg-elevated p-4">
             <StreakBadge days={d.engagement.streak.current_days} />
             <DailyGoalRing done={d.engagement.daily_goal.done_chapters} target={d.engagement.daily_goal.target_chapters} />

@@ -1,0 +1,131 @@
+/* Scene rig v2. Rules (enforced in review):
+   - The BASE style is the settled picture; entrances use `backwards` fill; reveals key on [data-phase]. Motion off removes every animation and the settled still carries every quantity.
+   - Only transform, translate, scale and opacity animate, on small promoted elements (HTML boxes), never inside a filtered layer and never on a stage-sized SVG.
+   - No filter, no backdrop-filter anywhere in the stage. Depth is atmospheric (colour and contrast), parallax lanes and moving light.
+   - Sizes use the art unit --u (container query units): the composition fills the stage at any aspect. */
+
+.nx-stage {
+  --nx-persp: 900px;
+  --nx-ease-out: cubic-bezier(0.22, 0.9, 0.3, 1);
+  --nx-ease-io: cubic-bezier(0.45, 0, 0.25, 1);
+  --nx-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --nx-settle: cubic-bezier(0.3, 1.35, 0.5, 1);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 7rem;
+  overflow: hidden;
+  border-radius: inherit;
+  isolation: isolate;
+  contain: layout paint;
+  container-type: size;
+  container-name: stage;
+  background: var(--nx-sky, #1c2340);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.nx-stage[data-visible='false'] * { animation-play-state: paused !important; }
+
+/* The world box sets the art unit --u: as big as the stage allows (width) without letting the subject (--hs units tall) overflow the height.
+   Wide stages spread sprite x offsets by --sx so the composition still fills the width; the sprite sizes stay put. */
+.nx-world { position: absolute; inset: 0; --sx: 1; --hs: 50; --u: min(1cqw, calc(100cqh / var(--hs))); }
+@container stage (min-aspect-ratio: 12 / 5) { .nx-world { --sx: 1.25; } }
+@container stage (min-aspect-ratio: 16 / 5) { .nx-world { --sx: 1.55; } }
+@container stage (min-aspect-ratio: 20 / 5) { .nx-world { --sx: 1.8; } }
+.nx-fit { --u: min(1cqw, calc(100cqh / var(--hs, 50))); }
+
+.nx-persp { position: absolute; inset: 0; perspective: var(--nx-persp); perspective-origin: 50% 45%; }
+.nx-cam-in, .nx-cam-drift { position: absolute; inset: 0; transform-style: preserve-3d; }
+
+/* Lanes. --z is depth in px, --s the compensating scale so a lane keeps its size. --par is how far the lane slides with the pointer. */
+.nx-layer {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(var(--z, 0px)) scale(var(--s, 1));
+  translate: calc(var(--px, 0) * var(--par, 0) * 1cqw) calc(var(--py, 0) * var(--par, 0) * 1cqw);
+  pointer-events: none;
+}
+/* Slow lane drift: translate only, different periods per lane so the depth reads without rotating the subject */
+.nx-stage[data-drift='slow'] .nx-layer[data-drift='a'] { animation: nx-lane-a 19s var(--nx-ease-io) 1.5s infinite alternate; }
+.nx-stage[data-drift='slow'] .nx-layer[data-drift='b'] { animation: nx-lane-b 14s var(--nx-ease-io) 1.5s infinite alternate; }
+@keyframes nx-lane-a { from { transform: translateZ(var(--z, 0px)) scale(var(--s, 1)) translateX(-0.8cqw); } to { transform: translateZ(var(--z, 0px)) scale(var(--s, 1)) translateX(0.8cqw); } }
+@keyframes nx-lane-b { from { transform: translateZ(var(--z, 0px)) scale(var(--s, 1)) translateX(0.9cqw); } to { transform: translateZ(var(--z, 0px)) scale(var(--s, 1)) translateX(-0.9cqw); } }
+
+/* Camera entrance */
+.nx-cam-in { animation: nx-cam-dolly 1.5s var(--nx-ease-out) backwards; }
+.nx-stage[data-camera='rise'] .nx-cam-in { animation-name: nx-cam-rise; }
+.nx-stage[data-camera='orbit'] .nx-cam-in { animation-name: nx-cam-orbit; }
+.nx-stage[data-camera='push-side'] .nx-cam-in { animation-name: nx-cam-side; }
+@keyframes nx-cam-dolly { from { transform: translateZ(-120px) scale(1.07); } to { transform: none; } }
+@keyframes nx-cam-rise { from { transform: translateY(5cqh) rotateX(5deg); } to { transform: none; } }
+@keyframes nx-cam-orbit { from { transform: rotateY(-7deg) translateX(-2cqw); } to { transform: none; } }
+@keyframes nx-cam-side { from { transform: translateX(-5cqw) rotateY(4deg); } to { transform: none; } }
+
+/* Light overlay: key light and vignette, no blend mode work per frame */
+.nx-light { position: absolute; inset: 0; pointer-events: none; z-index: 3; border-radius: inherit; }
+.nx-light::before { content: ''; position: absolute; inset: 0; background: var(--nx-key); }
+.nx-light::after { content: ''; position: absolute; inset: 0; background: radial-gradient(120% 95% at 50% 50%, transparent 58%, rgb(8 6 24 / 0.3) 100%); }
+.nx-stage[data-light='warm-left'] { --nx-key: radial-gradient(70% 90% at 8% 15%, rgb(255 214 150 / 0.22), transparent 70%); }
+.nx-stage[data-light='cool-top'] { --nx-key: radial-gradient(80% 80% at 50% -10%, rgb(170 210 255 / 0.2), transparent 70%); }
+.nx-stage[data-light='rim-right'] { --nx-key: radial-gradient(60% 90% at 100% 30%, rgb(190 170 255 / 0.2), transparent 70%); }
+.nx-stage[data-light='sunrise'] { --nx-key: linear-gradient(0deg, rgb(255 190 120 / 0.2), transparent 60%); }
+.nx-stage[data-light='cool-morning'] { --nx-key: linear-gradient(115deg, rgb(190 225 255 / 0.28), transparent 55%); }
+.nx-stage[data-light='ceiling-lamp'] { --nx-key: radial-gradient(55% 70% at 50% -8%, rgb(255 250 220 / 0.32), transparent 72%); }
+.nx-stage[data-light='pastel-evening'] { --nx-key: linear-gradient(100deg, rgb(255 205 190 / 0.26), transparent 62%); }
+.nx-stage[data-light='window-morning'] { --nx-key: linear-gradient(100deg, rgb(255 238 200 / 0.3), transparent 60%); }
+
+.nx-sweep { position: absolute; inset: -10% -30%; z-index: 4; pointer-events: none; opacity: 0; translate: -60% 0; skew: -18deg; background: linear-gradient(90deg, transparent 35%, rgb(255 244 214 / 0.4) 50%, transparent 65%); animation: nx-sweep 1.3s var(--nx-ease-io) var(--hook-at, 350ms) both; }
+@keyframes nx-sweep { 0% { opacity: 0; translate: -60% 0; } 30% { opacity: 1; } 100% { opacity: 0; translate: 60% 0; } }
+
+.nx-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+
+.nx-replay { position: absolute; right: 6px; bottom: 6px; z-index: 6; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 9999px; border: 0; background: rgb(20 16 40 / 0.45); color: #fff; opacity: 0.8; cursor: pointer; }
+.nx-replay:hover { opacity: 1; }
+.nx-replay:focus-visible { outline: 3px solid var(--focus-ring, #2d5bff); outline-offset: 2px; opacity: 1; }
+.nx-replay svg { width: 20px; height: 20px; }
+
+/* ---- Kit: sprites, shadows, glints, characters, idle life ---- */
+/* A sprite is an absolutely placed HTML box in art units. Its own compositor layer when it animates. */
+.nx-sprite { position: absolute; left: calc(50% + var(--x, 0) * var(--sx, 1) * var(--u)); top: calc(50% + var(--y, 0) * var(--u)); width: calc(var(--w, 10) * var(--u)); translate: -50% var(--anchor, -50%); }
+.nx-sprite > svg { display: block; width: 100%; height: auto; overflow: visible; }
+.nx-anim { will-change: transform; }
+
+/* Moving light: one lamp swings, every shadow and glint is keyed to the same 11 s cycle so they agree */
+.nx-shadow { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgb(30 20 40 / var(--sh, 0.4)), transparent); animation: nx-shadow-sway 11s var(--nx-ease-io) infinite alternate; }
+@keyframes nx-shadow-sway { from { transform: translateX(calc(var(--sw, 1.2) * var(--u) * -1)) scaleX(1.08); } to { transform: translateX(calc(var(--sw, 1.2) * var(--u))) scaleX(0.94); } }
+.nx-gloss { position: absolute; inset: 0; overflow: hidden; pointer-events: none; border-radius: inherit; }
+.nx-gloss::after { content: ''; position: absolute; top: -20%; bottom: -20%; width: 28%; left: 0; background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.5), transparent); animation: nx-glint 11s var(--nx-ease-io) infinite alternate; }
+@keyframes nx-glint { from { transform: translateX(-60%) skewX(-16deg); } to { transform: translateX(420%) skewX(-16deg); } }
+
+/* Character idle life: breathing, blinking, look-at. Small SVGs only. */
+.nx-breathe { transform-box: fill-box; transform-origin: 50% 100%; animation: nx-breathe 3.6s var(--nx-ease-io) var(--d, 0s) infinite; }
+@keyframes nx-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.025, 0.975); } }
+.nx-blink { transform-box: fill-box; transform-origin: 50% 50%; animation: nx-blink var(--bd, 5.2s) linear var(--d, 0s) infinite; }
+@keyframes nx-blink { 0%, 93%, 100% { transform: scaleY(1); } 95.5% { transform: scaleY(0.08); } }
+.nx-float { animation: nx-float 5s var(--nx-ease-io) var(--d, 0s) infinite; }
+@keyframes nx-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.nx-twinkle { animation: nx-twinkle 4s var(--nx-ease-io) var(--d, 0s) infinite; }
+@keyframes nx-twinkle { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+/* Eye line: pupils slide by --lx/--ly (px of the eye) toward the target the archetype sets */
+.nx-pupil { transform: translate(calc(var(--lx, 0) * 1px), calc(var(--ly, 0) * 1px)); transition: transform 0.35s var(--nx-ease-out); }
+
+/* Ambient motes: a handful of CSS dots, compositor only, instead of a running canvas */
+.nx-mote { position: absolute; width: calc(var(--r, 0.8) * var(--u)); height: calc(var(--r, 0.8) * var(--u)); border-radius: 50%; background: radial-gradient(closest-side, var(--mc, rgb(255 236 190 / 0.9)), transparent); left: calc(var(--mx) * 1%); top: calc(var(--my) * 1%); animation: nx-mote var(--md, 9s) var(--nx-ease-io) var(--d, 0s) infinite; opacity: 0; }
+@keyframes nx-mote { 0% { opacity: 0; transform: translate(0, 0); } 25% { opacity: 0.9; } 100% { opacity: 0; transform: translate(calc(var(--u) * 3), calc(var(--u) * -6)); } }
+
+/* Lite tier: no canvas, no drift, no decorative foreground, no motes. Every prop and count stays. */
+.nx-stage[data-tier='lite'] .nx-fx,
+.nx-stage[data-tier='lite'] .nx-sweep,
+.nx-stage[data-tier='lite'] .nx-mote { display: none; }
+.nx-stage[data-tier='lite'] .nx-layer { animation: none !important; }
+.nx-stage[data-tier='lite'] .nx-layer[data-lite='0'] { display: none; }
+
+/* Reduced motion: the calm still. Same DOM as the review stills. */
+.nx-stage[data-reduced='true'] *,
+.nx-stage[data-reduced='true'] *::before,
+.nx-stage[data-reduced='true'] *::after { animation: none !important; transition: none !important; }
+.nx-stage[data-reduced='true'] .nx-fx,
+.nx-stage[data-reduced='true'] .nx-sweep,
+.nx-stage[data-reduced='true'] .nx-mote { display: none; }
+.nx-stage[data-reduced='true'] { animation: nx-still-in 150ms linear both; }
+@keyframes nx-still-in { from { opacity: 0; } to { opacity: 1; } }

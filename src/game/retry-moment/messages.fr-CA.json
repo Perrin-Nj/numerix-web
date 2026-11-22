@@ -1,0 +1,8 @@
+{
+  "game": {
+    "retryMoment": {
+      "lead": "Presque ! Tu as encore un essai.",
+      "fallback": "Relis la question tranquillement, puis choisis à nouveau."
+    }
+  }
+}

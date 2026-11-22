@@ -1,0 +1,135 @@
+/* espace.control-clock: huge wall clock, window with rocket, steam and a supply drone. Base style = settled picture.
+   Window geometry (art units from the stage centre): left +6, top -27, width 40, height 46. The clock overlaps its left edge. */
+.ck-root { position: absolute; inset: 0; --hs: 52; --wf: 1.12; --u: min(calc(var(--wf, 1) * 1cqw), calc(100cqh / var(--hs))); --wl: calc(50% + var(--u) * 6 * var(--sx, 1)); --wt: calc(50% - var(--u) * 27); --ww: calc(var(--u) * 40); --wh: calc(var(--u) * 46); }
+
+/* Far lane: the morning scenery inside the window, static */
+.ck-sky { position: absolute; left: var(--wl); top: var(--wt); width: var(--ww); height: var(--wh); overflow: hidden; background: linear-gradient(180deg, #8fc6ee 0%, #cfe6f4 52%, #ffe2bd 100%); }
+.ck-sun { position: absolute; right: 12%; top: 46%; width: 34%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #fff6c8 0%, rgb(255 236 170 / 0.5) 45%, transparent 70%); }
+.ck-hills { position: absolute; left: -10%; right: -10%; bottom: -6%; height: 30%; border-radius: 55% 45% 0 0; background: linear-gradient(180deg, #a9d3a4, #7fb98f); }
+.ck-tower { position: absolute; left: 12%; bottom: 14%; width: 7%; height: 46%; background: repeating-linear-gradient(180deg, #9aa6b8 0 4%, #c3ccd9 4% 8%); clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%); }
+.ck-pad { position: absolute; left: 54%; bottom: 8%; width: 30%; height: 7%; border-radius: 30%; background: #8d96a8; }
+
+/* Mid-far lane: rocket, steam puffs, drone, clipped to the window */
+.ck-clip { position: absolute; left: var(--wl); top: var(--wt); width: var(--ww); height: var(--wh); overflow: hidden; }
+.ck-rocket-wrap { position: absolute; left: 58%; bottom: 12%; width: calc(var(--u) * 9); transform-origin: 50% 100%; }
+.ck-rocket-wrap .rk { display: block; width: 100%; height: auto; }
+.ck-flame { position: absolute; left: 50%; top: 58%; width: 26%; height: 34%; translate: -50% 0; border-radius: 50% 50% 50% 50% / 20% 20% 80% 80%; background: linear-gradient(180deg, #fff3b0, #ffb347 55%, rgb(255 140 60 / 0)); opacity: 0; }
+.ck-puff { position: absolute; left: calc(58% + var(--u) * 2); bottom: 14%; width: calc(var(--u) * 5.4); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fff, rgb(246 249 252 / 0.85) 55%, rgb(235 240 247 / 0)); opacity: 0; animation: ck-puff 7s var(--nx-ease-io) calc(0.5s + var(--k) * 1.35s) infinite; }
+@keyframes ck-puff {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.45); }
+  18% { opacity: 0.9; }
+  55% { transform: translate(calc(var(--u) * -6), calc(var(--u) * -9)) scale(1.15); }
+  100% { opacity: 0; transform: translate(calc(var(--u) * -15), calc(var(--u) * -16)) scale(1.9); }
+}
+/* Hook plume-curl: in the question phase the steam is bigger and curls toward the clock */
+.nx-stage[data-hook='plume-curl'][data-phase='question'] .ck-puff { animation-duration: 5.2s; width: calc(var(--u) * 6.8); }
+.ck-drone { position: absolute; left: 4%; top: 22%; width: calc(var(--u) * 8); animation: ck-cross 22s var(--nx-ease-io) 1s infinite alternate; }
+@keyframes ck-cross { from { transform: translateX(0); } to { transform: translateX(calc(var(--u) * 29)); } }
+.ck-drone-in { transform-origin: 50% 50%; transition: rotate 0.8s var(--nx-ease-io) 0.5s; }
+.dr { display: block; width: 100%; height: auto; overflow: visible; }
+.dr-eyes { --lx: -2.2; --ly: 0.6; }
+.dr-happy { opacity: 0; }
+.dr-rotor { animation: nx-twinkle 1.2s var(--nx-ease-io) infinite; }
+
+/* Near-far lane: the wall with a window hole, the frame, the console */
+.ck-wall { position: absolute; inset: 0; background: linear-gradient(180deg, #dfe8f6 0%, #f3efe6 70%, #e6e1d6 100%); clip-path: polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, var(--wl) var(--wt), var(--wl) calc(var(--wt) + var(--wh)), calc(var(--wl) + var(--ww)) calc(var(--wt) + var(--wh)), calc(var(--wl) + var(--ww)) var(--wt), var(--wl) var(--wt)); }
+.ck-frame { position: absolute; left: calc(var(--wl) - var(--u) * 0.8); top: calc(var(--wt) - var(--u) * 0.8); width: calc(var(--ww) + var(--u) * 1.6); height: calc(var(--wh) + var(--u) * 1.6); border: calc(var(--u) * 0.9) solid #f7f9fc; border-radius: calc(var(--u) * 1.2); box-shadow: 0 calc(var(--u) * 0.6) calc(var(--u) * 2) rgb(30 50 90 / 0.3), inset 0 0 calc(var(--u) * 2) rgb(255 244 214 / 0.6); }
+.ck-console { position: absolute; left: -6%; right: -6%; top: calc(50% + var(--u) * 20); bottom: -6%; background: linear-gradient(180deg, #4b5878, #2a3350); box-shadow: inset 0 calc(var(--u) * 0.5) 0 rgb(255 255 255 / 0.35); }
+.ck-console i { position: absolute; top: calc(var(--u) * 1.8); left: calc(50% + (var(--k) - 2.5) * var(--u) * 12); width: calc(var(--u) * 1.5); aspect-ratio: 1; border-radius: 50%; background: #7ff0d0; }
+.ck-console i:nth-child(2n) { background: #ffd36b; }
+.ck-console i:nth-child(3n) { background: #ff9fb2; }
+
+/* Subject lane: the clock */
+.ck-shadow { left: 50%; bottom: calc(var(--u) * -1.2); width: 70%; height: calc(var(--u) * 3); translate: -50% 50%; --sw: 1.6; }
+.ck-clock { position: relative; width: 100%; aspect-ratio: 1; }
+.ck-face { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ck-gloss { border-radius: 50%; inset: 5%; }
+.ck-ring { position: absolute; inset: -4%; border-radius: 50%; border: calc(var(--u) * 0.5) solid #ffd36b; opacity: 0; }
+.ck-num { position: absolute; width: 16%; aspect-ratio: 1; border-radius: 50%; border: calc(var(--u) * 0.6) solid #ffb21c; translate: -50% -50%; opacity: 0; box-shadow: 0 0 0 calc(var(--u) * 0.25) rgb(255 255 255 / 0.9); }
+.nx-stage[data-phase='ok'] .ck-num, .nx-stage[data-phase='ko'] .ck-num { opacity: 1; }
+
+.ck-hand { position: absolute; left: 50%; top: 50%; translate: -50% -100%; transform-origin: 50% 100%; rotate: var(--a); }
+.ck-hour { width: 9%; height: 31%; }
+.ck-min { width: 6%; height: 44%; }
+.ck-body, .ck-glow { position: absolute; inset: 0; clip-path: polygon(50% 0, 100% 86%, 82% 100%, 18% 100%, 0 86%); }
+.ck-body { background: linear-gradient(90deg, #2a2a34, #0e0e14 60%, #2a2a34); transition: opacity 0.5s linear; }
+.ck-glow { inset: -6% -34%; background: #ffc83d; opacity: 0; }
+.ck-min .ck-glow { background: #55d6f0; }
+.ck-cap { position: absolute; left: 50%; top: 50%; width: 9%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #5a5a68, #14141a); box-shadow: 0 0 0 calc(var(--u) * 0.3) #ffc83d; }
+
+/* Entrance hook: the hands wind to the time with spring overshoot (rotate property, compositor). Hour from a quarter turn back, minute from a full turn back. */
+.ck-hour { animation: ck-wind-h 1.35s cubic-bezier(0.3, 1.25, 0.5, 1) 0.3s backwards, ck-settle 8s var(--nx-ease-io) 3s infinite; }
+.ck-min { animation: ck-wind-m 1.35s cubic-bezier(0.3, 1.2, 0.5, 1) 0.3s backwards, ck-settle 8s var(--nx-ease-io) 3.6s infinite; }
+@keyframes ck-wind-h { from { rotate: calc(var(--a) - 120deg); } to { rotate: var(--a); } }
+@keyframes ck-wind-m { from { rotate: calc(var(--a) - 360deg); } to { rotate: var(--a); } }
+@keyframes ck-settle { 0%, 90%, 100% { rotate: var(--a); } 94% { rotate: calc(var(--a) + 0.9deg); } 97% { rotate: calc(var(--a) - 0.4deg); } }
+
+/* Right: chime rings leave the clock, the hour hand glows, the rocket rises and settles, the drone smiles */
+.ck-ring { border-color: #ffc83d; }
+.nx-stage[data-phase='ok'] .ck-hour .ck-glow { opacity: 0.85; animation: ck-breathe 2.6s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.6s) infinite alternate; }
+@keyframes ck-breathe { from { opacity: 0.4; } to { opacity: 0.95; } }
+.nx-stage[data-phase='ok'] .ck-num { animation: ck-pop 0.7s linear calc(var(--rv-base, 0s) + 0.35s) backwards; }
+@keyframes ck-pop { 0% { transform: scale(0.2); animation-timing-function: cubic-bezier(0.3, 1.5, 0.5, 1); } 60% { transform: scale(1.3); animation-timing-function: ease-in-out; } 100% { transform: none; } }
+.nx-stage[data-ok='chime-rocket'][data-phase='ok'] .ck-rocket-wrap { animation: ck-rise 2.6s linear calc(var(--rv-base, 0s) + 0.5s) backwards; }
+@keyframes ck-rise {
+  0% { transform: none; animation-timing-function: ease-in; }
+  8% { transform: translateY(calc(var(--u) * 0.5)) scale(1.03, 0.96); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+  38% { transform: translateY(calc(var(--u) * -6)); animation-timing-function: ease-in-out; }
+  60% { transform: translateY(calc(var(--u) * -6.3)); animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); }
+  88% { transform: translateY(calc(var(--u) * 0.4)) scale(1.02, 0.97); }
+  100% { transform: none; }
+}
+.nx-stage[data-ok='chime-rocket'][data-phase='ok'] .ck-flame { animation: ck-flame 2.6s linear calc(var(--rv-base, 0s) + 0.5s) backwards; }
+@keyframes ck-flame { 0%, 6% { opacity: 0; transform: scaleY(0.4); } 14%, 70% { opacity: 1; transform: scaleY(1); } 100% { opacity: 0; transform: scaleY(0.4); } }
+.nx-stage[data-phase='ok'] .dr-eyes { opacity: 0; }
+.nx-stage[data-phase='ok'] .dr-happy { opacity: 1; }
+.nx-stage[data-phase='ok'] .ck-drone-in { rotate: 0deg; }
+
+/* Gentle miss: the hands dim, the long hand pulses wide (visible), then the short hand's numeral is ringed; tag icons pulse in turn; the drone tilts */
+.ck-tag { position: absolute; width: 18%; aspect-ratio: 1; border-radius: 22%; background: #fff; display: grid; place-items: center; box-shadow: 0 calc(var(--u) * 0.4) calc(var(--u) * 1) rgb(30 40 80 / 0.3); opacity: 0; }
+.ck-tag b { display: block; width: 24%; background: #14141a; border-radius: 99px; }
+.ck-tag-a { left: -24%; top: 22%; }
+.ck-tag-a b { height: 38%; }
+.ck-tag-b { left: -24%; top: 50%; }
+.ck-tag-b b { height: 66%; }
+.nx-stage[data-phase='ko'] .ck-tag { opacity: 1; }
+.nx-stage[data-ko='check-hands'][data-phase='ko'] .ck-body { opacity: 0.5; }
+.nx-stage[data-ko='check-hands'][data-phase='ko'] .ck-min .ck-body { opacity: 1; }
+.nx-stage[data-ko='check-hands'][data-phase='ko'] .ck-min { animation: ck-longpulse 1.8s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.5s) 2 backwards; }
+@keyframes ck-longpulse { 0%, 100% { scale: 1 1; } 45% { scale: 1.9 1.04; } }
+.nx-stage[data-ko='check-hands'][data-phase='ko'] .ck-min .ck-glow { opacity: 0.8; }
+.nx-stage[data-ko='check-hands'][data-phase='ko'] .ck-hour .ck-glow { opacity: 0.8; animation: ck-breathe 2.6s var(--nx-ease-io) calc(var(--rv-base, 0s) + 3.4s) infinite alternate backwards; }
+.nx-stage[data-phase='ko'] .ck-num { animation: ck-pop 0.9s linear calc(var(--rv-base, 0s) + 3.4s) backwards; }
+.nx-stage[data-phase='ko'] .ck-drone-in { rotate: -14deg; }
+.ck-ring { transform-origin: 50% 50%; }
+
+/* View "approach" and "docked": a night control room, the window shows the station and a cargo rocket (brief horloge.106). The rocket lies sideways, nose to the right. */
+.ck-root[data-view='approach'] .ck-sky, .ck-root[data-view='docked'] .ck-sky { background: radial-gradient(120% 90% at 20% 100%, #1d3a7a 0%, #0c1633 55%, #060a1c 100%); }
+.ck-planet { position: absolute; left: -30%; bottom: -46%; width: 90%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 70% 20%, #7fd0ff 0%, #2f78c8 38%, #12306b 70%); box-shadow: 0 0 calc(var(--u) * 3) rgb(120 200 255 / 0.5); }
+.st { position: absolute; right: 16%; top: 18%; width: 46%; height: auto; display: block; }
+.st-dock { fill: #ffb21c; animation: ck-blink 1.4s steps(2, jump-none) infinite; }
+.st-dock:nth-of-type(2) { animation-delay: 0.45s; }
+.st-dock:nth-of-type(3) { animation-delay: 0.9s; }
+@keyframes ck-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.25; } }
+.ck-cargo { position: absolute; left: 4%; top: 36%; width: calc(var(--u) * 9); transform-origin: 50% 50%; rotate: 90deg; animation: ck-approach 3.2s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s backwards; }
+.ck-root[data-view='approach'] .ck-cargo { translate: calc(var(--u) * 8) calc(var(--u) * -1); }
+.ck-root[data-view='docked'] .ck-cargo { translate: calc(var(--u) * 14) calc(var(--u) * -3); }
+.ck-cargo .rk { display: block; width: 100%; height: auto; }
+.ck-thrust { top: 92%; opacity: 0.85; }
+.ck-root[data-view='docked'] .ck-thrust { opacity: 0; }
+@keyframes ck-approach { from { transform: translateY(calc(var(--u) * 20)); animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1); } 78% { transform: translateY(calc(var(--u) * -0.8)); } to { transform: none; } }
+.ck-root[data-view='approach'] .ck-cargo-in { animation-duration: 3.4s; }
+/* Dim room, cool radar light on the wall */
+.ck-root[data-view='approach'] .ck-wall, .ck-root[data-view='docked'] .ck-wall { background: linear-gradient(180deg, #1a2748 0%, #25365f 70%, #1b2744 100%); }
+.ck-root[data-view='approach'] .ck-frame, .ck-root[data-view='docked'] .ck-frame { border-color: #6f86b8; box-shadow: 0 0 calc(var(--u) * 3) rgb(90 220 255 / 0.35); }
+/* Right: the rocket glides in and docks, dock lights turn green. Gentle miss: the long hand pulses (from check-hands). */
+.nx-stage[data-phase='ok'] .st-dock { fill: #4fe08a; animation: none; opacity: 1; }
+.nx-stage[data-phase='ok'] .ck-root[data-view='approach'] .ck-cargo, .ck-root[data-view='approach'] .nx-stage[data-phase='ok'] .ck-cargo { translate: calc(var(--u) * 14) calc(var(--u) * -3); transition: translate 1.8s cubic-bezier(0.3, 0.8, 0.3, 1) var(--rv-base, 0s); }
+@media (prefers-reduced-motion: reduce) { .ck-cargo, .st-dock { animation: none; } }
+
+/* View clinic: the same wall clock in the clinic waiting room, a dog on the sill. */
+.ck-root[data-view='clinic'] .ck-sky { background: linear-gradient(180deg, #bfe6f7 0%, #e9f7f3 60%, #d9f2d0 100%); }
+.ck-root[data-view='clinic'] .ck-wall { background: linear-gradient(180deg, #e9f7f3 0%, #f7fbf8 70%, #dcefe8 100%); }
+.ck-root[data-view='clinic'] .ck-console { background: linear-gradient(180deg, #8ac7ba, #5fa89a); }
+.ck-pet { position: absolute; left: 52%; bottom: 10%; width: calc(var(--u) * 11); }
+.ck-pet .gl { display: block; width: 100%; height: auto; }

@@ -31,6 +31,8 @@ export default function ParentDetail() {
   const [resetCode, setResetCode] = useState<ResetCode | null>(null);
   const [days, setDays] = useState('30');
   const [plan, setPlan] = useState<Plan | ''>('');
+  const [faUntil, setFaUntil] = useState('');
+  const [faReason, setFaReason] = useState('');
   const actions = useParentActions(setConfirm);
   const q = useApi<Parent>(`parents/${id}`);
   const notes = useApi<Page<BroadcastRow>>('notifications?page_size=100');
@@ -121,6 +123,57 @@ export default function ParentDetail() {
                     >
                       {t('common.apply')}
                     </Button>
+                  </div>
+                </Card>
+
+                <Card title={t('fa.title')} className="lg:col-span-2">
+                  <p className="mb-2 text-xs text-muted">{t('fa.hint')}</p>
+                  {s.free_access ? (
+                    <div data-free-access="on">
+                      <Badge tone="brand">{t('fa.active')}</Badge>
+                      <Row k={t('fa.by')} v={s.free_access.granted_by} />
+                      <Row k={t('fa.at')} v={fmtDay(s.free_access.granted_at, locale)} />
+                      <Row k={t('fa.until')} v={s.free_access.until ? fmtDay(s.free_access.until, locale) : t('fa.no_end')} />
+                      <Row k={t('fa.reason')} v={s.free_access.reason} />
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted" data-free-access="off">
+                      {t('fa.none')}
+                    </p>
+                  )}
+                  <div className="mt-4 flex flex-wrap items-end gap-2">
+                    <Input label={t('fa.until_label')} type="date" value={faUntil} onChange={(e) => setFaUntil(e.target.value)} className="w-48" />
+                    <Input label={t('fa.reason_label')} value={faReason} maxLength={200} onChange={(e) => setFaReason(e.target.value)} className="min-w-64 flex-1" />
+                    <Button
+                      variant="primary"
+                      disabled={!faReason.trim()}
+                      onClick={() =>
+                        act(
+                          () => api(`parents/${p.id}/free-access`, { method: 'PUT', body: { until: faUntil ? new Date(`${faUntil}T23:59:59`).toISOString() : null, reason: faReason.trim() } }),
+                          t('fa.toast_granted'),
+                        )
+                          .then(() => setFaReason(''))
+                          .catch(() => undefined)
+                      }
+                    >
+                      {t('fa.grant')}
+                    </Button>
+                    {s.free_access && (
+                      <Button
+                        variant="danger"
+                        onClick={() =>
+                          setConfirm({
+                            title: t('fa.end_title', { name: p.name }),
+                            body: t('fa.end_body'),
+                            confirmLabel: t('fa.end'),
+                            danger: true,
+                            run: () => act(() => api(`parents/${p.id}/free-access`, { method: 'DELETE' }), t('fa.toast_ended')),
+                          })
+                        }
+                      >
+                        {t('fa.end')}
+                      </Button>
+                    )}
                   </div>
                 </Card>
 

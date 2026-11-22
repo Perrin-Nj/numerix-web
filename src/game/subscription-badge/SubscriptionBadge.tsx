@@ -8,9 +8,7 @@ export type SubscriptionBadgeStatus = SubscriptionStatus | 'blocked';
 
 export type SubscriptionBadgeProps = {
   status: SubscriptionBadgeStatus;
-  /** Trial: whole days left. */
-  daysLeft?: number;
-  /** ISO date. Active: next renewal. Canceled: end of access. */
+  /** ISO date. Active: end of the access period. Canceled: end of access. */
   date?: string;
   size?: 'sm' | 'md';
   /** `menu` is short (status only). `settings` adds the date. */
@@ -19,7 +17,6 @@ export type SubscriptionBadgeProps = {
 };
 
 const LOOK: Record<SubscriptionBadgeStatus, { icon: IconName; border: string; color: string }> = {
-  trial: { icon: 'gift', border: 'border-info', color: 'text-info' },
   active: { icon: 'check', border: 'border-success', color: 'text-success' },
   unpaid: { icon: 'alert', border: 'border-warning', color: 'text-warning' },
   expired: { icon: 'lock', border: 'border-danger', color: 'text-danger' },
@@ -28,15 +25,14 @@ const LOOK: Record<SubscriptionBadgeStatus, { icon: IconName; border: string; co
 };
 
 /** Status is always icon plus words, never color alone. No sound. */
-export function SubscriptionBadge({ status, daysLeft, date, size = 'md', variant = 'settings', className }: SubscriptionBadgeProps) {
+export function SubscriptionBadge({ status, date, size = 'md', variant = 'settings', className }: SubscriptionBadgeProps) {
   const t = useTranslations('game.subscriptionBadge');
   const format = useFormatter();
   const look = LOOK[status];
   const when = date && variant === 'settings' ? format.dateTime(new Date(date), { dateStyle: 'medium' }) : undefined;
 
   let label: string;
-  if (status === 'trial') label = t('trial', { count: daysLeft ?? 0 });
-  else if (status === 'active') label = when ? t('activeUntil', { date: when }) : t('active');
+  if (status === 'active') label = when ? t('activeUntil', { date: when }) : t('active');
   else if (status === 'canceled') label = when ? t('canceledUntil', { date: when }) : t('canceled');
   else label = t(status);
 

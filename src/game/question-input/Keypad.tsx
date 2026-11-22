@@ -16,7 +16,7 @@ export function parseEntry(text: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-const KEY = 'lift flex min-h-11 items-center justify-center rounded-md bg-elevated shadow-1 font-display text-2xl font-bold text-fg shadow-1 disabled:pointer-events-none disabled:opacity-60';
+const KEY = 'lift touch-manipulation select-none flex min-h-11 short:min-h-10 items-center justify-center rounded-md bg-elevated shadow-1 font-display text-2xl font-bold text-fg shadow-1 disabled:pointer-events-none disabled:opacity-60';
 
 /** Big keypad for numeric answers: digits, minus, decimal comma, erase. Physical keyboard works too. */
 export function Keypad({ question, phase, chosen, outcome, onSubmit }: InputProps) {
@@ -91,7 +91,7 @@ export function Keypad({ question, phase, chosen, outcome, onSubmit }: InputProp
       aria-label={label}
       aria-live="polite"
       className={cn(
-        'flex min-h-12 min-w-0 flex-1 items-center justify-end gap-2 rounded-md border px-3 font-display text-3xl font-bold tabular-nums',
+        'flex min-h-12 min-w-[9ch] flex-1 items-center justify-end gap-2 rounded-md border px-3 font-display text-3xl font-bold tabular-nums',
         remainder && field === f && !locked ? 'border-brand ring-4 ring-brand/30' : '',
         CHOICE_STATE[state],
       )}
@@ -102,7 +102,13 @@ export function Keypad({ question, phase, chosen, outcome, onSubmit }: InputProp
   );
 
   return (
-    <div className="flex flex-col gap-2" role="group" aria-label={t('keypad')}>
+    <div
+      className="flex touch-manipulation flex-col gap-2 overscroll-contain"
+      role="group"
+      aria-label={t('keypad')}
+      // a press must not move focus: the browser would scroll the page to the focused key
+      onPointerDown={(e) => (e.target as HTMLElement).closest('button') && e.preventDefault()}
+    >
       <div className="flex gap-2">
         {renderField('q', remainder ? t('quotient') : t('answer'))}
         {remainder && renderField('r', t('remainder'))}

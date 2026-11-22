@@ -52,3 +52,7 @@ Sources of photos: Wikimedia Commons API (licence read from `extmetadata`: CC0, 
 - Photos on a plain background are cut out by flood fill; busy edges can keep a faint halo.
 - A rejected pick is remembered in `tools/assets/objects-reject.json`; run `objects.mjs --redo slug` to replace one.
 - `scripts/gen-icons.mjs` still draws the app icon from an emoji (not shown in play screens).
+
+## Scoped exception: illustrated 3D scenes (owner decision 17, spec 001-three-worlds-premium)
+
+The rule above stays for everything in the app except `src/game/scene-stage/`. In that folder the in-play scenes of `echecs`, `medecine` and `espace` are drawn illustration (layered inline SVG with gradients, soft shadows and specular highlights, CSS 3D depth and a light canvas layer), because the owner wants a high-end illustrated children's game there. `scripts/no-cartoon-check.mjs` carries the documented allowlist (`SCENE_ALLOW`) and `--self-test` proves its scope: only the figurative bans (flat person avatar, flat world scenes, sprite assets) are lifted inside that folder; emoji, DiceBear and Fluent emoji packs stay banned there, and every other folder keeps every ban. Free-licence photos (Openverse, NASA, Wikimedia Commons, credited in `LICENSES.md`) may be used as accents only where they help. Authoring and review rules: `src/game/scene-stage/README.md`.

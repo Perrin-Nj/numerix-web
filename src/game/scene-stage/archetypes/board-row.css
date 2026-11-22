@@ -1,0 +1,63 @@
+/* echecs.board-row. Base style = settled picture. Compositor-only animation on small promoted boxes. */
+.br-root { position: absolute; inset: 0; --by: 5; --hs: 36; --wf: 1.04; --u: min(calc(var(--wf, 1) * 1cqw), calc(100cqh / var(--hs))); }
+@container stage (min-aspect-ratio: 12 / 5) { .br-root { --by: 5.5; } }
+
+/* Backdrop: a panelled club room, pale and low contrast instead of blurred. The snow flakes are the only movers in this lane. */
+.br-wall { position: absolute; inset: -6%; background: linear-gradient(180deg, #d9b98f 0%, #c79e72 55%, #b98c61 100%); }
+.br-wall::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(var(--u) * 15.6), rgb(90 55 25 / 0.2) calc(var(--u) * 15.6) calc(var(--u) * 16)); }
+.br-window { position: absolute; left: calc(50% - var(--u) * 17); top: calc(50% - var(--u) * 19); width: calc(var(--u) * 34); height: calc(var(--u) * 15); overflow: hidden; border: calc(var(--u) * 1) solid #f4ead8; border-radius: calc(var(--u) * 1.2); background: linear-gradient(180deg, #b9cfe3 0%, #e3edf6 100%); box-shadow: 0 calc(var(--u) * 0.6) calc(var(--u) * 1.6) rgb(60 35 15 / 0.3); }
+.br-roofs { position: absolute; left: -4%; right: -4%; bottom: -4%; height: 36%; background: #f7fbff; clip-path: polygon(0 40%, 14% 12%, 28% 40%, 44% 18%, 60% 42%, 78% 10%, 100% 44%, 100% 100%, 0 100%); }
+.br-fir { position: absolute; bottom: 14%; width: 9%; height: 52%; background: #6f9a86; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.br-fir2 { height: 40%; background: #7aa592; }
+.br-flake { position: absolute; left: calc(var(--k) * 11% + 3%); top: -8%; width: calc(var(--u) * 0.9); aspect-ratio: 1; border-radius: 50%; background: #fff; opacity: 0.9; animation: br-snow calc(7s + var(--k) * 0.6s) linear calc(var(--k) * -1.3s) infinite; }
+@keyframes br-snow { from { transform: translate(0, 0); } 50% { transform: translate(calc(var(--u) * 1.2), calc(var(--u) * 8)); } to { transform: translate(calc(var(--u) * -0.6), calc(var(--u) * 17)); } }
+
+.br-table { position: absolute; left: -6%; right: -6%; top: calc(50% + var(--u) * (var(--by) - 6.2)); bottom: -6%; background: linear-gradient(180deg, #d7a56f 0%, #b98250 34%, #8d5f36 100%); box-shadow: 0 calc(var(--u) * -0.5) calc(var(--u) * 1.5) rgb(60 40 20 / 0.25); }
+.br-table::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(var(--u) * 11.5), rgb(60 35 15 / 0.22) calc(var(--u) * 11.5) calc(var(--u) * 11.9)); }
+
+.br-rock { animation: br-rock 7s var(--nx-ease-io) infinite alternate; }
+@keyframes br-rock { from { transform: rotate(-0.55deg); } to { transform: rotate(0.55deg); } }
+.br-board { position: relative; width: 100%; aspect-ratio: 5 / 1; }
+.br-art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.br-gloss { inset: 15% 2% 25% 2%; border-radius: 0; }
+
+/* Free places: dim glow, breathing in the question phase (hook), warm gold at a right answer, calm teal at a gentle miss */
+.br-gap { position: absolute; aspect-ratio: 1.9; translate: -50% -50%; border-radius: 50%; opacity: 0.55; background: radial-gradient(closest-side at 50% 52%, rgb(255 244 190 / 0.9), rgb(255 236 160 / 0.25) 72%, transparent); }
+.nx-stage[data-phase='ok'] .br-gap { opacity: 1; background: radial-gradient(closest-side at 50% 52%, rgb(255 226 120 / 1), rgb(255 200 80 / 0.45) 72%, transparent); }
+.nx-stage[data-phase='ko'] .br-gap { opacity: 0.9; background: radial-gradient(closest-side at 50% 52%, rgb(190 245 245 / 0.95), rgb(150 225 230 / 0.35) 72%, transparent); }
+.nx-stage[data-phase='ok'] .br-gap, .nx-stage[data-phase='ko'] .br-gap { animation: br-gap-in 0.9s var(--nx-ease-out) calc(var(--rv-base, 0s) + 0.9s + var(--i, 0) * 0.3s) backwards; }
+@keyframes br-gap-in { from { opacity: 0.55; } }
+.br-mark { position: absolute; width: 0; height: 0; }
+.br-flag { position: absolute; left: 0; top: 0; width: calc(var(--u) * 5.6); translate: -22% -92%; }
+.br-count { position: absolute; left: 0; top: 0; translate: -50% 30%; width: calc(var(--u) * 4.8); height: calc(var(--u) * 4.8); border-radius: 50%; display: grid; place-items: center; font: 800 calc(var(--u) * 3.2) / 1 var(--font-display, system-ui); color: #5a3600; background: radial-gradient(circle at 35% 30%, #fff3c4, #f2b134); box-shadow: 0 0 0 calc(var(--u) * 0.2) #fff6d8; }
+
+/* Pawns */
+.br-pawn { position: absolute; width: calc(var(--u) * 12); translate: -50% -100%; }
+.br-shadow { left: 50%; bottom: calc(var(--u) * -0.9); width: calc(var(--u) * 11); height: calc(var(--u) * 2.1); translate: -50% 0; --sw: 0.9; }
+.br-unit, .br-hop { transform-origin: 50% 100%; }
+/* Entrance: each pawn drops in stretched, lands squashed, settles. Fall eases in, landing eases out. */
+.br-hop { animation: br-in 0.95s linear calc(0.25s + var(--i, 0) * 0.11s) backwards; }
+@keyframes br-in {
+  0% { transform: translateY(calc(var(--u) * -16)) scale(0.9, 1.14); opacity: 0; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6); }
+  10% { opacity: 1; }
+  56% { transform: translateY(0) scale(0.9, 1.14); animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1); }
+  70% { transform: translateY(0) scale(1.2, 0.8); animation-timing-function: cubic-bezier(0.3, 0, 0.4, 1); }
+  86% { transform: translateY(0) scale(0.97, 1.05); }
+  100% { transform: none; }
+}
+/* Gentle miss: the last pawn tilts its head, a visible, thoughtful beat */
+.br-last .pw { transform-origin: 50% 80%; }
+.nx-stage[data-phase='ko'] .br-last .pw { transform: rotate(-9deg); transition: transform 0.9s var(--nx-ease-io) calc(var(--rv-base, 0s) + 2.4s); }
+
+.br-lamp { position: absolute; left: 50%; top: -2%; width: calc(var(--u) * 26); height: calc(var(--u) * 6); translate: -50% 0; background: radial-gradient(closest-side at 50% 0, rgb(255 240 200 / 0.95), rgb(255 220 150 / 0.35) 60%, transparent); }
+.br-lamp::before { content: ''; position: absolute; left: 30%; right: 30%; top: 0; height: 38%; background: linear-gradient(180deg, #3d6b52, #2d5240); border-radius: calc(var(--u) * 2) calc(var(--u) * 2) 0 0; }
+
+/* breathing is a transform on a promoted box, never an animation inside the svg (that would repaint it every frame) */
+.br-breath { transform-origin: 50% 100%; animation: nx-breathe 3.6s var(--nx-ease-io) var(--d, 0s) infinite; }
+
+/* table dressing fills the lower stage on tall layouts; static */
+.br-cup { filter: none; }
+
+/* Perf (pilot review): no animation inside the pawn svgs (blink repaints each svg every frame) and no rotating board raster. Life comes from the breathing boxes, the lamp light and the snow. */
+.br-root .nx-blink { animation: none; }
+.br-rock { animation: none; }

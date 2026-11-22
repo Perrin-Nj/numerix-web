@@ -1,0 +1,16 @@
+/* espace.sky-count: clusters of counted space objects over the control-room console. Base style = settled picture. */
+.sk-root { position: absolute; inset: 0; --gw: min(calc(88cqw / var(--n)), 40cqw); }
+.sk-row { position: absolute; left: 4%; right: 4%; top: 40%; bottom: 20%; display: flex; justify-content: space-evenly; align-items: center; }
+.sk-group { width: var(--gw); display: flex; flex-direction: column; align-items: center; gap: 1.5cqh; }
+.sk-cluster { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 0.6cqh 0.6cqw; padding: 1.4cqh 1cqw; border-radius: 6cqh; background: radial-gradient(closest-side, rgb(120 190 255 / 0.28), rgb(12 22 51 / 0.45)); box-shadow: inset 0 0 0 0.35cqh rgb(160 220 255 / 0.45); width: 100%; min-height: 14cqh; }
+.sk-it { width: min(calc(var(--gw) / 4.4), 9cqw, 10cqh); aspect-ratio: 4 / 5; animation: sk-in 0.8s linear calc(0.25s + var(--i, 0) * 0.06s) backwards, sk-bob 4.2s var(--nx-ease-io) calc(1.2s + var(--j, 0) * 0.37s) infinite; transform-origin: 50% 100%; }
+.sk-it .gl { display: block; width: 100%; height: 100%; overflow: visible; }
+.sk-tag { font: 800 min(7cqw, 10cqh) / 1 var(--font-display, system-ui); color: #fff; padding: 0.4em 0.8em; border-radius: 99px; background: rgb(20 30 70 / 0.8); box-shadow: 0 0 0 0.4cqh #7ff0d0; }
+.sk-floor { position: absolute; left: 4%; right: 4%; top: 80%; height: 4%; border-radius: 99px; background: var(--fr, #6f86b8); box-shadow: 0 1.2cqh 2cqh rgb(0 0 0 / 0.3); }
+@keyframes sk-in { 0% { transform: translateY(-30cqh) scale(0.8, 1.2); opacity: 0; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); } 20% { opacity: 1; } 70% { transform: scale(1.14, 0.88); } 100% { transform: none; } }
+@keyframes sk-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -1cqh; } }
+.nx-stage[data-phase='ok'] .sk-group { animation: sk-cheer 0.9s linear calc(var(--rv-base, 0s) + 0.3s + var(--gi, 0) * 0.5s) backwards; }
+@keyframes sk-cheer { 0%, 100% { transform: none; } 35% { transform: translateY(-3cqh) scale(0.96, 1.06); } 65% { transform: scale(1.06, 0.95); } }
+.nx-stage[data-phase='ko'] .sk-tag { animation: sk-read 1s var(--nx-spring) calc(var(--rv-base, 0s) + 0.4s + var(--gi, 0) * 0.9s) backwards; }
+@keyframes sk-read { 0%, 100% { transform: none; } 40% { transform: scale(1.4); } }
+@media (prefers-reduced-motion: reduce) { .sk-it, .sk-group, .sk-tag { animation: none; } }

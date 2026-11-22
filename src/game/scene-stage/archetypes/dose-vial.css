@@ -1,0 +1,107 @@
+/* medecine.dose-vial. Base style = settled picture. Compositor-only animation on small promoted boxes; the far lane is static except the curtain. */
+.dv-root { position: absolute; inset: 0; --hs: 54; --wf: 1.15; --u: min(calc(var(--wf, 1) * 1cqw), calc(100cqh / var(--hs))); --mood-delay: calc(var(--rv-base, 0s) + 0.95s + var(--left, 0) * 0.42s + 0.25s); }
+
+/* Clinic: pale mint wall, ceiling lamp glow, a window with a curtain that sways once every few seconds, a shelf, a counter. Atmospheric, no blur. */
+.dv-wall { position: absolute; inset: -6%; background: linear-gradient(180deg, #c9e8de 0%, #f1e4dc 62%, #f6e9e2 100%); }
+.dv-wall::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(var(--u) * 9.8), rgb(255 255 255 / 0.28) calc(var(--u) * 9.8) calc(var(--u) * 10)); }
+.dv-lampglow { position: absolute; left: 50%; top: -6%; width: calc(var(--u) * 78); height: calc(var(--u) * 52); translate: -50% 0; background: radial-gradient(closest-side, rgb(255 252 222 / 0.7), transparent); }
+.dv-lamp { position: absolute; left: 50%; top: 0; width: calc(var(--u) * 13); height: calc(var(--u) * 2.4); translate: -50% 0; background: linear-gradient(180deg, #e9efef, #fff); border-radius: 0 0 calc(var(--u) * 6) calc(var(--u) * 6); box-shadow: 0 calc(var(--u) * 0.6) calc(var(--u) * 2.6) rgb(255 250 210 / 0.85); }
+.dv-window { position: absolute; left: calc(50% + var(--u) * 34 * var(--sx, 1)); top: calc(50% - var(--u) * 24); width: calc(var(--u) * 21); height: calc(var(--u) * 22); border: calc(var(--u) * 0.9) solid #f6fbfa; border-radius: calc(var(--u) * 1.2); background: linear-gradient(180deg, #f9b9b0, #ffe3c2 62%, #fff0cf); overflow: hidden; box-shadow: 0 0 calc(var(--u) * 3) rgb(255 250 215 / 0.6); }
+.dv-sun { position: absolute; right: 12%; top: 12%; width: 30%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #ffe8b0, rgb(255 232 176 / 0)); }
+.dv-hill { position: absolute; left: -10%; right: -10%; bottom: -8%; height: 38%; border-radius: 50% 50% 0 0; background: #8ed0a2; }
+.dv-curtain { position: absolute; left: calc(50% + var(--u) * 29 * var(--sx, 1)); top: calc(50% - var(--u) * 25); width: calc(var(--u) * 7); height: calc(var(--u) * 26); transform-origin: 50% 0; background: repeating-linear-gradient(90deg, #79cfc0 0 calc(var(--u) * 1.1), #5ab9aa calc(var(--u) * 1.1) calc(var(--u) * 2.2)); border-radius: 0 0 calc(var(--u) * 1.6) calc(var(--u) * 0.4); animation: dv-curtain 9s var(--nx-ease-io) 2s infinite; }
+@keyframes dv-curtain { 0%, 58%, 100% { transform: none; } 68% { transform: skewX(-4deg); } 80% { transform: skewX(2.6deg); } 90% { transform: skewX(-1deg); } }
+.dv-poster { position: absolute; left: calc(50% - var(--u) * 7); top: calc(50% - var(--u) * 24); width: calc(var(--u) * 9); aspect-ratio: 1; background: #fff; border-radius: calc(var(--u) * 1); box-shadow: 0 calc(var(--u) * 0.3) calc(var(--u) * 1) rgb(40 90 80 / 0.25); }
+.dv-poster b { position: absolute; left: 50%; top: 50%; translate: -50% -50%; background: #5ab9aa; border-radius: calc(var(--u) * 0.4); }
+.dv-poster b:nth-child(1) { width: calc(var(--u) * 5.4); height: calc(var(--u) * 1.8); }
+.dv-poster b:nth-child(2) { width: calc(var(--u) * 1.8); height: calc(var(--u) * 5.4); }
+.dv-shelf { position: absolute; left: calc(50% - var(--u) * 49); top: calc(50% - var(--u) * 8); width: calc(var(--u) * 24); height: calc(var(--u) * 0.9); background: #f2faf8; box-shadow: 0 calc(var(--u) * 0.4) calc(var(--u) * 0.8) rgb(40 90 80 / 0.25); }
+.dv-shelf i { position: absolute; bottom: 100%; left: calc(var(--k) * var(--u) * 4.6 + var(--u) * 1.4); width: calc(var(--u) * 3); height: calc(var(--u) * (4 + var(--k) % 3 * 1.2)); border-radius: calc(var(--u) * 0.8) calc(var(--u) * 0.8) calc(var(--u) * 0.3) calc(var(--u) * 0.3); background: #f4b24a; }
+.dv-shelf i:nth-child(2) { background: #fff; } .dv-shelf i:nth-child(3) { background: #7fd0c7; } .dv-shelf i:nth-child(4) { background: #f2877a; } .dv-shelf i:nth-child(5) { background: #c3b2f0; }
+.dv-counter { position: absolute; left: -6%; right: -6%; top: calc(50% + var(--u) * 7.4); bottom: -6%; background: linear-gradient(180deg, #f7f0e3 0%, #e4d4b8 30%, #c9b08a 100%); box-shadow: inset 0 calc(var(--u) * 0.4) 0 rgb(255 255 255 / 0.8); }
+
+/* Puppy and jar stand on the counter line; shadows sway with the lamp cycle */
+.dv-pshadow, .dv-jshadow { left: 50%; bottom: calc(var(--u) * -0.4); width: 92%; height: calc(var(--u) * 2.2); translate: -50% 50%; }
+.dv-puppy { transform-origin: 50% 100%; animation: dv-settle 0.9s linear 0.1s backwards; }
+@keyframes dv-settle { 0% { transform: translateY(calc(var(--u) * 1)) scale(1.04, 0.94); opacity: 0; animation-timing-function: var(--nx-ease-out); } 100% { transform: none; opacity: 1; } }
+
+/* The jar: 5 columns, marks at every row, filled from the bottom */
+.dv-jar { position: relative; width: 100%; display: grid; grid-template-columns: repeat(5, var(--cell)) calc(var(--u) * 1.6) calc(var(--u) * 3.4); grid-template-rows: repeat(var(--rows), var(--cell)); padding: calc(var(--u) * 3) 0 calc(var(--u) * 1.6) calc(var(--u) * 1.6); }
+.dv-glass { position: absolute; left: 0; top: calc(var(--u) * 1.4); bottom: 0; width: calc(var(--u) * 26.2); border: calc(var(--u) * 0.3) solid rgb(255 255 255 / 0.9); border-radius: calc(var(--u) * 1.6) calc(var(--u) * 1.6) calc(var(--u) * 2) calc(var(--u) * 2); background: linear-gradient(100deg, rgb(255 255 255 / 0.55), rgb(210 240 245 / 0.28) 55%, rgb(255 255 255 / 0.5)); box-shadow: 0 calc(var(--u) * 0.6) calc(var(--u) * 1.6) rgb(40 100 110 / 0.25), inset 0 0 calc(var(--u) * 1.2) rgb(255 255 255 / 0.6); }
+.dv-glass::before { content: ''; position: absolute; left: 14%; right: 14%; top: calc(var(--u) * -1.4); height: calc(var(--u) * 1.6); background: #7fd0c7; border-radius: calc(var(--u) * 0.6); }
+.dv-slot { display: block; padding: 7%; min-width: 0; }
+.dv-guide { display: block; margin: 16%; border: calc(var(--u) * 0.22) dashed rgb(70 140 160 / 0.5); border-radius: 50%; opacity: 0.55; }
+.nx-stage[data-phase='ok'] .dv-guide { opacity: 0; }
+.dv-mark { grid-column: 7; align-self: center; display: flex; align-items: center; gap: calc(var(--u) * 0.3); font: 800 calc(var(--u) * 1.9) / 1 var(--font-display, system-ui); color: #2f7686; }
+.dv-mark::before { content: ''; width: calc(var(--u) * 1.1); height: calc(var(--u) * 0.25); background: #2f7686; border-radius: 1px; }
+
+/* Entrance: the given drops settle into the vial bottom-up with a small bounce */
+.dv-taken .md-drop { transform-origin: 50% 100%; animation: dv-pop 0.55s linear calc(0.4s + var(--n) * 0.045s) backwards; }
+@keyframes dv-pop {
+  0% { transform: scale(0); animation-timing-function: cubic-bezier(0.3, 1.6, 0.5, 1); }
+  60% { transform: scale(1.2, 0.85); animation-timing-function: ease-in-out; }
+  100% { transform: none; }
+}
+
+/* Reveal: the missing drops are gold and carry their count. Base state: in place. Each falls straight down its own column while the dropper is above it. */
+.dv-add { opacity: 0; }
+.nx-stage[data-phase='ok'] .dv-add { opacity: 1; }
+.dv-add .md-drop { transform-origin: 50% 100%; }
+.nx-stage[data-phase='ok'] .dv-add .md-drop { animation: dv-fall 0.5s linear calc(var(--rv-base, 0s) + 0.95s + var(--n) * 0.42s) backwards, dv-regroup 0.9s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.95s + var(--left, 0) * 0.42s + 0.3s) backwards; }
+.dv-add { animation: dv-appear 0.01s linear calc(var(--rv-base, 0s) + 0.9s + var(--n) * 0.42s) backwards; }
+@keyframes dv-appear { from { opacity: 0; } to { opacity: 0; } }
+@keyframes dv-fall {
+  0% { transform: translateY(var(--fall)) scale(0.55, 0.8); opacity: 0; animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.55); }
+  12% { opacity: 1; }
+  64% { transform: translateY(0) scale(0.82, 1.28); animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1); }
+  78% { transform: scale(1.26, 0.76); animation-timing-function: ease-out; }
+  92% { transform: scale(0.96, 1.06); }
+  100% { transform: none; }
+}
+/* regroup: the eight lift together and settle, so the result reads as one group */
+@keyframes dv-regroup { 0%, 100% { transform: none; } 40% { transform: translateY(calc(var(--u) * -0.7)) scale(1.1); } }
+
+/* The count */
+.dv-badge { position: absolute; left: calc(var(--u) * 24.2); top: calc(var(--u) * 6); width: calc(var(--u) * 6.4); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font: 800 calc(var(--u) * 4.2) / 1 var(--font-display, system-ui); color: #5a3200; background: radial-gradient(circle at 35% 30%, #fff3c4, #f2b134); box-shadow: 0 0 0 calc(var(--u) * 0.3) #fff6d8, 0 calc(var(--u) * 0.5) calc(var(--u) * 1.2) rgb(120 70 0 / 0.3); opacity: 0; }
+.nx-stage[data-phase='ok'] .dv-badge { opacity: 1; }
+.nx-stage[data-phase='ok'] .dv-badge { animation: dv-bpop 0.8s linear calc(var(--rv-base, 0s) + 0.95s + var(--n) * 0.42s + 0.3s) backwards; }
+@keyframes dv-bpop { 0% { transform: scale(0); animation-timing-function: cubic-bezier(0.3, 1.5, 0.5, 1); } 62% { transform: scale(1.25); animation-timing-function: ease-in-out; } 100% { transform: none; } }
+
+/* Dropper: tilts, floats (nx-float), squeezes its bulb once per release, anticipation lift before the first */
+.dv-dropper { transform-origin: 50% 100%; rotate: 8deg; }
+.dv-dropper .md-bulb { transform-box: fill-box; transform-origin: 50% 100%; }
+.nx-stage[data-phase='ok'] .md-bulb { animation: dv-squeeze 0.42s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.8s) var(--left, 1) backwards; }
+@keyframes dv-squeeze { 0%, 100% { transform: none; } 45% { transform: scale(1.1, 0.74); } }
+
+/* Hook: a thought cloud with a blank drop to fill. Pops in with the scene, the blank breathes, the cloud leaves at the reveal. */
+.dv-cloud { transform-origin: 20% 100%; animation: dv-cloud-in 0.8s linear 0.6s backwards, nx-float 5s var(--nx-ease-io) 1.6s infinite; }
+@keyframes dv-cloud-in { 0% { transform: scale(0); opacity: 0; animation-timing-function: cubic-bezier(0.3, 1.5, 0.5, 1); } 100% { transform: none; opacity: 1; } }
+.nx-stage[data-hook='thought-cloud'][data-phase='question'] .md-blank { animation: mv-breathe-gap 2.4s var(--nx-ease-io) 1.4s infinite; }
+.nx-stage[data-phase='ok'] .dv-cloud, .nx-stage[data-phase='ko'] .dv-cloud { opacity: 0; transition: opacity 0.5s linear 0.2s; animation: none; }
+
+/* Right: the puppy takes the dose, then two happy hops (crouch, stretch, squash), tail going (medecine.css) */
+.nx-stage[data-phase='ok'] .dv-puppy { animation: dv-hop 1.5s linear calc(var(--rv-base, 0s) + 0.95s + var(--left, 0) * 0.42s + 0.35s) backwards; }
+@keyframes dv-hop {
+  0% { transform: none; animation-timing-function: ease-out; }
+  10% { transform: scale(1.06, 0.9); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+  26% { transform: translateY(calc(var(--u) * -3)) scale(0.94, 1.1); animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.5); }
+  44% { transform: scale(1.1, 0.9); animation-timing-function: ease-out; }
+  52% { transform: scale(1.05, 0.95); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+  68% { transform: translateY(calc(var(--u) * -2)) scale(0.96, 1.07); animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.5); }
+  84% { transform: scale(1.06, 0.94); }
+  100% { transform: none; }
+}
+/* the mood changes after the drops, so the puppy watches them land first */
+.nx-stage[data-phase='ok'] .pp-eyes { opacity: 0; transition: opacity 0.12s linear var(--mood-delay); }
+.nx-stage[data-phase='ok'] .pp-happy, .nx-stage[data-phase='ok'] .pp-open { transition: opacity 0.12s linear var(--mood-delay); }
+
+/* Gentle miss: the typical wrong value hangs pale above the vial, then slides away (moves.css ghost-sum); the puppy tilts its head (medecine.css) */
+.dv-ghost { position: relative; text-align: center; padding: 0.15em 0.35em; border-radius: calc(var(--u) * 1.4); font: 800 calc(var(--u) * 7.6) / 1 var(--font-display, system-ui); color: #3b7f8d; background: rgb(255 255 255 / 0.9); box-shadow: 0 0 0 calc(var(--u) * 0.35) rgb(120 190 205 / 0.8); }
+.dv-ghost::before { content: ''; position: absolute; left: -9%; top: 50%; width: 14%; height: 0; border-top: calc(var(--u) * 0.4) dashed #7fb5c0; }
+/* the puppy sits on a small exam table */
+.dv-table { position: absolute; left: -10%; right: -10%; bottom: calc(var(--u) * -3.2); height: calc(var(--u) * 3.4); border-radius: calc(var(--u) * 1.4); background: linear-gradient(180deg, #8fd6cb, #5fb7aa); box-shadow: 0 calc(var(--u) * 0.5) calc(var(--u) * 0.8) rgb(40 90 90 / 0.3); }
+
+/* parts that must stay glued to their parent at any width live inside its sprite */
+.dv-dropper-move { position: absolute; left: calc(var(--u) * var(--dx)); bottom: calc(100% + var(--u) * 1.2); width: calc(var(--u) * 6.2); }
+.dv-cloud-wrap { position: absolute; left: 22%; bottom: 92%; width: 74%; }
+.dv-ghost-wrap { position: absolute; left: 100%; bottom: 34%; width: 62%; }

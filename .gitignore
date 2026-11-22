@@ -27,3 +27,6 @@ qa-shots/
 sb.log
 !.env.example
 !admin/.env.example
+
+# screenshots stay on disk (keep them outside the repo), never in the repo
+specs/**/screens/

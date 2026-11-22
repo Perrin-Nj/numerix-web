@@ -1,0 +1,24 @@
+/* medecine kit: puppy built from separately promoted layers (tail, body, head with ears) so idle motion is compositor-only and never repaints an svg. */
+.pp { position: relative; width: 100%; aspect-ratio: 100 / 110; }
+.pp-l { position: absolute; inset: 0; }
+.pp-l > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.pp-tail { transform-origin: 24% 84%; animation: pp-wag 1.7s var(--nx-ease-io) infinite alternate; }
+@keyframes pp-wag { from { transform: rotate(-9deg); } to { transform: rotate(11deg); } }
+.pp-body { transform-origin: 50% 96%; animation: nx-breathe 3.6s var(--nx-ease-io) 0.4s infinite; }
+.pp-head { transform-origin: 46% 60%; transform: rotate(4deg); animation: pp-look 7s var(--nx-ease-io) infinite alternate; }
+@keyframes pp-look { from { transform: rotate(3deg); } to { transform: rotate(6.5deg); } }
+.pp-ear-f { transform-origin: 36% 18%; animation: pp-ear 4.6s var(--nx-ease-io) 0.8s infinite alternate; }
+.pp-ear-b { transform-origin: 74% 10%; animation: pp-ear 5.4s var(--nx-ease-io) 0.2s infinite alternate-reverse; }
+@keyframes pp-ear { from { transform: rotate(-2.5deg); } to { transform: rotate(3.5deg); } }
+.pp-pupils { --lx: 1.9; --ly: -1.6; }
+.pp-happy, .pp-brow, .pp-open { opacity: 0; }
+/* Right: happy eyes, open mouth with tongue, a fast wag */
+.nx-stage[data-phase='ok'] .pp-eyes { opacity: 0; }
+.nx-stage[data-phase='ok'] .pp-happy, .nx-stage[data-phase='ok'] .pp-open { opacity: 1; }
+.nx-stage[data-phase='ok'] .pp-mouth { opacity: 0; }
+.nx-stage[data-phase='ok'] .pp-tail { animation: pp-wag 0.4s var(--nx-ease-io) infinite alternate; }
+/* Gentle miss: head tilt (visible), raised brow, a slow wag */
+.nx-stage[data-phase='ko'] .pp-head { animation: none; transform: rotate(-12deg) translateY(2px); transition: transform 0.9s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.4s); }
+.nx-stage[data-phase='ko'] .pp-brow { opacity: 1; }
+.nx-stage[data-phase='ko'] .pp-tail { animation-duration: 2.6s; }
+.md-drop, .md-dropper, .md-cloud { display: block; width: 100%; height: auto; overflow: visible; }
