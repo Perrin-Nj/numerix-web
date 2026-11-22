@@ -28,6 +28,10 @@ export const WORLD_BG: Record<WorldId, string> = {
   arts: 'bg-world-echecs',
   hiver: 'bg-world-sport',
   jeux: 'bg-world-echecs',
+  // placeholder looks until the three inactive worlds get their own art
+  histoires: 'bg-world-nature',
+  english: 'bg-world-science',
+  francais: 'bg-world-echecs',
 };
 
 export type IllustrationMood = 'idle' | 'success' | 'detour' | 'surprise';
@@ -54,6 +58,18 @@ export type IllustrationFrameProps = {
   className?: string;
 };
 
+/** Calm backdrop under a question picture: the world colour, soft light and soft shapes. It claims nothing about the story (no photo that could contradict it). */
+export function NeutralBackdrop() {
+  return (
+    <div aria-hidden data-backdrop="" className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/25" />
+      <span className="absolute -start-10 -top-12 size-48 rounded-full bg-white/10" />
+      <span className="absolute -bottom-16 end-0 size-56 rounded-full bg-black/10" />
+      <span className="absolute start-1/3 top-1/2 size-24 rounded-full bg-white/10" />
+    </div>
+  );
+}
+
 /** Framed world picture with mood, optional stage and children drawn over the art. */
 export function IllustrationFrame({ world, src, media, fill, alt, mood = 'idle', picture, stage, stageKey, children, className }: IllustrationFrameProps) {
   return (
@@ -65,11 +81,7 @@ export function IllustrationFrame({ world, src, media, fill, alt, mood = 'idle',
         className,
       )}
     >
-      {media && (stage || picture) && (
-        <div aria-hidden className="absolute inset-0 opacity-30">
-          <MediaImage media={media} alt="" sizes="(min-width: 1024px) 50vw, 100vw" />
-        </div>
-      )}
+      {(stage || picture) && <NeutralBackdrop />}
       {stage ? (
         <div key={stageKey} data-stage="" className="nx-stage-in absolute inset-0 flex items-center justify-center overflow-hidden p-2">
           {stage}

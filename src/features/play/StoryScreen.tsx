@@ -15,6 +15,7 @@ import {
   finishSession,
   forgetBeat,
   getHint,
+  getHintResult,
   getSession,
   pauseSession,
   preloadMedia,
@@ -32,20 +33,25 @@ import { LessonProgress } from '@/game/lesson-progress';
 import { IllustrationFrame } from '@/game/illustration-frame';
 import { loadVariantHistory, mergeHistory } from '@/game/consequence';
 import { MethodVisual } from '@/game/method-visual';
+import { PreviousReveal } from '@/game/previous-reveal';
+import { RetryMoment } from '@/game/retry-moment';
 import { ScenePicture } from '@/game/scene-picture';
+import { sceneStageFor } from './sceneStageFor';
+import { stageInputs, stageKind } from './stageChoice';
 import { useCoach } from '@/platform/coach/useCoach';
 import { NarrationText } from '@/game/narration-text';
 import { OutcomeBeat, OutcomeSheet } from '@/game/outcome-beat';
 import { getPrefs } from '@/platform/prefs/store';
 import { RewardBurst } from '@/game/reward-burst';
 import { StoryPanel } from '@/game/story-panel';
+import { cn } from '@/shared/cn';
 import { Button } from '@/ui/button';
 import { Dialog } from '@/ui/dialog';
 import { Icon } from '@/ui/icon';
 import { IconButton } from '@/ui/icon-button';
 import { InlineError } from '@/ui/inline-error';
 import { useNotify } from '@/ui/notification-center';
-import type { AnswerValue, WorldId } from '@/data/api/types';
+import type { AnswerValue, Beat, WorldId } from '@/data/api/types';
 
 const KNOWN = new Set([
   'device_offline',
@@ -57,11 +63,31 @@ const KNOWN = new Set([
   'session_completed',
   'session_paused',
   'beat_answered',
+  'retry_not_allowed',
   'rate_limited',
   'internal_error',
   'not_found',
   'no_question_available',
 ]);
+
+const retryKey = (sessionId: string) => `nx:retry:${sessionId}`;
+/** Remembers the open second-try window for this tab, so a reload resumes it instead of hitting beat_answered. */
+function writeRetryWindow(sessionId: string, beatId: string, tried: AnswerValue | undefined) {
+  try {
+    if (tried === undefined) sessionStorage.removeItem(retryKey(sessionId));
+    else sessionStorage.setItem(retryKey(sessionId), JSON.stringify({ beatId, tried }));
+  } catch {
+    // storage can be blocked; a reload then shows the normal question
+  }
+}
+function readRetryWindow(sessionId: string, beatId: string): AnswerValue | undefined {
+  try {
+    const v = JSON.parse(sessionStorage.getItem(retryKey(sessionId)) ?? 'null') as { beatId: string; tried: AnswerValue } | null;
+    return v && v.beatId === beatId ? v.tried : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 /**
  * The play screen: one story, one question, four choices. No score, progress bar, timer or menu.
@@ -91,8 +117,10 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   // Outcome entrance: 0 stage only, 1 caption, 2 sheet. Tap on the stage skips ahead.
   const [reveal, setReveal] = useState<{ key: string; step: 0 | 1 | 2 }>({ key: '', step: 0 });
   const [collapsedFor, setCollapsedFor] = useState<string | null>(null);
-  const [hint, setHint] = useState<{ beat: string; text: string } | null>(null);
+  const [hint, setHint] = useState<{ beat: string; text: string; at: number } | null>(null);
   const [hintError, setHintError] = useState(false);
+  const reviewOpen = useRef(false);
+  const inflight = useRef(false);
 
   const { speak, cancel: stopSpeaking, pending: speechWaiting } = useReadAloud(
     (settings.data?.read_aloud ?? true) && appConfig.features.readAloud,
@@ -125,12 +153,19 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
         let session = await getSession(sessionId);
         if (session.status === 'paused') session = await resumeSession(sessionId);
         if (cancelled) return;
-        if (session.status === 'completed') {
+        // The API returns the beat in the second-try window as current_beat with retry_available (older servers do not)
+        const open = session.current_beat as (Beat & { retry_available?: boolean }) | null | undefined;
+        const inWindow = Boolean(open && ((session as { retry_available?: boolean }).retry_available || open.retry_available));
+        const stored = open ? readRetryWindow(sessionId, open.id) : undefined;
+        if (session.status === 'completed' && !inWindow) {
           router.replace(`/play/session/${sessionId}/done`);
           return;
         }
         dispatch({ type: 'SESSION_LOADED', session });
-        if (session.current_beat) dispatch({ type: 'BEAT_LOADED', beat: session.current_beat });
+        if (open) {
+          dispatch({ type: 'BEAT_LOADED', beat: open });
+          if (inWindow || stored !== undefined) dispatch({ type: 'RETRY_RESUMED', beatId: open.id, tried: stored ?? null });
+        }
         else dispatch({ type: 'BEAT_REQUESTED' });
       } catch (e) {
         if (!cancelled) fail(e);
@@ -210,33 +245,67 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
 
   // 4. Answer
   const submit = useCallback(
-    async (value: AnswerValue, key: string) => {
+    async (value: AnswerValue, key: string, attempt: 1 | 2) => {
       if (!beatId) return;
+      // one answer in flight: a second tap in the same tick is ignored
+      if (inflight.current) return;
+      inflight.current = true;
       try {
-        const result = await sendAnswer(sessionId, beatId, value, key, mergeHistory(loadVariantHistory(sessionId), sessionRef.current?.variant_history));
-        dispatch({ type: 'ANSWER_RESULT', result });
+        // attempt 1 opts in to the second try; the server decides (never on true or false)
+        const result = await sendAnswer(sessionId, beatId, value, key, mergeHistory(loadVariantHistory(sessionId), sessionRef.current?.variant_history), attempt);
+        if (result.retry_available) {
+          writeRetryWindow(sessionId, beatId, value);
+          dispatch({ type: 'ANSWER_RETRY_AVAILABLE', beatId, result });
+          return;
+        }
+        writeRetryWindow(sessionId, beatId, undefined);
+        dispatch({ type: 'ANSWER_RESULT', beatId, result });
         // Start the next question while the child reads the feedback. A failure here resurfaces, with a retry, on Continue.
         if (result.session.status !== 'completed') {
           void fetchBeat(qc, sessionId, result.session.beats_answered)
             .then((b) => preloadMedia(b))
             .catch(() => forgetBeat(qc, sessionId, result.session.beats_answered));
         }
-        setStreak((n) => (result.outcome === 'correct' ? n + 1 : 0));
+        // A right answer on the second go keeps the streak as it was; only a first-try win grows it
+        setStreak((n) => (result.outcome !== 'correct' ? 0 : attempt === 1 ? n + 1 : n));
       } catch (e) {
         const code = e instanceof ApiError && KNOWN.has(e.code) ? e.code : 'unknown';
-        dispatch({ type: 'ANSWER_FAILED', code, message: code });
+        // Nothing to resend on a second try the server refuses: the full screen offers a reload and a way back
+        if (code === 'retry_not_allowed') {
+          writeRetryWindow(sessionId, beatId, undefined);
+          dispatch({ type: 'FAILED', code, message: code });
+        } else dispatch({ type: 'ANSWER_FAILED', beatId, code, message: code });
+      } finally {
+        inflight.current = false;
       }
     },
     [beatId, sessionId, qc],
   );
 
   function onSelect(value: AnswerValue) {
-    if (s.phase !== 'question') return;
+    if ((s.phase !== 'question' && s.phase !== 'retrying') || reviewOpen.current || inflight.current) return;
     stopSpeaking();
     const key = newIdempotencyKey();
-    dispatch({ type: 'ANSWER_SENT', value, key });
-    void submit(value, key);
+    if (s.phase === 'retrying') {
+      dispatch({ type: 'RETRY_SENT', beatId: beatId ?? '', value, key });
+      void submit(value, key, 2);
+    } else {
+      dispatch({ type: 'ANSWER_SENT', beatId: beatId ?? '', value, key });
+      void submit(value, key, 1);
+    }
   }
+
+  // The nudge for the second try (kind retry_hint). A failure keeps the calm fallback line.
+  useEffect(() => {
+    if (s.phase !== 'retrying' || !beatId) return;
+    let cancelled = false;
+    getHintResult(sessionId, beatId)
+      .then((r) => !cancelled && r.hint && dispatch({ type: 'RETRY_HINT', beatId, text: r.hint }))
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [s.phase, beatId, sessionId]);
 
   // 5. Stream the consequence
   const denRef = useRef(s.denouementStatus);
@@ -246,9 +315,9 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   useEffect(() => {
     if (s.phase !== 'outcome' || !beatId || denRef.current !== 'pending') return;
     return streamNarration(sessionId, beatId, 'denouement', {
-      onDelta: (text) => dispatch({ type: 'DEN_DELTA', text }),
-      onDone: () => dispatch({ type: 'DEN_DONE' }),
-      onFallback: (text) => dispatch({ type: 'DEN_FALLBACK', text }),
+      onDelta: (text) => dispatch({ type: 'DEN_DELTA', beatId, text }),
+      onDone: () => dispatch({ type: 'DEN_DONE', beatId }),
+      onFallback: (text) => dispatch({ type: 'DEN_FALLBACK', beatId, text }),
       onError: () =>
         void classifyConnectionFailure().then((e) => dispatch({ type: 'FAILED', code: e.code, message: e.code })),
     });
@@ -292,7 +361,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     void import('canvas-confetti').then(({ default: confetti }) => {
       if (!cancelled)
         void confetti({
-          particleCount: 30,
+          particleCount: s.attempt === 2 ? 12 : 30,
           spread: 60,
           ticks: 70,
           origin: { y: 0.7 },
@@ -302,7 +371,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [s.phase, s.outcome, beatId, reduced]);
+  }, [s.phase, s.outcome, s.attempt, beatId, reduced]);
 
   // 6. Continue to the next beat, the rewards, or the chapter-complete screen
   function onContinue() {
@@ -343,14 +412,15 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     if (!beatId) return;
     setHintError(false);
     try {
-      setHint({ beat: beatId, text: await getHint(sessionId, beatId) });
+      setHint({ beat: beatId, text: await getHint(sessionId, beatId), at: Date.now() });
     } catch {
       setHintError(true);
     }
   }
 
   function retryAfterError() {
-    if (s.beat) {
+    if (s.error?.code === 'retry_not_allowed') window.location.reload();
+    else if (s.beat) {
       dispatch({ type: 'BEAT_LOADED', beat: s.beat });
       setAttempt((a) => a + 1);
     } else if (s.session) dispatch({ type: 'BEAT_REQUESTED' });
@@ -358,7 +428,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   }
 
   const world: WorldId = s.session?.world ?? 'echecs';
-  const showQuestion = s.beat && ['question', 'answering', 'outcome'].includes(s.phase);
+  const showQuestion = s.beat && ['question', 'retrying', 'answering', 'outcome'].includes(s.phase);
   const mood =
     s.phase === 'outcome'
       ? s.outcome === 'correct'
@@ -368,7 +438,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
           : 'surprise'
       : 'idle';
   const answerError = s.phase === 'answering' && s.error ? s.error.code : null;
-  const linePool = s.phase !== 'outcome' ? 'think' : s.outcome === 'correct' ? 'cheer' : s.outcome === 'erreur_typique' ? 'curious' : 'encourage';
+  const linePool = s.phase !== 'outcome' ? 'think' : s.outcome === 'correct' ? (s.attempt === 2 ? 'retryWin' : 'cheer') : s.outcome === 'erreur_typique' ? 'curious' : 'encourage';
   const lang = useLocale();
   const coach = useCoach({
     skillId: s.beat?.skill_id ?? 'generic',
@@ -376,13 +446,11 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
     active: s.phase === 'question' || s.phase === 'answering',
     lang,
   });
+  const askedHint = hint && hint.beat === beatId ? hint : null;
+  const latest = askedHint && askedHint.at >= coach.at ? askedHint.text : coach.hint;
+  const hasCoachMessage = Boolean(latest);
   const q = s.beat?.question;
-  const nums = (q?.math_text.match(/\d+/g) ?? []).map(Number);
-  const sceneMedia = q?.media?.find((m) => m.role === 'scene')?.image ?? null;
-  const sprite = q?.media?.find((m) => m.role === 'object')?.image;
-  // Curated questions show a counting picture only when they come with a sprite; generated ones keep the emoji picture
-  const showCounting = nums.length > 0 && (q?.kind === undefined || ((q.kind === 'numeric' || q.kind === 'word') && Boolean(sprite)));
-  const compact = Boolean(q && q.choices.length === 0 && q.kind !== 'truefalse');
+  const { nums, sceneMedia, sprite, showCounting, compact } = stageInputs(q);
   const questionText = q?.prompt ?? q?.math_text ?? '';
   const denReady = s.denouementStatus === 'ready' || s.denouementStatus === 'fallback';
   const outcomeStage = s.phase === 'outcome' && !!s.outcome;
@@ -402,6 +470,12 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   // A fresh line for each moment, never the same one twice in a row
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const mascotLine = useMemo(() => pick(`mascot.${linePool}`), [linePool, s.beat?.id, s.outcome]);
+  const coachText = latest ?? (showQuestion ? mascotLine : null);
+
+  // Illustrated 3D scene (only questions that carry `scene`); null keeps the stage below unchanged
+  const sceneStage = sceneStageFor(q, outcomeStage ? (s.outcome === 'correct' ? 'ok' : 'ko') : 'question', s.correctAnswer, q?.visual ? <QuestionVisual visual={q.visual} /> : null);
+
+  const kind = stageKind({ hasScene: Boolean(sceneStage), hasBeat: Boolean(s.beat), outcomeStage, showHow, hasMethodVisual: Boolean(s.methodVisual), hasVisual: Boolean(q?.visual), showCounting });
 
   if (s.phase === 'error') {
     const code = s.error?.code ?? 'unknown';
@@ -439,7 +513,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
         choicesFree
         compactStage={compact}
         mediumStage={Boolean(q?.kind)}
-        visualStage={Boolean(q?.visual) && !sheetVisible}
+        visualStage={Boolean(q?.visual)}
         illustration={
           <IllustrationFrame
             world={world}
@@ -447,20 +521,22 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
             fill
             mood={mood}
             alt={t('illustration')}
-            stageKey={s.beat && outcomeStage ? (showHow ? `how-${s.beat.id}` : `sim-${s.beat.id}`) : `scene-${s.beat?.id ?? ''}`}
+            stageKey={sceneStage && !showHow ? `scene-${s.beat?.id ?? ''}` : s.beat && outcomeStage ? (showHow ? `how-${s.beat.id}` : `sim-${s.beat.id}`) : `scene-${s.beat?.id ?? ''}`}
             stage={
-              s.beat && outcomeStage && showHow && s.methodVisual ? (
+              kind === 'scene' ? (
+                sceneStage
+              ) : kind === 'how' && s.methodVisual ? (
                 <MethodVisual visual={s.methodVisual} />
-              ) : s.beat && outcomeStage && q?.visual ? (
+              ) : kind === 'answer-on-visual' && q?.visual ? (
                 // The answer plays on the question's OWN diagram (same board, bars, clock or grid), never on a generic scene
                 <div className="relative flex size-full items-center justify-center">
                   <div className={`size-full ${s.outcome === 'correct' ? 'nx-reveal-ok' : 'nx-reveal-soft'}`}>
-                    <QuestionVisual visual={q.visual} reveal={solution} />
+                    <QuestionVisual visual={q.visual} reveal={solution} context={q.story ?? undefined} />
                   </div>
                 </div>
-              ) : s.beat && q?.visual ? (
-                <QuestionVisual visual={q.visual} />
-              ) : s.beat && showCounting ? (
+              ) : kind === 'visual' && q?.visual ? (
+                <QuestionVisual visual={q.visual} context={q.story ?? undefined} />
+              ) : kind === 'counting' && s.beat ? (
                 <ScenePicture world={world} skillId={s.beat.skill_id} numbers={nums} mathText={q?.math_text} sprite={sprite} />
               ) : undefined
             }
@@ -496,6 +572,11 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                 </Button>
               </div>
             )}
+            {s.phase === 'question' && s.lastReveal && (
+              <div className="mt-3">
+                <PreviousReveal reveal={s.lastReveal} onOpenChange={(o) => (reviewOpen.current = o)} />
+              </div>
+            )}
             {q?.hint_available && s.phase === 'question' && !hint && (
               <div className="mt-3">
                 <Button variant="secondary" size="sm" iconLeft={<Icon name="info" />} onClick={() => void askHint()}>
@@ -504,19 +585,11 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
                 {hintError && <InlineError message={t('hintError')} recovery={t('hintRetry')} />}
               </div>
             )}
-            {hint && hint.beat === beatId && s.phase !== 'outcome' && (
-              <MascotBubble size="sm" pose="think" className="mt-3">
-                {hint.text}
-              </MascotBubble>
-            )}
-            {coach.hint && s.phase !== 'outcome' && (
-              <MascotBubble size="sm" pose="think" className="mt-4">
-                {coach.hint}
-              </MascotBubble>
-            )}
-            {showQuestion && s.phase !== 'outcome' && (
-              <MascotBubble size="sm" pose="think" className="mt-4 hidden lg:flex">
-                {mascotLine}
+            {/* One coach slot: only the latest of the asked hint, the idle coach hint and the mascot line, so the owl never stacks bubbles */}
+            {s.phase === 'retrying' && <RetryMoment className="mt-3" hint={s.retryHint} />}
+            {s.phase !== 'outcome' && s.phase !== 'retrying' && coachText && (
+              <MascotBubble size="sm" pose="think" className={cn('mt-3', !hasCoachMessage && 'hidden lg:flex')}>
+                {coachText}
               </MascotBubble>
             )}
           </>
@@ -531,8 +604,10 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
             <>
               <QuestionSwap id={s.beat.id}>
                 <QuestionInput
+                  key={s.attempt}
                   question={s.beat.question}
-                  phase={s.phase === 'question' ? 'question' : s.phase === 'answering' ? 'answering' : 'outcome'}
+                  tried={s.phase === 'retrying' ? s.triedValue : null}
+                  phase={s.phase === 'question' || s.phase === 'retrying' ? 'question' : s.phase === 'answering' ? 'answering' : 'outcome'}
                   chosen={s.chosen}
                   outcome={s.outcome}
                   onSubmit={onSelect}
@@ -562,7 +637,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
           answerError ? (
             <div className="flex flex-col items-start gap-3">
               <InlineError message={te(`${answerError}.title`)} recovery={te(`${answerError}.description`)} />
-              <Button onClick={() => s.pendingAnswer && void submit(s.pendingAnswer.value, s.pendingAnswer.key)}>
+              <Button onClick={() => s.pendingAnswer && void submit(s.pendingAnswer.value, s.pendingAnswer.key, s.pendingAnswer.attempt)}>
                 {te('retry')}
               </Button>
             </div>

@@ -1,11 +1,14 @@
 'use client';
+import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
 import { useCountUp } from '@/platform/motion';
 import { useChallenges, useChildren, useGrowth, useProgress, useSessionList } from '@/data/hooks';
 import { Progress } from '@/ui/progress';
 import { ParentPage } from './ParentPage';
-import { Avatar } from '@/game/avatar';
+import { ChildCard } from '@/game/child-card';
+import { DeleteChildDialog } from './DeleteChildDialog';
 import { Card, CardBody } from '@/ui/card';
 import { Chip } from '@/ui/chip';
 import { EmptyState } from '@/ui/empty-state';
@@ -21,7 +24,7 @@ function Figure({ value }: { value: number }) {
 }
 
 const LINK =
-  'inline-flex min-h-12 items-center gap-2 rounded-md bg-brand-soft px-4 font-display font-semibold text-brand-strong shadow-[var(--shadow-press-neutral)] transition-[transform,filter] duration-[var(--dur-1)] hover:brightness-95 active:scale-[0.97]';
+  'inline-flex min-h-12 items-center gap-2 rounded-[var(--radius-control)] bg-brand-soft px-4 font-display font-semibold text-brand-strong transition-[filter] duration-[var(--dur-1)] hover:brightness-95';
 
 function GrowthPanel({ growth }: { growth: Growth }) {
   const t = useTranslations('screens.parent.overview.growth');
@@ -59,21 +62,17 @@ export function ChildOverview({ childId }: { childId: string }) {
   const sessions = useSessionList(childId);
   const challenges = useChallenges(childId);
   const child = useChildren().data?.find((c) => c.id === childId);
+  const router = useRouter();
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
     <ParentPage title={t('title')} backHref="/parent" wide>
-      <Card tone="brand">
-        <CardBody>
-          <div className="flex min-h-20 flex-wrap items-center gap-4">
-            {child ? <Avatar avatarId={child.avatar_id} name={child.display_name} size="lg" /> : <span aria-hidden className="size-20 shrink-0" />}
-            <div className="min-w-0 flex-1">
-              {child && (
-                <>
-                  <p className="truncate font-display text-3xl font-bold leading-tight">{child.display_name}</p>
-                  <p className="text-muted">{tg('grade', { grade: child.grade })}</p>
-                </>
-              )}
-            </div>
+      {child ? (
+        <ChildCard
+          avatarId={child.avatar_id}
+          name={child.display_name}
+          gradeLabel={tg('grade', { grade: child.grade })}
+          actions={
             <nav aria-label={t('links')} className="flex flex-wrap gap-2">
               {(['report', 'settings'] as const).map((k) => (
                 <Link key={k} href={`/parent/children/${childId}/${k}`} className={LINK}>
@@ -82,11 +81,15 @@ export function ChildOverview({ childId }: { childId: string }) {
                 </Link>
               ))}
             </nav>
-          </div>
-        </CardBody>
-      </Card>
+          }
+          onDelete={() => setDeleteOpen(true)}
+        />
+      ) : (
+        <div className="min-h-[11rem]" aria-hidden />
+      )}
+      {child && <DeleteChildDialog childId={childId} name={child.display_name} open={deleteOpen} onOpenChange={setDeleteOpen} onDeleted={() => router.replace('/parent')} />}
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid items-start gap-5 lg:grid-cols-2">
         {growth.isLoading || growth.error ? (
           <div className="lg:col-span-2">
             <ScreenState isLoading={growth.isLoading} error={growth.error} onRetry={() => void growth.refetch()} area="parent" skeleton={<Skeleton shape="block" className="nx-skeleton-card h-[640px] sm:h-[290px] lg:h-[230px]" />}>

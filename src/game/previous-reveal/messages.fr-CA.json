@@ -1,0 +1,10 @@
+{
+  "game": {
+    "previousReveal": {
+      "button": "Revoir la réponse précédente",
+      "title": "La question d'avant",
+      "answer": "La réponse :",
+      "close": "Fermer"
+    }
+  }
+}

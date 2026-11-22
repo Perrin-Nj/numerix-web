@@ -38,7 +38,7 @@ export function NarrationText({ text, status, slow, onRetry, className }: Narrat
         <p
           aria-live="polite"
           aria-busy={status === 'streaming'}
-          className="font-display text-xl leading-relaxed text-fg md:text-2xl"
+          className="border-l-4 border-brand/60 pl-3 font-display text-[length:var(--text-story)] font-medium leading-relaxed text-fg"
         >
           {text}
           {status === 'streaming' && (

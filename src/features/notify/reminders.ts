@@ -51,8 +51,8 @@ export function computeReminders(input: ReminderInput, now: Date): Reminder[] {
 
   if (sub?.status === 'unpaid') out.push({ id: `payment_due:${day}`, kind: 'payment_due', params: { name } });
 
-  // Access ends at the end of the trial, or at the end of the paid period once canceled.
-  const endsAt = sub?.status === 'trial' ? sub.trial_ends_at : sub?.status === 'canceled' ? sub.renews_at : undefined;
+  // Access ends at the neutral access date of a plan without payment, or at the end of the paid period once canceled.
+  const endsAt = sub?.status === 'canceled' ? sub.renews_at : sub?.status === 'active' && sub.plan === 'free' ? (sub.access_until ?? undefined) : undefined;
   const left = daysUntil(endsAt, now);
   if (left >= 0 && left <= warn) out.push({ id: `subscription_expiring:${day}`, kind: 'subscription_expiring', params: { name, count: left } });
 

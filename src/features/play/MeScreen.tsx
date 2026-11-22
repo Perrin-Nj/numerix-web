@@ -20,7 +20,9 @@ import { Icon } from '@/ui/icon';
 import { Panel } from '@/ui/panel';
 import { ScreenState } from '@/game/screen-state';
 import { Skeleton } from '@/ui/skeleton';
-import { Switch } from '@/ui/switch';
+import { SwitchRow } from '@/game/switch-row';
+import { ChoiceChips } from '@/ui/choice-chips';
+import { SettingsGrid } from '@/ui/settings-grid';
 
 function GrowthLines({ g }: { g: { current: { chapters_completed: number; skills_mastered: number }; previous: { chapters_completed: number; skills_mastered: number } } }) {
   const t = useTranslations('screens.play.me');
@@ -31,21 +33,6 @@ function GrowthLines({ g }: { g: { current: { chapters_completed: number; skills
       <p className="text-lg">{t('growthLine', { now: chapters, before: g.previous.chapters_completed })}</p>
       <p className="text-lg">{t('skillsLine', { now: skills, before: g.previous.skills_mastered })}</p>
     </>
-  );
-}
-
-function Choice<T extends string | number>({ label, value, options, onChange }: { label: string; value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
-  return (
-    <div role="group" aria-label={label} className="flex flex-col gap-2">
-      <span className="font-display font-semibold">{label}</span>
-      <div className="flex gap-2">
-        {options.map((o) => (
-          <Button key={String(o.value)} size="sm" variant={o.value === value ? 'primary' : 'secondary'} aria-pressed={o.value === value} onClick={() => onChange(o.value)}>
-            {o.label}
-          </Button>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -64,7 +51,7 @@ function LanguagePanel({ childId }: { childId: string | null }) {
   return (
     <Panel title={t('title')}>
       {allowed ? (
-        <Choice
+        <ChoiceChips
           label={t('label')}
           value={locale.startsWith('en') ? 'en-CA' : 'fr-CA'}
           options={[
@@ -89,12 +76,12 @@ function VoicePanel() {
   const adminMusic = usePublicConfig().data?.music.enabled ?? true;
   return (
     <Panel title={t('title')}>
-      <div className="flex flex-col gap-4">
+      <SettingsGrid>
         {!prefs.musicLocked && adminMusic && (
           <>
-            <Switch label={tm('switch')} description={tm('switchHint')} checked={prefs.music} onCheckedChange={(music) => save({ music })} />
+            <SwitchRow label={tm('switch')} description={tm('switchHint')} checked={prefs.music} onCheckedChange={(music) => save({ music })} />
             {prefs.music && (
-              <Choice
+              <ChoiceChips
                 label={tm('volume')}
                 value={prefs.musicVolume}
                 options={[
@@ -106,18 +93,18 @@ function VoicePanel() {
             )}
           </>
         )}
-        <Switch label={t('vibration')} description={t('vibrationHint')} checked={prefs.vibration} onCheckedChange={(vibration) => prefs.set({ vibration })} />
-        <Switch label={t('voice')} description={t('voiceHint')} checked={prefs.voice} onCheckedChange={(voice) => save({ voice })} />
-        <Switch label={t('hints')} description={t('hintsHint')} checked={prefs.hints} onCheckedChange={(hints) => prefs.set({ hints })} />
+        <SwitchRow label={t('vibration')} description={t('vibrationHint')} checked={prefs.vibration} onCheckedChange={(vibration) => prefs.set({ vibration })} />
+        <SwitchRow label={t('voice')} description={t('voiceHint')} checked={prefs.voice} onCheckedChange={(voice) => save({ voice })} />
+        <SwitchRow label={t('hints')} description={t('hintsHint')} checked={prefs.hints} onCheckedChange={(hints) => prefs.set({ hints })} />
         {prefs.hints && (
           <>
-            <Choice
+            <ChoiceChips
               label={t('delay')}
               value={prefs.hintDelaySec}
               options={([15, 30, 45] as const).map((n) => ({ value: n, label: t('delayUnit', { n }) }))}
               onChange={(hintDelaySec) => prefs.set({ hintDelaySec })}
             />
-            <Choice
+            <ChoiceChips
               label={t('volume')}
               value={prefs.hintVolume}
               options={[
@@ -129,14 +116,14 @@ function VoicePanel() {
             />
           </>
         )}
-        <div className="flex flex-wrap items-center gap-3">
-          <Button variant="secondary" iconLeft={<Icon name="volume" />} disabled={!prefs.voice} onClick={() => sp.speak(t('sample'))}>
-            {t('test')}
-          </Button>
-          <p className="text-sm text-muted" aria-live="polite">
-            {!prefs.computerVoice ? null : !sp.supported || (sp.voicesLoaded && !sp.voiceLabel) ? t('noVoice') : sp.voiceLabel ? t('using', { name: sp.voiceLabel }) : null}
-          </p>
-        </div>
+      </SettingsGrid>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <Button variant="secondary" iconLeft={<Icon name="volume" />} disabled={!prefs.voice} onClick={() => sp.speak(t('sample'))}>
+          {t('test')}
+        </Button>
+        <p className="text-sm text-muted" aria-live="polite">
+          {!prefs.computerVoice ? null : !sp.supported || (sp.voicesLoaded && !sp.voiceLabel) ? t('noVoice') : sp.voiceLabel ? t('using', { name: sp.voiceLabel }) : null}
+        </p>
       </div>
     </Panel>
   );

@@ -49,9 +49,12 @@
 
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-full: 9999px;
+  /* Calm, human corners for profile cards and form controls: small, never pill-like. Avatars and dots stay round. */
+  --radius-card: 10px;
+  --radius-control: 8px;
 
   --motion-scale: 1;
   --dur-1: calc(120ms * var(--motion-scale));
@@ -67,6 +70,9 @@
   --text-lead: 1.125rem;
   --text-title: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
   --text-headline: clamp(1.75rem, 1.4rem + 1.4vw, 2.25rem);
+  /* The story text: larger than body, set apart by a rule so it is never mistaken for the question. */
+  --text-story: clamp(1.25rem, 1.05rem + 0.9vw, 1.75rem);
+  --text-question: clamp(1.25rem, 1rem + 1.4vw, 2.25rem);
   --text-display: clamp(2.5rem, 2rem + 2.4vw, 3.5rem);
 
   /* Spacing steps (4px grid). Tailwind p-/gap- utilities use the same grid. */

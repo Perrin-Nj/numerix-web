@@ -148,8 +148,9 @@ await check('home has a single scrollbar', async () => {
   });
   if (!r.page || r.inner) throw new Error(`page scroll ${r.page}, inner scrollers ${r.inner}`);
 });
-await check('home menu lists challenges, discover, worlds, cards, progress', async () => {
-  for (const n of [/défis/i, /découvrir/i, /mondes/i, /cartes/i, /mes progrès/i]) await page.getByRole('button', { name: n }).first().waitFor({ timeout: 5000 });
+await check('home menu lists worlds, cards, progress (Defis and Decouvrir are off by default)', async () => {
+  for (const n of [/mondes/i, /cartes/i, /mes progrès/i]) await page.getByRole('button', { name: n }).first().waitFor({ timeout: 5000 });
+  for (const n of [/^défis/i, /^découvrir(?! ce monde)/i]) if (await page.locator('main').getByRole('button', { name: n }).count()) throw new Error(`home still shows ${n}`);
 });
 await check('theme switch changes the page theme', async () => {
   const get = () => page.evaluate(() => document.documentElement.dataset.theme ?? document.documentElement.className);
@@ -159,8 +160,7 @@ await check('theme switch changes the page theme', async () => {
   if ((await get()) === before) throw new Error('theme did not change');
 });
 await check('discover feed: real media cards, endless loading, like', async () => {
-  await page.getByRole('button', { name: /découvrir/i }).first().click();
-  await page.waitForURL('**/play/feed', T);
+  await page.goto(`${BASE}/play/feed`, { waitUntil: 'domcontentloaded' }); // the home tile is off by default; the nav bar keeps the entry
   await page.locator('article[data-media]').first().waitFor(T);
   const count = () => page.locator('main ul > li').count(); // windowed feed: far cards are empty boxes, but the list keeps growing
   const first = await count();

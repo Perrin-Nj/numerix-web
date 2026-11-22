@@ -148,14 +148,7 @@
       },
       "worlds": {
         "title": "Pick your world",
-        "guide": "Where do we go today? Pick a world.",
-        "lockedTitle": "This world is asleep",
-        "lockedText": "A grown-up can open it in the parent area. Pick another world for now.",
-        "lockedOk": "Got it",
-        "availableTitle": "Available worlds",
-        "showDisabled": "View disabled worlds ({count})",
-        "hideDisabled": "Hide disabled worlds",
-        "disabledTitle": "Disabled worlds"
+        "guide": "Where do we go today? Pick a world."
       },
       "journey": {
         "back": "Back to worlds",
@@ -464,8 +457,7 @@
         "title": "Manage subscription",
         "current": {
           "title": "Your plan",
-          "renews": "Your plan renews on {date}.",
-          "trial": "You are trying Numerix for free. Pick a plan any time to keep playing after the trial.",
+          "accessUntil": "Access until {date}.",
           "unpaid": "A payment is due. Pay now so your children can keep playing.",
           "expired": "Your plan ended. Pick a plan to start playing again. Progress is kept.",
           "canceled": "Your plan is canceled. Your children can play until {date}.",
@@ -474,16 +466,11 @@
         "plans": {
           "title": "Choose a plan",
           "current": "Your plan",
-          "priceFree": "Free",
           "perMonth": "per month, CAD",
           "perYear": "per year, CAD",
           "priceUnknown": "Price shown at payment",
-          "free": {
-            "name": "Free",
-            "features": [
-              "Try Numerix at no cost",
-              "A small selection of stories"
-            ]
+          "standard": {
+            "name": "Standard"
           },
           "family_monthly": {
             "name": "Family, monthly",
@@ -505,7 +492,7 @@
         "method": {
           "title": "How do you want to pay?",
           "secure": "You never type a card number here. When you continue, payment finishes on the payment provider's secure page.",
-          "testNote": "In this test version, payment completes instantly and no money moves.",
+          "testNote": "In this demo version, payment completes instantly and no money moves.",
           "card": {
             "name": "Credit or debit card",
             "hint": "Visa, Mastercard, Amex"
@@ -616,6 +603,18 @@
       "title": "This question was already answered",
       "description": "We are reloading your story."
     },
+    "retry_not_allowed": {
+      "title": "Only one more try",
+      "description": "Let's move on with the story."
+    },
+    "world_inactive": {
+      "title": "This world is not open yet",
+      "description": "Pick another world to keep going."
+    },
+    "world_not_ready": {
+      "title": "This world is not ready yet",
+      "description": "Pick one of the worlds on offer."
+    },
     "invalid_pin": {
       "title": "That code does not match",
       "description": "Try again."
@@ -706,7 +705,10 @@
     "robots": "Robots",
     "arts": "Arts",
     "hiver": "Winter",
-    "jeux": "Games"
+    "jeux": "Games",
+    "histoires": "African stories",
+    "english": "English",
+    "francais": "French"
   },
   "lib": {
     "notify": {
@@ -776,6 +778,10 @@
       "congrats": "What a story! You moved the adventure forward.",
       "next": "Next chapter",
       "back": "Back to my path"
+    },
+    "childCard": {
+      "delete": "Delete profile",
+      "deleteFor": "Delete {name}'s profile"
     },
     "consequence": {
       "skip": "Skip the animation",
@@ -1018,6 +1024,12 @@
         }
       }
     },
+    "previousReveal": {
+      "button": "See the last answer",
+      "title": "The last question",
+      "answer": "The answer:",
+      "close": "Close"
+    },
     "questCard": {
       "title": "Daily quest",
       "available": "A few old stories could use your help.",
@@ -1064,6 +1076,10 @@
       "save": "Save",
       "saved": "Saved"
     },
+    "retryMoment": {
+      "lead": "So close! You get one more try.",
+      "fallback": "Read the question again, nice and slow, then pick again."
+    },
     "rewardBurst": {
       "continue": "Continue",
       "card_earned": {
@@ -1108,7 +1124,10 @@
         "robots": "{n, plural, one {gear} other {gears}}",
         "arts": "{n, plural, one {brush} other {brushes}}",
         "hiver": "{n, plural, one {snowflake} other {snowflakes}}",
-        "jeux": "{n, plural, one {die} other {dice}}"
+        "jeux": "{n, plural, one {die} other {dice}}",
+        "histoires": "{n, plural, one {drum} other {drums}}",
+        "english": "{n, plural, one {pencil} other {pencils}}",
+        "francais": "{n, plural, one {pencil} other {pencils}}"
       },
       "alt": {
         "add": "{a} {ia} and {b} {ib}, to put together.",
@@ -1118,6 +1137,9 @@
         "div": "{total} {it} shared into {bowls} bowls, {rem, plural, =0 {nothing left over} other {# left over}}.",
         "line": "A number line from 0 to {max} with a marker on {value}."
       }
+    },
+    "sceneStage": {
+      "replay": "Watch the animation again"
     },
     "storyCard": {
       "flip": "{title}. Turn the card over.",
@@ -1136,14 +1158,17 @@
       "fresh": "A new streak is waiting"
     },
     "subscriptionBadge": {
-      "trial": "{count, plural, =0 {Free trial ends today} one {Free trial, # day left} other {Free trial, # days left}}",
       "active": "Active",
-      "activeUntil": "Active, renews {date}",
+      "activeUntil": "Access until {date}",
       "unpaid": "Payment due",
       "expired": "Expired",
       "canceled": "Canceled",
       "canceledUntil": "Canceled, access until {date}",
       "blocked": "Account paused"
+    },
+    "switchRow": {
+      "on": "On",
+      "off": "Off"
     },
     "welcomeGift": {
       "title": "A gift is waiting for you",
@@ -1283,6 +1308,12 @@
         "One small step, then another.",
         "Around here, exploring is allowed.",
         "I believe in you, truly."
+      ],
+      "retryWin": [
+        "You tried again and found it, well done!",
+        "Nice work, you didn't give up.",
+        "There it is, your second try hit the mark!",
+        "Looking again is how we learn."
       ],
       "welcome": [
         "Hi, so good to see you again!",

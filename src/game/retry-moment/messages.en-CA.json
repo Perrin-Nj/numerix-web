@@ -1,0 +1,8 @@
+{
+  "game": {
+    "retryMoment": {
+      "lead": "So close! You get one more try.",
+      "fallback": "Read the question again, nice and slow, then pick again."
+    }
+  }
+}

@@ -9,8 +9,10 @@
 #   bash scripts/test.sh ui         browser checks (kid door, feed, chapter, theme, exit, map...)
 #   bash scripts/test.sh errors     error screens: 404, API failure, offline, never-answering endpoint
 #   bash scripts/test.sh nav        every route direct, refreshed and via the nav, fr-CA and en-CA, logged out/parent/kid; then first-load JS per route (JS_BUDGET_KB)
+#   bash scripts/test.sh balance    no left-hugging cards, centred content, no sideways scroll at 320 to 3840 (UIB_QUICK=1 for fewer widths, UIB_SHOTS=dir for screenshots)
 #   bash scripts/test.sh mobile     phone layout audit (overflow, touch targets, text size)
 #   bash scripts/test.sh feed       Discover feed: paging, no repeat, reshuffle, video in view, reduced motion, offline retry, memory
+#   bash scripts/test.sh layout     play screen at phone, landscape, tablet, desktop, TV, shared-screen and zoom sizes (seeded bank; LAYOUT_ALL=1 for every profile)
 #   bash scripts/test.sh play       world map, journeys, every question kind, credits (seeded question bank)
 #   API_PORT=8083 APP_PORT=3101 bash scripts/test.sh ui     same, on other ports (never touches 3000 and 8081)
 #   API_DIR=/path/to/numerix-api bash scripts/test.sh all   use any API checkout (default ../numerix-api)
@@ -107,6 +109,9 @@ case "$MODE" in
   images) ensure_app; warm; run images node scripts/check-images.mjs "$BASE" ;;
   feed)   ensure_app; warm; run feed node scripts/feed-suite.mjs "$BASE" ;;
   play)   SEED_CONTENT=1 ensure_app; warm; run play node scripts/play-checks.mjs "$BASE" ;;
+  layout) SEED_CONTENT=1 ensure_app; warm; run layout node scripts/play-layout.mjs "$BASE" ;;
+  balance) SEED_CONTENT=1 ensure_app; warm; run balance node scripts/qa/ui-balance.mjs "$BASE" ;;
+  home)   SEED_CONTENT=1 ensure_app; warm; run homesections node scripts/qa/home-sections.mjs "$BASE" "http://localhost:$API_PORT"; run worldsvis node scripts/qa/worlds-visibility.mjs "$BASE" "http://localhost:$API_PORT" ;;
   hold)   SEED_CONTENT=1 ensure_app; warm; echo ready; sleep "${HOLD:-3000}" ;;
   qa)     SEED_CONTENT=1 ensure_app; warm; run bank node scripts/qa/bank-audit.mjs; run apifuzz node scripts/qa/api-fuzz.mjs "http://localhost:$API_PORT/v1"; run sweep node scripts/qa/sweep.mjs "$BASE"; run regress-ui node scripts/qa/regress-ui.mjs "$BASE"; run regress-strict node scripts/qa/regress-strict.mjs "$BASE"; run extra node scripts/qa/extra.mjs "$BASE"; run linkcheck node scripts/qa/linkcheck.mjs "$BASE" ;;
   live)   LIVE="${LIVE_URL:-https://numerix-web-snowy.vercel.app}"
@@ -117,7 +122,7 @@ case "$MODE" in
           # flows, ui and the phone audits drive generated questions (the seeded bank has word problems they cannot solve): API without the bank first
           ensure_app; warm; run flows node scripts/flows.mjs "$BASE"; run ui node scripts/ui-checks.mjs "$BASE"; run errors node scripts/ui-error-checks.mjs "$BASE"; run nav node scripts/qa/nav-audit.mjs "$BASE"; run mobile node scripts/mobile-audit.mjs "$BASE"; run feed node scripts/feed-suite.mjs "$BASE"; run images node scripts/check-images.mjs "$BASE"
           # then restart only the API with the real question bank for the bank-based suites (the app is just a proxy and stays up)
-          killport "$API_PORT"; sleep 1; SEED_CONTENT=1 ensure_app; run bank node scripts/qa/bank-audit.mjs; run apifuzz node scripts/qa/api-fuzz.mjs "http://localhost:$API_PORT/v1"; run sweep node scripts/qa/sweep.mjs "$BASE"; run regress-ui node scripts/qa/regress-ui.mjs "$BASE"; run regress-strict node scripts/qa/regress-strict.mjs "$BASE"; run extra node scripts/qa/extra.mjs "$BASE"; run adminfx node scripts/qa/admin-effects.mjs "$BASE" "http://localhost:$API_PORT"; run play node scripts/play-checks.mjs "$BASE"; run linkcheck node scripts/qa/linkcheck.mjs "$BASE" ;;
+          killport "$API_PORT"; sleep 1; SEED_CONTENT=1 ensure_app; run bank node scripts/qa/bank-audit.mjs; run apifuzz node scripts/qa/api-fuzz.mjs "http://localhost:$API_PORT/v1"; run sweep node scripts/qa/sweep.mjs "$BASE"; run regress-ui node scripts/qa/regress-ui.mjs "$BASE"; run regress-strict node scripts/qa/regress-strict.mjs "$BASE"; run extra node scripts/qa/extra.mjs "$BASE"; run adminfx node scripts/qa/admin-effects.mjs "$BASE" "http://localhost:$API_PORT"; run homesections node scripts/qa/home-sections.mjs "$BASE" "http://localhost:$API_PORT"; run worldsvis node scripts/qa/worlds-visibility.mjs "$BASE" "http://localhost:$API_PORT"; run play node scripts/play-checks.mjs "$BASE"; run layout node scripts/play-layout.mjs "$BASE"; UIB_QUICK=1 run balance node scripts/qa/ui-balance.mjs "$BASE"; run linkcheck node scripts/qa/linkcheck.mjs "$BASE" ;;
   *)      echo "unknown mode: $MODE"; exit 2 ;;
 esac
 

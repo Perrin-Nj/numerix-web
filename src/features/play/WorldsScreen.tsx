@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useChildSettings, useHome, useJourney, useSessionStatus, useWorlds } from '@/data/hooks';
 import { WorldCard } from '@/game/world-card';
 import { MascotBubble } from '@/game/mascot-bubble';
-import { Dialog } from '@/ui/dialog';
-import { Button } from '@/ui/button';
 import { Reveal } from '@/ui/reveal';
 import { Skeleton } from '@/ui/skeleton';
 import { ScreenState } from '@/game/screen-state';
@@ -33,14 +31,14 @@ function LiveCard({ world, childId, locked, suggested, priority, onSelect }: { w
   );
 }
 
-/** A grid of world cards, all available or all locked. */
-function WorldGrid({ worlds, childId, suggested, locked, onOpen }: { worlds: World[]; childId: string | null; suggested?: string; locked: boolean; onOpen: (w: World) => void }) {
+/** A grid of the worlds this child can play. */
+function WorldGrid({ worlds, childId, suggested, onOpen }: { worlds: World[]; childId: string | null; suggested?: string; onOpen: (w: World) => void }) {
   return (
     <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
       {worlds.map((w, i) => (
         <li key={w.id}>
           <Reveal delayMs={Math.min(i, 8) * 40}>
-            <LiveCard world={w} childId={childId} locked={locked} suggested={suggested === w.id} priority={i < 4} onSelect={onOpen} />
+            <LiveCard world={w} childId={childId} locked={false} suggested={suggested === w.id} priority={i < 4} onSelect={onOpen} />
           </Reveal>
         </li>
       ))}
@@ -57,14 +55,10 @@ export function WorldsScreen() {
   const childId = status.data?.childId ?? null;
   const settings = useChildSettings(childId ?? '');
   const home = useHome(childId);
-  const [lockedOpen, setLockedOpen] = useState(false);
-  const [showDisabled, setShowDisabled] = useState(false); // disabled worlds stay out of sight until the child asks
-  // Until the settings arrive nothing is shown as locked: no flash of padlocks
   const enabled = settings.data?.enabled_worlds;
   const all = worlds.data ?? [];
-  // Until the settings arrive nothing is shown as disabled: everything counts as available
-  const list = enabled ? all.filter((w) => enabled.includes(w.id)) : all;
-  const disabled = enabled ? all.filter((w) => !enabled.includes(w.id)) : [];
+  // Only the worlds enabled for this child: no locked wall, no hint of the others. Nothing is drawn until the settings arrive.
+  const list = enabled ? all.filter((w) => enabled.includes(w.id)) : [];
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-6">
@@ -73,10 +67,10 @@ export function WorldsScreen() {
         {t('guide')}
       </MascotBubble>
       <ScreenState
-        isLoading={worlds.isLoading}
-        error={worlds.error}
-        isEmpty={Boolean(worlds.data) && worlds.data!.length === 0}
-        onRetry={() => void worlds.refetch()}
+        isLoading={worlds.isLoading || settings.isLoading}
+        error={worlds.error ?? settings.error}
+        isEmpty={Boolean(worlds.data) && Boolean(enabled) && list.length === 0}
+        onRetry={() => void (worlds.error ? worlds.refetch() : settings.refetch())}
         area="play"
         skeleton={
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
@@ -86,29 +80,8 @@ export function WorldsScreen() {
           </div>
         }
       >
-        <h2 className="mb-3 font-display text-2xl font-bold">{t('availableTitle')}</h2>
-        <WorldGrid worlds={list} childId={childId} suggested={home.data?.suggested.world} locked={false} onOpen={(w) => router.push(`/play/journey/${w.id}`)} />
-        {disabled.length > 0 && (
-          <div className="mt-8">
-            <Button variant="secondary" onClick={() => setShowDisabled((v) => !v)} aria-expanded={showDisabled}>
-              {showDisabled ? t('hideDisabled') : t('showDisabled', { count: disabled.length })}
-            </Button>
-            {showDisabled && (
-              <>
-                <h2 className="mb-3 mt-5 font-display text-2xl font-bold">{t('disabledTitle')}</h2>
-                <WorldGrid worlds={disabled} childId={childId} suggested={undefined} locked onOpen={() => setLockedOpen(true)} />
-              </>
-            )}
-          </div>
-        )}
+        <WorldGrid worlds={list} childId={childId} suggested={home.data?.suggested.world} onOpen={(w) => router.push(`/play/journey/${w.id}`)} />
       </ScreenState>
-      <Dialog
-        open={lockedOpen}
-        onOpenChange={setLockedOpen}
-        title={t('lockedTitle')}
-        description={t('lockedText')}
-        footer={<Button onClick={() => setLockedOpen(false)}>{t('lockedOk')}</Button>}
-      />
     </main>
   );
 }

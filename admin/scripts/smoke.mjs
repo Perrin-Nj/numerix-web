@@ -123,6 +123,36 @@ try {
     check(`page /${p} renders`, pg.status === 200, pg.status);
   }
 
+  // Three-worlds routes through the proxy: free access, world status, new platform keys, feed home sections.
+  const until = new Date(Date.now() + 30 * 864e5).toISOString();
+  u = await call(`parents/${target.id}/free-access`, 'PUT', { until, reason: 'smoke grant' });
+  check('free access grant', u.status === 200 && u.data?.subscription?.free_access?.reason === 'smoke grant', u.status);
+  u = await call(`parents/${target.id}/free-access`, 'PUT', { until: '2020-01-01T00:00:00Z', reason: 'past' });
+  check('free access past date refused (422)', u.status === 422, u.status);
+  u = await call(`parents/${target.id}/free-access`, 'PUT', { until, reason: '' });
+  check('free access empty reason refused (422)', u.status === 422, u.status);
+  u = await call(`parents/${target.id}/free-access`, 'DELETE');
+  check('free access end', u.status === 200 && !u.data?.subscription?.free_access, u.status);
+  const wl = await call('worlds');
+  check('worlds list has the 3 inactive worlds as draft', wl.status === 200 && ['histoires', 'english', 'francais'].every((id) => wl.data.items.find((w) => w.id === id)?.status === 'draft'), wl.status);
+  u = await call('worlds/histoires/status', 'PUT', { status: 'published' });
+  check('world status publish', u.status === 200 && u.data?.status === 'published', u.status);
+  u = await call('worlds/histoires/status', 'PUT', { status: 'draft' });
+  check('world status back to draft', u.status === 200 && u.data?.status === 'draft', u.status);
+  u = await call('worlds/echecs/status', 'PUT', { status: 'draft' });
+  check('closing a default world is refused (422)', u.status === 422, u.status);
+  const pc = await call('config');
+  check('platform config has worlds and game flags', pc.status === 200 && Array.isArray(pc.data?.ready_worlds) && Array.isArray(pc.data?.default_worlds) && typeof pc.data?.retry_enabled === 'boolean' && typeof pc.data?.grade_window === 'boolean', pc.status);
+  u = await call('config', 'PUT', { ...pc.data, default_worlds: ['histoires'] });
+  check('default world must be published and ready (422)', u.status === 422, u.status);
+  const fc = await call('appconfig/feed');
+  check('feed home sections default off', fc.status === 200 && Object.values(fc.data?.value?.home_sections ?? {}).every((v) => v === false), fc.status);
+  u = await call('appconfig/feed', 'PUT', { value: { ...fc.data.value, home_sections: { challenges: true, discover: false, daily_quest: false } }, expected_version: fc.data.version });
+  const fp = await (await fetch(process.env.PLATFORM_API_URL ? process.env.PLATFORM_API_URL + '/v1/config/public' : 'http://localhost:8081/v1/config/public')).json().catch(() => null);
+  check('feed home section toggle reaches the public config', u.status === 200 && (fp === null || fp.feed?.home_sections?.challenges === true), u.status);
+  const fc2 = await call('appconfig/feed');
+  await call('appconfig/feed', 'PUT', { value: fc.data.value, expected_version: fc2.data.version });
+
   const au = await call('audit');
   check('audit returns data', au.status === 200 && au.data.items?.length > 0, au.status);
 

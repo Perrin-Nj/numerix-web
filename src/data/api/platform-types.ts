@@ -1,5 +1,6 @@
 /** Hand written from docs/PLAN_V4.md (contract section). Replaced by generated types once the OpenAPI regen lands. */
-export type SubscriptionStatus = 'trial' | 'active' | 'unpaid' | 'expired' | 'canceled';
+/** `trial` is never sent to parent or child tokens (a running trial reads `active`). */
+export type SubscriptionStatus = 'active' | 'unpaid' | 'expired' | 'canceled';
 export type PlanId = 'free' | 'family_monthly' | 'family_yearly';
 export type PaymentMethod = 'card' | 'interac' | 'paypal' | 'apple_pay' | 'google_pay';
 
@@ -8,7 +9,8 @@ export type Subscription = {
   plan: PlanId;
   method?: PaymentMethod;
   renews_at?: string;
-  trial_ends_at?: string;
+  /** Neutral end of the current access period. The only date the parent view may show. */
+  access_until?: string | null;
   marked_by_admin?: boolean;
 };
 

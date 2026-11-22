@@ -6,7 +6,7 @@ import { useConsent } from '@/data/hooks';
 import { ParentPage } from './ParentPage';
 import { Button } from '@/ui/button';
 import { Panel } from '@/ui/panel';
-import { Switch } from '@/ui/switch';
+import { SwitchRow } from '@/game/switch-row';
 
 const NOTICE_VERSION = '2026-10';
 
@@ -32,7 +32,7 @@ export function ConsentScreen({ childId }: { childId: string }) {
             ))}
           </ul>
         </Panel>
-        <Switch checked={agreed} onCheckedChange={setAgreed} label={t('agree')} />
+        <SwitchRow checked={agreed} onCheckedChange={setAgreed} label={t('agree')} />
         <Button size="lg" onClick={accept} disabled={!agreed} loading={consent.isPending}>
           {t('accept')}
         </Button>

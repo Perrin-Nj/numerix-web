@@ -106,6 +106,18 @@ export const Estimate: Story = {
   args: { ...args, question: { ...base, kind: 'estimate', prompt: 'Environ combien de billes ?', visual: { kind: 'numberline', data: { min: 0, max: 100, step: 5 } } } },
   render: (a) => <Host question={a.question} correct={(v) => typeof v === 'number' && Math.abs(v - 60) <= 10} />,
 };
+/** Second try: the first card stays disabled, the others are open. */
+export const RetryChoice: Story = {
+  args: { ...args, tried: '9', question: { ...base, kind: 'choice', prompt: 'Quel est le plus grand ?', choices: ['12', '9', '21'] } },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole('button', { name: /9/ })).toBeDisabled();
+    await expect(within(canvasElement).getByRole('button', { name: /21/ })).toBeEnabled();
+  },
+};
+/** Second try on a keypad: the entry is empty again. */
+export const RetryKeypad: Story = {
+  args: { ...args, tried: 14, question: { ...base, prompt: '8 + 7 = ?' } },
+};
 export const Locked: Story = {
   args: { question: { ...base, kind: 'choice', choices: ['12', '9', '21'] }, phase: 'outcome', chosen: '9', outcome: 'erreur_typique', onSubmit: noop },
 };

@@ -1,0 +1,47 @@
+/* Move library: each hook, right and wrong move is implemented once here (generic parts) or in its world kit, and keyed by the ids in moves.ts.
+   Archetypes only tag elements: .mv-unit (a counted object, with --i its index), .mv-gap (an empty place), .mv-flag, .mv-count, .mv-ghost, .mv-ring, .mv-pulse.
+   Rules: wrong moves are as visible as right ones (at least 1.2 art units of travel or a clear glow), gentle, no red, no shake; idle cycles at least 0.8 s. */
+.mv-unit, .mv-flag, .mv-count, .mv-ring, .mv-pulse, .mv-gap, .mv-ghost { transform-origin: 50% 100%; }
+
+/* HOOK breathe-gaps: the empty places breathe so the eye goes to the gaps, not the pieces */
+.nx-stage[data-hook='breathe-gaps'][data-phase='question'] .mv-gap { animation: mv-breathe-gap 2.6s var(--nx-ease-io) calc(0.9s + var(--i, 0) * 0.35s) infinite; }
+@keyframes mv-breathe-gap { 0%, 100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+
+/* RIGHT hop-wave: a wave of happy hops, crouch then jump with stretch, land with squash */
+.nx-stage[data-ok='hop-wave'][data-phase='ok'] .mv-unit { animation: mv-hop 0.95s linear calc(var(--rv-base, 0s) + 0.3s + var(--i, 0) * 0.1s) backwards; }
+@keyframes mv-hop {
+  0% { transform: none; animation-timing-function: ease-out; }
+  16% { transform: scale(1.1, 0.86); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+  42% { transform: translateY(calc(var(--u) * -2.2)) scale(0.92, 1.12); animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.5); }
+  66% { transform: translateY(0) scale(1.14, 0.86); animation-timing-function: ease-out; }
+  82% { transform: scale(0.98, 1.04); }
+  100% { transform: none; }
+}
+/* RIGHT flags-pop: a small flag pops on each free place with overshoot */
+.mv-flag { opacity: 0; }
+.nx-stage[data-ok='flags-pop'][data-phase='ok'] .mv-flag { opacity: 1; animation: mv-pop 0.7s linear calc(var(--rv-base, 0s) + 1s + var(--i, 0) * 0.3s) backwards; }
+@keyframes mv-pop {
+  0% { transform: scale(0) translateY(6px); animation-timing-function: cubic-bezier(0.3, 1.5, 0.5, 1); }
+  60% { transform: scale(1.25) translateY(-2px); animation-timing-function: ease-in-out; }
+  100% { transform: none; }
+}
+/* RIGHT chime rings leave a centre (used by rocket and clock moves) */
+.mv-ring { opacity: 0; }
+.nx-stage[data-phase='ok'] .mv-ring { animation: mv-ring 1.5s ease-out calc(var(--rv-base, 0s) + 0.5s + var(--i, 0) * 0.5s) backwards; }
+@keyframes mv-ring { 0% { opacity: 0.85; transform: scale(1); } 100% { opacity: 0; transform: scale(1.35); } }
+
+/* WRONG step-back-count: the pawns step back one by one (visible travel), a counting light runs along the free places with numerals */
+.nx-stage[data-ko='step-back-count'][data-phase='ko'] .mv-unit { animation: mv-stepback 1.4s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.3s + var(--i, 0) * 0.28s) backwards; translate: 0 calc(var(--u) * var(--sb, -2.2)); }
+@keyframes mv-stepback { 0% { translate: 0 0; } 22% { translate: 0 calc(var(--u) * 0.5); } 100% { translate: 0 calc(var(--u) * var(--sb, -2.2)); } }
+.mv-count { opacity: 0; }
+.nx-stage[data-phase='ko'] .mv-count { opacity: 1; animation: mv-count 0.9s linear calc(var(--rv-base, 0s) + 2s + var(--i, 0) * 0.7s) backwards; }
+@keyframes mv-count { 0% { transform: scale(0.3); opacity: 0; animation-timing-function: cubic-bezier(0.3, 1.5, 0.5, 1); } 55% { transform: scale(1.3); opacity: 1; animation-timing-function: ease-in-out; } 100% { transform: none; opacity: 1; } }
+
+/* WRONG ghost-sum: the typical wrong value appears as a pale ghost tag, hangs for a beat, fades; the scene resets to its settled state */
+.mv-ghost { opacity: 0; pointer-events: none; }
+.nx-stage[data-ko='ghost-sum'][data-phase='ko'] .mv-ghost { animation: mv-ghost 3.4s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.4s) backwards; }
+@keyframes mv-ghost { 0% { opacity: 0; transform: translateY(calc(var(--u) * 1.6)) scale(0.85); } 22% { opacity: 0.85; transform: none; } 70% { opacity: 0.8; transform: translateY(calc(var(--u) * -0.5)); } 100% { opacity: 0; transform: translateY(calc(var(--u) * -1.4)); } }
+
+/* WRONG check-hands: the clock dims and the long hand pulses; short hand ringed. Tags (.mv-pulse) pulse in turn */
+.nx-stage[data-ko='check-hands'][data-phase='ko'] .mv-pulse { animation: mv-pulse 1.6s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.4s + var(--i, 0) * 1.4s) 2 backwards; }
+@keyframes mv-pulse { 0%, 100% { transform: scale(1); } 45% { transform: scale(1.22); } }

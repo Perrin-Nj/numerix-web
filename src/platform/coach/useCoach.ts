@@ -15,7 +15,7 @@ export function useCoach({ skillId, beatKey, active, lang }: Props) {
   const t = useTranslations('coach');
   const { hints, hintDelaySec, hintVolume } = usePrefs();
   const { speak } = useSpeaker(lang);
-  const [shown, setShown] = useState<{ beatKey: string; text: string } | null>(null);
+  const [shown, setShown] = useState<{ beatKey: string; text: string; at: number } | null>(null);
   const history = useRef<{ beatKey: string; list: string[] }>({ beatKey, list: [] });
 
   const pool = (): string[] => {
@@ -32,7 +32,7 @@ export function useCoach({ skillId, beatKey, active, lang }: Props) {
       const h = nextHint(pool(), history.current.list);
       if (!h) return;
       history.current.list.push(h);
-      setShown({ beatKey, text: h });
+      setShown({ beatKey, text: h, at: Date.now() });
       speak(h, { lang, volume: hintVolume });
     };
   });
@@ -57,5 +57,6 @@ export function useCoach({ skillId, beatKey, active, lang }: Props) {
   }, [hints, active, beatKey, hintDelaySec]);
 
   const dismiss = useCallback(() => setShown(null), []);
-  return { hint: hints && shown?.beatKey === beatKey ? shown.text : null, dismiss };
+  const live = hints && shown?.beatKey === beatKey ? shown : null;
+  return { hint: live?.text ?? null, at: live?.at ?? 0, dismiss };
 }

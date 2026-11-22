@@ -8,14 +8,16 @@ import type { InputProps } from './kind';
 const same = (a: AnswerValue | null, b: AnswerValue) => a !== null && JSON.stringify(a) === JSON.stringify(b);
 
 /** 2 to 5 cards. Long texts go one per row so nothing is cut. */
-export function ChoiceGrid({ question, phase, chosen, outcome, onSubmit }: InputProps) {
+export function ChoiceGrid({ question, phase, chosen, outcome, tried, onSubmit }: InputProps) {
   const long = question.choices.some((c) => String(c).length > 22);
   return (
     <div role="group" aria-label={question.prompt ?? question.math_text} className={cn('grid gap-2 md:gap-3', long ? 'grid-cols-1' : 'grid-cols-2')}>
       {question.choices.map((c, i) => {
         const state: ChoiceState =
           phase === 'question'
-            ? 'idle'
+            ? same(tried ?? null, c)
+              ? 'locked'
+              : 'idle'
             : same(chosen, c)
               ? phase === 'outcome'
                 ? outcome === 'correct'

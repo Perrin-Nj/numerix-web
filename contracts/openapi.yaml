@@ -663,7 +663,8 @@ paths:
       x-roles: [child]
       description: |
         Curated questions carry a written hint that guides without giving the answer. Only available while the beat
-        is unanswered (409 `beat_answered` afterwards) and when `Question.hint_available` is true (404 otherwise).
+        is unanswered, or in the second-try window after a wrong first answer when the client opted in with `attempt: 1`
+        and a retry is open (the response then has `kind: retry_hint`; 409 `beat_answered` otherwise) and when `Question.hint_available` is true (404 otherwise).
         Asking never changes the verdict or the mastery estimate today; the client may show a softer mascot pose.
       parameters:
         - $ref: '#/components/parameters/AcceptLanguage'
@@ -682,6 +683,7 @@ paths:
                 required: [hint]
                 properties:
                   hint: { type: string }
+                  kind: { type: string, enum: [hint, retry_hint], description: '`retry_hint` when asked in the second-try window (after a wrong first answer); it never contains the answer.' }
         '409':
           description: This beat was already answered
           content:
@@ -1333,7 +1335,7 @@ paths:
                   value: { status: active, plan: family_monthly, method: card, renews_at: '2026-11-11T14:00:00Z', can_play: true, days_left: 30 }
                 hosted:
                   summary: Processor, redirect the browser
-                  value: { status: trial, plan: free, trial_ends_at: '2026-10-26T14:00:00Z', can_play: true, days_left: 14, checkout_url: 'https://checkout.example-processor.com/c/cs_123' }
+                  value: { status: active, plan: free, access_until: '2026-10-26T14:00:00Z', can_play: true, checkout_url: 'https://checkout.example-processor.com/c/cs_123' }
         '422': { $ref: '#/components/responses/ValidationError' }
         '409': { $ref: '#/components/responses/Conflict' }
   /subscription/cancel:
@@ -2114,7 +2116,8 @@ components:
             consent_missing, daily_limit_reached, session_active, session_paused, session_completed,
             beat_answered, beat_not_answered, invalid_pin, subscription_inactive, account_blocked,
             not_cancelable, conflict, email_taken, passkey_invalid, passkey_session_expired,
-            passkey_exists, passkey_limit, passkeys_unavailable.
+            passkey_exists, passkey_limit, passkeys_unavailable, retry_not_allowed (409: a second attempt is not allowed
+            for this beat), world_inactive (422: the world exists but is not open to children yet), world_not_ready (422).
           example: consent_missing
         retry_after_seconds:
           type: integer
@@ -2145,10 +2148,11 @@ components:
     WorldId:
       type: string
       description: |
-        The twenty story worlds. The first eight are the original worlds; the other twelve came with the question bank
-        (CR-11). A client must treat an id it does not know as a generic world (accent colour and name come from
+        The story worlds. The first eight are the original worlds; the next twelve came with the question bank
+        (CR-11); `histoires`, `english` and `francais` are new and stay draft (absent from GET /worlds and refused with
+        `world_inactive`) until an admin publishes them. A client must treat an id it does not know as a generic world (accent colour and name come from
         `GET /worlds`), so a new world never needs a release.
-      enum: [nature, espace, cuisine, sport, construction, medecine, science, echecs, ocean, dinosaures, animaux, musique, transport, pirates, marche, meteo, robots, arts, hiver, jeux]
+      enum: [nature, espace, cuisine, sport, construction, medecine, science, echecs, ocean, dinosaures, animaux, musique, transport, pirates, marche, meteo, robots, arts, hiver, jeux, histoires, english, francais]
 
     SkillId:
       type: string
@@ -2416,11 +2420,12 @@ components:
         plan: { type: string, enum: [free, family_monthly, family_yearly] }
         method: { $ref: '#/components/schemas/PaymentMethod' }
         renews_at: { type: string, format: date-time }
-        trial_ends_at: { type: string, format: date-time }
+        trial_ends_at: { type: string, format: date-time, deprecated: true, description: 'Parent and child tokens never receive it; use access_until.' }
+        access_until: { type: [string, 'null'], format: date-time, description: 'End of the current access period, neutral wording for parents and children. Replaces trial_ends_at, which parent and child tokens never receive; status is never trial for them (a running trial reads active).' }
         marked_by_admin: { type: boolean }
         can_play: { type: boolean, description: 'The subscription alone allows play (trial running, paid period running, or canceled but not ended). The start gate is can_play OR unpaid_policy allow, and a blocked parent is always refused.' }
-        days_left: { type: [integer, 'null'], description: 'Whole days, rounded up, until trial_ends_at or renews_at; null when there is no end' }
-      example: { status: trial, plan: free, trial_ends_at: '2026-10-26T14:00:00Z', can_play: true, days_left: 14 }
+        days_left: { type: [integer, 'null'], description: 'Whole days, rounded up, until trial_ends_at or renews_at; null when there is no end. Parent and child tokens always see null here.' }
+      example: { status: active, plan: free, access_until: '2026-10-26T14:00:00Z', can_play: true }
     PlanCatalog:
       type: object
       required: [currency, plans, methods]
@@ -2463,7 +2468,7 @@ components:
       properties:
         unpaid_policy: { type: string, enum: [block, allow] }
         card_threshold_pct: { type: integer, minimum: 0, maximum: 100 }
-        trial_days: { type: integer }
+        trial_days: { type: integer, deprecated: true, description: 'No longer sent.' }
         default_locale: { type: string }
         expiring_warning_days: { type: integer, description: 'Days before the end of a trial or canceled period that trigger subscription_expiring' }
         reminder_hour_local: { type: integer, minimum: 0, maximum: 23, description: Local hour after which a play reminder is allowed }
@@ -2535,6 +2540,13 @@ components:
           properties:
             discover_enabled: { type: boolean }
             family_board_visible: { type: boolean }
+            home_sections:
+              type: object
+              description: Which blocks the child home page shows. Missing means all false.
+              properties:
+                challenges: { type: boolean }
+                discover: { type: boolean }
+                daily_quest: { type: boolean }
         maintenance:
           type: object
           required: [enabled, level, message, block_play]
@@ -2563,6 +2575,7 @@ components:
         accent_color: { type: string, pattern: '^#[0-9a-fA-F]{6}$' }
         hook: { type: string, description: One short teaser line shown on the home feed }
         skill_count: { type: integer }
+        ready: { type: boolean, description: 'True when an admin marked the world ready for parents (platform.ready_worlds). The parent settings may switch on only ready worlds (else 422 world_not_ready). Children only see worlds enabled for them. Absent on old servers, read as false.' }
         grade_min: { type: integer, minimum: 1, maximum: 6, description: First school year the world serves (CR-12) }
         grade_max: { type: integer, minimum: 1, maximum: 6 }
         hero:
@@ -2758,6 +2771,7 @@ components:
         (a number inside a range, or choice). An unknown `kind` should be shown as a numeric entry.
       properties:
         kind: { $ref: '#/components/schemas/QuestionKind' }
+        style: { type: string, enum: [drill, context], description: 'How the question is framed. Drills are served to grades 1 and 2 only; absent means context.' }
         math_text: { type: string, example: '340 ÷ 7 = ? (avec reste)', description: 'Language neutral statement; for curated questions without one, the prompt text' }
         choices:
           type: array
@@ -2829,6 +2843,7 @@ components:
         scene: { $ref: '#/components/schemas/Narration' }
         scene_key: { $ref: '#/components/schemas/SceneKey' }
         created_at: { type: string, format: date-time }
+        retry_available: { type: boolean, description: 'True when the child already gave a wrong first answer to this beat and the second try is still open (a reload resumes it). Send `attempt: 2`, or ask for the next beat to move on. Absent otherwise.' }
       example:
         id: '44444444-4444-4444-8444-444444444440'
         session_id: '33333333-3333-4333-8333-333333333333'
@@ -2853,6 +2868,7 @@ components:
       required: [answer]
       properties:
         answer: { $ref: '#/components/schemas/AnswerValue' }
+        attempt: { type: integer, enum: [1, 2], description: 'Absent = legacy client: the full verdict is returned at once and no second try exists. `1` opts in to the second try: when the first answer is not correct, the question type allows it (not truefalse) and platform.retry_enabled is on, the result is withheld (`retry_available: true`, no `correct_answer`). `2` is the second try (needs a wrong first answer, else 409 `retry_not_allowed`); it returns the full reveal. Only the first attempt counts for mastery; a correct second try counts half in the card threshold.' }
         response_time_ms:
           type: integer
           minimum: 0
@@ -2880,9 +2896,11 @@ components:
         skill_id: { $ref: '#/components/schemas/SkillId' }
     AnswerResult:
       type: object
-      required: [outcome, correct_answer, denouement, session]
+      required: [outcome, denouement, session]
       properties:
         outcome: { $ref: '#/components/schemas/Outcome' }
+        attempt: { type: integer, enum: [1, 2], description: Echo of the request attempt; absent for a legacy request. }
+        retry_available: { type: boolean, description: 'True when this first answer was not correct and a second try is open. The reveal fields (`correct_answer`, `explain`, `feedback`, `method_visual`, `misconception`) are then absent, `rewards` is empty and `denouement` stays pending. Ask `POST .../hint` for a hint, then send `attempt: 2`.' }
         correct_answer:
           $ref: '#/components/schemas/AnswerValue'
         explain:

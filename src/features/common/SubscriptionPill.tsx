@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import { useSubscription } from '@/data/hooks/platform';
 import { SubscriptionBadge, type SubscriptionBadgeProps } from '@/game/subscription-badge';
-import { daysUntil } from '@/features/notify';
 import { appConfig } from '@/config/app';
 
 /** The parent's subscription status as a badge. With `href` it links to the manage screen. */
@@ -18,8 +17,7 @@ export function SubscriptionPill({ variant = 'menu', href = '/parent/subscriptio
       status={s.status}
       variant={variant}
       size="sm"
-      daysLeft={s.status === 'trial' && s.trial_ends_at ? Math.max(0, daysUntil(s.trial_ends_at, new Date())) : undefined}
-      date={s.renews_at ?? undefined}
+      date={s.access_until ?? s.renews_at ?? undefined}
     />
   );
   return href ? (

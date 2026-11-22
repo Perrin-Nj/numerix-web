@@ -12,7 +12,7 @@ import { FormField } from '@/ui/form-field';
 import { Input } from '@/ui/input';
 import { PinInput } from '@/ui/pin-input';
 import { Select } from '@/ui/select';
-import { Switch } from '@/ui/switch';
+import { SwitchRow } from '@/game/switch-row';
 
 const AVATARS = ['fox', 'owl', 'bear', 'cat', 'panda', 'rabbit', 'lion', 'turtle'];
 
@@ -112,7 +112,7 @@ export function ChildForm() {
           )}
         />
 
-        <Switch checked={usePin} onCheckedChange={setUsePin} label={t('pinSwitch')} description={t('pinHint')} />
+        <SwitchRow checked={usePin} onCheckedChange={setUsePin} label={t('pinSwitch')} description={t('pinHint')} />
         {usePin && (
           <Controller
             control={control}

@@ -33,6 +33,18 @@
       "title": "Cette question a déjà reçu une réponse",
       "description": "On recharge ton histoire."
     },
+    "retry_not_allowed": {
+      "title": "Un seul deuxième essai",
+      "description": "On passe à la suite de l'histoire."
+    },
+    "world_inactive": {
+      "title": "Ce monde n'est pas encore ouvert",
+      "description": "Choisis un autre monde pour continuer."
+    },
+    "world_not_ready": {
+      "title": "Ce monde n'est pas encore prêt",
+      "description": "Choisis un des mondes proposés."
+    },
     "invalid_pin": {
       "title": "Ce code ne correspond pas",
       "description": "Essaie encore."

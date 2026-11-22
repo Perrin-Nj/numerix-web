@@ -89,3 +89,30 @@ export const FreeInputKeypad: Story = {
   },
   globals: { viewport: { value: 'phone' } },
 };
+
+const TIGHT = {
+  question: 'Combien de pommes pour chaque écureuil ?',
+  choices: <QuestionInput question={{ math_text: '48 / 4 = ?', kind: 'numeric', choices: [] }} phase="question" chosen={null} outcome={null} onSubmit={() => {}} />,
+};
+const LONG =
+  'Zoé arrive devant le grand arbre de la clairière. Quarante-huit pommes rouges sont tombées pendant la nuit, et elle doit les partager entre les quatre écureuils qui attendent sur la branche la plus basse. Le plus petit regarde déjà le panier. Elle compte une fois, deux fois, puis elle se demande comment faire des parts égales sans en oublier une seule.';
+
+/** Small phone: the stage gives way first, the story scrolls in its own region, the question and keypad stay in view. */
+export const SmallPhoneKeypad: Story = {
+  args: { choicesFree: true, compactStage: true, narration: <NarrationText text={LONG} status="ready" />, ...TIGHT },
+  globals: { viewport: { value: 'small' } },
+};
+/** Shared window 600x400: two columns, the story scrolls inside the right column, the question stays on screen. */
+export const SharedWindow: Story = {
+  args: { choicesFree: true, narration: <NarrationText text={LONG} status="ready" />, ...TIGHT },
+  globals: { viewport: { value: 'shared' } },
+};
+export const WideAndShort: Story = {
+  args: { choicesFree: true, narration: <NarrationText text={LONG} status="ready" />, ...TIGHT },
+  globals: { viewport: { value: 'wideShort' } },
+};
+/** A long story on a desktop: the text sits in its own block and the question stays under it. */
+export const LongStoryDesktop: Story = {
+  args: { narration: <NarrationText text={LONG} status="ready" /> },
+  globals: { viewport: { value: 'desktop' } },
+};

@@ -33,6 +33,18 @@
       "title": "This question was already answered",
       "description": "We are reloading your story."
     },
+    "retry_not_allowed": {
+      "title": "Only one more try",
+      "description": "Let's move on with the story."
+    },
+    "world_inactive": {
+      "title": "This world is not open yet",
+      "description": "Pick another world to keep going."
+    },
+    "world_not_ready": {
+      "title": "This world is not ready yet",
+      "description": "Pick one of the worlds on offer."
+    },
     "invalid_pin": {
       "title": "That code does not match",
       "description": "Try again."

@@ -22,10 +22,13 @@ export type QuestionKind = S['QuestionKind'];
 export type QuestionItem = S['QuestionItem'];
 export type QuestionVisual = S['QuestionVisual'];
 export type MediaRef = S['MediaRef'];
-export type QuestionMedia = S['QuestionMedia'];
+/** `hero_fallback`: no asset matched the question, the server sent the generic world hero. Never shown as scene content. */
+export type QuestionMedia = S['QuestionMedia'] & { hero_fallback?: boolean };
 export type CreditItem = S['CreditItem'];
 export type Narration = S['Narration'];
+/** `correct_answer` is absent from a withheld first answer (`retry_available`). */
 export type AnswerResult = S['AnswerResult'];
+export type AnswerResultRaw = S['AnswerResult'];
 export type MethodVisual = S['MethodVisual'];
 export type SessionSummary = S['SessionSummary'];
 export type Progress = S['Progress'];
@@ -37,6 +40,11 @@ export type StoryCard = S['StoryCard'];
 export type DailyQuest = S['DailyQuest'];
 export type Problem = S['Problem'];
 export type ReviewDue = S['ReviewDue'];
+export type AnswerRequest = S['AnswerRequest'];
+/** 1 opts in to the second try, 2 is the second try; absent is the legacy full verdict. */
+export type Attempt = NonNullable<AnswerRequest['attempt']>;
+/** The hint endpoint tags its text: `retry_hint` in the second-try window, never the answer. */
+export type HintResult = { hint: string; kind?: 'hint' | 'retry_hint' };
 
 /**
  * All story worlds in display order. Screens that list worlds (settings, journey) iterate this.
@@ -44,6 +52,7 @@ export type ReviewDue = S['ReviewDue'];
 export const WORLD_IDS: WorldId[] = [
   'nature', 'espace', 'cuisine', 'sport', 'construction', 'medecine', 'science', 'echecs',
   'ocean', 'dinosaures', 'animaux', 'musique', 'transport', 'pirates', 'marche', 'meteo', 'robots', 'arts', 'hiver', 'jeux',
+  'histoires', 'english', 'francais',
 ];
 
 export type FeedItem = S['FeedItem'];

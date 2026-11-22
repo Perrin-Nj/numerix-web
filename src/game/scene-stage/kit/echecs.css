@@ -1,0 +1,12 @@
+/* echecs kit: pawn moods and flag wave. Moods are CSS keyed on the stage phase; the pawn svg is tiny so its inner animation repaints little. */
+.pw { display: block; width: 100%; height: auto; overflow: visible; }
+.pw-happy, .pw-brow { opacity: 0; }
+.pw-open, .pw-happy { transform-box: fill-box; }
+.nx-stage[data-phase='ok'] .pw-open { opacity: 0; animation: none; }
+.nx-stage[data-phase='ok'] .pw-happy { opacity: 1; }
+.nx-stage[data-phase='ko'] .pw-brow { opacity: 1; }
+.nx-stage[data-phase='ko'] .pw { --lx: 1.4; }
+.pw-mouth { transform-box: fill-box; transform-origin: 50% 0; }
+.nx-stage[data-phase='ok'] .pw-mouth { transform: scale(1.25, 1.6); }
+.fl-wave { transform-box: fill-box; transform-origin: 0 50%; animation: fl-wave 1.9s var(--nx-ease-io) infinite alternate; }
+@keyframes fl-wave { from { transform: skewY(-5deg) scaleX(0.94); } to { transform: skewY(5deg) scaleX(1.04); } }

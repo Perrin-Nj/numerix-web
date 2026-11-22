@@ -13,8 +13,6 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Trial: Story = { args: { status: 'trial', daysLeft: 9 } };
-export const TrialLastDay: Story = { args: { status: 'trial', daysLeft: 0 } };
 export const Active: Story = {};
 export const Unpaid: Story = { args: { status: 'unpaid' } };
 export const Expired: Story = { args: { status: 'expired' } };
@@ -24,7 +22,6 @@ export const Small: Story = { args: { size: 'sm' } };
 export const Menu: Story = { args: { variant: 'menu' } };
 
 const STATUSES: SubscriptionBadgeProps[] = [
-  { status: 'trial', daysLeft: 9 },
   { status: 'active', date: '2026-11-12T12:00:00Z' },
   { status: 'unpaid' },
   { status: 'expired' },

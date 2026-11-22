@@ -26,7 +26,7 @@ export function MascotBubble({ pose = 'greet', size = 'md', children, config, cl
     last.current = pose;
   }, [pose, play]);
   return (
-    <div className={cn('flex items-end gap-3', className)}>
+    <div data-bubble="" className={cn('flex items-end gap-3', className)}>
       <Mascot pose={pose} size={size} config={cfg} speaking decorative />
       <div
         className={cn(

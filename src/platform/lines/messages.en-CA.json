@@ -53,6 +53,12 @@
         "Around here, exploring is allowed.",
         "I believe in you, truly."
       ],
+      "retryWin": [
+        "You tried again and found it, well done!",
+        "Nice work, you didn't give up.",
+        "There it is, your second try hit the mark!",
+        "Looking again is how we learn."
+      ],
       "welcome": [
         "Hi, so good to see you again!",
         "Welcome, your adventure was waiting.",

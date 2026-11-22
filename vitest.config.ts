@@ -14,7 +14,8 @@ const dirname =
 export default defineConfig({
   test: {
     projects: [
-      { test: { name: 'unit', environment: 'node', include: ['src/**/*.test.ts'] } },
+      // Pure logic (scene binding, validators): node, no browser
+      { resolve: { alias: { '@': path.join(dirname, 'src') } }, test: { name: 'unit', environment: 'node', include: ['src/**/*.test.ts'] } },
       {
         extends: true,
         plugins: [

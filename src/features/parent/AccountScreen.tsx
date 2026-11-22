@@ -6,7 +6,8 @@ import { AccountSecurity } from './AccountSecurity';
 import { ParentPage } from './ParentPage';
 import { Panel } from '@/ui/panel';
 import { Select } from '@/ui/select';
-import { Switch } from '@/ui/switch';
+import { SwitchRow } from '@/game/switch-row';
+import { SettingsGrid } from '@/ui/settings-grid';
 
 /** Parent preferences and security: theme, language, reduced motion, passkeys and devices. */
 export function AccountScreen() {
@@ -32,14 +33,14 @@ export function AccountScreen() {
           />
         </Panel>
         <Panel title={t('appearance')} icon="sun">
-          <div className="flex flex-col gap-4">
+          <SettingsGrid>
             <Select
               label={t('theme')}
               value={theme}
               onValueChange={(v) => setTheme(v as ThemeChoice)}
               options={(['system', 'light', 'dark', 'hc'] as const).map((k) => ({ value: k, label: t(`themes.${k}`) }))}
             />
-            <Switch checked={reducedMotion} onCheckedChange={setReducedMotion} label={t('reducedMotion')} description={t('reducedMotionHint')} />
+            <SwitchRow checked={reducedMotion} onCheckedChange={setReducedMotion} label={t('reducedMotion')} description={t('reducedMotionHint')} />
             {(appConfig.features.tv || appConfig.features.kiosk) && (
               <Select
                 label={t('display')}
@@ -50,7 +51,7 @@ export function AccountScreen() {
                   .map((k) => ({ value: k, label: t(`displays.${k}`) }))}
               />
             )}
-          </div>
+          </SettingsGrid>
         </Panel>
         <AccountSecurity />
       </div>

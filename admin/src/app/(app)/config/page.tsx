@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useAct, useApi, useDraft } from '@/lib/hooks';
 import { useT } from '@/lib/i18n';
@@ -68,6 +69,22 @@ export default function ConfigPage() {
                   <Input label={t('config.daily_goal_default') + mark('daily_goal_default')} type="number" min={1} max={5} value={d.daily_goal_default ?? 1} onChange={(e) => patch({ daily_goal_default: Number(e.target.value) })} />
                   <Switch label={t('config.welcome_gift')} hint={t('config.welcome_gift_hint')} checked={!!d.welcome_gift} onChange={(v) => patch({ welcome_gift: v })} />
                 </div>
+              </Card>
+              <Card title={t('config.worlds_title')}>
+                <div className="grid gap-x-8 sm:grid-cols-2">
+                  <Switch label={t('config.grade_window') + mark('grade_window')} hint={t('config.grade_window_hint')} checked={d.grade_window !== false} onChange={(v) => patch({ grade_window: v })} />
+                  <Switch label={t('config.retry_enabled') + mark('retry_enabled')} checked={d.retry_enabled !== false} onChange={(v) => patch({ retry_enabled: v })} />
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <Input label={t('config.grade_prior_base') + mark('grade_prior_base')} type="number" min={0} max={0.6} step={0.05} value={d.grade_prior_base ?? 0.25} onChange={(e) => patch({ grade_prior_base: Number(e.target.value) })} />
+                  <Input label={t('config.grade_prior_step') + mark('grade_prior_step')} type="number" min={0} max={0.3} step={0.05} value={d.grade_prior_step ?? 0.15} onChange={(e) => patch({ grade_prior_step: Number(e.target.value) })} />
+                </div>
+                <p className="mt-3 text-sm text-muted">
+                  {t('config.default_worlds')}: {(d.default_worlds ?? []).join(', ') || '-'}. {t('config.ready_worlds')}: {(d.ready_worlds ?? []).join(', ') || '-'}.{' '}
+                  <Link href="/worlds" className="font-semibold text-brand hover:underline">
+                    {t('config.worlds_edit')}
+                  </Link>
+                </p>
               </Card>
               <Card title={t('config.features') + mark('features')}>
                 {Object.keys(d.features ?? {}).length === 0 && <p className="text-sm text-muted">{t('config.no_flags')}</p>}

@@ -9,6 +9,8 @@ export interface Subscription {
   renews_at?: string;
   trial_ends_at?: string;
   marked_by_admin?: boolean;
+  /** Admin grant; parents and children never see it. */
+  free_access?: { granted_by: string; granted_at: string; until: string | null; reason: string };
 }
 export interface Parent {
   id: string;
@@ -62,6 +64,18 @@ export interface PlatformConfig {
   features: Record<string, boolean>;
   daily_goal_default?: number;
   welcome_gift?: boolean;
+  default_worlds?: string[];
+  ready_worlds?: string[];
+  retry_enabled?: boolean;
+  grade_window?: boolean;
+  grade_prior_base?: number;
+  grade_prior_step?: number;
+}
+export interface AdminWorld {
+  id: string;
+  name?: string | Bi;
+  status?: string;
+  [k: string]: unknown;
 }
 /** Runtime config documents (server: internal/appconfig). */
 export interface CfgDoc<T> {
@@ -99,6 +113,7 @@ export interface FeedCfg {
   hidden_item_ids: string[];
   max_grade_stretch: number;
   family_board_visible: boolean;
+  home_sections?: { challenges?: boolean; discover?: boolean; daily_quest?: boolean };
 }
 export interface MaintenanceCfg {
   enabled: boolean;

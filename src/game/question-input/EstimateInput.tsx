@@ -35,7 +35,7 @@ export function EstimateInput({ question, phase, chosen, outcome, onSubmit }: In
           // A tap on the track sets the value at once
           if (value === null) setValue(Number((e.currentTarget as HTMLInputElement).value));
         }}
-        className="h-11 w-full cursor-pointer accent-brand disabled:opacity-60"
+        className="h-11 w-full cursor-pointer touch-pan-y accent-brand disabled:opacity-60"
       />
       <div className="flex justify-between text-sm text-muted" aria-hidden>
         <span>{nf.format(range.min)}</span>
