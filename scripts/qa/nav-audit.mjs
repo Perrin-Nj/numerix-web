@@ -214,6 +214,11 @@ async function worldFlow(browser, { grade, name, pin, worlds, size, questions })
       await page.waitForURL('**/play/session/*', { timeout: 20000 });
       for (let q = 0; q < questions; q++) {
         if (/\/done/.test(page.url())) return;
+        // A reward moment (new power, streak, card) sits between two questions: it has its own Continue and no input.
+        for (let i = 0; i < 4 && (await page.locator('#reward-title').count()); i++) {
+          await page.getByRole('button', { name: /^(continuer|terminer|suite)$/i }).first().click({ timeout: 6000 });
+          await page.waitForTimeout(400);
+        }
         const prev = page.getByRole('button', { name: /revoir la réponse précédente/i });
         await page.locator('main button[data-state=idle], [role=group][aria-label="Clavier numérique"], [role=group][aria-label="Cartes à placer"], ul[aria-label="Cartes de gauche"], [role=slider]').first().waitFor({ timeout: 20000 }).catch(async () => {
           throw new Error(`question ${q + 1}: no input on screen at ${page.url().replace(BASE, '')}: ${(await page.locator('main').innerText()).replace(/\s+/g, ' ').slice(0, 220)}`);
