@@ -18,11 +18,30 @@ export const BACKDROP_CAN: Record<string, readonly string[]> = {
   espace: ['station', 'clock', 'planet', 'sun', 'moon', 'star'],
 };
 
-export function Backdrop({ world, requires }: { world: string; requires: readonly string[] }) {
+export const ROOMS: Record<string, readonly string[]> = { echecs: ['club', 'hall', 'study'], medecine: ['clinic', 'waiting', 'pets', 'reception', 'cupboard', 'exam'], espace: ['control', 'cargo', 'greenhouse', 'surface'] };
+
+/** The room a question stands in: the words of its text first (chairs and tables: the tournament hall; a crate: the cargo bay), then its id for variety. */
+export function roomFor(world: string, text: string, id: string): string {
+  const list = ROOMS[world] ?? ROOMS.echecs!;
+  const t = text.toLowerCase();
+  if (world === 'echecs' && /chaise|chair|table|tournoi|tournament|joueur|player/.test(t)) return 'hall';
+  if (world === 'medecine' && /horloge|horaire|clock|attente|waiting/.test(t)) return 'waiting';
+  if (world === 'medecine' && /rendez-vous|appointment|registre|register|dossier|fiche|inscrit|visites?|visits?|carnet|notebook/.test(t)) return 'reception';
+  if (world === 'medecine' && /pansement|trousse|placard|bandage|first.aid|gants?|gloves?|stock|réserve|sacs?|bags?|boîtes?|boxes|box|rangement|livraison|delivery/.test(t)) return 'cupboard';
+  if (world === 'medecine' && /pèse|peser|balance|scale|masse|mass|dose|goutte|drops?|flacon|vial|température|temperature/.test(t)) return 'exam';
+  if (world === 'medecine' && /chien|chat|lapin|souris|dog|cat|rabbit|mouse|puppy|chiot|kitten/.test(t)) return 'pets';
+  if (world === 'espace' && /caisse|crate|cargo|fusée|rocket|colis|paquet/.test(t)) return 'cargo';
+  if (world === 'espace' && /panneau|panel|plante|plant|serre|greenhouse|jardin/.test(t)) return 'greenhouse';
+  if (world === 'espace' && /planète|planet|surface|mars|lune|moon/.test(t)) return 'surface';
+  const h = [...id].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 11);
+  return list[h % list.length]!;
+}
+
+export function Backdrop({ world, requires, room, seed, lean }: { world: string; requires: readonly string[]; room?: string; seed?: string; lean?: boolean }) {
   const sk = skinOf(world);
   const has = (o: string) => requires.includes(o);
   return (
-    <div className="wd-wall" style={{ '--w1': sk.wall[0], '--w2': sk.wall[1], '--tb': sk.table, '--fr': sk.frame } as CSSProperties} data-world={world}>
+    <div className="wd-wall" style={{ '--w1': sk.wall[0], '--w2': sk.wall[1], '--tb': sk.table, '--fr': sk.frame } as CSSProperties} data-world={world} data-room={room ?? ROOMS[world]?.[0]}>
       <i className="wd-win" />
       <i className="wd-shelf" />
       <i className="wd-table" />

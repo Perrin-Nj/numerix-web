@@ -1,0 +1,22 @@
+/* "n groups of m". Base style = settled picture. Each box is sized so n boxes of m items fill the stage on every aspect. */
+.gp-root { position: absolute; inset: 0; --bw: min(calc(88cqw / var(--per) - 2cqw), 40cqw); --bh: min(calc(60cqh / var(--lines) - 3cqh), calc(var(--bw) * 1.1)); --gb: #f4e3c8; --gl: #c99a5e; }
+.gp-root[data-world='medecine'] { --gb: #f2fbf8; --gl: #8ac7ba; }
+.gp-root[data-world='espace'] { --gb: #2a4084; --gl: #7ff0d0; }
+.gp-root[data-c='crate'] { --gb: #b98250; --gl: #6d4a33; }
+.gp-root[data-c='table'] { --gb: #d7a56f; --gl: #8d5f36; }
+.gp-grid { position: absolute; left: 4%; right: 4%; top: 16%; bottom: 18%; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 2cqh 2cqw; }
+.gp-box { position: relative; width: var(--bw); height: var(--bh); border-radius: 12% / 14%; background: linear-gradient(180deg, color-mix(in srgb, var(--gb) 82%, #fff), var(--gb)); box-shadow: inset 0 0 0 0.5cqh var(--gl), 0 1.6cqh 2cqh rgb(10 8 30 / 0.35); transform-origin: 50% 100%; animation: gp-in 0.7s linear calc(0.2s + var(--i, 0) * 0.14s) backwards; }
+.gp-root[data-c='table'] .gp-box { border-radius: 50% / 40%; }
+.gp-in { position: absolute; inset: 9%; display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-auto-rows: 1fr; gap: 3%; place-items: end center; }
+.gp-it { width: 100%; height: 100%; display: grid; place-items: end center; animation: gp-pop 0.5s linear calc(0.5s + var(--i, 0) * 0.14s + var(--j, 0) * 0.03s) backwards; }
+.gp-it .gl { width: 100%; height: 100%; display: block; overflow: visible; }
+.gp-tag { position: absolute; left: 50%; bottom: -3.2cqh; transform: translateX(-50%) scale(0); font: 800 min(4.4cqw, 6.4cqh) / 1 var(--font-display, system-ui); color: #fff; padding: 0.15em 0.6em; border-radius: 99px; background: rgb(20 24 50 / 0.82); box-shadow: 0 0 0 0.3cqh var(--gl); }
+.gp-total { position: absolute; left: 50%; bottom: 2%; translate: -50% 0; font: 800 min(9cqw, 13cqh) / 1 var(--font-display, system-ui); color: #fff; padding: 0.2em 0.6em; border-radius: 99px; background: rgb(20 24 50 / 0.82); box-shadow: 0 0 0 0.5cqh #4fe08a; animation: gp-total 0.7s var(--nx-spring) calc(var(--rv-base, 0s) + 1.6s) backwards; }
+@keyframes gp-in { 0% { transform: translateY(-40cqh) scale(0.9, 1.1); opacity: 0; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); } 20% { opacity: 1; } 65% { transform: scale(1.06, 0.94); } 100% { transform: none; } }
+@keyframes gp-pop { 0% { transform: scale(0); } 70% { transform: scale(1.15); } 100% { transform: none; } }
+@keyframes gp-total { from { transform: scale(0); } to { transform: none; } }
+.nx-stage[data-phase='ok'] .gp-box { animation: gp-cheer 0.9s linear calc(var(--rv-base, 0s) + 0.3s + var(--i, 0) * 0.3s) backwards; }
+@keyframes gp-cheer { 0%, 100% { transform: none; } 35% { transform: translateY(-2.5cqh) scale(0.97, 1.05); } 65% { transform: scale(1.04, 0.96); } }
+.nx-stage[data-phase='ko'] .gp-tag { animation: gp-count 1.1s var(--nx-spring) calc(var(--rv-base, 0s) + 0.4s + var(--i, 0) * 0.8s) backwards; transform: translateX(-50%) scale(1); }
+@keyframes gp-count { 0% { transform: translateX(-50%) scale(0); } 55% { transform: translateX(-50%) scale(1.4); } 100% { transform: translateX(-50%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .gp-box, .gp-it, .gp-total { animation: none; } .nx-stage[data-phase='ko'] .gp-tag { animation: none; } }

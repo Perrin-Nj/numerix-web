@@ -79,7 +79,7 @@
 
 .nx-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 
-.nx-replay { position: absolute; right: 6px; bottom: 6px; z-index: 6; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 9999px; border: 0; background: rgb(20 16 40 / 0.45); color: #fff; opacity: 0.8; cursor: pointer; }
+.nx-replay { position: absolute; right: 6px; top: 6px; z-index: 6; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 9999px; border: 0; background: rgb(20 16 40 / 0.45); color: #fff; opacity: 0.8; cursor: pointer; }
 .nx-replay:hover { opacity: 1; }
 .nx-replay:focus-visible { outline: 3px solid var(--focus-ring, #2d5bff); outline-offset: 2px; opacity: 1; }
 .nx-replay svg { width: 20px; height: 20px; }
@@ -129,3 +129,11 @@
 .nx-stage[data-reduced='true'] .nx-mote { display: none; }
 .nx-stage[data-reduced='true'] { animation: nx-still-in 150ms linear both; }
 @keyframes nx-still-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* the released answer on the picture of every scene: a check badge (true/false: the verdict) at the top left, delayed until the stage has settled */
+.nx-ans { position: absolute; left: 3%; bottom: 4%; z-index: 7; padding: 0.2em 0.7em; border-radius: 99px; font: 800 clamp(12px, 3.8vw, 17px) / 1.1 var(--font-display, system-ui); color: #fff; background: rgb(18 90 70 / 0.95); box-shadow: 0 0 0 2px #9bffd8, 0 4px 10px rgb(0 0 0 / 0.45), 0 0 14px rgb(120 255 200 / 0.5); pointer-events: none; animation: nx-ans-in 0.7s var(--nx-spring, ease-out) calc(var(--rv-base, 0s) + 1.4s) backwards; }
+.nx-ans[data-ans='false'] { background: rgb(120 50 40 / 0.95); box-shadow: 0 0 0 2px #ffb3a0, 0 4px 10px rgb(0 0 0 / 0.45); }
+@keyframes nx-ans-in { from { opacity: 0; transform: translateY(8px) scale(0.6); } to { opacity: 1; transform: none; } }
+
+/* the control-room clock fills the left of the frame down to its digital time: the badge sits in the free top-left corner there */
+.nx-stage[data-scene$='control-clock'] ~ .nx-ans, .nx-stage[data-scene$='clinic-clock'] ~ .nx-ans { bottom: auto; top: 4%; }

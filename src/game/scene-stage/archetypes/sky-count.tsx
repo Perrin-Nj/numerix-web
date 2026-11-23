@@ -18,7 +18,7 @@ export default function SkyCount({ scene }: ArchetypeProps) {
   return (
     <div className="sk-root" style={{ '--n': Math.max(groups.length, 1) } as CSSProperties}>
       <Layer z={-150} par={-0.8} drift="a">
-        <Backdrop world="espace" requires={scene.spec.requires ?? []} />
+        <Backdrop world="espace" requires={scene.spec.requires ?? []} room={scene.spec.room} />
       </Layer>
       <Layer z={0}>
         <GlyphDefs names={groups.map((g) => glyphName(g.id.replace(/-d+$/, ''), 'star'))} />

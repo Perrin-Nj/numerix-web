@@ -36,7 +36,7 @@ export function ClockFace() {
         const n = i === 0 ? 12 : i;
         const t = ((n * 30 - 90) * Math.PI) / 180;
         return (
-          <text key={n} x={Math.cos(t) * 62} y={Math.sin(t) * 62} textAnchor="middle" dominantBaseline="central" fontSize="25" fontWeight="800" fill="#14141a" style={{ fontFamily: 'var(--font-display, system-ui)' }}>
+          <text key={n} x={Math.cos(t) * 64} y={Math.sin(t) * 64} textAnchor="middle" dominantBaseline="central" fontSize="21" fontWeight="800" fill="#14141a" style={{ fontFamily: 'var(--font-display, system-ui)' }}>
             {n}
           </text>
         );
@@ -93,24 +93,35 @@ export function Drone() {
   );
 }
 
-/** A space station seen in the window: a long truss, two solar wings, a docking ring with lights (the dock lights turn green at a right answer). */
+/** A space station seen in the window: truss, four solar wings, a hub with a lit window, and a docking tube on the LEFT (the cargo rocket meets it). Its three dock lights turn green at a right answer. */
 export function Station() {
   return (
     <svg viewBox="0 0 120 70" className="st" aria-hidden>
-      <rect x="6" y="31" width="108" height="5" rx="2.5" fill="#aab4c6" />
-      <rect x="8" y="8" width="26" height="16" rx="2" fill="#2f5fb8" />
-      <rect x="8" y="46" width="26" height="16" rx="2" fill="#2f5fb8" />
-      <rect x="86" y="8" width="26" height="16" rx="2" fill="#2f5fb8" />
-      <rect x="86" y="46" width="26" height="16" rx="2" fill="#2f5fb8" />
-      <path d="M13 8v16M21 8v16M29 8v16M13 46v16M21 46v16M29 46v16M91 8v16M99 8v16M107 8v16M91 46v16M99 46v16M107 46v16" stroke="#9db8ec" strokeWidth=".8" />
-      <rect x="44" y="22" width="32" height="26" rx="9" fill="#eef1f7" />
-      <rect x="44" y="34" width="32" height="14" rx="7" fill="#c9d0e0" />
-      <circle cx="60" cy="35" r="7" fill="#27304f" />
-      <circle cx="60" cy="35" r="4" fill="#8ff5ff" opacity=".8" />
-      <rect x="74" y="28" width="8" height="14" rx="3" fill="#d7dcea" />
-      <circle className="st-dock" cx="80" cy="31" r="1.7" />
-      <circle className="st-dock" cx="80" cy="35" r="1.7" />
-      <circle className="st-dock" cx="80" cy="39" r="1.7" />
+      <defs>
+        <linearGradient id="st-hull" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#a9b4cc" />
+        </linearGradient>
+        <linearGradient id="st-sol" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#3a72d8" />
+          <stop offset="1" stopColor="#1f4aa3" />
+        </linearGradient>
+      </defs>
+      <rect x="26" y="33" width="86" height="4" rx="2" fill="#8a96ae" />
+      <rect x="40" y="6" width="26" height="18" rx="2" fill="url(#st-sol)" stroke="#9db8ec" strokeWidth=".6" />
+      <rect x="40" y="46" width="26" height="18" rx="2" fill="url(#st-sol)" stroke="#9db8ec" strokeWidth=".6" />
+      <rect x="86" y="6" width="26" height="18" rx="2" fill="url(#st-sol)" stroke="#9db8ec" strokeWidth=".6" />
+      <rect x="86" y="46" width="26" height="18" rx="2" fill="url(#st-sol)" stroke="#9db8ec" strokeWidth=".6" />
+      <path d="M46 6v18M52 6v18M58 6v18M46 46v18M52 46v18M58 46v18M92 6v18M98 6v18M104 6v18M92 46v18M98 46v18M104 46v18" stroke="#9db8ec" strokeWidth=".6" />
+      <rect x="62" y="20" width="26" height="30" rx="9" fill="url(#st-hull)" />
+      <rect x="62" y="38" width="26" height="12" rx="6" fill="#bcc5d9" />
+      <circle cx="75" cy="30" r="6" fill="#1b2142" />
+      <circle cx="75" cy="30" r="3.6" fill="#8ff5ff" opacity=".85" />
+      <rect x="30" y="29" width="34" height="12" rx="4" fill="url(#st-hull)" />
+      <rect x="26" y="27" width="6" height="16" rx="2.5" fill="#6c7791" />
+      <circle className="st-dock" cx="29" cy="31" r="1.5" />
+      <circle className="st-dock" cx="29" cy="35" r="1.5" />
+      <circle className="st-dock" cx="29" cy="39" r="1.5" />
     </svg>
   );
 }

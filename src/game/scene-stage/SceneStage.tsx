@@ -188,6 +188,11 @@ function StageInner({ spec, source, phase = 'question', tier: forced, className 
         {spec.hook.kind === 'light-sweep' && !reduced && <div aria-hidden key={`sw${run}`} className="nx-sweep" />}
         {live && <canvas ref={canvas} aria-hidden className="nx-fx" />}
       </div>
+      {scene.shown && (
+        <b aria-hidden className="nx-ans" data-ans={scene.shown.startsWith('@') ? scene.shown.slice(1) : 'value'}>
+          {scene.shown === '@true' ? <><svg viewBox="0 0 10 10" width="1em" height="1em" aria-hidden="true" style={{ verticalAlign: '-0.12em' }}><path d="M1.5 5.5l2.5 2.5 4.5-5.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg> {locale === 'fr' ? 'Vrai' : 'True'}</> : scene.shown === '@false' ? <><svg viewBox="0 0 10 10" width="1em" height="1em" aria-hidden="true" style={{ verticalAlign: '-0.12em' }}><path d="M2 2l6 6M8 2l-6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg> {locale === 'fr' ? 'Faux' : 'False'}</> : <><svg viewBox="0 0 10 10" width="1em" height="1em" aria-hidden="true" style={{ verticalAlign: '-0.12em' }}><path d="M1.5 5.5l2.5 2.5 4.5-5.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg> {scene.shown}</>}
+        </b>
+      )}
       {!reduced && (
         <button type="button" className="nx-replay" onClick={replay} aria-label={t('replay')} title={t('replay')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

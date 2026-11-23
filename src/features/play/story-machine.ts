@@ -45,6 +45,8 @@ export type StoryState = {
   lastReveal: LastReveal | null;
   outcome: Outcome | null;
   correctAnswer: AnswerValue | null;
+  /** Reveal part of the scene spec (answer-bound bindings), merged into the stage after the answer. */
+  sceneReveal: Record<string, unknown> | null;
   denouementText: string;
   denouementStatus: NarrationStatus;
   /** How-to picture for the last answer (right or wrong), when the backend sent one. */
@@ -75,6 +77,7 @@ export const initialStoryState: StoryState = {
   lastReveal: null,
   outcome: null,
   correctAnswer: null,
+  sceneReveal: null,
   denouementText: '',
   denouementStatus: 'pending',
   methodVisual: null,
@@ -137,6 +140,7 @@ export function storyReducer(s: StoryState, a: StoryAction): StoryState {
         retryHint: null,
         outcome: null,
         correctAnswer: null,
+        sceneReveal: null,
         denouementText: '',
         denouementStatus: 'pending',
         methodVisual: null,
@@ -189,6 +193,7 @@ export function storyReducer(s: StoryState, a: StoryAction): StoryState {
         session: a.result.session,
         outcome: a.result.outcome,
         correctAnswer: a.result.correct_answer ?? null,
+        sceneReveal: a.result.scene_reveal ?? null,
         attempt: a.result.attempt ?? s.attempt,
         denouementText: a.result.denouement.text ?? '',
         denouementStatus: a.result.denouement.status === 'ready' ? 'ready' : a.result.denouement.status === 'fallback' ? 'fallback' : 'pending',

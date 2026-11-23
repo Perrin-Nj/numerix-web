@@ -473,7 +473,7 @@ export function StoryScreen({ sessionId }: { sessionId: string }) {
   const coachText = latest ?? (showQuestion ? mascotLine : null);
 
   // Illustrated 3D scene (only questions that carry `scene`); null keeps the stage below unchanged
-  const sceneStage = sceneStageFor(q, outcomeStage ? (s.outcome === 'correct' ? 'ok' : 'ko') : 'question', s.correctAnswer, q?.visual ? <QuestionVisual visual={q.visual} /> : null);
+  const sceneStage = sceneStageFor(q, outcomeStage ? (s.outcome === 'correct' ? 'ok' : 'ko') : 'question', s.correctAnswer, q?.visual ? <QuestionVisual visual={q.visual} /> : null, false, undefined, s.sceneReveal);
 
   const kind = stageKind({ hasScene: Boolean(sceneStage), hasBeat: Boolean(s.beat), outcomeStage, showHow, hasMethodVisual: Boolean(s.methodVisual), hasVisual: Boolean(q?.visual), showCounting });
 

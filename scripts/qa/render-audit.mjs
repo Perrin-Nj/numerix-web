@@ -1,6 +1,6 @@
 // Render audit: draws every bank question of the three worlds like the play screen and saves screenshots + index.json + contact sheets.
 // Needs the dev route (web started with QA_RENDER_AUDIT=1) and an API serving /assets. See specs/001-three-worlds-premium/review/render-audit-harness.md
-// Usage: node scripts/qa/render-audit.mjs [--base http://localhost:3400] [--out ./qa-audit] [--only <id-or-prefix>] [--conc 4] [--no-sheets]
+// Usage: node scripts/qa/render-audit.mjs [--base http://localhost:3400] [--out C:/nx/audit] [--only <id-or-prefix>] [--conc 4] [--no-sheets]
 import { chromium } from 'playwright';
 import { mkdirSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -10,8 +10,8 @@ const BASE = arg('base', 'http://localhost:3400').replace(/\/$/, '');
 const OUT = arg('out', './qa-audit');
 const ONLY = arg('only', '');
 const CONC = Number(arg('conc', '4'));
-const VPS = [['phone', 390, 844], ['desktop', 1280, 800]];
-const PHASES = [['q', 'question', 1200], ['r', 'reveal', 2200]];
+const VPS = [['phone', 390, 844], ['desktop', 1280, 800]].filter(([n]) => !arg('vp', '') || n === arg('vp', ''));
+const PHASES = [['q', 'question', 1200], ['r', 'reveal', 4500]];
 
 const list = (await (await fetch(`${BASE}/dev/questions`)).json()).filter((q) => !ONLY || q.id.startsWith(ONLY));
 if (!list.length) throw new Error('no question matched (is the web running with QA_RENDER_AUDIT=1?)');
@@ -29,7 +29,7 @@ const probe = () => {
   const texts = [...st.querySelectorAll('svg text')].map((t) => t.textContent.trim()).filter(Boolean);
   const labels = [...st.querySelectorAll('[aria-label]')].map((e) => e.getAttribute('aria-label')).filter(Boolean);
   const innerText = st.innerText.replace(/\s+/g, ' ').trim();
-  return { imgs, texts, labels, innerText, svgs: st.querySelectorAll('svg').length, kind: document.querySelector('main')?.dataset.qaKind ?? null };
+  return { imgs, texts, labels, innerText, svgs: st.querySelectorAll('svg').length, kind: document.querySelector('main')?.dataset.qaKind ?? null, drawn: Boolean(st.querySelector('[data-scene]')) };
 };
 
 async function shoot(q, vp, [tag, phase, wait]) {
@@ -64,6 +64,7 @@ async function worker() {
         shots[`${vp}-${ph[0]}`] = r;
         if (r.error) fails.push(`${vp}-${ph[0]}: ${r.error}`);
         if (r.errs?.length) fails.push(`${vp}-${ph[0]}: page error ${r.errs[0]}`);
+        if (r.probe?.kind === 'scene' && !r.probe.drawn) fails.push(`${vp}-${ph[0]}: scene stage fell back to the photo`);
         if (r.probe?.imgs.some((i) => !i.ok)) fails.push(`${vp}-${ph[0]}: broken image in stage`);
       }
       const pq = shots['phone-q'].probe, pr = shots['phone-r'].probe;

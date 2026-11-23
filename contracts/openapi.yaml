@@ -2787,6 +2787,10 @@ components:
           type: array
           items: { $ref: '#/components/schemas/QuestionMedia' }
         hint_available: { type: boolean, description: 'True when POST .../hint will answer (BE-70)' }
+        scene:
+          type: [object, 'null']
+          additionalProperties: true
+          description: 'Question-phase part of the 3D scene spec (SceneSpec v1 without any answer-bound value). Sent only for a bank question whose scene was approved while platform.scenes_enabled is on; absent otherwise (old clients ignore it).'
     QuestionKind:
       type: string
       enum: [numeric, choice, truefalse, order, match, word, visual, estimate]
@@ -2912,6 +2916,10 @@ components:
         feedback:
           type: [string, 'null']
           description: 'Curated questions only: the kind message written for the matched common error, when there is one.'
+        scene_reveal:
+          type: [object, 'null']
+          additionalProperties: true
+          description: 'Reveal part of the scene spec (answer-bound and derived-wrong bindings, reveal label). Sent only with the released reveal (never in a withheld first result) and only when the question carries `scene`.'
         scene_key: { $ref: '#/components/schemas/SceneKey' }
         denouement: { $ref: '#/components/schemas/Narration' }
         session: { $ref: '#/components/schemas/Session' }

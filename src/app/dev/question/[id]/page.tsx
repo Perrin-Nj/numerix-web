@@ -12,5 +12,5 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const beat = qaBeat(decodeURIComponent(id));
   if (!beat) notFound();
   const { phase } = await searchParams;
-  return <QaQuestionClient beat={beat} phase={phase === 'reveal' ? 'reveal' : 'question'} />;
+  return <QaQuestionClient beat={beat} phase={phase === 'reveal' ? 'reveal' : 'question'} qaAll={process.env.QA_SCENES_ALL === '1'} />;
 }
