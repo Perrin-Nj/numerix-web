@@ -8,3 +8,10 @@ describe('sceneStageFor with NEXT_PUBLIC_FEATURE_SCENES off (default)', () => {
     expect(sceneStageFor(q, 'question', 1, null)).toBeNull();
   });
 });
+
+describe('sceneStageFor without a scene', () => {
+  it('returns null when the question has no scene (flag state irrelevant)', () => {
+    expect(sceneStageFor({ story: 's', prompt: 'p' } as unknown as Question, 'question', 1, null)).toBeNull();
+    expect(sceneStageFor(undefined, 'question', 1, null)).toBeNull();
+  });
+});

@@ -141,6 +141,8 @@ export function StoryPanel({
             'h-[clamp(5rem,min(var(--stage-pref),var(--stage-max,100svh)),28rem)] w-full',
             visualStage ? '[--stage-pref:34svh]' : compactStage ? '[--stage-pref:20svh]' : mediumStage ? '[--stage-pref:28svh]' : '[--stage-pref:38svh]',
             'split:aspect-[4/3] split:h-auto short:max-h-[calc(100svh-5rem)]',
+            // the answer sheet takes the bottom of a phone: a lower stage leaves the outcome card room to show its whole text
+            sheet && '[--stage-max:27svh]',
           )}
         >
           {illustration}

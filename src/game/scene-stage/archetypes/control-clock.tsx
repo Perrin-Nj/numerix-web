@@ -1,10 +1,12 @@
 'use client';
 import type { CSSProperties } from 'react';
 import { Layer } from '../Layer';
-import { ClockFace, Drone, Hand, Rocket, Station } from '../kit/espace';
+import { ClockFace, Drone, Hand, Rocket } from '../kit/espace';
+import { BigStation, Crew } from '../worlds/espace/kit';
 import { Glyph, GlyphDefs } from '../kit/glyphs';
 import { Motes, Sprite } from '../kit/Sprite';
 import type { ArchetypeProps } from '../registry';
+import '../worlds/espace/espace.css';
 import './control-clock.css';
 
 /**
@@ -14,8 +16,10 @@ import './control-clock.css';
  * Gentle miss: the hands dim, the long hand pulses, then the short one is ringed, with two tag icons (short bar, long bar) pulsing in turn.
  */
 export default function ControlClock({ scene }: ArchetypeProps) {
-  const hour = scene.values.hour;
-  const minute = scene.values.minute ?? 0;
+  // a question asking the finishing time moves the hour hand to it at the reveal (values.endHour is answer-bound)
+  const hour = (scene.revealed ? scene.values.endHour : undefined) ?? scene.values.hour;
+  const spanEnd = scene.revealed ? scene.values.spanEnd : undefined; // a meeting that ends at a stated hour: the reveal shows start to end
+  const minute = scene.revealed && scene.values.endHour !== undefined ? 0 : (scene.values.minute ?? 0);
   if (hour === undefined) throw new Error('espace.control-clock needs an hour');
   const hourA = ((hour % 12) + minute / 60) * 30;
   const minA = minute * 6;
@@ -24,6 +28,7 @@ export default function ControlClock({ scene }: ArchetypeProps) {
   // the window view comes from the scene setting: a cargo rocket approaching or docked at the station (night control room), or the pad by day
   const view = scene.spec.archetype === 'medecine.clinic-clock' ? 'clinic' : /approach/.test(scene.spec.setting) ? 'approach' : /dock/.test(scene.spec.setting) ? 'docked' : 'pad';
   const space = view === 'approach' || view === 'docked';
+  const rockets = Math.max(1, Math.min(6, scene.props.rockets?.count ?? 1));
   return (
     <div className="ck-root" data-view={view}>
       <Layer z={-170} par={-1} drift="a">
@@ -31,7 +36,7 @@ export default function ControlClock({ scene }: ArchetypeProps) {
           {space ? (
             <>
               <i className="ck-planet" />
-              <Station />
+              <BigStation />
             </>
           ) : (
             <>
@@ -60,10 +65,14 @@ export default function ControlClock({ scene }: ArchetypeProps) {
                   <div className="nx-float"><Glyph g="dog" /></div>
                 </div>
               ) : (
-              <div className="ck-rocket-wrap nx-anim">
-                <Rocket />
-                <i className="ck-flame" />
-              </div>
+              <>
+                {Array.from({ length: rockets }, (_, k) => (
+                  <div key={k} className="ck-rocket-wrap nx-anim" style={{ '--rk': k, '--rn': rockets } as CSSProperties}>
+                    <Rocket />
+                    <i className="ck-flame" />
+                  </div>
+                ))}
+              </>
               )}
               {[0, 1, 2, 3, 4].map((k) => (
                 <i key={k} className="ck-puff nx-anim" style={{ '--k': k } as CSSProperties} />
@@ -79,6 +88,13 @@ export default function ControlClock({ scene }: ArchetypeProps) {
       </Layer>
       <Layer z={-60} par={-0.35}>
         <div className="ck-wall" />
+        <GlyphDefs names={[view === 'clinic' ? 'cat' : 'astronaut']} />
+        <div className="ck-radar nx-anim" aria-hidden><i /></div>
+        <div className="ck-monitors" aria-hidden>
+          {[0, 1, 2].map((k) => (
+            <i key={k} className="nx-twinkle" style={{ '--d': `${k * 1.3}s` } as CSSProperties} />
+          ))}
+        </div>
         <div className="ck-frame" />
         <div className="ck-console">
           {[0, 1, 2, 3, 4, 5].map((k) => (
@@ -87,7 +103,7 @@ export default function ControlClock({ scene }: ArchetypeProps) {
         </div>
       </Layer>
       <Layer z={0}>
-        <Sprite x={-14} y={-1} w={36}>
+        <Sprite x={-20} y={-1} w={36}>
           <div className="nx-shadow ck-shadow" />
           <div className="ck-clock">
             <ClockFace />
@@ -98,11 +114,14 @@ export default function ControlClock({ scene }: ArchetypeProps) {
             <Hand kind="hour" angle={hourA} />
             <Hand kind="min" angle={minA} />
             <i className="ck-cap" />
-            <div className="ck-tag ck-tag-a mv-pulse" style={{ '--i': 0 } as CSSProperties}>
-              <b />
-            </div>
-            <div className="ck-tag ck-tag-b mv-pulse" style={{ '--i': 1 } as CSSProperties}>
-              <b />
+            {scene.revealed && <b className="ck-digital">{hour}:{String(minute).padStart(2, '0')}{spanEnd !== undefined ? ` → ${spanEnd}:00` : ''}</b>}
+          </div>
+        </Sprite>
+        <Sprite x={32} y={23.5} w={11} anchor="feet" className="ck-crew-sprite">
+          <div className="ck-crew nx-anim">
+            <div className="nx-shadow ck-crew-shadow" />
+            <div className="ck-crew-in nx-float">
+              {view === 'clinic' ? <Glyph g="cat" i={1} /> : <Crew i={1} className="ck-crew-fig" />}
             </div>
           </div>
         </Sprite>

@@ -1,6 +1,9 @@
 /* espace.control-clock: huge wall clock, window with rocket, steam and a supply drone. Base style = settled picture.
    Window geometry (art units from the stage centre): left +6, top -27, width 40, height 46. The clock overlaps its left edge. */
-.ck-root { position: absolute; inset: 0; --hs: 52; --wf: 1.12; --u: min(calc(var(--wf, 1) * 1cqw), calc(100cqh / var(--hs))); --wl: calc(50% + var(--u) * 6 * var(--sx, 1)); --wt: calc(50% - var(--u) * 27); --ww: calc(var(--u) * 40); --wh: calc(var(--u) * 46); }
+.ck-root { position: absolute; inset: 0; --hs: 52; --wf: 1.12; --u: min(calc(var(--wf, 1) * 1cqw), calc(100cqh / var(--hs))); --ux: max(var(--u), 0.9cqw); --wl: calc(50% + var(--ux) * 0.5); --wt: calc(50% - var(--u) * 27); --ww: calc(var(--ux) * 40); --wh: calc(var(--u) * 46); }
+/* horizontal unit: equal to --u on phones and tablets (the picture spans -42 to +46 percent of the width, nothing clipped at 360 px); on wide TV stages,
+   where --u is bound by the height, positions and the window spread with the width so the room fills about 85 percent of it */
+.ck-root .nx-sprite { left: calc(50% + var(--x, 0) * var(--ux)); }
 
 /* Far lane: the morning scenery inside the window, static */
 .ck-sky { position: absolute; left: var(--wl); top: var(--wt); width: var(--ww); height: var(--wh); overflow: hidden; background: linear-gradient(180deg, #8fc6ee 0%, #cfe6f4 52%, #ffe2bd 100%); }
@@ -106,14 +109,14 @@
 /* View "approach" and "docked": a night control room, the window shows the station and a cargo rocket (brief horloge.106). The rocket lies sideways, nose to the right. */
 .ck-root[data-view='approach'] .ck-sky, .ck-root[data-view='docked'] .ck-sky { background: radial-gradient(120% 90% at 20% 100%, #1d3a7a 0%, #0c1633 55%, #060a1c 100%); }
 .ck-planet { position: absolute; left: -30%; bottom: -46%; width: 90%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 70% 20%, #7fd0ff 0%, #2f78c8 38%, #12306b 70%); box-shadow: 0 0 calc(var(--u) * 3) rgb(120 200 255 / 0.5); }
-.st { position: absolute; right: 16%; top: 18%; width: 46%; height: auto; display: block; }
+.st { position: absolute; left: 34%; top: 22%; width: 62%; height: auto; display: block; }
 .st-dock { fill: #ffb21c; animation: ck-blink 1.4s steps(2, jump-none) infinite; }
 .st-dock:nth-of-type(2) { animation-delay: 0.45s; }
 .st-dock:nth-of-type(3) { animation-delay: 0.9s; }
 @keyframes ck-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.25; } }
-.ck-cargo { position: absolute; left: 4%; top: 36%; width: calc(var(--u) * 9); transform-origin: 50% 50%; rotate: 90deg; animation: ck-approach 3.2s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s backwards; }
-.ck-root[data-view='approach'] .ck-cargo { translate: calc(var(--u) * 8) calc(var(--u) * -1); }
-.ck-root[data-view='docked'] .ck-cargo { translate: calc(var(--u) * 14) calc(var(--u) * -3); }
+.ck-cargo { position: absolute; left: 21.5%; top: 21.5%; width: calc(var(--u) * 6); transform-origin: 50% 50%; rotate: 90deg; animation: ck-approach 3.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s backwards; }
+.ck-root[data-view='approach'] .ck-cargo { translate: calc(var(--u) * -7) 0; animation: ck-approach 3.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s backwards, ck-creep 6s var(--nx-ease-io) 3.8s infinite alternate; }
+.ck-root[data-view='docked'] .ck-cargo { translate: 0 0; animation: ck-approach 2s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s backwards; }
 .ck-cargo .rk { display: block; width: 100%; height: auto; }
 .ck-thrust { top: 92%; opacity: 0.85; }
 .ck-root[data-view='docked'] .ck-thrust { opacity: 0; }
@@ -124,7 +127,7 @@
 .ck-root[data-view='approach'] .ck-frame, .ck-root[data-view='docked'] .ck-frame { border-color: #6f86b8; box-shadow: 0 0 calc(var(--u) * 3) rgb(90 220 255 / 0.35); }
 /* Right: the rocket glides in and docks, dock lights turn green. Gentle miss: the long hand pulses (from check-hands). */
 .nx-stage[data-phase='ok'] .st-dock { fill: #4fe08a; animation: none; opacity: 1; }
-.nx-stage[data-phase='ok'] .ck-root[data-view='approach'] .ck-cargo, .ck-root[data-view='approach'] .nx-stage[data-phase='ok'] .ck-cargo { translate: calc(var(--u) * 14) calc(var(--u) * -3); transition: translate 1.8s cubic-bezier(0.3, 0.8, 0.3, 1) var(--rv-base, 0s); }
+.nx-stage[data-phase='ok'] .ck-root[data-view='approach'] .ck-cargo { translate: 0 0; animation: none; transition: translate 1.7s cubic-bezier(0.3, 0.8, 0.3, 1) var(--rv-base, 0s); }
 @media (prefers-reduced-motion: reduce) { .ck-cargo, .st-dock { animation: none; } }
 
 /* View clinic: the same wall clock in the clinic waiting room, a dog on the sill. */
@@ -133,3 +136,42 @@
 .ck-root[data-view='clinic'] .ck-console { background: linear-gradient(180deg, #8ac7ba, #5fa89a); }
 .ck-pet { position: absolute; left: 52%; bottom: 10%; width: calc(var(--u) * 11); }
 .ck-pet .gl { display: block; width: 100%; height: auto; }
+
+@keyframes ck-creep { from { transform: translateY(0); } to { transform: translateY(calc(var(--u) * 1.4)); } }
+/* the rocket moves along its own axis: keyframes use the rotated frame (local +y is screen left) */
+@keyframes ck-approach { from { transform: translateY(calc(var(--u) * 24)); animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1); } to { transform: none; } }
+/* dock clamp flash and chime at a right answer */
+.nx-stage[data-phase='ok'] .ck-root[data-view='approach'] .st-dock, .nx-stage[data-phase='ok'] .ck-root[data-view='docked'] .st-dock { fill: #4fe08a; animation: none; }
+.nx-stage[data-phase='ok'] .ck-root[data-view='approach'] .ck-thrust { opacity: 0; transition: opacity 0.4s linear calc(var(--rv-base, 0s) + 1.6s); }
+/* Pad view with several rockets: exactly the bound count, side by side on the pad */
+.ck-root[data-view='pad'] .ck-rocket-wrap { left: calc(12% + var(--rk, 0) * (52% / var(--rn, 1))); width: calc(var(--u) * 9 / max(1, var(--rn) * 0.55)); }
+/* Readable answer chip: digital time on the clock plate at the reveal (instead of unreadable tiles) */
+.ck-digital { position: absolute; left: 50%; bottom: -14%; translate: -50% 0; font: 800 calc(var(--u) * 4.6) / 1 var(--font-display, system-ui); letter-spacing: 0.06em; color: #fff; padding: 0.18em 0.6em; border-radius: 99px; background: rgb(14 20 46 / 0.88); box-shadow: 0 0 0 calc(var(--u) * 0.35) #ffc83d; animation: ck-pop 0.7s linear calc(var(--rv-base, 0s) + 0.5s) backwards; }
+/* Room life: radar with a sweeping beam, monitors, a crew member who reacts (waves at a right answer, tilts the head at a miss) */
+.ck-radar { position: absolute; left: 3%; top: calc(50% - var(--u) * 6); width: calc(var(--u) * 15); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgb(60 220 255 / 0.08) 0 30%, transparent 31%), repeating-radial-gradient(circle, transparent 0 22%, rgb(120 230 255 / 0.35) 22.5% 24%), #0b1d3c; box-shadow: 0 0 0 calc(var(--u) * 0.6) #6f86b8, 0 0 calc(var(--u) * 3) rgb(90 220 255 / 0.4); overflow: hidden; }
+.ck-radar i { position: absolute; inset: 0; background: conic-gradient(from 0deg, rgb(120 240 255 / 0) 0 75%, rgb(120 240 255 / 0.55) 100%); animation: ck-sweep 4.2s linear infinite; }
+@keyframes ck-sweep { to { rotate: 360deg; } }
+.ck-monitors { position: absolute; right: 2%; top: calc(50% - var(--u) * 4); display: grid; gap: calc(var(--u) * 1.2); }
+.ck-monitors i { display: block; width: calc(var(--u) * 11); height: calc(var(--u) * 6); border-radius: calc(var(--u) * 0.8); background: linear-gradient(135deg, #123a63, #0b1d3c); box-shadow: 0 0 0 calc(var(--u) * 0.5) #6f86b8, inset 0 calc(var(--u) * -2) 0 rgb(90 230 255 / 0.25); }
+.ck-crew { width: 100%; transform-origin: 50% 100%; }
+.ck-crew-in .gl { width: 100%; height: auto; display: block; }
+.ck-crew-shadow { left: 50%; bottom: calc(var(--u) * -0.8); width: 90%; height: calc(var(--u) * 2); translate: -50% 50%; }
+.nx-stage[data-phase='ok'] .ck-crew { animation: ck-wave 1.1s linear calc(var(--rv-base, 0s) + 0.4s) 2 backwards; }
+@keyframes ck-wave { 0%, 100% { transform: none; } 30% { transform: translateY(calc(var(--u) * -2.4)) rotate(-6deg) scale(0.95, 1.08); } 60% { transform: rotate(6deg) scale(1.08, 0.94); } }
+.nx-stage[data-phase='ko'] .ck-crew { rotate: -8deg; transition: rotate 0.6s var(--nx-spring) 0.4s; }
+@media (prefers-reduced-motion: reduce) { .ck-radar i, .ck-crew, .ck-cargo { animation: none; } }
+
+/* the glint must not grey the numerals: a faint band, behind the digits' contrast budget */
+.ck-gloss::after { background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.16), transparent); }
+
+@container stage (max-aspect-ratio: 9 / 5) { .ck-radar, .ck-monitors { display: none; } }
+
+/* round 5: the detailed station (worlds/espace/kit BigStation) sits where the old one did, its dock on the same spot; the crew member has a face and reacts like the others */
+.ck-root .bs { position: absolute; left: 40.3%; top: 24%; width: 55%; height: auto; display: block; }
+.ck-crew-fig { display: block; width: 100%; height: auto; }
+.nx-stage[data-phase='ok'] .ck-crew .cr-eyes, .nx-stage[data-phase='ok'] .ck-crew .cr-hm { opacity: 0; }
+.nx-stage[data-phase='ok'] .ck-crew .cr-glad, .nx-stage[data-phase='ok'] .ck-crew .cr-smile { opacity: 1; }
+.nx-stage[data-phase='ko'] .ck-crew .cr-brow { opacity: 1; }
+
+.ck-hand { transition: rotate 1.4s var(--nx-ease-io, ease-in-out) 0.4s; }
+.ck-digital { white-space: nowrap; }

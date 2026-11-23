@@ -3,10 +3,16 @@
 import { MAX_PROPS, GROUPING_ARCHETYPES, signatureOf, type BindSource, type Cell, type ResolvedProp, type ResolvedScene, type SceneSource, type SceneSpec } from './spec';
 
 const WORDS: Record<string, number> = { deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6, sept: 7, huit: 8, neuf: 9, dix: 10, onze: 11, douze: 12, two: 2, three: 3, four: 4, five: 5, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 };
-const NUM_RE = new RegExp(String.raw`\d+(?:[.,]\d+)?|\b(?:` + Object.keys(WORDS).join('|') + String.raw`)\b`, 'gi');
+const NUM_RE = new RegExp(String.raw`\d{1,3}(?:[   ]\d{3})+(?!\d)|\d{1,3}(?:,\d{3})+(?!\d)|\d+(?:[.,]\d+)?|\b(?:` + Object.keys(WORDS).join('|') + String.raw`)\b`, 'gi');
+/** "6 479" and "6,479" are one number (a thousands group of exactly three digits); "1,5" stays a decimal. */
+const num = (t: string) => (/^\d{1,3}(?:[   ]\d{3})+$/.test(t) || /^\d{1,3}(?:,\d{3})+$/.test(t) ? Number(t.replace(/[   ,]/g, '')) : Number(t.replace(',', '.')));
 /** All numbers in a text, in reading order: digits and the spelled numbers 2 to 12 ("Trois fusées" is 3; "un" and "one" stay articles). A thousands gap ("1 000") is not joined. */
+/** Same scan with text positions, so a router can read the words around a number ("4 packs of 10 stars"). */
+export function numbersWithPos(text: string): { n: number; start: number; end: number }[] {
+  return [...text.matchAll(NUM_RE)].map((m) => ({ n: WORDS[m[0].toLowerCase()] ?? num(m[0]), start: m.index!, end: m.index! + m[0].length }));
+}
 export function numbersIn(text: string | undefined | null): number[] {
-  return (text?.match(NUM_RE) ?? []).map((n) => WORDS[n.toLowerCase()] ?? Number(n.replace(',', '.')));
+  return (text?.match(NUM_RE) ?? []).map((n) => WORDS[n.toLowerCase()] ?? num(n));
 }
 
 function pointer(root: unknown, ptr: string): unknown {
@@ -16,7 +22,8 @@ function pointer(root: unknown, ptr: string): unknown {
 function readNumber(b: BindSource, src: SceneSource): number | undefined {
   switch (b.from) {
     case 'text':
-      return numbersIn(`${src.story} ${src.prompt}`)[b.index];
+      // digits: only written digits count ("day two, 7" reads 7 in both languages; the spelled day is not a value)
+      return b.digits ? (`${src.story} ${src.prompt}`.match(/\d+/g) ?? []).map(Number)[b.index] : numbersIn(`${src.story} ${src.prompt}`)[b.index];
     case 'calc':
       return numbersIn(src.calc)[b.index];
     case 'math_text':
@@ -85,7 +92,7 @@ export function resolveScene(spec: SceneSpec, src: SceneSource, opts: { reveal?:
     }
     props[p.id] = { id: p.id, count, cells, lane: p.lane, layout: p.layout };
   }
-  return { spec, values, props, visual: src.visual ?? undefined, revealed: reveal, signature: signatureOf(spec) };
+  return { spec, values, props, visual: src.visual ?? undefined, revealed: reveal, answerText: reveal && typeof src.correctAnswer === 'string' ? src.correctAnswer : undefined, shown: reveal ? src.shown : undefined, signature: signatureOf(spec) };
 }
 
 /** Tens and ones for archetypes that group above the cap (a rod of ten is drawn with its number). */

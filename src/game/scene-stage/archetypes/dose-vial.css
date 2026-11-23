@@ -1,5 +1,5 @@
 /* medecine.dose-vial. Base style = settled picture. Compositor-only animation on small promoted boxes; the far lane is static except the curtain. */
-.dv-root { position: absolute; inset: 0; --hs: 54; --wf: 1.15; --u: min(calc(var(--wf, 1) * 1cqw), calc(100cqh / var(--hs))); --mood-delay: calc(var(--rv-base, 0s) + 0.95s + var(--left, 0) * 0.42s + 0.25s); }
+.dv-root { position: absolute; inset: 0; --hs: 54; --wf: 1.15; --u: min(calc(var(--wf, 1) * 1cqw), calc(100cqh / var(--hs))); --mood-delay: calc(var(--rv-base, 0s) + 0.95s + var(--left, 0) * var(--step, 0.42s) + 0.25s); }
 
 /* Clinic: pale mint wall, ceiling lamp glow, a window with a curtain that sways once every few seconds, a shelf, a counter. Atmospheric, no blur. */
 .dv-wall { position: absolute; inset: -6%; background: linear-gradient(180deg, #c9e8de 0%, #f1e4dc 62%, #f6e9e2 100%); }
@@ -26,8 +26,8 @@
 @keyframes dv-settle { 0% { transform: translateY(calc(var(--u) * 1)) scale(1.04, 0.94); opacity: 0; animation-timing-function: var(--nx-ease-out); } 100% { transform: none; opacity: 1; } }
 
 /* The jar: 5 columns, marks at every row, filled from the bottom */
-.dv-jar { position: relative; width: 100%; display: grid; grid-template-columns: repeat(5, var(--cell)) calc(var(--u) * 1.6) calc(var(--u) * 3.4); grid-template-rows: repeat(var(--rows), var(--cell)); padding: calc(var(--u) * 3) 0 calc(var(--u) * 1.6) calc(var(--u) * 1.6); }
-.dv-glass { position: absolute; left: 0; top: calc(var(--u) * 1.4); bottom: 0; width: calc(var(--u) * 26.2); border: calc(var(--u) * 0.3) solid rgb(255 255 255 / 0.9); border-radius: calc(var(--u) * 1.6) calc(var(--u) * 1.6) calc(var(--u) * 2) calc(var(--u) * 2); background: linear-gradient(100deg, rgb(255 255 255 / 0.55), rgb(210 240 245 / 0.28) 55%, rgb(255 255 255 / 0.5)); box-shadow: 0 calc(var(--u) * 0.6) calc(var(--u) * 1.6) rgb(40 100 110 / 0.25), inset 0 0 calc(var(--u) * 1.2) rgb(255 255 255 / 0.6); }
+.dv-jar { position: relative; width: 100%; display: grid; grid-template-columns: repeat(var(--cols), var(--cell)) calc(var(--u) * 1.6) calc(var(--u) * 3.4); grid-template-rows: repeat(var(--rows), var(--cell)); padding: calc(var(--u) * 3) 0 calc(var(--u) * 1.6) calc(var(--u) * 1.6); }
+.dv-glass { position: absolute; left: 0; top: calc(var(--u) * 1.4); bottom: 0; width: var(--glassw); border: calc(var(--u) * 0.3) solid rgb(255 255 255 / 0.9); border-radius: calc(var(--u) * 1.6) calc(var(--u) * 1.6) calc(var(--u) * 2) calc(var(--u) * 2); background: linear-gradient(100deg, rgb(255 255 255 / 0.55), rgb(210 240 245 / 0.28) 55%, rgb(255 255 255 / 0.5)); box-shadow: 0 calc(var(--u) * 0.6) calc(var(--u) * 1.6) rgb(40 100 110 / 0.25), inset 0 0 calc(var(--u) * 1.2) rgb(255 255 255 / 0.6); }
 .dv-glass::before { content: ''; position: absolute; left: 14%; right: 14%; top: calc(var(--u) * -1.4); height: calc(var(--u) * 1.6); background: #7fd0c7; border-radius: calc(var(--u) * 0.6); }
 .dv-slot { display: block; padding: 7%; min-width: 0; }
 .dv-guide { display: block; margin: 16%; border: calc(var(--u) * 0.22) dashed rgb(70 140 160 / 0.5); border-radius: 50%; opacity: 0.55; }
@@ -36,7 +36,7 @@
 .dv-mark::before { content: ''; width: calc(var(--u) * 1.1); height: calc(var(--u) * 0.25); background: #2f7686; border-radius: 1px; }
 
 /* Entrance: the given drops settle into the vial bottom-up with a small bounce */
-.dv-taken .md-drop { transform-origin: 50% 100%; animation: dv-pop 0.55s linear calc(0.4s + var(--n) * 0.045s) backwards; }
+.dv-taken .md-drop, .dv-taken > .gl, .dv-taken > .dv-bead { transform-origin: 50% 100%; animation: dv-pop 0.55s linear calc(0.4s + var(--n) * 0.045s) backwards; }
 @keyframes dv-pop {
   0% { transform: scale(0); animation-timing-function: cubic-bezier(0.3, 1.6, 0.5, 1); }
   60% { transform: scale(1.2, 0.85); animation-timing-function: ease-in-out; }
@@ -46,9 +46,9 @@
 /* Reveal: the missing drops are gold and carry their count. Base state: in place. Each falls straight down its own column while the dropper is above it. */
 .dv-add { opacity: 0; }
 .nx-stage[data-phase='ok'] .dv-add { opacity: 1; }
-.dv-add .md-drop { transform-origin: 50% 100%; }
-.nx-stage[data-phase='ok'] .dv-add .md-drop { animation: dv-fall 0.5s linear calc(var(--rv-base, 0s) + 0.95s + var(--n) * 0.42s) backwards, dv-regroup 0.9s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.95s + var(--left, 0) * 0.42s + 0.3s) backwards; }
-.dv-add { animation: dv-appear 0.01s linear calc(var(--rv-base, 0s) + 0.9s + var(--n) * 0.42s) backwards; }
+.dv-add .md-drop, .dv-add > .gl, .dv-add > .dv-bead { transform-origin: 50% 100%; }
+.nx-stage[data-phase='ok'] .dv-add .md-drop, .nx-stage[data-phase='ok'] .dv-add > .gl, .nx-stage[data-phase='ok'] .dv-add > .dv-bead { animation: dv-fall 0.5s linear calc(var(--rv-base, 0s) + 0.95s + var(--n) * var(--step, 0.42s)) backwards, dv-regroup 0.9s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.95s + var(--left, 0) * var(--step, 0.42s) + 0.3s) backwards; }
+.dv-add { animation: dv-appear 0.01s linear calc(var(--rv-base, 0s) + 0.9s + var(--n) * var(--step, 0.42s)) backwards; }
 @keyframes dv-appear { from { opacity: 0; } to { opacity: 0; } }
 @keyframes dv-fall {
   0% { transform: translateY(var(--fall)) scale(0.55, 0.8); opacity: 0; animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.55); }
@@ -62,9 +62,9 @@
 @keyframes dv-regroup { 0%, 100% { transform: none; } 40% { transform: translateY(calc(var(--u) * -0.7)) scale(1.1); } }
 
 /* The count */
-.dv-badge { position: absolute; left: calc(var(--u) * 24.2); top: calc(var(--u) * 6); width: calc(var(--u) * 6.4); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font: 800 calc(var(--u) * 4.2) / 1 var(--font-display, system-ui); color: #5a3200; background: radial-gradient(circle at 35% 30%, #fff3c4, #f2b134); box-shadow: 0 0 0 calc(var(--u) * 0.3) #fff6d8, 0 calc(var(--u) * 0.5) calc(var(--u) * 1.2) rgb(120 70 0 / 0.3); opacity: 0; }
+.dv-badge { position: absolute; left: calc(var(--glassw) - var(--u) * 2); top: calc(var(--u) * 6); width: calc(var(--u) * 6.4); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font: 800 calc(var(--u) * 4.2) / 1 var(--font-display, system-ui); color: #5a3200; background: radial-gradient(circle at 35% 30%, #fff3c4, #f2b134); box-shadow: 0 0 0 calc(var(--u) * 0.3) #fff6d8, 0 calc(var(--u) * 0.5) calc(var(--u) * 1.2) rgb(120 70 0 / 0.3); opacity: 0; }
 .nx-stage[data-phase='ok'] .dv-badge { opacity: 1; }
-.nx-stage[data-phase='ok'] .dv-badge { animation: dv-bpop 0.8s linear calc(var(--rv-base, 0s) + 0.95s + var(--n) * 0.42s + 0.3s) backwards; }
+.nx-stage[data-phase='ok'] .dv-badge { animation: dv-bpop 0.8s linear calc(var(--rv-base, 0s) + 0.95s + var(--n) * var(--step, 0.42s) + 0.3s) backwards; }
 @keyframes dv-bpop { 0% { transform: scale(0); animation-timing-function: cubic-bezier(0.3, 1.5, 0.5, 1); } 62% { transform: scale(1.25); animation-timing-function: ease-in-out; } 100% { transform: none; } }
 
 /* Dropper: tilts, floats (nx-float), squeezes its bulb once per release, anticipation lift before the first */
@@ -80,7 +80,7 @@
 .nx-stage[data-phase='ok'] .dv-cloud, .nx-stage[data-phase='ko'] .dv-cloud { opacity: 0; transition: opacity 0.5s linear 0.2s; animation: none; }
 
 /* Right: the puppy takes the dose, then two happy hops (crouch, stretch, squash), tail going (medecine.css) */
-.nx-stage[data-phase='ok'] .dv-puppy { animation: dv-hop 1.5s linear calc(var(--rv-base, 0s) + 0.95s + var(--left, 0) * 0.42s + 0.35s) backwards; }
+.nx-stage[data-phase='ok'] .dv-puppy { animation: dv-hop 1.5s linear calc(var(--rv-base, 0s) + 0.95s + var(--left, 0) * var(--step, 0.42s) + 0.35s) backwards; }
 @keyframes dv-hop {
   0% { transform: none; animation-timing-function: ease-out; }
   10% { transform: scale(1.06, 0.9); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
@@ -105,3 +105,18 @@
 .dv-dropper-move { position: absolute; left: calc(var(--u) * var(--dx)); bottom: calc(100% + var(--u) * 1.2); width: calc(var(--u) * 6.2); }
 .dv-cloud-wrap { position: absolute; left: 22%; bottom: 92%; width: 74%; }
 .dv-ghost-wrap { position: absolute; left: 100%; bottom: 34%; width: 62%; }
+
+/* cat or rabbit stands in for the puppy when the story names them; a treat box has no dropper (the treats fall in by themselves) */
+.dv-pet { width: 100%; }
+.dv-pet .gl { width: 100%; height: auto; display: block; overflow: visible; }
+.nx-stage[data-phase='ok'] .dv-pet { animation: dv-pethop 0.7s var(--nx-spring) calc(var(--rv-base, 0s) + 0.5s) 2; }
+.nx-stage[data-phase='ko'] .dv-pet { transform: rotate(-9deg); transition: transform 0.9s var(--nx-ease-io) calc(var(--rv-base, 0s) + 0.4s); }
+@keyframes dv-pethop { 0%, 100% { transform: none; } 40% { transform: translateY(-14%) scale(0.97, 1.05); } 70% { transform: scale(1.04, 0.96); } }
+.dv-root[data-unit='treat'] .dv-dropper-move { display: none; }
+.dv-root[data-unit='treat'] .dv-glass { border-color: #e6c48d; background: linear-gradient(100deg, rgb(255 244 224 / 0.8), rgb(240 214 170 / 0.4) 55%, rgb(255 244 224 / 0.75)); border-radius: calc(var(--u) * 0.8); }
+.dv-root[data-unit='treat'] .dv-glass::before { background: #d9a766; }
+.dv-root[data-unit='treat'] .dv-slot > .gl { width: 100%; height: 100%; display: block; overflow: visible; }
+@media (prefers-reduced-motion: reduce) { .dv-pet { animation: none !important; } }
+
+.dv-bead { display: block; width: 100%; aspect-ratio: 4 / 5; border-radius: 50% 50% 55% 55%; background: radial-gradient(circle at 35% 28%, #fff 0 10%, #6bbcf0 12% 60%, #3f8fd0); transform-origin: 50% 100%; }
+.dv-bead.dv-gold { background: radial-gradient(circle at 35% 28%, #fff 0 10%, #ffd36b 12% 60%, #f2a81d); }

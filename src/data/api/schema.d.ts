@@ -2112,6 +2112,10 @@ export interface components {
             media?: components["schemas"]["QuestionMedia"][];
             /** @description True when POST .../hint will answer (BE-70) */
             hint_available?: boolean;
+            /** @description Question-phase part of the 3D scene spec (SceneSpec v1 without any answer-bound value). Sent only for a bank question whose scene was approved while platform.scenes_enabled is on; absent otherwise (old clients ignore it). */
+            scene?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** @enum {string} */
         QuestionKind: "numeric" | "choice" | "truefalse" | "order" | "match" | "word" | "visual" | "estimate";
@@ -2304,6 +2308,10 @@ export interface components {
             misconception?: string | null;
             /** @description Curated questions only: the kind message written for the matched common error, when there is one. */
             feedback?: string | null;
+            /** @description Reveal part of the scene spec (answer-bound and derived-wrong bindings, reveal label). Sent only with the released reveal (never in a withheld first result) and only when the question carries `scene`. */
+            scene_reveal?: {
+                [key: string]: unknown;
+            } | null;
             scene_key?: components["schemas"]["SceneKey"];
             denouement: components["schemas"]["Narration"];
             session: components["schemas"]["Session"];

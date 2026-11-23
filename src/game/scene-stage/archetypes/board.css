@@ -2,7 +2,7 @@
 .bd-root { position: absolute; inset: 0; --cs: min(calc(88cqw / var(--cols)), calc(56cqh / var(--rows)), 15cqw); --bw: calc(var(--cs) * var(--cols)); --bh: calc(var(--cs) * var(--rows)); --lit: #ffd36b; }
 .bd-root[data-world='medecine'] { --lit: #ffb347; }
 .bd-root[data-world='espace'] { --lit: #7ff0d0; }
-.bd-plane { position: absolute; left: 50%; top: 56%; width: var(--bw); height: var(--bh); translate: -50% -50%; transform-style: preserve-3d; transform: rotateX(14deg); transform-origin: 50% 100%; counter-reset: bd; }
+.bd-plane { position: absolute; left: 50%; top: 56%; width: var(--bw); height: var(--bh); transform-style: preserve-3d; transform: translate(-50%, -50%) rotateX(14deg); transform-origin: 50% 100%; counter-reset: bd; }
 .bd-board { position: absolute; inset: 0; border-radius: calc(var(--cs) * 0.1); background: conic-gradient(var(--c1) 25%, var(--c2) 0 50%, var(--c1) 0 75%, var(--c2) 0) 0 0 / calc(var(--cs) * 2) calc(var(--cs) * 2); outline: calc(var(--cs) * 0.2) solid var(--fr); box-shadow: 0 calc(var(--cs) * 0.32) 0 calc(var(--cs) * 0.1) color-mix(in srgb, var(--fr) 55%, #000), 0 calc(var(--cs) * 0.6) calc(var(--cs) * 0.9) rgb(10 8 30 / 0.4); }
 .bd-shadow { position: absolute; left: 50%; top: 104%; width: 96%; height: calc(var(--cs) * 0.55); translate: -50% 0; --sw: 1.8; }
 .bd-items { position: absolute; inset: 0; }

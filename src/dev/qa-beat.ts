@@ -2,6 +2,11 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import type { MediaRef, Question } from '@/data/api/types';
+import { entryOf } from '@/game/scene-stage/delivery';
+import { routeQuestion, type RawQuestion } from '@/game/scene-stage/route';
+import { PILOT_SCENES } from '@/game/scene-stage/fixtures/pilot';
+import { espaceClockDocked } from '@/game/scene-stage/fixtures/espace-clock';
+import type { SceneSpec } from '@/game/scene-stage';
 
 /**
  * Render-audit helper (dev only). Rebuilds the Beat the API would send for a bank question, from the seed JSON
@@ -25,10 +30,12 @@ type Asset = { id: string; kind: string; world: string; band: string; mood: stri
 export type QaBeat = {
   id: string; world: string; grade: number; skill: string;
   question: Question; correctAnswer: unknown; explain: string | null;
+  /** Reveal part of the scene spec, from the same spec file the API serves (QA_SCENE_SPECS). */
+  sceneReveal?: Record<string, unknown> | null;
   debug: { criteria: Crit[]; resolved: { role: string; asset: string | null; pool: string[]; via: string }[] };
 };
 
-const FILES = (process.env.QA_QUESTION_FILES ?? ['echecs', 'medecine', 'espace'].map((w) => `../numerix-api/seed/questions/${w}.json`).join(',')).split(',');
+const FILES = (process.env.QA_QUESTION_FILES ?? 'C:/nx/ct-echecs/seed/questions/echecs.json,C:/nx/ct-medecine/seed/questions/medecine.json,C:/nx/ct-espace/seed/questions/espace.json').split(',');
 const BASE = process.env.QA_ASSET_BASE ?? '/assets';
 let cache: Map<string, Seed & { world: string }> | null = null;
 let db: DatabaseSync | null = null;
@@ -59,7 +66,7 @@ function choiceValue(text: string): number | string {
 }
 
 function dbh() {
-  return (db ??= new DatabaseSync(process.env.QA_ASSET_DB ?? './qa-audit/qa.db', { readOnly: true }));
+  return (db ??= new DatabaseSync(process.env.QA_ASSET_DB ?? 'C:/nx/audit/qa.db', { readOnly: true }));
 }
 
 function loadAsset(id: string): Asset | null {
@@ -113,6 +120,13 @@ function resolve(c: Crit, qid: string, b: string, child = ''): { asset: Asset | 
 
 const ref = (a: Asset): MediaRef => ({ id: a.id, alt: a.alt, width: a.w, height: a.h, color: a.color, lqip: a.lqip, srcset: a.widths.map((w) => ({ w, url: `${BASE.replace(/\/$/, '')}/${a.id}-${w}.webp` })) });
 
+/** The scene spec the API will send with the question: the routed one (same source as the scene gate), or null when routing refuses. */
+export function sceneSpecFor(world: string, seed: unknown): SceneSpec | null {
+  const raw = seed as RawQuestion;
+  const r = [...PILOT_SCENES, espaceClockDocked].find((p) => p.id === raw.id) ?? routeQuestion(world as 'echecs' | 'medecine' | 'espace', raw);
+  return 'spec' in r ? r.spec : null;
+}
+
 export function qaBeat(id: string): QaBeat | null {
   const s = allSeeds().get(id);
   if (!s) return null;
@@ -150,5 +164,8 @@ export function qaBeat(id: string): QaBeat | null {
     a.kind === 'choice' ? choiceValue(t(s.choices?.find((c) => c.id === a.correct)?.text)) :
     a.kind === 'order' ? a.sequence : a.kind === 'match' ? a.pairs :
     a.kind === 'range' ? (a.exact_for_check ?? ((a.min ?? 0) + (a.max ?? 0)) / 2) : a.value ?? null;
-  return { id, world: s.world, grade: s.grade, skill: s.skill, question: q, correctAnswer, explain: t(s.explain) || null, debug: { criteria: (s.media ?? []).map((m) => m.criteria ?? {}), resolved } };
+  const spec = sceneSpecFor(s.world, s);
+  const entry = spec ? entryOf(spec) : null; // the same split the API delivers: question part now, reveal part with the answer
+  if (entry) q.scene = entry.question as never;
+  return { id, world: s.world, grade: s.grade, skill: s.skill, question: q, sceneReveal: (entry?.reveal as unknown as Record<string, unknown> | undefined) ?? null, correctAnswer, explain: t(s.explain) || null, debug: { criteria: (s.media ?? []).map((m) => m.criteria ?? {}), resolved } };
 }

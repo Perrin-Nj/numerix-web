@@ -19,7 +19,7 @@ import type { QaBeat } from './qa-beat';
  * sees after the stage, caption and sheet delays. Differences: no session, no streaming (the story is the scene text, the
  * denouement is replaced by the explanation), no top bar, no mascot bubble.
  */
-export function QaQuestion({ beat, phase }: { beat: QaBeat; phase: 'question' | 'reveal' }) {
+export function QaQuestion({ beat, phase, qaAll = false }: { beat: QaBeat; phase: 'question' | 'reveal'; qaAll?: boolean }) {
   const t = useTranslations('screens.play.story');
   const q = beat.question;
   const world = beat.world as WorldId;
@@ -33,7 +33,7 @@ export function QaQuestion({ beat, phase }: { beat: QaBeat; phase: 'question' | 
         order: Array.isArray(ca) && ca.every((x) => typeof x === 'string') && q.items?.cards ? { sequence: ca as string[], cards: q.items.cards } : undefined,
       }
     : undefined;
-  const sceneStage = sceneStageFor(q, reveal ? 'ok' : 'question', ca, q.visual ? <QuestionVisual visual={q.visual} /> : null);
+  const sceneStage = sceneStageFor(q, reveal ? 'ok' : 'question', ca, q.visual ? <QuestionVisual visual={q.visual} /> : null, qaAll, beat.id, reveal ? beat.sceneReveal : null);
   const kind = stageKind({ hasScene: Boolean(sceneStage), hasBeat: true, outcomeStage: reveal, showHow: false, hasMethodVisual: false, hasVisual: Boolean(q.visual), showCounting });
   const stage =
     kind === 'scene' ? sceneStage

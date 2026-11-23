@@ -1,6 +1,7 @@
 'use client';
 import { useId, type CSSProperties } from 'react';
 import { Layer } from '../Layer';
+import { Glyph, GlyphDefs } from '../kit/glyphs';
 import { Cloud, Drop, Dropper, MedDefs, Puppy } from '../kit/medecine';
 import { Motes, Sprite } from '../kit/Sprite';
 import type { ArchetypeProps } from '../registry';
@@ -8,21 +9,22 @@ import '../kit/medecine.css';
 import './dose-vial.css';
 
 // Art units (--u). The jar is a graduated dose vial: 5 drops per row, marks at 5, 10, 15, 20, filled from the bottom.
-const COLS = 5;
-const CELL = 4.6; // one drop cell
+// Up to 30 drops: 5 per row; a bigger dose (40, 50, 70) uses a wider vial of 10 per row with smaller cells, so every drop is still drawn.
 const PAD = 1.6; // glass padding
 const MARK_W = 3.4; // marks column
-const JAR_W = COLS * CELL + PAD * 2 + MARK_W;
+const layoutOf = (total: number) => {
+  const cols = total > 30 ? 10 : 5;
+  const cell = total > 30 ? 2.5 : 4.6;
+  return { cols, cell, jarW: cols * cell + PAD * 2 + MARK_W };
+};
 const JAR_X = 13; // jar centre
 const FEET = 15; // counter line the puppy and jar stand on
-const LEFT_EDGE = JAR_X - JAR_W / 2;
-const colX = (c: number) => LEFT_EDGE + PAD + (c + 0.5) * CELL; // art-unit x of a column centre
 
 /**
  * The dropper visits the column of every missing drop and the puppy's pupils follow it: keyframes are generated from the numbers,
  * so any total and any given work. `t0` is the first release, `step` the seconds between releases.
  */
-function pathCss(scope: string, uid: string, given: number, left: number, t0: number, step: number, phase: 'ok' | 'ko') {
+function pathCss(scope: string, uid: string, given: number, left: number, t0: number, step: number, phase: 'ok' | 'ko', COLS = 5, CELL = 4.6) {
   if (left <= 0) return '';
   const T = t0 + left * step + 0.7;
   const c0 = given % COLS;
@@ -45,7 +47,7 @@ function pathCss(scope: string, uid: string, given: number, left: number, t0: nu
   return `@keyframes dvp-${n}{${dropper}}@keyframes dvl-${n}{${eyes}}${sel} .dv-dropper-move{animation:dvp-${n} ${dur}}${sel} .pp-pupils{animation:dvl-${n} ${dur}}`;
 }
 
-function Backdrop() {
+function Backdrop({ lean }: { lean?: boolean }) {
   return (
     <>
       <div className="dv-wall" />
@@ -56,7 +58,7 @@ function Backdrop() {
         <b />
       </div>
       <div className="dv-shelf">
-        {[0, 1, 2, 3, 4].map((k) => (
+        {(lean ? [0, 2, 4] : [0, 1, 2, 3, 4]).map((k) => (
           <i key={k} style={{ '--k': k } as CSSProperties} />
         ))}
       </div>
@@ -79,7 +81,13 @@ export default function DoseVial({ scene }: ArchetypeProps) {
   const total = scene.values.total ?? 0;
   const given = scene.values.given ?? 0;
   const left = Math.max(0, total - given);
-  if (total > 30 || total < 1) throw new Error('medecine.dose-vial holds 1 to 30 drops; use a bigger vial archetype above');
+  if (total > 80 || total < 1) throw new Error('medecine.dose-vial holds 1 to 80 drops');
+  const { cols: COLS, cell: CELL, jarW: JAR_W } = layoutOf(total);
+  const LEFT_EDGE = JAR_X - JAR_W / 2;
+  const colX = (c: number) => LEFT_EDGE + PAD + (c + 0.5) * CELL;
+  const bead = total > 30; // a big dose is drawn with light beads (one node each) to stay inside the node budget
+  const treat = (scene.spec.requires ?? []).includes('treat');
+  const pet = (scene.spec.requires ?? []).includes('cat') ? 'cat' : (scene.spec.requires ?? []).includes('rabbit') ? 'rabbit' : 'dog';
   const rows = Math.ceil(total / COLS);
   const jarH = rows * CELL + PAD * 2 + 1.4;
   const tipY = FEET - jarH - 1.2;
@@ -88,13 +96,13 @@ export default function DoseVial({ scene }: ArchetypeProps) {
   const ghost = scene.values.wrong;
   const marks = Array.from({ length: Math.floor(total / COLS) }, (_, r) => (r + 1) * COLS);
   const scope = `.dv-root[data-id='${uid}']`;
-  const css = pathCss(scope, uid, given, left, 0.95, 0.42, 'ok') + pathCss(scope, uid, given, left, 1.15, 0.6, 'ko');
-  const gridStyle = { '--rows': rows, '--cell': `calc(var(--u) * ${CELL})` } as CSSProperties;
+  const css = pathCss(scope, uid, given, left, 0.95, left > 20 ? 0.2 : 0.42, 'ok', COLS, CELL) + pathCss(scope, uid, given, left, 1.15, left > 20 ? 0.3 : 0.6, 'ko', COLS, CELL);
+  const gridStyle = { '--rows': rows, '--cols': COLS, '--cell': `calc(var(--u) * ${CELL})`, '--glassw': `calc(var(--u) * ${COLS * CELL + PAD * 2})` } as CSSProperties;
   return (
-    <div className="dv-root" data-id={uid} style={{ "--left": left } as CSSProperties}>
+    <div className="dv-root" data-id={uid} data-unit={treat ? 'treat' : 'drop'} style={{ '--left': left, '--step': left > 20 ? '0.2s' : '0.42s', '--step-ko': left > 20 ? '0.3s' : '0.6s' } as CSSProperties}>
       <style>{css}</style>
       <Layer z={-170} par={-1} drift="a">
-        <Backdrop />
+        <Backdrop lean={bead} />
         <Motes n={6} colour="rgb(255 255 240 / 0.9)" />
       </Layer>
       <Layer z={-55} par={-0.4} drift="b">
@@ -102,11 +110,12 @@ export default function DoseVial({ scene }: ArchetypeProps) {
       </Layer>
       <Layer z={0}>
         <MedDefs />
+        {(treat || pet !== 'dog') && <GlyphDefs names={[pet, 'treat']} />}
         <Sprite x={-28} y={FEET} w={24} anchor="feet">
           <i className="dv-table" />
           <div className="nx-shadow dv-pshadow" />
           <div className="mv-unit dv-puppy nx-anim">
-            <Puppy />
+            {pet === 'dog' ? <Puppy /> : <div className="dv-pet nx-anim"><Glyph g={pet} i={1} /></div>}
           </div>
           <div className="dv-cloud-wrap">
             <div className="dv-cloud nx-anim">
@@ -121,7 +130,7 @@ export default function DoseVial({ scene }: ArchetypeProps) {
               <div className="nx-gloss" />
             </div>
             {/* empty places: faint guides, then the missing drops fall into them */}
-            {Array.from({ length: left }, (_, k) => {
+            {Array.from({ length: bead ? 0 : left }, (_, k) => { // beads: no guides, keeps a 70-drop vial under the 250-node budget
               const { r, c } = cellPos(given + k);
               return <i key={`g${k}`} className="dv-guide" style={{ gridColumn: c + 1, gridRow: rows - r }} />;
             })}
@@ -129,7 +138,7 @@ export default function DoseVial({ scene }: ArchetypeProps) {
               const { r, c } = cellPos(k);
               return (
                 <span key={`t${k}`} className="dv-slot dv-taken" style={{ gridColumn: c + 1, gridRow: rows - r, '--n': k } as CSSProperties}>
-                  <Drop kind="blue" />
+                  {treat ? <Glyph g="treat" i={k} /> : bead ? <i className="dv-bead" /> : <Drop kind="blue" />}
                 </span>
               );
             })}
@@ -138,12 +147,12 @@ export default function DoseVial({ scene }: ArchetypeProps) {
               const fall = tipY - cellY(given + k); // negative: starts above, falls straight down
               return (
                 <span key={`a${k}`} className="dv-slot dv-add" style={{ gridColumn: c + 1, gridRow: rows - r, '--n': k, '--fall': `calc(var(--u) * ${fall.toFixed(2)})` } as CSSProperties}>
-                  <Drop kind="gold" n={k + 1} />
+                  {treat ? <Glyph g="treat" i={given + k} /> : bead ? <i className="dv-bead dv-gold" /> : <Drop kind="gold" n={k + 1} />}
                 </span>
               );
             })}
             {marks.map((m, r) => (
-              <b key={m} className="dv-mark" style={{ gridRow: rows - r }}>
+              <b key={m} className="dv-mark" style={{ gridRow: rows - r, gridColumn: COLS + 2 }}>
                 {m}
               </b>
             ))}

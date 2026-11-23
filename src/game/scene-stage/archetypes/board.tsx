@@ -20,6 +20,8 @@ type Mark = { x: number; y: number; tone?: string };
 export default function Board({ scene, locale }: ArchetypeProps) {
   const world = scene.spec.archetype.split('.')[0]!;
   const skin = skinOf(world);
+  const named = scene.spec.setting.split('-').pop() ?? '';
+  const fallback = glyphName(named, skin.glyph);
   const data = (scene.visual?.data ?? {}) as { cols?: number; rows?: number; cells?: Cell[]; after?: { marks?: Mark[] } };
   const cols = scene.values.cols ?? data.cols ?? 1;
   const rows = scene.values.rows ?? data.rows ?? 1;
@@ -29,10 +31,10 @@ export default function Board({ scene, locale }: ArchetypeProps) {
   return (
     <div className="bd-root" style={cs} data-world={world}>
       <Layer z={-150} par={-0.8} drift="a">
-        <Backdrop world={world} requires={scene.spec.requires ?? []} />
+        <Backdrop world={world} requires={scene.spec.requires ?? []} room={scene.spec.room} seed={scene.spec.brief?.id} />
       </Layer>
       <Layer z={0}>
-        <GlyphDefs names={[...cells.map((c) => glyphName(c.label?.[locale], skin.glyph)), skin.mascot]} />
+        <GlyphDefs names={[...cells.map((c) => glyphName(c.label?.[locale], fallback)), skin.mascot]} />
         <div className="bd-plane">
           <div className="bd-board nx-gloss" />
           <div className="bd-shadow nx-shadow" />
@@ -42,7 +44,7 @@ export default function Board({ scene, locale }: ArchetypeProps) {
           <div className="bd-items">
             {cells.map((c, k) => (
               <div key={k} className="bd-it mv-unit" style={{ '--cx': c.x - 1, '--cy': c.y - 1, '--i': k } as CSSProperties}>
-                <Glyph g={glyphName(c.label?.[locale], skin.glyph)} i={k} />
+                <Glyph g={glyphName(c.label?.[locale], fallback)} i={k} />
               </div>
             ))}
           </div>

@@ -5,7 +5,7 @@ export type Locale = 'fr' | 'en';
 
 /** Where a number (or a list of cells) comes from. `answer` is reveal only and never reaches the entrance. */
 export type BindSource =
-  | { from: 'text'; index: number }
+  | { from: 'text'; index: number; digits?: true }
   | { from: 'calc'; index: number }
   | { from: 'math_text'; index: number }
   | { from: 'visual'; pointer: string }
@@ -32,6 +32,8 @@ export type SceneSpec = {
   archetype: string;
   setting: string;
   subjects: string[];
+  /** The room the generic archetypes stand in (kit/worlds.css): club, hall, study | clinic, waiting, pets | control, cargo, greenhouse, surface. */
+  room?: string;
   /** Story objects this scene draws for its question (objects.ts ids). check-scene-spec: every object the question names is listed here and drawable by the archetype. */
   requires?: string[];
   bind: Record<string, BindSource>;
@@ -55,6 +57,8 @@ export type SceneSource = {
   calc?: string;
   visual?: { kind: string; data?: Record<string, unknown> } | null;
   correctAnswer?: number | string | null;
+  /** The answer as the child reads it ("39", "≈ 600", "4 r 2"), set by the play screen once the answer is released; drawn on the picture at the reveal. */
+  shown?: string;
 };
 
 export type Cell = { x: number; y: number };
@@ -66,6 +70,10 @@ export type ResolvedScene = {
   /** Visual kind and data when the question has one the child must read. */
   visual?: SceneSource['visual'];
   revealed: boolean;
+  /** The correct answer as text, only once revealed (order: rank of each card "2,1,3"; match: partner text per card joined by "|"; choice: its text). */
+  answerText?: string;
+  /** The answer as text for a badge on the picture, only once revealed. */
+  shown?: string;
   signature: string;
 };
 
@@ -101,6 +109,6 @@ export function validateSpec(s: SceneSpec, knownArchetypes: readonly string[]): 
     } else if (p.count < 0 || p.count > MAX_PROPS) e.push(`prop ${p.id}: literal count ${p.count} out of 0..${MAX_PROPS}`);
   }
   const texts = [s.alt.fr, s.alt.en, ...(s.alt.reveal ? [s.alt.reveal.fr, s.alt.reveal.en] : [])];
-  for (const t of texts) for (const m of t.matchAll(/\{(\w+)\}/g)) if (!(m[1]! in s.bind)) e.push(`alt uses {${m[1]}} with no binding`);
+  for (const t of texts) for (const m of t.matchAll(/\{(\w+)(?::[^}]*)?\}/g)) if (!(m[1]! in s.bind)) e.push(`alt uses {${m[1]}} with no binding`);
   return e;
 }
