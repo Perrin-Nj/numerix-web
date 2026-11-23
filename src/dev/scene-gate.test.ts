@@ -5,18 +5,18 @@ import path from 'node:path';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, it, vi } from 'vitest';
-import { photoFallback } from '@/dev/stage-check';
+import { photoFallback } from './stage-check';
 
 vi.hoisted(() => { process.env.NEXT_PUBLIC_FEATURE_SCENES = 'true'; });
-import { hasProvenance, numbersIn, resolveScene } from './bind';
-import { describeScene } from './describe';
-import { glyphOf, namedObjects, type World } from './objects';
-import { loadArchetype } from './registry';
-import { GLYPHS } from './kit/glyphs';
-import { routeQuestion, type RawQuestion } from './route';
-import { checkScene } from './validate';
-import { espaceClockDocked } from './fixtures/espace-clock';
-import { PILOT_SCENES } from './fixtures/pilot';
+import { hasProvenance, numbersIn, resolveScene } from '@/game/scene-stage/bind';
+import { describeScene } from '@/game/scene-stage/describe';
+import { glyphOf, namedObjects, type World } from '@/game/scene-stage/objects';
+import { loadArchetype } from '@/game/scene-stage/registry';
+import { GLYPHS } from '@/game/scene-stage/kit/glyphs';
+import { routeQuestion, type RawQuestion } from '@/game/scene-stage/route';
+import { checkScene } from '@/game/scene-stage/validate';
+import { espaceClockDocked } from '@/game/scene-stage/fixtures/espace-clock';
+import { PILOT_SCENES } from '@/game/scene-stage/fixtures/pilot';
 
 const OUT = process.env.SCENE_GATE_OUT;
 const WORLDS: World[] = ['espace'];
