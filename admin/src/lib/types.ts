@@ -68,6 +68,7 @@ export interface PlatformConfig {
   ready_worlds?: string[];
   retry_enabled?: boolean;
   grade_window?: boolean;
+  scenes_enabled?: boolean;
   grade_prior_base?: number;
   grade_prior_step?: number;
 }
