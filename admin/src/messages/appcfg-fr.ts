@@ -128,6 +128,8 @@ export const acfr = {
   'config.grade_window': 'Difficulté selon l’année scolaire',
   'config.grade_window_hint': 'Désactiver revient aux anciennes règles de choix des questions.',
   'config.retry_enabled': 'Deuxième essai après une mauvaise réponse',
+  'config.scenes_enabled': 'Scènes animées',
+  'config.scenes_enabled_hint': 'Affiche la scène animée sur les questions approuvées. Désactiver revient tout de suite à l’image simple.',
   'config.grade_prior_base': 'Niveau de départ (base)',
   'config.grade_prior_step': 'Écart par année',
   'config.default_worlds': 'Mondes par défaut',

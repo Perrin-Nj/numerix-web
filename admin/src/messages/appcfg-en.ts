@@ -129,6 +129,8 @@ export const acen: Record<keyof typeof acfr, string> = {
   'config.grade_window': 'Difficulty by school year',
   'config.grade_window_hint': 'Turning it off returns to the old question picking rules.',
   'config.retry_enabled': 'Second try after a wrong answer',
+  'config.scenes_enabled': 'Animated scenes',
+  'config.scenes_enabled_hint': 'Shows the animated scene on the questions that were approved. Turn it off to go back to the plain picture at once.',
   'config.grade_prior_base': 'Starting level (base)',
   'config.grade_prior_step': 'Step per year',
   'config.default_worlds': 'Default worlds',

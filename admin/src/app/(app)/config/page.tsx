@@ -74,6 +74,7 @@ export default function ConfigPage() {
                 <div className="grid gap-x-8 sm:grid-cols-2">
                   <Switch label={t('config.grade_window') + mark('grade_window')} hint={t('config.grade_window_hint')} checked={d.grade_window !== false} onChange={(v) => patch({ grade_window: v })} />
                   <Switch label={t('config.retry_enabled') + mark('retry_enabled')} checked={d.retry_enabled !== false} onChange={(v) => patch({ retry_enabled: v })} />
+                  <Switch label={t('config.scenes_enabled') + mark('scenes_enabled')} hint={t('config.scenes_enabled_hint')} checked={d.scenes_enabled === true} onChange={(v) => patch({ scenes_enabled: v })} />
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <Input label={t('config.grade_prior_base') + mark('grade_prior_base')} type="number" min={0} max={0.6} step={0.05} value={d.grade_prior_base ?? 0.25} onChange={(e) => patch({ grade_prior_base: Number(e.target.value) })} />
