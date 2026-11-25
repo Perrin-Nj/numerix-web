@@ -109,8 +109,8 @@ importers:
         specifier: 0.187.0
         version: 0.187.0
       '@vercel/config':
-        specifier: ^0.14.1
-        version: 0.14.1
+        specifier: ^0.15.0
+        version: 0.15.0
       '@vitest/browser-playwright':
         specifier: ^4.1.12
         version: 4.1.12(playwright@1.65.1)(vite@8.3.8(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0))(vitest@4.1.12)
@@ -2612,8 +2612,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@vercel/config@0.14.1':
-    resolution: {integrity: sha512-iaCxmLGGm84mglf1NpCEXYbvH8u5xvcWCuXo7iBevxGlIHoN6/qV9532oYf2wv6EPgxdh12Q9jwav+3Buv387w==}
+  '@vercel/config@0.15.0':
+    resolution: {integrity: sha512-noggEs/Ej6I8VWQSUunpGKjuBUikUNzlATGXZ67UHSwDnSCQQkQiYiXIVXtyWyZsyktv5YGm4T41/rTq5wXcmA==}
     hasBin: true
 
   '@vercel/routing-utils@6.6.1':
@@ -6906,7 +6906,7 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.13.0':
     optional: true
 
-  '@vercel/config@0.14.1':
+  '@vercel/config@0.15.0':
     dependencies:
       '@vercel/routing-utils': 6.6.1
       pretty-cache-header: 1.0.0
