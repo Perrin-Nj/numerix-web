@@ -44,7 +44,7 @@ describe('espace clock scenes', () => {
     const clocks = scenes.filter((s) => s.q.visual?.kind === 'clock');
     expect(clocks.length).toBeGreaterThanOrEqual(9);
     for (const { q, r } of clocks) {
-      expect(r.spec.archetype).toBe('espace.control-clock');
+      expect(['espace.control-clock', 'espace.clock3d']).toContain(r.spec.archetype); // the pad view draws in 3D, the station views stay 2.5D
       const rockets = r.spec.props.find((p) => p.id === 'rockets');
       const named = numbersIn(`${q.story.fr}`).find((n, i) => /^\s*(?:fusées?|fusee)/i.test(q.story.fr.slice(q.story.fr.indexOf(String(n)) + String(n).length)) && i >= 0);
       if (rockets) expect(resolveScene(r.spec, r.fr).props.rockets!.count).toBe(named ?? resolveScene(r.spec, r.fr).props.rockets!.count);

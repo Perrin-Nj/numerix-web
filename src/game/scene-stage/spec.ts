@@ -44,6 +44,8 @@ export type SceneSpec = {
   reveal: { ok: (typeof OK_IDS)[number]; ko: (typeof KO_IDS)[number] };
   /** Ties the spec to its approved scene brief (scene-briefs/<world>.md): keywords per brief line, each must occur in that line (scripts/check-scene-brief.mjs). */
   brief?: { id: string; setting: string[]; camera: string[]; light: string[]; idle: string[]; hook: string[]; ok: string[]; ko: string[] };
+  /** The 2.5D archetype this scene falls back to when it is drawn in 3D (set by the router; the 3D host draws it without WebGL). */
+  fb?: string;
   /** `{name}` placeholders are filled from the resolved numbers. `reveal` adds the answer once it is known. */
   alt: Loc & { reveal?: Loc };
 };

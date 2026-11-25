@@ -21,3 +21,42 @@ for (const [id, v] of Object.entries(res)) {
   for (const x of v.reasons) why[x.split(':')[0]] = (why[x.split(':')[0]] ?? 0) + 1;
 }
 console.log(JSON.stringify(by), JSON.stringify(Object.entries(why).sort((a, b) => b[1] - a[1]).slice(0, 8)));
+
+// ALIGNMENT GATE (rendered): `--align <matrix.json>` merges the viewport matrix of the render audit (C:/nx/scene-qa/gl3d-space-final/matrix.mjs).
+// An id fails when, at any viewport and in the question or the reveal, the object+plate box is off centre (>= 8% of the width), too small
+// (width fraction < 55% and height fraction < 60%), has overlapping or clipped plates, draws other than the counted objects, has a plate font under 11 px,
+// scrolls sideways, or the stage is shorter than 110 px.
+const ai = process.argv.indexOf('--align');
+if (ai > 0) {
+  const matrix = JSON.parse(fs.readFileSync(path.resolve(process.argv[ai + 1]), 'utf8'));
+  const perVp = {};
+  let bad = 0;
+  for (const [id, row] of Object.entries(matrix)) {
+    for (const ph of ['q', 'r']) {
+      for (const [vp, v] of Object.entries(row[ph] ?? {})) {
+        (perVp[vp] ??= { pass: 0, fail: 0 })[v.pass ? 'pass' : 'fail']++;
+        if (!v.pass) {
+          bad++;
+          const a = v.align ?? {};
+          (res[id] ??= { pass: true, reasons: [] }).pass = false;
+          res[id].reasons.push(`align: ${ph === 'q' ? 'question' : 'reveal'} ${vp} cx=${a.cx} fill=${a.widthFrac}/${a.heightFrac} overlap=${a.overlaps} clip=${a.clipped} drawn=${a.drawn}/${a.expect} font=${a.minFont}${a.cols && !a.cols.ok ? ' columns-misaligned' : ''}${v.scrollX ? ' hscroll' : ''}`);
+        }
+      }
+    }
+  }
+  // SEMANTIC GATE: numbers drawn at the reveal vs the answer key, reveal differs from question, question does not leak (scripts/qa/semantic-check.mjs)
+  const { semantic } = await import('./semantic-check.mjs');
+  const seed = JSON.parse(fs.readFileSync(process.env.QA_SEED ?? 'C:/nx/ct-espace/seed/questions/espace.json', 'utf8')).questions;
+  const sem = semantic(matrix, seed);
+  let semBad = 0;
+  for (const [id, v] of Object.entries(sem)) if (!v.pass) {
+    semBad++;
+    (res[id] ??= { pass: true, reasons: [] }).pass = false;
+    res[id].reasons.push(...v.fails.map((f) => `semantic: ${f}`));
+  }
+  console.log(`semantic gate: ${Object.keys(sem).length - semBad} pass / ${semBad} fail`);
+  bad += semBad;
+  console.log('alignment gate per viewport', JSON.stringify(perVp), bad ? `FAIL (${bad})` : 'PASS');
+  fs.writeFileSync(out, JSON.stringify(res));
+  if (bad) process.exitCode = 1;
+}

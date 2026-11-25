@@ -21,8 +21,10 @@ export function sceneStageFor(q: Question | undefined, phase: StagePhase, correc
   const answer = typeof correctAnswer === 'number' || typeof correctAnswer === 'string' ? correctAnswer : null;
   const reveal_ = phase !== 'question';
   // the tag row paints the cards or choices the child already sees; their rank, partner and winner come from the released answer
-  const plates = !q.visual && spec.archetype === 'espace.tag-row' ? runtimePlates(q.items as RunItems | undefined, q.choices as (number | string)[], correctAnswer, reveal_) : null;
-  const visual = q.visual ?? (plates ? { kind: 'plates', data: plates } : undefined);
+  const plates = !q.visual && (spec.archetype === 'espace.tag-row' || (spec.archetype === 'espace.bay3d' && spec.setting.startsWith('es:tags:'))) ? runtimePlates(q.items as RunItems | undefined, q.choices as (number | string)[], correctAnswer, reveal_) : null;
+  // any 3D scene of an order or match question: the cards ride on the visual, rank and partner from the released answer
+  const cards = q.visual && spec.archetype.endsWith('3d') && q.items && (q.kind === 'order' || q.kind === 'match') ? runtimePlates(q.items as RunItems, [], correctAnswer, reveal_) : null;
+  const visual = cards && q.visual ? { kind: q.visual.kind, data: { ...(q.visual.data as object), plates: cards } } : (q.visual ?? (plates ? { kind: 'plates', data: plates } : undefined));
   const shown = reveal_ ? answerShown(correctAnswer, q.kind === 'estimate') : undefined;
   return (
     <SceneStage

@@ -2,14 +2,15 @@
 // with every number bound to the question. Pure and node runnable: used by the coverage check, the dev route and (until the API serves `scene`) the play screen.
 // A question that no rule fits is REFUSED with a reason, never given a wrong scene or a substitute glyph (a star is not a person, a pawn is not a chair);
 // the play screen then falls back to the neutral stage plus the question's own visual.
-import { numbersIn, numbersWithPos } from './bind';
+import { numbersIn, numbersWithPos, resolveScene } from './bind';
+import { archetypeFor, bayPlan, fallbackOf } from './gl3d/plan';
 import { CONTAINERS, glyphOf, namedObjects, nounAlt, type World } from './objects';
 import { GLYPHS } from './kit/glyphs';
 import { roomFor } from './kit/worlds';
 import type { SceneSource, SceneSpec } from './spec';
 import { CAMERAS, MAX_PROPS } from './spec';
 import type { PilotScene } from './fixtures/pilot';
-import { routeEspace } from './worlds/espace/route';
+import { plates as platesOf, routeEspace } from './worlds/espace/route';
 
 type L = { fr: string; en: string };
 export type RawQuestion = {
@@ -90,7 +91,35 @@ function countedObject(world: World, v: NonNullable<RawQuestion['visual']>, name
   return { glyph: g ?? 'cell' };
 }
 
+/** An espace scene whose shape has a 3D picture draws it (archetype espace.*3d); the 2.5D archetype of the same setting stays as the 3D host's fallback. */
+function to3d(r: Routed, q?: RawQuestion): Routed {
+  if ('skip' in r || !r.spec.archetype.startsWith('espace.')) return r;
+  // the child's own cards (order) or left and right columns (match) ride on the visual as data.plates: texts, rank, partner. The 3D scene draws them and sorts or pairs them at the reveal.
+  if (q?.items && (q.answer.kind === 'order' || q.answer.kind === 'match') && r.fr.visual?.kind !== 'plates') {
+    for (const lang of ['fr', 'en'] as const) {
+      const pl = platesOf(q, lang);
+      if (pl) r[lang].visual = { kind: r[lang].visual?.kind ?? 'plates', data: { ...(r[lang].visual?.data ?? {}), plates: pl } };
+    }
+  }
+  try {
+    const plan = bayPlan(resolveScene(r.spec, r.fr, { reveal: true }));
+    if (plan && bayPlan(resolveScene(r.spec, r.fr))) {
+      const world = r.spec.archetype.split('.')[0]!;
+      r.spec.fb = fallbackOf(resolveScene(r.spec, r.fr));
+      r.spec.archetype = archetypeFor(plan.kind, world);
+    }
+  } catch {
+    /* an unbindable scene is refused by the gate, not here */
+  }
+  return r;
+}
+
 export function routeQuestion(world: World, q: RawQuestion): Routed {
+  const r = routeInner(world, q);
+  return to3d(r, q);
+}
+
+function routeInner(world: World, q: RawQuestion): Routed {
   const skip = (why: string) => ({ id: q.id, skip: why });
   if (world === 'espace') {
     const hand = routeEspace(q);
@@ -133,7 +162,7 @@ export function routeQuestion(world: World, q: RawQuestion): Routed {
     const multi = where === 'pad' && rocketIdx >= 0 && rocketIdx === enIdx && rocketPos!.n <= 6;
     return out({
       archetype: world === 'espace' ? 'espace.control-clock' : 'medecine.clinic-clock',
-      setting: `${world}-clock-${where}`,
+      setting: `${world}-clock-${where}${world === 'espace' && typeof q.answer.value === 'number' ? (/finit|termine|fini/i.test(fr.prompt) && /heure/i.test(fr.prompt) ? ':end' : /minutes? apr[eè]s/i.test(fr.prompt) ? ':after' : /combien de minutes/i.test(fr.prompt) && /dur/i.test(fr.prompt) ? ':dur' : '') : ''}`,
       bind: { hour: { from: 'visual', pointer: '/data/hour' }, minute: { from: 'visual', pointer: '/data/minute' }, ...(endsAt ? { endHour: { from: 'answer' as const, reveal_only: true as const } } : {}), ...(endIdx >= 0 ? { spanEnd: { from: 'text' as const, index: endIdx, digits: true as const } } : {}), ...(multi ? { rockets: { from: 'text' as const, index: rocketIdx } } : {}) },
       props: multi ? [{ id: 'rockets', count: '$rockets', layout: 'pad', lane: 'mid' }] : [],
       hook: { kind: 'sweep-hands', at_ms: 300 },

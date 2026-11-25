@@ -277,7 +277,7 @@ export function plates(q: RawQuestion, lang: 'fr' | 'en') {
   if (it) {
     const pair = it.left.map((l) => it.right.find((r) => q.answer.pairs?.some(([a, b]) => a === l.id && b === r.id))?.text[lang] ?? '');
     const v = pair.map(first);
-    return { t: it.left.map((x) => x.text[lang]), rank: v.some(Number.isNaN) ? v.map((_, i) => i) : rankBy(v), pair, win: -1 };
+    return { t: it.left.map((x) => x.text[lang]), rank: v.some(Number.isNaN) ? v.map((_, i) => i) : rankBy(v), pair, win: -1, right: it.right.map((x) => x.text[lang]) };
   }
   const ch = q.choices ?? [];
   if (!ch.length || ch.some((c) => Number.isNaN(first(c.text[lang])))) return null;
@@ -329,7 +329,11 @@ export function routeEspace(q: RawQuestion): PilotScene | { id: string; skip: st
   if (r.ans) bind.ans = { from: 'answer', reveal_only: true };
   const archetype = { tags: 'espace.tag-row', grid: 'espace.star-grid', count: 'espace.room-count', hop: 'espace.hop-line', chain: 'espace.chain', gauge: 'espace.gauge', wing: 'espace.panel-wing' }[r.k];
   const named = [...new Set([...namedObjects('espace', `${fr.story} ${fr.prompt}`), ...namedObjects('espace', `${en.story} ${en.prompt}`)])];
-    const setting = `es:${r.k === 'count' ? (r.m ?? '') : r.k === 'tags' ? 'tags' : r.k === 'grid' ? 'grid' : r.k === 'wing' ? 'wing' : r.k}:${r.g}:${r.room}:${r.k === 'count' ? (r.x ?? '') : r.k === 'tags' ? (r.m ?? 'num') : r.k === 'grid' ? [r.x, ...r.sel!].join('.') : r.k === 'hop' && r.m === 'remain' ? `${r.x}-remain` : r.x}`;
+    const settingBase = `es:${r.k === 'count' ? (r.m ?? '') : r.k === 'tags' ? 'tags' : r.k === 'grid' ? 'grid' : r.k === 'wing' ? 'wing' : r.k}:${r.g}:${r.room}:${r.k === 'count' ? (r.x ?? '') : r.k === 'tags' ? (r.m ?? 'num') : r.k === 'grid' ? [r.x, ...r.sel!].join('.') : r.k === 'hop' && r.m === 'remain' ? `${r.x}-remain` : r.x}`;
+  // "the fifth evening": the night the question asks about, so the columns can show it
+  const ordWord = (/(premi[eè]re?|deuxi[eè]me|second[e]?|troisi[eè]me|quatri[eè]me|cinqui[eè]me|sixi[eè]me|septi[eè]me|huiti[eè]me|neuvi[eè]me|dixi[eè]me)\s+(?:soir|jour|nuit|passage|terme)/i.exec(fr.prompt)?.[1] ?? '').toLowerCase();
+  const ordN = ['premi', 'deuxi', 'troisi', 'quatri', 'cinqui', 'sixi', 'septi', 'huiti', 'neuvi', 'dixi'].findIndex((w) => ordWord.startsWith(w)) + 1 || (ordWord.startsWith('second') ? 2 : 0);
+  const setting = ordN && r.k === 'chain' && (r.x === 'rows' || r.x === 'arith4') ? `${settingBase}:o${ordN}` : settingBase;
   const why = r.k === 'grid' ? null : undrawn(named, r); // the map draws every place its cells name
   if (why) return { id: q.id, skip: why };
   const props = r.k === 'count' && r.n && !['share', 'deal', 'gap', 'steps'].includes(r.m ?? '') ? r.n.slice(0, 2).map((_, k) => ({ id: `${r.g}-${k}`, count: `$n${k}` as const, layout: 'cluster', lane: 'mid' as const })) : r.k === 'tags' && r.cnt !== undefined ? [{ id: r.g, count: '$n' as const, layout: 'row', lane: 'mid' as const }] : [];
