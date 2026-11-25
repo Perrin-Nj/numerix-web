@@ -9,6 +9,13 @@ export const ESPACE_LOADERS: Record<string, () => Promise<ArchetypeModule>> = {
   'espace.gauge': () => import('./gauge'),
   'espace.panel-wing': () => import('./panel-wing'),
   'espace.star-grid': () => import('./star-grid'),
+  'espace.bay3d': () => import('../../gl3d/Host'),
+  'espace.pile3d': () => import('../../gl3d/Host'),
+  'espace.track3d': () => import('../../gl3d/Host'),
+  'espace.clock3d': () => import('../../gl3d/Host'),
+  'espace.grid3d': () => import('../../gl3d/Host'),
+  'espace.wing3d': () => import('../../gl3d/Host'),
+  'espace.chain3d': () => import('../../gl3d/Host'),
 };
 const fx = { shape: 'star', hues: [48, 200, 28] } as const;
 // objects each espace archetype really draws in its rooms (the crew member is always there; the rocket stands on every surface pad; the station hull is in the exterior)
@@ -22,4 +29,11 @@ export const ESPACE_META: Record<string, ArchetypeMeta> = {
   'espace.gauge': meta(0.4, 0.45),
   'espace.panel-wing': meta(0.45, 0.4),
   'espace.star-grid': meta(0.45, 0.42),
+  'espace.bay3d': meta(0.5, 0.45),
+  'espace.pile3d': meta(0.5, 0.45),
+  'espace.track3d': meta(0.5, 0.45),
+  'espace.clock3d': meta(0.5, 0.45),
+  'espace.grid3d': meta(0.5, 0.45),
+  'espace.wing3d': meta(0.5, 0.45),
+  'espace.chain3d': meta(0.5, 0.45),
 };

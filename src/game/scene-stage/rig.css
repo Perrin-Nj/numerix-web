@@ -137,3 +137,12 @@
 
 /* the control-room clock fills the left of the frame down to its digital time: the badge sits in the free top-left corner there */
 .nx-stage[data-scene$='control-clock'] ~ .nx-ans, .nx-stage[data-scene$='clinic-clock'] ~ .nx-ans { bottom: auto; top: 4%; }
+
+/* a stage that draws a 3D scene gets more of the phone: 44svh, and 34svh while the answer sheet is up (question text and answer stay visible) */
+[data-stage-slot]:has([data-gl3d='on']) { --stage-pref: 46svh; }
+[data-stage-slot]:has([data-gl3d='on'])[class*='--stage-max'] { --stage-max: 34svh; }
+
+/* split layout (stage beside the text, 1024 px and wider, windows taller than 520 px): the 3D stage uses the height of the column instead of a 4:3 box, topped with the question card */
+@media (min-width: 1024px) and (min-height: 521px) {
+  [data-stage-slot]:has([data-gl3d='on']) { aspect-ratio: auto; height: min(70svh, 56vw); }
+}

@@ -64,7 +64,7 @@ export function QaQuestion({ beat, phase, qaAll = false }: { beat: QaBeat; phase
         narration={
           reveal ? (
             <OutcomeBeat outcome="correct">
-              <NarrationText text={beat.explain ?? ''} status="ready" />
+              <NarrationText text={q.story ?? ''} status="ready" />
             </OutcomeBeat>
           ) : (
             <NarrationText text={q.story ?? ''} status="ready" />
